@@ -1,6 +1,6 @@
 # Study 0 reanalysis v0.2.2 — protocol-preserving weighted subject bootstrap
 
-Status: **SPECIFICATION DRAFT — NOT IMPLEMENTED — NO REANALYSIS RESULTS**
+Status: **PREREGISTERED — NOT IMPLEMENTED — NO REANALYSIS RESULTS**
 
 This document is normative for the planned correction of `E-STAT-001`. It freezes the
 estimand, resampling unit, multiplicity rules, validation tests, artifacts and decision gates
