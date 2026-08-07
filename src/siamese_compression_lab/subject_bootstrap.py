@@ -8,9 +8,9 @@ from __future__ import annotations
 
 import csv
 import hashlib
+from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Mapping, Sequence
 
 import numpy as np
 
@@ -55,7 +55,7 @@ def _read_csv_rows(path: Path) -> list[list[str]]:
 
 
 def _pseudonym(identity: str, namespace: str) -> str:
-    digest = hashlib.sha256(f"{namespace}|{identity}".encode("utf-8")).hexdigest()
+    digest = hashlib.sha256(f"{namespace}|{identity}".encode()).hexdigest()
     return f"subject_{digest[:16]}"
 
 
