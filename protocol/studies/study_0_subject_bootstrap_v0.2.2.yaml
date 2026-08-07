@@ -1,7 +1,7 @@
 schema_version: "1.0.0"
 study_id: study_0_subject_bootstrap_v0_2_2
 title: Protocol-preserving weighted subject-bootstrap reanalysis of Study 0
-status: DRAFT_PREREGISTRATION
+status: PREREGISTERED
 execution_status: SPECIFIED_NOT_EXECUTED
 claim_level: NONE_UNTIL_EXECUTED
 normative_specification: protocol/studies/study_0_subject_bootstrap_spec.md
@@ -102,4 +102,4 @@ results: null
 decision:
   state: INDETERMINATE
   g2: FAIL_PENDING_IMPLEMENTATION_COVERAGE_AND_REANALYSIS
-  rationale: The draft specification is open for review; no corrected estimator or result exists.
+  rationale: The specification is preregistered after independent methodological review; no corrected estimator or result exists.
