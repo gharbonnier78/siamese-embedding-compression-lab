@@ -47,6 +47,16 @@ bootstrap:
   rng: numpy_generator_pcg64
   replicates: 10000
   convergence_checkpoints: [2000, 5000, 10000]
+threshold_selection:
+  score_type: distance
+  match_rule: d_lte_t
+  target_fmr: 0.01
+  support: distinct_finite_positive_weight_impostor_distances
+  tie_policy: whole_equal_distance_block
+  selected_threshold: largest_observed_impostor_distance_with_weighted_fmr_lte_alpha
+  no_admissible_observed_threshold: nextafter_minimum_distance_toward_negative_infinity
+  midpoint_selection: false
+  arbitrary_pair_order_tiebreak: false
 estimands:
   representation:
     id: delta_fnmr_equal_weighted_test_fmr
@@ -59,6 +69,7 @@ estimands:
     id: validation_frozen_threshold_transfer
     threshold_source: validation
     test_recalibration: false
+    metrics: [fnmr, fmr]
 noninferiority:
   delta_fnmr: 0.03
   interval: percentile_two_sided_95
@@ -70,7 +81,17 @@ coverage_validation:
   nominal_coverage: 0.95
   maximum_monte_carlo_standard_error: 0.005
   gate: lower_95_percent_binomial_bound_gte_0_93
+  gate_scope: each_preregistered_estimand_metric_and_regime
+  pooled_coverage_can_satisfy_gate: false
+  report_separately:
+    - representation_delta_fnmr
+    - operational_fnmr
+    - operational_fmr
   include_sparse_two_subject_dependence: true
+normative_tests:
+  count: 15
+  status: SPECIFIED_FOR_FUTURE_IMPLEMENTATION
+  implemented_in_this_spec_pr: false
 degenerate_replicates:
   silent_redraw: false
   default_action: FAIL_REANALYSIS
