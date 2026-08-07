@@ -131,6 +131,17 @@ class ResearchAssuranceTests(unittest.TestCase):
             self.assertIn("unexecuted v0.2.2 reanalysis cannot contain results", report.errors)
             self.assertIn("unexecuted v0.2.2 reanalysis cannot pass G2", report.errors)
 
+    def test_subject_bootstrap_status_and_prose_must_stay_synchronized(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            clone = Path(directory)
+            shutil.copytree(ROOT, clone, dirs_exist_ok=True)
+            spec_path = clone / "protocol/studies/study_0_subject_bootstrap_spec.md"
+            spec = spec_path.read_text(encoding="utf-8")
+            spec_path.write_text(spec.replace("PREREGISTERED", "SPECIFICATION DRAFT", 1), encoding="utf-8")
+            report = validate_research_program(clone)
+            self.assertEqual(report.status, "FAIL")
+            self.assertIn("v0.2.2 specification missing token: PREREGISTERED", report.errors)
+
 
 if __name__ == "__main__":
     unittest.main()
