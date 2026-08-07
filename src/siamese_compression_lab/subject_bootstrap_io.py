@@ -2,15 +2,14 @@
 
 from __future__ import annotations
 
-import hashlib
 from collections.abc import Sequence
+import hashlib
 from pathlib import Path
 
 import numpy as np
 import pandas as pd
 
 from .subject_bootstrap import SubjectPairRow
-
 
 STUDY0_TEST_PAIR_SCORES_BYTES = 1_821_547
 STUDY0_TEST_PAIR_SCORES_SHA256 = (
@@ -33,7 +32,6 @@ def verify_historical_score_artifact(
     expected_bytes: int = STUDY0_TEST_PAIR_SCORES_BYTES,
     expected_sha256: str = STUDY0_TEST_PAIR_SCORES_SHA256,
 ) -> dict[str, int | str]:
-    """Reject any substituted, recomputed or modified Study 0 TEST score artifact."""
     path = Path(path)
     if not path.is_file():
         raise FileNotFoundError(path)
@@ -55,7 +53,6 @@ def load_and_validate_score_join(
     path: str | Path,
     rows: Sequence[SubjectPairRow],
 ) -> pd.DataFrame:
-    """Validate exact pair-id/label coverage for every historical route instance."""
     frame = pd.read_csv(path)
     required = {"run_id", "method", "seed", "pair_id", "same", "distance"}
     missing = required - set(frame.columns)
