@@ -7,21 +7,29 @@
     "No industrial biometric-performance claim is permitted."
   ],
   "outputs": {
-    "study0_benchmark_metrics.pdf": "a407bde01de6a15b4371a50283dd7954e31df066e9193c64f1e296d946cc4d8d",
-    "study0_benchmark_metrics.png": "2f515a4f52245c35173b6679ed883cbebfcd9292be6a6e267acb0a10473a3d87",
-    "study0_noninferiority.pdf": "9d259d73e645fab55198cc01a9285feda93790c86218196adca33ee92ba6a32a",
-    "study0_noninferiority.png": "7bb9c757810f4daa99f43dbc15a226684c827ff1db8d1acffb6c30f0c5f730e7",
-    "study0_protocol.pdf": "98a770c5c4f4403e376039604c21a417c8ac13c0a05c680601580f01bb1d49d7",
-    "study0_protocol.png": "74435e3ead3d633f4392cf3e97fd9a58cc8fdd7d571fc14f6d08415e9443a57d",
-    "study0_storage.pdf": "23bbd048223dd8a44c5c357dfa5d391503820565c55b0cc0aa864783d1a29472",
-    "study0_storage.png": "8f9792f27bac6ce83957dc7f459e3d4389fe2c52202eb3900fac74bf43279afd",
-    "study0_threshold_transfer.pdf": "540b72ebcb220b1daccc8c83b70738fa785dc92573db12f5cb095a2650d608a8",
-    "study0_threshold_transfer.png": "cf18ef24d298ee4c7efa8f0bee94b8a8e286dbed89b37c175f7ef24cd24f2315"
+    "study0_benchmark_metrics.pdf": "05fa22d1fc033f5ea0ec3d3f46f210b641975d6da40facea8e855ea61f1bc8c5",
+    "study0_benchmark_metrics.png": "ace190e90889ea161f6be1019f5d8ac26916ac6b5285b6e749980d39882d922e",
+    "study0_noninferiority.pdf": "aacafcf480b9bf4fd5662010d58993f7c5d00263617257eaea833d8e6a78472c",
+    "study0_noninferiority.png": "17fac5fe43d16c2df1becfbb54f5e8ab2f71b0e15cc15468f417a200cc1358f3",
+    "study0_protocol.pdf": "65d983158cf4692d800c8021a02f8fcd39e995c265afa21a448477ad5dabb203",
+    "study0_protocol.png": "e26de70b3b77ac08a19f910923cd0442ab61abb19da8e7cfaf44f31556aa03e9",
+    "study0_storage.pdf": "4070342c01a738bf58f5d70fb3ffe43d400be570fb32e98a7c04db7b588e5801",
+    "study0_storage.png": "730443a2c626af6e364263c383358f08505fcbf7326fed40679450f2b00b6a47",
+    "study0_threshold_transfer.pdf": "111f1a770e1f180e3f79593b92745cfbe1f232b5d203448d3f89107b6601a74a",
+    "study0_threshold_transfer.png": "66b350a00f5d25be6a9172874611237161b5cf63196801b2f2b2d231cbf0c1f7"
   },
   "protocol_sources": {
     "datasets/lfw_datasheet.yaml": "e3bc3105951fbd8bf711b8d72d30b66e3cf7957a6bcfdb988ff1653f2be6cb50",
     "gates/gate_spec.yaml": "5d7fcf6f3d30e208e37b1237bcab05063bcf182b836406c08c9757fcaa203bc9",
     "protocol/studies/study_0_lfw.yaml": "c6e476872020dad9c8bb42c6d5788525dfbce7abed94034a7304bd264a6884f2"
+  },
+  "render_environment": {
+    "matplotlib": "3.11.1",
+    "numpy": "2.5.1",
+    "pandas": "2.3.3",
+    "pillow": "12.3.0",
+    "python": "3.12.13",
+    "pyyaml": "6.0.3"
   },
   "run_id": "lfw_resnet18_siamese_projection_v0_1-89179914-911192ee-64559cbd",
   "schema_version": "1.0.0",

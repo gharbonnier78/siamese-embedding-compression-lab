@@ -37,8 +37,10 @@ test protocol. They are not hand-edited illustrations.
 
 CI regenerates every PDF and PNG and fails on any difference from the committed snapshot.
 `paper/figures-generated/figures_manifest.json` binds each figure to the SHA-256 digests of
-its replay tables and protocol YAML. A tagged release should publish the paper, complete
-MMALS replay bundle and source commit as one immutable evidence snapshot.
+its replay tables and protocol YAML. `requirements-render.txt` pins the complete rendering
+stack used by CI and release builds; changing it requires regeneration and visual review of
+every figure. A tagged release should publish the paper, complete MMALS replay bundle and
+source commit as one immutable evidence snapshot.
 
 The project is inspired by Antonio Díaz-Cano's educational Siamese-network repository,
 but changes the purpose of the experiment. It does not merely show that a distance can

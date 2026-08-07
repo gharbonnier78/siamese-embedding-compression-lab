@@ -89,6 +89,7 @@ a regulatory certification, a biometric product approval or a complete safety pr
 
 ```bash
 python scripts/validate_research_program.py --root .
+python -m pip install -r requirements-render.txt
 python scripts/generate_research_figures.py
 python -m unittest discover -s tests -v
 latexmk -pdf -interaction=nonstopmode -halt-on-error -cd paper/main.tex
@@ -96,4 +97,6 @@ latexmk -pdf -interaction=nonstopmode -halt-on-error -cd paper/main.tex
 
 The figure step deterministically regenerates the paper's Study 0 protocol, benchmark,
 non-inferiority, threshold-transfer and payload-scaling views. CI rejects a commit when
-those views differ from the evidence-bound snapshots in `paper/figures-generated/`.
+those views differ from the evidence-bound snapshots in `paper/figures-generated/`. Exact
+renderer dependencies are locked in `requirements-render.txt`; an intentional renderer
+upgrade is treated as a reviewed evidence-presentation migration.

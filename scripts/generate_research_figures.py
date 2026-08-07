@@ -5,6 +5,7 @@ from __future__ import annotations
 import argparse
 import hashlib
 import json
+import platform
 from pathlib import Path
 
 import matplotlib as mpl
@@ -13,6 +14,7 @@ import numpy as np
 import pandas as pd
 import yaml
 from matplotlib.patches import FancyArrowPatch, FancyBboxPatch
+from PIL import __version__ as pillow_version
 
 NAVY = "#183B56"
 TEAL = "#147D92"
@@ -405,6 +407,14 @@ def generate(root: Path, evidence: Path, output_dir: Path) -> dict[str, object]:
         "schema_version": "1.0.0",
         "generator": "scripts/generate_research_figures.py",
         "run_id": manifest_data["run_id"],
+        "render_environment": {
+            "matplotlib": mpl.__version__,
+            "numpy": np.__version__,
+            "pandas": pd.__version__,
+            "pillow": pillow_version,
+            "python": platform.python_version(),
+            "pyyaml": yaml.__version__,
+        },
         "source_files": {name: sha256(evidence / name) for name in SOURCE_FILES},
         "protocol_sources": {
             str(path.relative_to(root)): sha256(path)
