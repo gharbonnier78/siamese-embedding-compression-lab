@@ -124,9 +124,10 @@ def validate_research_program(root: str | Path) -> AssuranceReport:
         "v0.2.2 reanalysis must remain specified and unexecuted on the spec branch",
         errors,
     )
+    reanalysis_status = reanalysis.get("status")
     _require(
-        reanalysis.get("status") == "DRAFT_PREREGISTRATION",
-        "v0.2.2 must remain a draft preregistration until review",
+        reanalysis_status in {"DRAFT_PREREGISTRATION", "PREREGISTERED"},
+        "v0.2.2 spec status must be DRAFT_PREREGISTRATION or PREREGISTERED",
         errors,
     )
     _require(
@@ -143,8 +144,15 @@ def validate_research_program(root: str | Path) -> AssuranceReport:
     subject_spec = (root / "protocol/studies/study_0_subject_bootstrap_spec.md").read_text(
         encoding="utf-8"
     )
+    status_token = (
+        "SPECIFICATION DRAFT"
+        if reanalysis_status == "DRAFT_PREREGISTRATION"
+        else "PREREGISTERED"
+    )
     for token in [
-        "SPECIFICATION DRAFT",
+        status_token,
+        "NOT IMPLEMENTED",
+        "NO REANALYSIS RESULTS",
         "w_e = m_i",
         "w_e = m_i * m_j",
         "never synthesized",
