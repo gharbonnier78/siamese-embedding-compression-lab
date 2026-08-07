@@ -22,8 +22,8 @@ jobs:
       PYTHONPATH: src
 
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
         with:
           python-version: ${{ matrix.python-version }}
           cache: pip
@@ -33,4 +33,3 @@ jobs:
         run: ruff check src tests scripts
       - name: Unit and replay smoke tests
         run: python -m unittest discover -s tests -v
-
