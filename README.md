@@ -18,12 +18,12 @@
 · [Generated figures](paper/figures-generated)
 
 **Status:** exploratory research software. Version 0.1.0 is the immutable executed Study 0;
-version 0.2.1 records the methodological erratum `E-STAT-001`. The current 0.2.2 branch is
-**specification only**: no corrected bootstrap or reanalysis result exists and Study 1 has
-not started. Study 0 executed a paired, label-stratified pair-level bootstrap although the
-programme described identity-aware uncertainty. The original negative result and artifacts
-remain visible; G2 is failed pending implementation, coverage validation and versioned
-reanalysis.
+version 0.2.1 records the methodological erratum `E-STAT-001`. The current 0.2.2 line is a
+**preregistered specification only**: no corrected bootstrap or reanalysis result exists and
+Study 1 has not started. Study 0 executed a paired, label-stratified pair-level bootstrap
+although the programme described identity-aware uncertainty. The original negative result
+and artifacts remain visible; G2 is failed pending implementation, coverage validation and
+versioned reanalysis.
 
 A bounded, replayable experiment that asks one question:
 
@@ -111,10 +111,11 @@ is retained as the original diagnostic but is inadmissible as identity-aware evi
 [`E-STAT-001`](ERRATA_STUDY_0.md). Study 1 is blocked until the dependence-aware estimator
 and its coverage are specified and tested.
 
-The v0.2.2 specification now defines that estimator as a protocol-preserving weighted
+The v0.2.2 preregistration now defines that estimator as a protocol-preserving weighted
 subject-slot bootstrap over the 963 TEST identities and the 1,000 **observed** LFW DevTest
 pairs. Repeated subject slots are preserved; missing all-pairs comparisons are not invented.
-The specification is available for review, but it has not yet been implemented.
+The specification is preregistered but has not yet been implemented or used to generate a
+corrected Study 0 result.
 
 This margin is an experimental convention, not a regulatory or product acceptance rule.
 
