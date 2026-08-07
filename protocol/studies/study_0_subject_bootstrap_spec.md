@@ -175,9 +175,29 @@ For positive total genuine weight `W_G`:
 FNMR_b(t) = sum_G w_e * 1[d_e > t] / W_G
 ```
 
-For the representation estimand, each route independently selects the largest deterministic
-threshold satisfying `FMR_b(t) <= alpha`. Ties, midpoint selection and floating-point
-ordering shall be specified in code and tested against a manually calculated fixture.
+For the representation estimand, each route independently selects its threshold from the
+weighted impostor distribution using the following frozen deterministic rule.
+
+1. Retain only observed impostor edges with strictly positive bootstrap weight.
+2. Sort their distinct finite distances in ascending numerical order
+   `u_1 < ... < u_K`. Equal distances form one indivisible tie block; a tie block is never
+   split by pair identifier, row order, subject identifier or bootstrap slot.
+3. For each `u_k`, compute the cumulative weighted impostor mass
+   `C_k = sum_I w_e * 1[d_e <= u_k] / W_I`.
+4. If at least one `u_k` satisfies `C_k <= alpha`, choose `t = u_k*` where
+   `k* = max{k : C_k <= alpha}`. Thus the threshold is the largest **observed impostor
+   distance** whose complete tie block keeps weighted FMR at or below `alpha`.
+5. If no observed impostor distance satisfies the target, choose the deterministic sentinel
+   `t = nextafter(u_1, -infinity)` in the route's floating-point dtype, giving weighted
+   `FMR_b(t)=0` without splitting the minimum-distance tie block.
+
+No midpoint between adjacent impostor distances is used. The threshold depends only on
+finite distance values and bootstrap weights, never on arbitrary row or pair ordering.
+Non-finite distances, an empty positive-weight impostor set, or failure to construct the
+sentinel are degenerate-replicate conditions under section 9.
+
+This rule shall be tested against a manually calculated weighted fixture containing tied
+impostor distances and the no-admissible-observed-threshold boundary case.
 
 For the operational sensitivity estimand, the threshold is read from the immutable
 VALIDATION evidence and is never reselected.
@@ -228,6 +248,19 @@ interval. Before G2 can pass, controlled simulation shall test empirical coverag
 - threshold uncertainty at `FMR=0.01`;
 - null, non-inferior and boundary `Delta_FNMR` scenarios.
 
+Coverage shall be computed and reported separately for the primary representation estimand
+and for each operational threshold-transfer metric (FNMR and FMR) in every preregistered
+simulation regime. A pooled coverage value across estimands or regimes shall not satisfy the
+gate or conceal a failing condition.
+
+For every estimand/metric and regime combination, report at least:
+
+- empirical coverage;
+- Monte Carlo standard error;
+- lower 95% binomial confidence bound;
+- number of simulated datasets;
+- number and proportion of degenerate bootstrap replicates, where applicable.
+
 The nominal target is 95% coverage. Each primary scenario shall use enough simulated
 datasets for Monte Carlo standard error no greater than `0.005`. The preregistered gate is:
 
@@ -235,11 +268,18 @@ datasets for Monte Carlo standard error no greater than `0.005`. The preregister
 lower 95% binomial bound on empirical coverage >= 0.93
 ```
 
+The gate applies separately to every preregistered primary estimand/metric and simulation
+regime. Any aggregate coverage summary is descriptive only.
+
 Failure of this gate keeps G2 failed and triggers a versioned methodological amendment. It
 does not authorize trying alternative estimators until one produces favorable Study 0
 results.
 
 ## 11. Normative tests
+
+The following are **15 required tests for the future estimator implementation**. They are
+normative requirements specified by this preregistration, not claims that 15 estimator-level
+tests are already implemented or executed in this specification-only PR.
 
 Implementation is forbidden to claim completion until CI includes tests that demonstrate:
 
@@ -251,12 +291,14 @@ Implementation is forbidden to claim completion until CI includes tests that dem
 6. no impostor edge between slots of the same subject;
 7. weighted/materialized equivalence;
 8. identical weights across all routes in a paired replicate;
-9. deterministic threshold and tie handling;
+9. deterministic threshold and tie handling, including the complete-tie-block and sentinel
+   boundary rules in section 7;
 10. operational thresholds remain validation-frozen;
 11. deterministic replay from root seed and configuration;
 12. pair-level historical files and archived PDFs remain bitwise unchanged;
 13. identity-map counts, labels, join cardinality and source digests;
-14. coverage-gate behavior on passing and failing simulations;
+14. coverage-gate behavior on passing and failing simulations, independently for each
+    preregistered estimand/metric and regime;
 15. an unexecuted reanalysis cannot contain results or close `E-STAT-001`.
 
 ## 12. Required new replay artifacts
