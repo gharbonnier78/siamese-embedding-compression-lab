@@ -1,4 +1,10 @@
-# Research programme v0.2
+# Research programme v0.2.1
+
+Version 0.2.1 is a methodological correction and does not start Study 1. Executed studies,
+negative results and errors are append-only records governed by
+`docs/EXPERIMENT_HISTORY_AND_ERRATA.md` and `protocol/experiment_ledger.yaml`. Study 0
+remains reproducible from its frozen configuration while `E-STAT-001` records the G2
+bootstrap-unit defect and blocks Study 1 execution.
 
 ## Purpose
 

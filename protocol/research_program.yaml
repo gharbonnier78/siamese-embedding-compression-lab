@@ -1,6 +1,6 @@
 schema_version: "1.0.0"
 programme_id: siamese_embedding_compression_research_program
-programme_version: "0.2.0-draft"
+programme_version: "0.2.1-draft"
 status: ACTIVE_EXPLORATORY
 title: Falsifiable biometric embedding compression with metric learning
 owner: Guillaume Harbonnier
@@ -22,7 +22,9 @@ primary_estimand:
   id: delta_fnmr_equal_fmr
   definition: FNMR(candidate, alpha) minus FNMR(raw, alpha)
   direction: lower_is_better
-  uncertainty: paired identity-aware bootstrap confidence interval
+  uncertainty: >-
+    Study 0 executed a paired label-stratified pair-level bootstrap; identity-aware
+    uncertainty is blocked by E-STAT-001 and required before Study 1.
 evidence_planes:
   - biometric_matcher
   - representation_benchmark
@@ -49,4 +51,7 @@ reproducibility:
   immutable_run_required: true
   artifact_hashes_required: true
   container_or_environment_lock_required_for_qualification: true
-
+  experiment_ledger: protocol/experiment_ledger.yaml
+  append_only_study_history: true
+  original_artifacts_never_overwritten: true
+  errata_are_linked_new_records: true

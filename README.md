@@ -4,18 +4,23 @@
 [![Research assurance](https://github.com/gharbonnier78/siamese-embedding-compression-lab/actions/workflows/research-assurance.yml/badge.svg)](https://github.com/gharbonnier78/siamese-embedding-compression-lab/actions/workflows/research-assurance.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-[![Read the research paper](https://img.shields.io/badge/PDF-Read_the_research_program-B31B1B?logo=adobeacrobatreader&logoColor=white)](output/pdf/siamese_embedding_compression_research_program_v0.2.pdf)
+[![Read the research paper](https://img.shields.io/badge/PDF-Read_the_research_program-B31B1B?logo=adobeacrobatreader&logoColor=white)](output/pdf/siamese_embedding_compression_research_program_v0.2.1.pdf)
 
-**Quick links:** [Research paper (PDF)](output/pdf/siamese_embedding_compression_research_program_v0.2.pdf)
+**Quick links:** [Current research paper (PDF)](output/pdf/siamese_embedding_compression_research_program_v0.2.1.pdf)
+· [Archived v0.2 PDF](output/pdf/siamese_embedding_compression_research_program_v0.2.pdf)
 · [Research programme](RESEARCH_PROGRAM.md)
 · [Study 0 results](RESULTS_LFW_V0.1.md)
+· [Study 0 errata](ERRATA_STUDY_0.md)
+· [Experiment ledger](protocol/experiment_ledger.yaml)
+· [Changelog](CHANGELOG.md)
 · [Claims registry](claims/registry.yaml)
 · [Generated figures](paper/figures-generated)
 
 **Status:** exploratory research software. Version 0.1.0 is the immutable executed Study 0;
-the current 0.2.0 development line adds a falsifiable research programme. The included
-negative result is reported intentionally; it is not a production biometric-performance
-claim.
+the current 0.2.1 development line is a methodological correction, not the execution of
+Study 1. It records `E-STAT-001`: Study 0 executed a paired, label-stratified pair-level
+bootstrap although the programme described identity-aware uncertainty. The original
+negative result and artifacts remain visible; G2 is failed pending versioned reanalysis.
 
 A bounded, replayable experiment that asks one question:
 
@@ -66,7 +71,8 @@ representative benchmark.
 All routes receive the same frozen input embeddings and the same pair splits.
 
 1. `raw`: L2-normalized 512D embedding; no compression.
-2. `random`: seeded Gaussian 512→128 projection; no learning.
+2. `random`: seeded Gaussian 512→128 projection with entry variance `1/128`, followed by
+   L2 normalization; no learning.
 3. `pca`: unsupervised PCA 512→128 fitted on TRAIN endpoints only.
 4. `siamese`: shared trainable linear 512→128 projection optimized with contrastive loss.
 
@@ -96,6 +102,11 @@ representation quality.
 The configuration declares an exploratory non-inferiority margin of `+0.03` absolute FNMR.
 The upper bound of the paired, label-stratified 95% bootstrap interval must not exceed that
 margin for every pre-specified seed before method-level robustness is reported.
+
+The executed Study 0 bootstrap resampled pair indices, not identity clusters. Its interval
+is retained as the original diagnostic but is inadmissible as identity-aware evidence; see
+[`E-STAT-001`](ERRATA_STUDY_0.md). Study 1 is blocked until the dependence-aware estimator
+and its coverage are specified and tested.
 
 This margin is an experimental convention, not a regulatory or product acceptance rule.
 
@@ -162,6 +173,23 @@ in `run_manifest.json`.
 
 The existing `mmals-activity-replay` v0.1.1 contract is not modified; this is a new domain
 pack that can be loaded alongside legacy route-function replay.
+
+## Immutable studies and visible errors
+
+The repository follows an append-only experimental-history contract:
+
+- later studies never overwrite Study 0 configurations, evidence, reports or PDFs;
+- an erratum links to the original run and adds a new analysis instead of changing old rows;
+- failed hypotheses, defective estimators and negative results remain fully described;
+- every study remains runnable from its frozen configuration and source revision;
+- release-level bundles contain complete replay artifacts when licence or privacy rules
+  prevent placing them directly in Git.
+
+The normative policy is
+[`docs/EXPERIMENT_HISTORY_AND_ERRATA.md`](docs/EXPERIMENT_HISTORY_AND_ERRATA.md), and the
+machine-readable history is [`protocol/experiment_ledger.yaml`](protocol/experiment_ledger.yaml).
+Git history alone is not sufficient preservation: published PDFs and study-level manifests
+receive stable versioned paths.
 
 ## Quick start: deterministic smoke replay
 
@@ -278,12 +306,15 @@ planned, preregistered measurement contract is
 The project should advance only in bounded gates:
 
 1. **Gate 0 — completed:** synthetic replay and numerical-gradient validation.
-2. **Gate 1 — completed:** frozen ResNet-18/LFW replication without leakage; see
-   `RESULTS_LFW_V0.1.md`. Non-inferiority of every tested 128D route was not shown.
-3. **Gate 2:** repeat with a recognized face-specific backbone.
-4. **Gate 3:** evaluate dimensions 64/128/256 under matched budgets.
-5. **Gate 4:** add 1:N retrieval, gallery indexing and latency measurements.
-6. **Gate 5:** evaluate sensor, quality, age and demographic regimes on authorized data.
+2. **Gate 1 — executed with retained evidence:** frozen ResNet-18/LFW replication; see
+   `RESULTS_LFW_V0.1.md`.
+3. **Gate 2 — failed for Study 0 inference:** `E-STAT-001` records that pair-level
+   resampling was incorrectly described as identity-aware. Correct this before Study 1.
+4. **Study 1 — not started:** freeze the face-backbone preregistration and sample-size
+   design only after resolving the statistical blocker.
+5. **Gate 3:** evaluate dimensions 64/128/256 under matched budgets.
+6. **Gate 4:** add 1:N retrieval, gallery indexing and latency measurements.
+7. **Gate 5:** evaluate sensor, quality, age and demographic regimes on authorized data.
 
 Failure at a gate is a valid result and should stop scope expansion until understood.
 

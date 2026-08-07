@@ -5,6 +5,7 @@ principles:
   indeterminate_is_not_permission: true
   smoke_never_allows_biometric_claim: true
   test_set_cannot_select_winner: true
+  executed_studies_and_errors_are_append_only: true
 gates:
   - id: G0
     name: software_and_contract_integrity
@@ -14,6 +15,7 @@ gates:
       - analytic_gradient_matches_finite_difference
       - deterministic_smoke_replay_complete
       - artifact_hashes_verify
+      - experiment_ledger_and_archived_reports_verify
   - id: G1
     name: experimental_design_integrity
     automated: true
@@ -70,4 +72,3 @@ gates:
       - immutable_bundle_replayed
       - result_discrepancy_reported
       - external_review_recorded
-

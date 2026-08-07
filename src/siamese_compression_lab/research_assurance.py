@@ -44,9 +44,14 @@ def validate_research_program(root: str | Path) -> AssuranceReport:
     checks: list[str] = []
 
     required = [
+        "CHANGELOG.md",
+        "ERRATA_STUDY_0.md",
+        "docs/EXPERIMENT_HISTORY_AND_ERRATA.md",
+        "protocol/experiment_ledger.yaml",
         "protocol/research_program.yaml",
         "protocol/studies/study_0_lfw.yaml",
         "protocol/studies/study_1_face_backbone.yaml",
+        "protocol/studies/study_1_preregistration.md",
         "claims/registry.yaml",
         "beliefs/prior_posterior.yaml",
         "configs/lfw_resnet18.yaml",
@@ -60,6 +65,7 @@ def validate_research_program(root: str | Path) -> AssuranceReport:
         "evidence/study_0_lfw/method_summary.csv",
         "evidence/study_0_lfw/paired_noninferiority.csv",
         "evidence/study_0_lfw/storage_engineering.csv",
+        "output/pdf/siamese_embedding_compression_research_program_v0.2.pdf",
     ]
     for relative in required:
         _require((root / relative).is_file(), f"missing required file: {relative}", errors)
@@ -68,6 +74,7 @@ def validate_research_program(root: str | Path) -> AssuranceReport:
     checks.append("required_files_present")
 
     programme = _load_yaml(root / "protocol/research_program.yaml")
+    ledger = _load_yaml(root / "protocol/experiment_ledger.yaml")
     claim_doc = _load_yaml(root / "claims/registry.yaml")
     gate_doc = _load_yaml(root / "gates/gate_spec.yaml")
     cal_doc = _load_yaml(root / "gates/cal_spec.yaml")
@@ -116,7 +123,13 @@ def validate_research_program(root: str | Path) -> AssuranceReport:
         "Study 0 non-inferiority margin diverges from frozen configuration",
         errors,
     )
-    for field_name in ["train_pairs", "validation_pairs", "test_pairs", "test_impostor_pairs"]:
+    for field_name in [
+        "train_pairs",
+        "validation_pairs",
+        "test_pairs",
+        "test_genuine_pairs",
+        "test_impostor_pairs",
+    ]:
         _require(
             design.get(field_name) == data_protocol.get(field_name),
             f"Study 0 and LFW datasheet disagree on {field_name}",
@@ -129,6 +142,32 @@ def validate_research_program(root: str | Path) -> AssuranceReport:
         errors,
     )
     checks.append("study_zero_frozen_evidence_consistent")
+
+    ledger_study_zero = next(
+        item for item in ledger.get("studies", []) if item.get("study_id") == "study_0_lfw"
+    )
+    _require(ledger.get("append_only") is True, "experiment ledger must be append-only", errors)
+    _require(
+        ledger_study_zero.get("run_id") == study_zero["run"]["run_id"],
+        "experiment ledger changed the Study 0 run ID",
+        errors,
+    )
+    archived_pdf = root / ledger_study_zero["original_paper"]
+    _require(
+        archived_pdf.is_file()
+        and _sha256(archived_pdf) == ledger_study_zero.get("original_paper_sha256"),
+        "archived v0.2 paper is missing or changed",
+        errors,
+    )
+    _require(
+        study_zero.get("qualification", {}).get("g2") == "FAIL",
+        "Study 0 G2 failure E-STAT-001 must remain explicit",
+        errors,
+    )
+    erratum = (root / "ERRATA_STUDY_0.md").read_text(encoding="utf-8")
+    for token in ["E-STAT-001", "pair-level", "identity-aware", "0.156"]:
+        _require(token in erratum, f"Study 0 erratum missing required token: {token}", errors)
+    checks.append("append_only_history_and_errata_preserved")
 
     figure_manifest = json.loads(
         (root / "paper/figures-generated/figures_manifest.json").read_text(encoding="utf-8")
@@ -217,6 +256,8 @@ def validate_research_program(root: str | Path) -> AssuranceReport:
         "0.8060",
         "0.8288",
         "0.156",
+        "E-STAT-001",
+        "pair-level",
     ]:
         _require(token in paper, f"paper missing required traceability token: {token}", errors)
     checks.append("paper_traceability_tokens_present")

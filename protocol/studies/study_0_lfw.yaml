@@ -15,6 +15,7 @@ design:
   train_pairs: 842
   validation_pairs: 795
   test_pairs: 1000
+  test_genuine_pairs: 500
   test_impostor_pairs: 500
   identity_disjoint_development_splits: true
   seeds: [11, 29, 47, 71, 101]
@@ -50,4 +51,10 @@ decision:
     The pair-supervised projection was trained and evaluated, but non-inferiority and
     added value were not demonstrated for this backbone, dataset and protocol.
   forbidden_statement: Siamese compression preserves industrial face recognition accuracy.
-
+qualification:
+  g1: PASS_WITH_RECORDED_EXECUTION
+  g2: FAIL
+  reason: E-STAT-001 pair-level bootstrap was declared as identity-aware.
+  erratum: ERRATA_STUDY_0.md
+  original_results_preserved: true
+  reanalysis_status: REANALYSIS_PLANNED

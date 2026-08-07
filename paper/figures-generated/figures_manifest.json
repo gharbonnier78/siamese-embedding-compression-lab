@@ -22,8 +22,8 @@
   },
   "protocol_sources": {
     "datasets/lfw_datasheet.yaml": "e3bc3105951fbd8bf711b8d72d30b66e3cf7957a6bcfdb988ff1653f2be6cb50",
-    "gates/gate_spec.yaml": "5d7fcf6f3d30e208e37b1237bcab05063bcf182b836406c08c9757fcaa203bc9",
-    "protocol/studies/study_0_lfw.yaml": "c6e476872020dad9c8bb42c6d5788525dfbce7abed94034a7304bd264a6884f2"
+    "gates/gate_spec.yaml": "a9852a42306fbdcfa83c3df0edb60a928c24c652f8beaa277465014f14ab2394",
+    "protocol/studies/study_0_lfw.yaml": "dcf6884368421835d4db24bb0401d5ccfe8519a9f57f2b5e3fa1459bfe50bd17"
   },
   "render_environment": {
     "matplotlib": "3.11.1",

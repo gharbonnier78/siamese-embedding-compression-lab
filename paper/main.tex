@@ -41,13 +41,13 @@
 \setlength{\parskip}{5pt}
 \pagestyle{fancy}
 \fancyhf{}
-\fancyhead[L]{Siamese Embedding Compression Research Programme v0.2}
+\fancyhead[L]{Siamese Embedding Compression Research Programme v0.2.1}
 \fancyhead[R]{Research protocol and Study 0 report}
 \fancyfoot[C]{\thepage}
 \renewcommand{\headrulewidth}{0.4pt}
 \fancypagestyle{plain}{
   \fancyhf{}
-  \fancyhead[L]{Siamese Embedding Compression Research Programme v0.2}
+  \fancyhead[L]{Siamese Embedding Compression Research Programme v0.2.1}
   \fancyhead[R]{Research protocol and Study 0 report}
   \fancyfoot[C]{\thepage}
   \renewcommand{\headrulewidth}{0.4pt}
@@ -66,7 +66,7 @@ Embedding Compression}\\[4pt]
 \author{Guillaume Harbonnier\\
 \small Independent exploratory research\\
 \small \url{https://github.com/gharbonnier78/siamese-embedding-compression-lab}}
-\date{Version 0.2.0-draft --- August 2026}
+\date{Version 0.2.1-draft --- August 2026}
 
 \begin{document}
 \maketitle
@@ -76,7 +76,8 @@ Embedding Compression}\\[4pt]
 \fcolorbox{warn}{soft}{\parbox{0.91\linewidth}{\textbf{Scientific status.}
 This manuscript is a research protocol and an honest report of a completed preliminary
 study. It is not peer reviewed, not an industrial biometric evaluation, and not evidence
-of regulatory conformity. Planned studies contain no experimental results.}}
+of regulatory conformity. Erratum E-STAT-001 records a Study 0 uncertainty-contract
+failure; planned studies contain no experimental results.}}
 \end{center}
 
 \begin{abstract}
@@ -93,8 +94,10 @@ development, validation-frozen thresholds and a once-opened test set; and attach
 claim to automated evidence gates. A completed preliminary study uses frozen ImageNet
 ResNet-18 features on the Labeled Faces in the Wild development protocol. The contrastive
 training mechanism is real, but non-inferiority of the 128-dimensional Siamese projection
-to the raw 512-dimensional representation is not demonstrated. The result is intentionally
-retained as negative evidence. The post-extractor projection does not shrink or accelerate
+to the raw 512-dimensional representation is not demonstrated by the original pair-level
+analysis. Its interval was incorrectly described as identity-aware, so G2 is failed pending
+a separately versioned reanalysis. The original result and error are intentionally retained.
+The post-extractor projection does not shrink or accelerate
 the common frozen extractor; it adds 65,664 parameters. It reduces each float32 template
 payload fourfold, while 1:N latency remains unmeasured. Future registered studies replace the unsuitable extractor,
 strengthen dataset representativity, add external and shifted evaluation, and measure 1:N
@@ -162,7 +165,7 @@ claim has not been tested by an admissible study.
 
 \begin{table}[ht]
 \centering
-\caption{Claim register at programme version 0.2.}
+\caption{Claim register at programme version 0.2.1.}
 \label{tab:claims}
 \small
 \begin{tabularx}{\linewidth}{@{}lXl@{}}
@@ -172,7 +175,7 @@ ID & Bounded claim & Current status\\
 \claim{C-MECHANISM-001} & Pair supervision updates the shared projection & Established, limited\\
 \claim{C-STORAGE-001} & Float32 payload falls from 512D to 128D by factor four & Arithmetic only\\
 \claim{C-FE-001} & The current route does not shrink or accelerate the extractor & Architectural\\
-\claim{C-NI-001} & Siamese-128 is non-inferior to raw-512 in Study 0 & Not demonstrated\\
+\claim{C-NI-001} & Siamese-128 is non-inferior to raw-512 in Study 0 & Not demonstrated; G2 fail\\
 \claim{C-SUP-001} & Pair supervision adds value over PCA/random & Not demonstrated\\
 \claim{C-FACE-001} & Result transfers to face-specific backbones/external data & Open\\
 \claim{C-1N-001} & Compression preserves 1:N and improves system cost & Open\\
@@ -317,7 +320,8 @@ The mandatory routes are:
 
 \begin{enumerate}
 \item raw L2-normalised $D$-dimensional embedding;
-\item seeded Gaussian projection to $d$ dimensions without learning;
+\item seeded Gaussian projection with $R_{ij}\sim\mathcal{N}(0,1/d)$, where $1/d$ is
+the variance, followed by L2 normalisation and no learning;
 \item PCA fitted only on TRAIN endpoints and projected to $d$ dimensions;
 \item shared learned projection trained from labelled TRAIN pairs.
 \end{enumerate}
@@ -519,8 +523,9 @@ Study 0 preserves the original educational setting to answer a narrow question: 
 pair-supervised projection genuinely trained, and does it demonstrate non-inferiority under
 a stronger protocol? Frozen ImageNet ResNet-18 embeddings are extracted from the LFW
 development protocol. TRAIN contains 842 pairs, VALIDATION 795 pairs and untouched DevTest
-1,000 pairs. TEST has 500 impostor pairs, so its empirical FMR step is 0.002. Five seeds
-were declared for every stochastic 128D route.
+1,000 pairs: 500 genuine and 500 impostor. Its empirical FMR and FNMR steps are therefore
+0.002 before accounting for dependence. Five seeds were declared for every stochastic
+128D route.
 
 The extractor is not face-specific and the dataset cannot support industrial low-FMR claims.
 Those are limitations of the inference domain, not excuses to discard the observed result.
@@ -530,6 +535,23 @@ Those are limitations of the inference domain, not excuses to discard the observ
 At target FMR $\alpha=0.01$, the non-inferiority margin was $\delta=0.03$ absolute FNMR.
 The method-level rule required every declared seed to have an upper paired-bootstrap bound
 at or below the margin. Validation-frozen thresholds were analysed separately.
+
+\subsection{Retained statistical erratum E-STAT-001}
+
+The original programme described the uncertainty estimator as identity-aware. Inspection
+of the executed code established that it separately resampled genuine-pair and
+impostor-pair indices. The same indices were applied to candidate and raw scores, so the
+analysis was paired across matchers and stratified by label, but trials sharing an identity
+were not cluster-resampled. The coverage guarantee of an identity-aware interval is
+therefore unsupported and Study 0 G2 is \status{fail} for inferential qualification.
+
+This erratum does not erase or rewrite the historical analysis. The original
+\texttt{paired\_noninferiority.csv}, its worst upper bound 0.156, the negative decision and
+the v0.2 PDF remain addressable. A later sensitivity analysis will create new files and a
+new analysis identifier. It will compare pair-level and dependence-aware intervals from
+the same preserved scores, and will validate coverage by simulation before its variance is
+used for Study 1 sample-size planning. Until then, non-inferiority remains
+\status{not demonstrated}; the defect cannot support a positive claim.
 
 \subsection{Results}
 
@@ -558,7 +580,8 @@ the predeclared FNMR non-inferiority decision.}
 \label{fig:study0-benchmark}
 \end{figure}
 
-The Siamese route has mean $\Delta_{\fnmr}=0.0228$ relative to raw, but the worst upper
+Under the retained pair-level diagnostic, the Siamese route has mean
+$\Delta_{\fnmr}=0.0228$ relative to raw, but the worst upper
 confidence bound across seeds is 0.156, above the declared margin. Neither Siamese, PCA nor
 random projection passes the method-level non-inferiority rule. Claim \claim{C-NI-001} is
 therefore \status{not demonstrated}. The higher mean AUC and lower mean EER of the Siamese
@@ -592,8 +615,10 @@ view measures transfer to TEST.}
 
 Study 0 supports the mechanism claim: pair labels update a shared projection and produce
 consumable 128D templates. It does not support preservation, superiority or industrial
-value. The scientifically correct conclusion is ``not demonstrated for this extractor,
-dataset and protocol'', not ``Siamese networks do not work'' and not ``compression works''.
+value. Its original inferential interval also fails G2 under E-STAT-001. The scientifically
+correct conclusion is ``not demonstrated by the retained pair-level analysis, with
+identity-aware coverage unresolved'', not ``Siamese networks do not work'' and not
+``compression works''.
 
 \section{Revised priors and beliefs}
 
@@ -616,8 +641,10 @@ opened.
 
 \section{Next registered gates}
 
-Study 1 remains \status{draft preregistration}, not ``ready to run''. Before execution it
-must pin the face-specific backbone and weights, licensing and provenance, target population,
+Study 1 remains \status{draft preregistration}, not ``ready to run'', and this v0.2.1
+correction does not start it. E-STAT-001 must first be resolved with a specified
+dependence-aware estimator and simulation coverage study. Before execution it must pin the
+face-specific backbone and weights, licensing and provenance, target population,
 development and qualification data, overlap audit, primary FMR, non-inferiority margin,
 sample-size calculation, multiplicity policy, seeds and compute budget. Until then, CAL for
 \claim{C-FACE-001} is \status{indeterminate}.
@@ -657,6 +684,14 @@ digest, implementation digest and artifact hashes are recorded. LFW images and c
 features are excluded. A smoke run checks numerical and evidence plumbing but is explicitly
 forbidden from supporting a biometric claim.
 
+Executed studies are append-only records governed by
+\texttt{docs/EXPERIMENT\_HISTORY\_AND\_ERRATA.md} and
+\texttt{protocol/experiment\_ledger.yaml}. Later studies may supersede claim admissibility
+but may not overwrite earlier configurations, scores, reports, negative results or known
+errors. The v0.2 PDF is retained at its versioned path while this v0.2.1 paper adds the
+erratum. Licence-restricted data may be external to Git, but acquisition instructions,
+hashes and release-bundle requirements remain public.
+
 The paper is rebuilt from versioned source. CI checks required traceability tokens and
 cross-file references. Study 0 figures are regenerated from a small versioned projection
 of the immutable replay evidence. CI compares regenerated outputs with the committed PDF
@@ -668,8 +703,9 @@ the same mechanism to result tables, eliminating the remaining manual numerical 
 Siamese metric learning is neither accepted nor rejected as a slogan. The research object is
 a versioned compression intervention evaluated against explicit alternatives at decision-
 relevant operating points and under measurable system constraints. Study 0 confirms that the
-training mechanism is real and falsifies the proposed non-inferiority claim under its limited
-setting. The programme now makes the harder questions executable: whether a face-specific
+training mechanism is real; its original pair-level analysis does not demonstrate the
+proposed non-inferiority claim, and E-STAT-001 blocks an identity-aware inference. The
+programme now makes the harder questions executable: whether a face-specific
 source representation changes that outcome, whether supervision beats ordinary compression,
 whether thresholds transfer, whether 1:N search benefits, and whether the resulting claim is
 admissible under replayable evidence. The value of the programme is not that every gate will
@@ -683,7 +719,10 @@ pass; it is that failures remain visible, bounded and informative.
 Path & Role\\
 \midrule
 \texttt{protocol/research\_program.yaml} & Umbrella scientific object and estimand\\
+\texttt{protocol/experiment\_ledger.yaml} & Append-only study, artifact and erratum history\\
 \texttt{protocol/studies/*.yaml} & Study status, preregistration, run and decision\\
+\texttt{ERRATA\_STUDY\_0.md} & Full retained description of E-STAT-001\\
+\texttt{CHANGELOG.md} & Versioned corrections without historical rewriting\\
 \texttt{claims/registry.yaml} & Claim wording, status, evidence and required gates\\
 \texttt{datasets/*.yaml} & Dataset evidence and qualification requirements\\
 \texttt{gates/gate\_spec.yaml} & G0--G7 qualification contract\\
