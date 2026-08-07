@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.invalid/mmals/siamese-compression/event.schema.json",
+  "title": "MMALS Replay Event",
+  "type": "object",
+  "required": [
+    "event_id",
+    "logical_step",
+    "run_id",
+    "objective_id",
+    "phase",
+    "event_type",
+    "status",
+    "evidence_kind",
+    "payload"
+  ],
+  "properties": {
+    "logical_step": {"type": "integer", "minimum": 1},
+    "evidence_kind": {"enum": ["observed", "derived", "declared"]},
+    "payload": {"type": "object"}
+  }
+}
+

@@ -1,0 +1,20 @@
+cff-version: 1.2.0
+message: "If you use this experimental protocol or replay implementation, please cite this repository."
+title: "Siamese Embedding Compression Lab"
+type: software
+authors:
+  - family-names: Harbonnier
+    given-names: Guillaume
+version: 0.1.0
+date-released: 2026-08-07
+license: MIT
+repository-code: "https://github.com/gharbonnier78/siamese-embedding-compression-lab"
+url: "https://github.com/gharbonnier78/siamese-embedding-compression-lab"
+keywords:
+  - metric learning
+  - Siamese network
+  - embedding compression
+  - biometric verification
+  - reproducible research
+  - activity replay
+

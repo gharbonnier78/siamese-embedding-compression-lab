@@ -1,0 +1,38 @@
+experiment_id: lfw_resnet18_siamese_projection_v0_1
+description: LFW DevTrain/DevTest replication with frozen ImageNet ResNet-18 embeddings.
+
+data:
+  mode: lfw
+  data_root: data
+  kaggle_dataset: jessicali9530/lfw-dataset
+  backbone: resnet18_imagenet
+  cache_dir: cache
+  val_identity_fraction: 0.50
+  split_seed: 20260806
+
+training:
+  output_dim: 128
+  seeds: [11, 29, 47, 71, 101]
+  epochs: 60
+  batch_size: 128
+  learning_rate: 0.001
+  weight_decay: 0.0001
+  contrastive_margin: 1.0
+  patience: 8
+  minimum_improvement: 0.0001
+
+evaluation:
+  # LFW DevTest is too small for regulatory claims at very low FMR.
+  target_fmrs: [0.01]
+  bootstrap_replicates: 2000
+  bootstrap_seed: 20260806
+  noninferiority_delta_fnmr: 0.03
+  minimum_validation_impostors: 200
+  template_dtype_bytes: 4
+  gallery_sizes: [1000, 100000, 1000000, 150000000]
+
+replay:
+  contract_version: mmals-replay-domain-pack/1.0
+  profile: full
+  objective_id: edge_template_noninferiority
+  preserve_csv_compatibility: true

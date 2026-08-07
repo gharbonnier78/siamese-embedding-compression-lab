@@ -1,0 +1,38 @@
+experiment_id: siamese_embedding_compression_smoke_v0_1
+description: Synthetic deterministic smoke replay; not biometric performance evidence.
+
+data:
+  mode: synthetic
+  synthetic_input_dim: 512
+  synthetic_latent_dim: 40
+  synthetic_train_identities: 80
+  synthetic_val_identities: 30
+  synthetic_test_identities: 30
+  synthetic_images_per_identity: 6
+  synthetic_pairs_per_split: 600
+
+training:
+  output_dim: 128
+  seeds: [11, 29, 47]
+  epochs: 30
+  batch_size: 128
+  learning_rate: 0.002
+  weight_decay: 0.0001
+  contrastive_margin: 1.0
+  patience: 6
+  minimum_improvement: 0.0001
+
+evaluation:
+  target_fmrs: [0.01]
+  bootstrap_replicates: 300
+  bootstrap_seed: 20260806
+  noninferiority_delta_fnmr: 0.03
+  minimum_validation_impostors: 200
+  template_dtype_bytes: 4
+  gallery_sizes: [1000, 100000, 1000000, 150000000]
+
+replay:
+  contract_version: mmals-replay-domain-pack/1.0
+  profile: standard
+  objective_id: edge_template_noninferiority
+  preserve_csv_compatibility: true

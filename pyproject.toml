@@ -1,0 +1,49 @@
+[build-system]
+requires = ["setuptools>=69", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "siamese-embedding-compression-lab"
+version = "0.1.0"
+description = "Replayable experiment for supervised biometric embedding compression."
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+authors = [{name = "Guillaume Harbonnier"}]
+dependencies = [
+  "numpy>=1.26,<3",
+  "pandas>=2.1,<3",
+  "scipy>=1.11,<2",
+  "scikit-learn>=1.4,<2",
+  "matplotlib>=3.8,<4",
+  "PyYAML>=6,<7",
+  "Pillow>=10,<13",
+]
+
+[project.optional-dependencies]
+lfw = [
+  "torch>=2.2",
+  "torchvision>=0.17",
+  "kagglehub>=0.3",
+]
+notebook = ["nbformat>=5.9", "nbclient>=0.9", "ipykernel>=6.29"]
+dev = ["pytest>=8", "ruff>=0.6"]
+
+[project.urls]
+Homepage = "https://github.com/gharbonnier78/siamese-embedding-compression-lab"
+Repository = "https://github.com/gharbonnier78/siamese-embedding-compression-lab"
+Issues = "https://github.com/gharbonnier78/siamese-embedding-compression-lab/issues"
+
+[project.scripts]
+siamese-compression-lab = "siamese_compression_lab.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 96
+target-version = "py310"
