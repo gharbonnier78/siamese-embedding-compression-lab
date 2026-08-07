@@ -1,0 +1,50 @@
+{
+  "generator": "scripts/generate_research_figures.py",
+  "interpretation_constraints": [
+    "AUC and EER are descriptive in Study 0.",
+    "Equal-FMR TEST thresholds are non-deployable.",
+    "Storage values cover float32 template payload only.",
+    "No industrial biometric-performance claim is permitted."
+  ],
+  "outputs": {
+    "study0_benchmark_metrics.pdf": "05fa22d1fc033f5ea0ec3d3f46f210b641975d6da40facea8e855ea61f1bc8c5",
+    "study0_benchmark_metrics.png": "ace190e90889ea161f6be1019f5d8ac26916ac6b5285b6e749980d39882d922e",
+    "study0_engineering_bounds.pdf": "4dde3afad57b0e5f417a6536887cb538ec10e20674a0a5b62bd5bc5bf07b3acb",
+    "study0_engineering_bounds.png": "e17d3508397bfbc7493e80dce00400c3fc544a67634456a037eba2d99f4be873",
+    "study0_noninferiority.pdf": "aacafcf480b9bf4fd5662010d58993f7c5d00263617257eaea833d8e6a78472c",
+    "study0_noninferiority.png": "17fac5fe43d16c2df1becfbb54f5e8ab2f71b0e15cc15468f417a200cc1358f3",
+    "study0_protocol.pdf": "65d983158cf4692d800c8021a02f8fcd39e995c265afa21a448477ad5dabb203",
+    "study0_protocol.png": "e26de70b3b77ac08a19f910923cd0442ab61abb19da8e7cfaf44f31556aa03e9",
+    "study0_storage.pdf": "4070342c01a738bf58f5d70fb3ffe43d400be570fb32e98a7c04db7b588e5801",
+    "study0_storage.png": "730443a2c626af6e364263c383358f08505fcbf7326fed40679450f2b00b6a47",
+    "study0_threshold_transfer.pdf": "111f1a770e1f180e3f79593b92745cfbe1f232b5d203448d3f89107b6601a74a",
+    "study0_threshold_transfer.png": "66b350a00f5d25be6a9172874611237161b5cf63196801b2f2b2d231cbf0c1f7"
+  },
+  "protocol_sources": {
+    "datasets/lfw_datasheet.yaml": "e3bc3105951fbd8bf711b8d72d30b66e3cf7957a6bcfdb988ff1653f2be6cb50",
+    "gates/gate_spec.yaml": "a9852a42306fbdcfa83c3df0edb60a928c24c652f8beaa277465014f14ab2394",
+    "protocol/studies/study_0_lfw.yaml": "dcf6884368421835d4db24bb0401d5ccfe8519a9f57f2b5e3fa1459bfe50bd17"
+  },
+  "render_environment": {
+    "matplotlib": "3.11.1",
+    "numpy": "2.5.1",
+    "pandas": "2.3.3",
+    "pillow": "12.3.0",
+    "python": "3.12.13",
+    "pyyaml": "6.0.3"
+  },
+  "run_id": "lfw_resnet18_siamese_projection_v0_1-89179914-911192ee-64559cbd",
+  "schema_version": "1.0.0",
+  "source_files": {
+    "audit_trace.jsonl": "209af29d6b871c799e20afe72ae793f55e38955030f17ad73e324adb8f8d80b2",
+    "method_noninferiority_summary.csv": "c4fdb92394abad11f7282530d360403e9b7908ff14a8ab2a6bbda6f0c012e3b6",
+    "method_summary.csv": "a0bac3f33d731c53f451ecdacc9755751b67ee1dba43819e1031e6ce2b80006d",
+    "paired_noninferiority.csv": "d9c923bacf1ead7799ae51dabdc0627b91a4d8d21b4eb3cdb26378395316a09b",
+    "routes.csv": "b1d4f3d4b49c2b93dbdabb1a6eb58a895c85af3e4a03b19529af6cce43c253e9",
+    "run_manifest.json": "5ef955b554773fb34d1229347af74c7f4c9acdcf16d711cc5a10eb645c5e95a4",
+    "split_summary.csv": "0e17121df85e02ea11eae37b586923b018e487203f62e2e3349e0fb71b5374f7",
+    "storage_engineering.csv": "1f4c0acdf1001d793e7a2ccb6e3c8ef3408d671378272d884dce0bfd9ee9fb31",
+    "thresholds.csv": "e7d6bce43a8f9f3bba31ebf5b2d24927205d2e016c51303b908aafa13360df47",
+    "training_history.csv": "8d8f69e41d5a8b226a16eb89b868abcf4cb87166dfc43d595a266ff58939216c"
+  }
+}

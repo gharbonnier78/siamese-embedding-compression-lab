@@ -1,0 +1,17 @@
+run_id,objective_id,route_id,method,seed,source_dim,target_dim,trainable_parameters,template_bytes_float32,fit_seconds,status,evidence_kind
+lfw_resnet18_siamese_projection_v0_1-89179914-911192ee-64559cbd,edge_template_noninferiority,raw_seed_11,raw,11,512,512,0,2048,1.232000158779556e-06,completed,observed
+lfw_resnet18_siamese_projection_v0_1-89179914-911192ee-64559cbd,edge_template_noninferiority,random_seed_11,random,11,512,128,0,512,9.219997991749551e-07,completed,observed
+lfw_resnet18_siamese_projection_v0_1-89179914-911192ee-64559cbd,edge_template_noninferiority,pca_seed_11,pca,11,512,128,0,512,0.5609389559999727,completed,observed
+lfw_resnet18_siamese_projection_v0_1-89179914-911192ee-64559cbd,edge_template_noninferiority,siamese_seed_11,siamese,11,512,128,65664,512,0.3256215890000931,completed,observed
+lfw_resnet18_siamese_projection_v0_1-89179914-911192ee-64559cbd,edge_template_noninferiority,random_seed_29,random,29,512,128,0,512,7.910002750577405e-07,completed,observed
+lfw_resnet18_siamese_projection_v0_1-89179914-911192ee-64559cbd,edge_template_noninferiority,pca_seed_29,pca,29,512,128,0,512,0.36520802299992283,completed,observed
+lfw_resnet18_siamese_projection_v0_1-89179914-911192ee-64559cbd,edge_template_noninferiority,siamese_seed_29,siamese,29,512,128,65664,512,0.31267542100022183,completed,observed
+lfw_resnet18_siamese_projection_v0_1-89179914-911192ee-64559cbd,edge_template_noninferiority,random_seed_47,random,47,512,128,0,512,1.050999799190322e-06,completed,observed
+lfw_resnet18_siamese_projection_v0_1-89179914-911192ee-64559cbd,edge_template_noninferiority,pca_seed_47,pca,47,512,128,0,512,0.5481016189996808,completed,observed
+lfw_resnet18_siamese_projection_v0_1-89179914-911192ee-64559cbd,edge_template_noninferiority,siamese_seed_47,siamese,47,512,128,65664,512,0.4026808869998604,completed,observed
+lfw_resnet18_siamese_projection_v0_1-89179914-911192ee-64559cbd,edge_template_noninferiority,random_seed_71,random,71,512,128,0,512,9.119999049289618e-07,completed,observed
+lfw_resnet18_siamese_projection_v0_1-89179914-911192ee-64559cbd,edge_template_noninferiority,pca_seed_71,pca,71,512,128,0,512,0.3711514809997425,completed,observed
+lfw_resnet18_siamese_projection_v0_1-89179914-911192ee-64559cbd,edge_template_noninferiority,siamese_seed_71,siamese,71,512,128,65664,512,0.3440174779998415,completed,observed
+lfw_resnet18_siamese_projection_v0_1-89179914-911192ee-64559cbd,edge_template_noninferiority,random_seed_101,random,101,512,128,0,512,6.310001481324434e-07,completed,observed
+lfw_resnet18_siamese_projection_v0_1-89179914-911192ee-64559cbd,edge_template_noninferiority,pca_seed_101,pca,101,512,128,0,512,0.6456957460000012,completed,observed
+lfw_resnet18_siamese_projection_v0_1-89179914-911192ee-64559cbd,edge_template_noninferiority,siamese_seed_101,siamese,101,512,128,65664,512,0.43350678599972525,completed,observed

@@ -5,7 +5,7 @@ type: software
 authors:
   - family-names: Harbonnier
     given-names: Guillaume
-version: 0.1.0
+version: 0.2.1-dev
 date-released: 2026-08-07
 license: MIT
 repository-code: "https://github.com/gharbonnier78/siamese-embedding-compression-lab"
@@ -17,4 +17,3 @@ keywords:
   - biometric verification
   - reproducible research
   - activity replay
-

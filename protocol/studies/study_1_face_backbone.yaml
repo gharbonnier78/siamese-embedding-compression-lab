@@ -1,0 +1,48 @@
+schema_version: "1.0.0"
+study_id: study_1_face_backbone
+title: Face-specific backbone 1:1 compression study
+status: DRAFT_PREREGISTRATION
+claim_level: NONE_UNTIL_EXECUTED
+human_readable_checklist: protocol/studies/study_1_preregistration.md
+purpose: >-
+  Test whether pair supervision adds compression value when the frozen source embedding
+  is produced by a face-specific extractor rather than an ImageNet classifier.
+blocking_items:
+  - resolve E-STAT-001 and validate identity-dependence-aware interval coverage
+  - pin backbone architecture, weights, training provenance and licence
+  - pin development and untouched qualification datasets
+  - declare target population and capture regimes
+  - run identity-overlap and near-duplicate audit
+  - calculate identity-and-capture sample size for the selected target FMR and uncertainty requirement
+  - freeze primary FMR, non-inferiority margin and multiplicity policy
+  - freeze compute budget and all seeds
+design:
+  routes: [raw, random, pca, siamese]
+  dimensions: [128]
+  planned_seeds: [11, 29, 47, 71, 101]
+  split_unit: identity
+  threshold_policy: validation_then_freeze
+  test_open_policy: once_after_all_routes_frozen
+  representation_endpoint: delta_fnmr_equal_fmr_non_deployable
+  operational_endpoint: validation_frozen_fnmr_with_test_fmr_constraint
+  secondary_endpoints: [eer_descriptive, roc_auc_descriptive, threshold_transfer]
+  uncertainty: BLOCKED_PENDING_SPECIFICATION_AND_E_STAT_001
+  random_control: gaussian_variance_1_over_d_then_l2_normalize
+sample_size:
+  status: BLOCKED
+  target_power: 0.90
+  criterion: probability_upper_confidence_bound_below_delta
+  effect_scenarios: [0.0, 0.01]
+  primary_sampling_units: [identities, captures]
+  pair_counts_not_independent_sample_size: true
+  simulation_requirements:
+    - identity_and_capture_dependence
+    - genuine_and_impostor_trial_construction
+    - low_fmr_threshold_uncertainty
+    - raw_candidate_correlation
+    - inter_seed_variation
+    - all_declared_seeds_rule
+results: null
+decision:
+  state: INDETERMINATE
+  rationale: Study is not yet fully preregistered or executed.

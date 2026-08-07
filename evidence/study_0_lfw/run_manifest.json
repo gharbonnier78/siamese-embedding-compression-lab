@@ -1,0 +1,343 @@
+{
+  "artifacts": [
+    {
+      "bytes": 10860,
+      "path": "audit_trace.jsonl",
+      "sha256": "209af29d6b871c799e20afe72ae793f55e38955030f17ad73e324adb8f8d80b2"
+    },
+    {
+      "bytes": 2294,
+      "path": "benchmark_thresholds_non_deployable.csv",
+      "sha256": "6104280aea7fa72de8c9888d85ac05b87f193d6b70d92166cfc6a1db2b9e0829"
+    },
+    {
+      "bytes": 1164,
+      "path": "config.resolved.yaml",
+      "sha256": "3f5495fdc15bc41d5134ff43fa15f59c6fcfb52fdd814ca14a5e6ee91a2c2fe9"
+    },
+    {
+      "bytes": 21460,
+      "path": "data/events.jsonl",
+      "sha256": "68fd2909d9dbfd606eedcca7ecfe483ed62ba945e760668dde4700716d7ed3df"
+    },
+    {
+      "bytes": 35042,
+      "path": "figures/fnmr_at_target_fmr.png",
+      "sha256": "2ea341695f712bd9967308ad15d3d009d075e0f622b47af75fc5d25d5bed96d9"
+    },
+    {
+      "bytes": 38989,
+      "path": "figures/gallery_storage.png",
+      "sha256": "fa8eb51810a984e6a987705ca0d43744e33c7570d2795cec6a759571e482bb71"
+    },
+    {
+      "bytes": 82404,
+      "path": "figures/roc_test.png",
+      "sha256": "da25b2c6711a8ae7c2e10471880ac691df76c3ee658c62a7731747604eb6b63a"
+    },
+    {
+      "bytes": 124375,
+      "path": "figures/siamese_validation_loss.png",
+      "sha256": "d4d5211e0f9027f8c7247b68a92e1ae5c8a83414fe7d153967b4783e5da45fc4"
+    },
+    {
+      "bytes": 735,
+      "path": "method_noninferiority_summary.csv",
+      "sha256": "c4fdb92394abad11f7282530d360403e9b7908ff14a8ab2a6bbda6f0c012e3b6"
+    },
+    {
+      "bytes": 911,
+      "path": "method_summary.csv",
+      "sha256": "a0bac3f33d731c53f451ecdacc9755751b67ee1dba43819e1031e6ce2b80006d"
+    },
+    {
+      "bytes": 49082,
+      "path": "metrics.csv",
+      "sha256": "eab5a827f8bb8d3adc8e5d17508501640f20b4f141a9dace75f0c67965cbb587"
+    },
+    {
+      "bytes": 265998,
+      "path": "models/pca_seed_101.npz",
+      "sha256": "d797641c7802e392f78ce9b87318ec155fd8b6c1f6282dd295787546712e703c"
+    },
+    {
+      "bytes": 265998,
+      "path": "models/pca_seed_11.npz",
+      "sha256": "6a9b2db7c2335c51ff4d1e003521fec6c19e108c7e8f1b8b03ece9f7c91a1792"
+    },
+    {
+      "bytes": 265998,
+      "path": "models/pca_seed_29.npz",
+      "sha256": "43361ff584bc6d03f2b81b3e188db3ba8408cbbada7690d91ca2fab028196e92"
+    },
+    {
+      "bytes": 265998,
+      "path": "models/pca_seed_47.npz",
+      "sha256": "2460273a5aa001bb4bd3cb202575ac8e7b037009a709af4162d8aa352dc5eb1e"
+    },
+    {
+      "bytes": 265998,
+      "path": "models/pca_seed_71.npz",
+      "sha256": "15b806efaea5f1357aefb12403c23568617814423be1b4cadec70991a47bea60"
+    },
+    {
+      "bytes": 262934,
+      "path": "models/random_seed_101.npz",
+      "sha256": "446a3b180a334806ee3e5fe4fc4781bd4453dbbe2aadae9d012feefd917711db"
+    },
+    {
+      "bytes": 262934,
+      "path": "models/random_seed_11.npz",
+      "sha256": "bc2277c0938a1ff2abb7352347d5be26732815da40f9cf40bf39bd5c9674fec3"
+    },
+    {
+      "bytes": 262934,
+      "path": "models/random_seed_29.npz",
+      "sha256": "7f8a4d41e821237d0baf736a51310f0121f1d611b9c8ebc3c5a24f7c8a44e91d"
+    },
+    {
+      "bytes": 262934,
+      "path": "models/random_seed_47.npz",
+      "sha256": "a7a8cfd0a6561445fca20d08c19f012f8742c17f6da0fe23841b60bf2c7112c1"
+    },
+    {
+      "bytes": 262934,
+      "path": "models/random_seed_71.npz",
+      "sha256": "a48458392d2f744474c903543b76ac8c59b6b8634c869b5d24f9aa5be7bce017"
+    },
+    {
+      "bytes": 544,
+      "path": "models/raw_seed_11.npz",
+      "sha256": "ce2dff6094a54536eca81ce3320a752680feca3d5ae342c2b4e0f5ae7cee3b20"
+    },
+    {
+      "bytes": 264232,
+      "path": "models/siamese_seed_101.npz",
+      "sha256": "c652126b7a06b5a8e6c05e51a5818cab7d1a2fb3933a434242ccf4e6d1f9d9bd"
+    },
+    {
+      "bytes": 264232,
+      "path": "models/siamese_seed_11.npz",
+      "sha256": "2da1703453cbda05d9d47176ef8cdf390c3bf0dd7d3ded0fb723935d29e26ed8"
+    },
+    {
+      "bytes": 264232,
+      "path": "models/siamese_seed_29.npz",
+      "sha256": "094c457f1cd8b2592db67f00f31e0380e3b8e8573781d1b3db443acf91707b65"
+    },
+    {
+      "bytes": 264232,
+      "path": "models/siamese_seed_47.npz",
+      "sha256": "a7251d251f1d7e0d21ae2b38734ad9978a3584ec17f8553737ae2bc0839d6002"
+    },
+    {
+      "bytes": 264232,
+      "path": "models/siamese_seed_71.npz",
+      "sha256": "376fa89e05cd4e1c2ceea2baf6598ccf1124e1ad3492b2255f1dcc8992fba4b1"
+    },
+    {
+      "bytes": 4821,
+      "path": "paired_noninferiority.csv",
+      "sha256": "d9c923bacf1ead7799ae51dabdc0627b91a4d8d21b4eb3cdb26378395316a09b"
+    },
+    {
+      "bytes": 24128,
+      "path": "replay.compact.json",
+      "sha256": "9a10a32d46904dda787fc79ca1ba4ab652837efe1e6facc8439c8cb5460a94c8"
+    },
+    {
+      "bytes": 8865,
+      "path": "results_wide.csv",
+      "sha256": "f2cfb0a57a442dbd16536795e03841d9f5d5354e567ef5d44bafecfd1aeacd81"
+    },
+    {
+      "bytes": 2899,
+      "path": "routes.csv",
+      "sha256": "b1d4f3d4b49c2b93dbdabb1a6eb58a895c85af3e4a03b19529af6cce43c253e9"
+    },
+    {
+      "bytes": 463,
+      "path": "split_summary.csv",
+      "sha256": "0e17121df85e02ea11eae37b586923b018e487203f62e2e3349e0fb71b5374f7"
+    },
+    {
+      "bytes": 1013,
+      "path": "storage_engineering.csv",
+      "sha256": "1f4c0acdf1001d793e7a2ccb6e3c8ef3408d671378272d884dce0bfd9ee9fb31"
+    },
+    {
+      "bytes": 1821547,
+      "path": "test_pair_scores.csv",
+      "sha256": "f52ea23987a9d22647e0f63275a3d8a215b5fb0c588bac41723298537b383439"
+    },
+    {
+      "bytes": 2881,
+      "path": "thresholds.csv",
+      "sha256": "e7d6bce43a8f9f3bba31ebf5b2d24927205d2e016c51303b908aafa13360df47"
+    },
+    {
+      "bytes": 7959,
+      "path": "training_history.csv",
+      "sha256": "8d8f69e41d5a8b226a16eb89b868abcf4cb87166dfc43d595a266ff58939216c"
+    }
+  ],
+  "benchmark_metric_policy": "test labels may locate equal-FMR comparison points; those thresholds are non-deployable",
+  "configuration": {
+    "data": {
+      "backbone": "resnet18_imagenet",
+      "cache_dir": "cache",
+      "data_root": "data",
+      "kaggle_dataset": "jessicali9530/lfw-dataset",
+      "mode": "lfw",
+      "split_seed": 20260806,
+      "synthetic_images_per_identity": 6,
+      "synthetic_input_dim": 512,
+      "synthetic_latent_dim": 40,
+      "synthetic_pairs_per_split": 600,
+      "synthetic_test_identities": 30,
+      "synthetic_train_identities": 80,
+      "synthetic_val_identities": 30,
+      "val_identity_fraction": 0.5
+    },
+    "description": "LFW DevTrain/DevTest replication with frozen ImageNet ResNet-18 embeddings.",
+    "evaluation": {
+      "bootstrap_replicates": 2000,
+      "bootstrap_seed": 20260806,
+      "gallery_sizes": [
+        1000,
+        100000,
+        1000000,
+        150000000
+      ],
+      "minimum_validation_impostors": 200,
+      "noninferiority_delta_fnmr": 0.03,
+      "target_fmrs": [
+        0.01
+      ],
+      "template_dtype_bytes": 4
+    },
+    "experiment_id": "lfw_resnet18_siamese_projection_v0_1",
+    "replay": {
+      "contract_version": "mmals-replay-domain-pack/1.0",
+      "objective_id": "edge_template_noninferiority",
+      "preserve_csv_compatibility": true,
+      "profile": "full"
+    },
+    "training": {
+      "batch_size": 128,
+      "contrastive_margin": 1.0,
+      "epochs": 60,
+      "learning_rate": 0.001,
+      "minimum_improvement": 0.0001,
+      "output_dim": 128,
+      "patience": 8,
+      "seeds": [
+        11,
+        29,
+        47,
+        71,
+        101
+      ],
+      "weight_decay": 0.0001
+    }
+  },
+  "configuration_sha256": "89179914fce181e9544ab79e97cb42dc1571e786a46cf21c09a2414ae4bea4e7",
+  "contract_version": "mmals-replay-domain-pack/1.0",
+  "created_at_utc": "2026-08-06T21:31:36.615038+00:00",
+  "dataset": {
+    "acquisition": "kagglehub:jessicali9530/lfw-dataset",
+    "backbone": "resnet18_imagenet",
+    "dataset": "Labeled Faces in the Wild (LFW)",
+    "dataset_root": "/workspace/scratch/73402ab3ef14/.kagglehub/datasets/jessicali9530/lfw-dataset/versions/4",
+    "dev_test_files": {
+      "matched_pairs_file": "/workspace/scratch/73402ab3ef14/.kagglehub/datasets/jessicali9530/lfw-dataset/versions/4/matchpairsDevTest.csv",
+      "matched_pairs_sha256": "9428d939063ff006b72bc79f50b7305e7da51b46b52bf2c25ca14b3a29479fb6",
+      "mismatched_pairs_file": "/workspace/scratch/73402ab3ef14/.kagglehub/datasets/jessicali9530/lfw-dataset/versions/4/mismatchpairsDevTest.csv",
+      "mismatched_pairs_sha256": "cf1a1326577bf33abc98d1bbc938d3c2ec00304d1ace9b4392f5b38b19e182d0"
+    },
+    "dev_train_files": {
+      "matched_pairs_file": "/workspace/scratch/73402ab3ef14/.kagglehub/datasets/jessicali9530/lfw-dataset/versions/4/matchpairsDevTrain.csv",
+      "matched_pairs_sha256": "dab96f56b8b92793ce80d5cc2df729f9349dfd9ffdf3cb0301588d303af031cb",
+      "mismatched_pairs_file": "/workspace/scratch/73402ab3ef14/.kagglehub/datasets/jessicali9530/lfw-dataset/versions/4/mismatchpairsDevTrain.csv",
+      "mismatched_pairs_sha256": "7aac58011e3ed4b0b6cc55f8d2b1c23e62fe57ee5696d2956eeb6f9fff23dd59"
+    },
+    "dropped_cross_partition_impostor_pairs": 563,
+    "evidence_level": "lfw_exploratory_benchmark",
+    "feature_extraction": {
+      "backbone_state_sha256": "de620ffcedf6c2818d8b6575ad3b3fc89a41351a1588ef8c0d904defc28ebf8e",
+      "feature_cache": "/workspace/scratch/73402ab3ef14/siamese-embedding-compression-lab/cache/lfw_6962778ec709cf08a8bd.npz",
+      "feature_cache_hit": true
+    },
+    "images_sha256": "dc6427ac3108ab4c64fed81ad60eccb1f244d21332fa3ff528f1fd9eb7715b84",
+    "protocol": "DevTrain identity split + untouched DevTest",
+    "scientific_claim_allowed": true,
+    "split_seed": 20260806,
+    "splits": [
+      {
+        "genuine_pairs": 573,
+        "identities": 784,
+        "impostor_pairs": 269,
+        "input_dim": 512,
+        "pairs": 842,
+        "sha256": "911192ee1e4b010c4cb7139de58cd1117a898a6d407ced2d4e73139457f29ca7",
+        "source": "LFW DevTrain/DevTest pair protocol",
+        "split": "train"
+      },
+      {
+        "genuine_pairs": 527,
+        "identities": 753,
+        "impostor_pairs": 268,
+        "input_dim": 512,
+        "pairs": 795,
+        "sha256": "5e40b2c3f5959e20ade8a0a85819d80bebc3e4cb2d3041eb768c2c1ba95f8ccf",
+        "source": "LFW DevTrain/DevTest pair protocol",
+        "split": "validation"
+      },
+      {
+        "genuine_pairs": 500,
+        "identities": 963,
+        "impostor_pairs": 500,
+        "input_dim": 512,
+        "pairs": 1000,
+        "sha256": "af49dafbb97725b9392f649d677b62ac2d073f73069c8fa309b2720521dfdb57",
+        "source": "LFW DevTrain/DevTest pair protocol",
+        "split": "test"
+      }
+    ],
+    "train_identity_count": 1066,
+    "validation_identity_count": 1066,
+    "warning": "Limited benchmark claim only: ImageNet ResNet-18 is not a biometric-grade face backbone and LFW DevTest is too small for low-FMR operational claims."
+  },
+  "environment": {
+    "dependencies": {
+      "PyYAML": "6.0.3",
+      "kagglehub": "1.0.2",
+      "matplotlib": "3.11.1",
+      "numpy": "2.4.4",
+      "pandas": "2.3.3",
+      "scikit-learn": "1.9.0",
+      "scipy": "1.18.0",
+      "torch": "2.6.0+cpu",
+      "torchvision": "0.21.0+cpu"
+    },
+    "platform": "Linux-6.18.35-x86_64-with-glibc2.39",
+    "python": "3.12.13 (main, Mar  3 2026, 14:59:34) [Clang 21.1.4 ]"
+  },
+  "evidence_level": "lfw_exploratory_benchmark",
+  "experiment_id": "lfw_resnet18_siamese_projection_v0_1",
+  "implementation_sha256": "64559cbddeede132ddeeb4c88dfd5bfcb8f54d171daf802602f3420c9b6d337c",
+  "objective_id": "edge_template_noninferiority",
+  "run_id": "lfw_resnet18_siamese_projection_v0_1-89179914-911192ee-64559cbd",
+  "run_status": "BENCHMARK_EXECUTED",
+  "schema_version": "1.0.0",
+  "scientific_claim_allowed": true,
+  "seeds": [
+    11,
+    29,
+    47,
+    71,
+    101
+  ],
+  "test_selection_policy": "no model, hyperparameter, seed, or deployable threshold selection on test labels",
+  "threshold_policy": "calibrate_on_validation_then_freeze_before_test"
+}

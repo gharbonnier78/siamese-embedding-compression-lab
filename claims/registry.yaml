@@ -1,0 +1,66 @@
+schema_version: "1.0.0"
+claims:
+  - id: C-MECHANISM-001
+    statement: Pair supervision updates the shared 512-to-128 linear projection.
+    status: ESTABLISHED_LIMITED
+    plane: representation_benchmark
+    evidence: [tests/test_core.py, protocol/studies/study_0_lfw.yaml]
+    required_gates: [G0, G1]
+    permitted_wording: The implemented contrastive loss updates the shared projection.
+    forbidden_wording: Siamese training is necessarily useful.
+  - id: C-STORAGE-001
+    statement: A float32 512-to-128 projection divides template payload by four, with a bounded head-inclusive break-even.
+    status: ESTABLISHED_ARITHMETIC
+    plane: system_engineering
+    evidence: [RESULTS_LFW_V0.1.md, evidence/study_0_lfw/routes.csv, evidence/study_0_lfw/storage_engineering.csv]
+    required_gates: [G0]
+    permitted_wording: Under float32 payload-only assumptions, templates fall from 2048 to 512 bytes; including the 262656-byte learned projection but excluding common extractor and system overhead, projected storage becomes smaller above 171 templates.
+    forbidden_wording: End-to-end system memory is divided by four.
+  - id: C-FE-001
+    statement: The current post-extractor projection changes neither extractor weights nor extractor computation.
+    status: ESTABLISHED_ARCHITECTURAL
+    plane: system_engineering
+    evidence: [protocol/studies/study_0_lfw.yaml, evidence/study_0_lfw/routes.csv]
+    required_gates: [G0]
+    permitted_wording: The frozen extractor is common to both routes; the learned projection adds 65664 parameters and a projection step after extraction.
+    forbidden_wording: The 512-to-128 projection makes the feature extractor smaller or faster.
+  - id: C-NI-001
+    statement: Siamese 128D is non-inferior to raw 512D at FMR 0.01 on Study 0.
+    status: NOT_DEMONSTRATED
+    plane: representation_benchmark
+    evidence: [RESULTS_LFW_V0.1.md, protocol/studies/study_0_lfw.yaml, ERRATA_STUDY_0.md]
+    required_gates: [G0, G1, G2]
+    permitted_wording: Non-inferiority was not demonstrated by the original pair-level Study 0 analysis; its identity-aware coverage claim is inadmissible under E-STAT-001 pending reanalysis.
+    forbidden_wording: Accuracy is preserved.
+  - id: C-SUP-001
+    statement: Pair supervision improves 128D compression over PCA and random controls.
+    status: NOT_DEMONSTRATED
+    plane: representation_benchmark
+    evidence: [RESULTS_LFW_V0.1.md, ERRATA_STUDY_0.md]
+    required_gates: [G0, G1, G2, G3]
+    permitted_wording: Added value over matched controls remains an open hypothesis.
+    forbidden_wording: Siamese is the best compression route.
+  - id: C-FACE-001
+    statement: The result transfers to a face-specific backbone and external data.
+    status: OPEN
+    plane: biometric_matcher
+    evidence: [protocol/studies/study_1_face_backbone.yaml]
+    required_gates: [G0, G1, G2, G3, G4]
+    permitted_wording: Transfer is planned for Study 1 and has not been established.
+    forbidden_wording: The method is biometric-grade.
+  - id: C-1N-001
+    statement: Compression preserves 1:N identification and improves system cost.
+    status: OPEN
+    plane: system_engineering
+    evidence: [protocol/research_program.yaml, protocol/studies/study_4_identification_engineering.yaml]
+    required_gates: [G0, G1, G2, G3, G4, G5]
+    permitted_wording: Identification and engineering value are future study questions.
+    forbidden_wording: Smaller templates make national matching faster.
+  - id: C-CAL-001
+    statement: CAL prevents unsupported experimental claims from becoming admissible.
+    status: SPECIFIED_NOT_QUALIFIED
+    plane: decision_side_intervention
+    evidence: [gates/cal_spec.yaml, gates/gate_spec.yaml]
+    required_gates: [G0, G6]
+    permitted_wording: CAL conformance is an internal evidence-gating property.
+    forbidden_wording: CAL certifies biometric safety or regulatory compliance.

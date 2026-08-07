@@ -1,0 +1,4 @@
+split,pairs,genuine_pairs,impostor_pairs,identities,input_dim,sha256,source
+train,842,573,269,784,512,911192ee1e4b010c4cb7139de58cd1117a898a6d407ced2d4e73139457f29ca7,LFW DevTrain/DevTest pair protocol
+validation,795,527,268,753,512,5e40b2c3f5959e20ade8a0a85819d80bebc3e4cb2d3041eb768c2c1ba95f8ccf,LFW DevTrain/DevTest pair protocol
+test,1000,500,500,963,512,af49dafbb97725b9392f649d677b62ac2d073f73069c8fa309b2720521dfdb57,LFW DevTrain/DevTest pair protocol

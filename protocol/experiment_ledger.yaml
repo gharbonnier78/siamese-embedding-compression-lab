@@ -1,0 +1,32 @@
+schema_version: "1.0.0"
+policy: docs/EXPERIMENT_HISTORY_AND_ERRATA.md
+append_only: true
+studies:
+  - study_id: study_0_lfw
+    generation: 0
+    execution_status: ORIGINAL_EXECUTION
+    run_id: lfw_resnet18_siamese_projection_v0_1-89179914-911192ee-64559cbd
+    source_commit: 6888b403ec3a217cd2ec679077955f5a11b7a547
+    configuration: configs/lfw_resnet18.yaml
+    configuration_sha256: b3a4b425aec1801ce2e61e8f25b1f30e4f46348bf38f1a155d47c78a22f330bc
+    result_report: RESULTS_LFW_V0.1.md
+    evidence_snapshot: evidence/study_0_lfw
+    original_paper: output/pdf/siamese_embedding_compression_research_program_v0.2.pdf
+    original_paper_sha256: bc6d31fc9db925d83495e37602084142060890c88303618f46364d1f544fe328
+    complete_replay_policy: release_level_bundle_required
+    known_errata: [E-STAT-001]
+    original_decision: NONINFERIORITY_NOT_SHOWN
+    current_claim_admissibility: INADMISSIBLE_G2
+  - study_id: study_1_face_backbone
+    generation: 1
+    execution_status: NOT_EXECUTED
+    preregistration: protocol/studies/study_1_face_backbone.yaml
+    depends_on_reanalysis: [E-STAT-001]
+errata:
+  - id: E-STAT-001
+    study_id: study_0_lfw
+    record: ERRATA_STUDY_0.md
+    status: REANALYSIS_PLANNED
+    affected_gate: G2
+    affected_claims: [C-NI-001, C-SUP-001]
+    original_artifacts_preserved: true

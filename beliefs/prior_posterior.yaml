@@ -1,0 +1,33 @@
+schema_version: "1.0.0"
+updates:
+  - belief_id: B-MECHANISM
+    proposition: Pair-labelled contrastive training can update a shared projection.
+    prior: plausible
+    evidence: Study 0 gradients, training history and replay
+    posterior: supported_for_this_implementation
+    scope: implementation mechanism only
+  - belief_id: B-SIAMESE-VALUE
+    proposition: A simple Siamese linear 512-to-128 head will preserve low-FMR performance.
+    prior: plausible_but_unquantified
+    evidence: Study 0 failed the predeclared non-inferiority rule across seeds
+    posterior: reduced
+    scope: ImageNet ResNet-18 features, LFW and the declared protocol
+  - belief_id: B-METRIC-GENERAL
+    proposition: Metric supervision can be useful for face representation learning.
+    prior: supported_by_literature
+    evidence: Study 0 is not designed to falsify metric learning in general
+    posterior: unchanged
+    scope: general research proposition
+  - belief_id: B-COMPRESSION-ENGINEERING
+    proposition: Smaller templates will yield material end-to-end operational benefit.
+    prior: context_dependent
+    evidence: Only payload arithmetic has been established; indexes and extractor cost remain.
+    posterior: unresolved
+    scope: must be tested by gallery size, index, hardware and SLA
+revision_policy:
+  require_evidence_reference: true
+  preserve_previous_entries: true
+  prohibit_retroactive_prior_edit: true
+  allow_qualitative_priors_in_exploratory_phase: true
+  require_quantitative_prior_before_confirmatory_bayesian_claim: true
+

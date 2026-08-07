@@ -1,0 +1,36 @@
+schema_version: "1.0.0"
+contract_id: mmals-cal/1.0-draft
+scope: internal_experimental_claim_admissibility
+not_a_complete_safety_proof: true
+not_regulatory_certification: true
+metric_plane: decision_side_intervention
+allowed_outcomes:
+  - ADMISSIBLE
+  - INADMISSIBLE
+  - INDETERMINATE
+default_outcome: INDETERMINATE
+rules:
+  indeterminate_never_becomes_permission: true
+  missing_required_evidence_is_indeterminate: true
+  failed_mandatory_gate_is_inadmissible: true
+  smoke_evidence_cannot_support_biometric_claim: true
+  cal_metrics_cannot_be_named_matcher_fmr_or_fnmr: true
+required_metrics_for_qualification:
+  - coverage_error
+  - set_size
+  - calibration_inflation
+  - prediction_bias
+  - action_rate
+  - abstention_rate
+  - severity_weighted_violations
+  - false_admissibility_rate
+  - gate_regret
+outcome_policy:
+  ADMISSIBLE: All mandatory claim gates pass for the exact bounded statement.
+  INADMISSIBLE: At least one mandatory gate fails and contradicts the statement.
+  INDETERMINATE: Evidence is absent, incomplete, underpowered or outside declared scope.
+replay_mapping:
+  event_type: cal_gate_evaluated
+  evidence_kind: derived
+  required_payload_fields: [claim_id, outcome, gate_results, rationale, metric_plane]
+

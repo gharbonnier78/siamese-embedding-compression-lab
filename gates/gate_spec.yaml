@@ -1,0 +1,74 @@
+schema_version: "1.0.0"
+gate_states: [PASS, FAIL, INDETERMINATE, NOT_RUN]
+principles:
+  fail_lowers_claim_level: true
+  indeterminate_is_not_permission: true
+  smoke_never_allows_biometric_claim: true
+  test_set_cannot_select_winner: true
+  executed_studies_and_errors_are_append_only: true
+gates:
+  - id: G0
+    name: software_and_contract_integrity
+    automated: true
+    checks:
+      - schemas_and_cross_references_valid
+      - analytic_gradient_matches_finite_difference
+      - deterministic_smoke_replay_complete
+      - artifact_hashes_verify
+      - experiment_ledger_and_archived_reports_verify
+  - id: G1
+    name: experimental_design_integrity
+    automated: true
+    checks:
+      - identity_disjoint_splits
+      - train_only_fitting
+      - validation_only_operating_thresholds
+      - freeze_before_test
+      - every_declared_seed_reported
+  - id: G2
+    name: estimator_and_statistical_validity
+    automated: partially
+    checks:
+      - endpoint_and_margin_predeclared
+      - uncertainty_unit_matches_sampling_unit
+      - target_fmr_has_sufficient_resolution
+      - multiplicity_policy_present_when_required
+  - id: G3
+    name: baseline_and_ablation_validity
+    automated: true
+    checks:
+      - raw_random_pca_siamese_same_inputs
+      - equal_output_dimension_for_compression_controls
+      - matched_split_and_evaluation_budget
+  - id: G4
+    name: external_and_shift_validity
+    automated: partially
+    checks:
+      - untouched_external_dataset
+      - dataset_datasheet_complete
+      - overlap_audit_complete
+      - regime_results_not_hidden_by_aggregate
+  - id: G5
+    name: operational_engineering_value
+    automated: partially
+    checks:
+      - end_to_end_storage_includes_overhead
+      - extractor_projection_index_cost_separated
+      - exact_and_approximate_search_identified
+      - latency_memory_throughput_and_accuracy_jointly_reported
+  - id: G6
+    name: cal_claim_admissibility
+    automated: true
+    checks:
+      - cal_outcome_explicit
+      - metric_plane_preserved
+      - false_admissibility_and_gate_regret_reported_when_qualified
+      - claim_wording_matches_registry
+  - id: G7
+    name: independent_reproduction
+    automated: partially
+    checks:
+      - independent_environment_or_team
+      - immutable_bundle_replayed
+      - result_discrepancy_reported
+      - external_review_recorded
