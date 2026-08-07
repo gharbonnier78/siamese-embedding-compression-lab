@@ -1,0 +1,31 @@
+schema_version: "1.0.0"
+study_id: study_1_face_backbone
+title: Face-specific backbone 1:1 compression study
+status: DRAFT_PREREGISTRATION
+claim_level: NONE_UNTIL_EXECUTED
+purpose: >-
+  Test whether pair supervision adds compression value when the frozen source embedding
+  is produced by a face-specific extractor rather than an ImageNet classifier.
+blocking_items:
+  - pin backbone architecture, weights, training provenance and licence
+  - pin development and untouched qualification datasets
+  - declare target population and capture regimes
+  - run identity-overlap and near-duplicate audit
+  - calculate sample size for the selected target FMR and uncertainty requirement
+  - freeze primary FMR, non-inferiority margin and multiplicity policy
+  - freeze compute budget and all seeds
+design:
+  routes: [raw, random, pca, siamese]
+  dimensions: [128]
+  planned_seeds: [11, 29, 47, 71, 101]
+  split_unit: identity
+  threshold_policy: validation_then_freeze
+  test_open_policy: once_after_all_routes_frozen
+  primary_endpoint: delta_fnmr_equal_fmr
+  secondary_endpoints: [eer_descriptive, roc_auc_descriptive, threshold_transfer]
+  uncertainty: paired_identity_aware_bootstrap
+results: null
+decision:
+  state: INDETERMINATE
+  rationale: Study is not yet fully preregistered or executed.
+

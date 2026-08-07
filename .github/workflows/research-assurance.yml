@@ -1,0 +1,54 @@
+name: Research assurance
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    paths:
+      - "claims/**"
+      - "beliefs/**"
+      - "datasets/**"
+      - "gates/**"
+      - "protocol/**"
+      - "paper/**"
+      - "scripts/validate_research_program.py"
+      - "src/siamese_compression_lab/research_assurance.py"
+      - "tests/test_research_assurance.py"
+      - ".github/workflows/research-assurance.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  contracts:
+    name: Claims, gates and replay contracts
+    runs-on: ubuntu-latest
+    env:
+      PYTHONPATH: src
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install package
+        run: python -m pip install --upgrade pip && python -m pip install -e ".[dev]"
+      - name: Validate machine-readable research programme
+        run: python scripts/validate_research_program.py --root . --output assurance-report.json
+      - name: Run assurance unit tests
+        run: python -m unittest tests.test_research_assurance -v
+
+  paper:
+    name: Rebuild research paper
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - name: Install LaTeX
+        run: sudo apt-get update && sudo apt-get install -y latexmk texlive-latex-extra texlive-fonts-recommended
+      - name: Compile paper
+        run: latexmk -pdf -interaction=nonstopmode -halt-on-error -cd paper/main.tex
+      - name: Verify bitwise paper reproducibility
+        run: |
+          cp paper/main.pdf /tmp/main-first.pdf
+          latexmk -g -pdf -interaction=nonstopmode -halt-on-error -cd paper/main.tex
+          cmp /tmp/main-first.pdf paper/main.pdf

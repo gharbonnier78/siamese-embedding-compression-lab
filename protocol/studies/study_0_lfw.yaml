@@ -1,0 +1,53 @@
+schema_version: "1.0.0"
+study_id: study_0_lfw
+title: Frozen ImageNet ResNet-18 projection audit on LFW
+status: COMPLETED
+claim_level: LIMITED_EXPLORATORY
+purpose: Audit the educational Siamese projection mechanism under leakage controls.
+configuration: configs/lfw_resnet18.yaml
+dataset_datasheet: datasets/lfw_datasheet.yaml
+run:
+  run_id: lfw_resnet18_siamese_projection_v0_1-89179914-911192ee-64559cbd
+  result_report: RESULTS_LFW_V0.1.md
+  run_status: BENCHMARK_EXECUTED
+  artifact_integrity: 36/36 hashes verified
+design:
+  train_pairs: 842
+  validation_pairs: 795
+  test_pairs: 1000
+  test_impostor_pairs: 500
+  identity_disjoint_development_splits: true
+  seeds: [11, 29, 47, 71, 101]
+  target_fmr: 0.01
+  noninferiority_delta_fnmr: 0.03
+results:
+  raw:
+    dimension: 512
+    equal_fmr_fnmr_mean: 0.8060
+    roc_auc_mean: 0.7931
+    eer_mean: 0.2890
+  pca:
+    dimension: 128
+    equal_fmr_fnmr_mean: 0.8216
+    roc_auc_mean: 0.8058
+    eer_mean: 0.2704
+  random:
+    dimension: 128
+    equal_fmr_fnmr_mean: 0.8416
+    roc_auc_mean: 0.7726
+    eer_mean: 0.3104
+  siamese:
+    dimension: 128
+    equal_fmr_fnmr_mean: 0.8288
+    roc_auc_mean: 0.8167
+    eer_mean: 0.2662
+    delta_fnmr_vs_raw_mean: 0.0228
+    worst_upper_confidence_bound: 0.156
+decision:
+  noninferiority_demonstrated: false
+  superiority_over_controls_demonstrated: false
+  permitted_statement: >-
+    The pair-supervised projection was trained and evaluated, but non-inferiority and
+    added value were not demonstrated for this backbone, dataset and protocol.
+  forbidden_statement: Siamese compression preserves industrial face recognition accuracy.
+

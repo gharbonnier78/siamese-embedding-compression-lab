@@ -1,15 +1,30 @@
 # Siamese Embedding Compression Lab
 
 [![CI](https://github.com/gharbonnier78/siamese-embedding-compression-lab/actions/workflows/ci.yml/badge.svg)](https://github.com/gharbonnier78/siamese-embedding-compression-lab/actions/workflows/ci.yml)
+[![Research assurance](https://github.com/gharbonnier78/siamese-embedding-compression-lab/actions/workflows/research-assurance.yml/badge.svg)](https://github.com/gharbonnier78/siamese-embedding-compression-lab/actions/workflows/research-assurance.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 
-**Status:** exploratory research software, version 0.1.0. The included negative result is
-reported intentionally; it is not a production biometric-performance claim.
+[![Read the research paper](https://img.shields.io/badge/PDF-Read_the_research_program-B31B1B?logo=adobeacrobatreader&logoColor=white)](output/pdf/siamese_embedding_compression_research_program_v0.2.pdf)
+
+**Quick links:** [Research paper (PDF)](output/pdf/siamese_embedding_compression_research_program_v0.2.pdf)
+· [Research programme](RESEARCH_PROGRAM.md)
+· [Study 0 results](RESULTS_LFW_V0.1.md)
+· [Claims registry](claims/registry.yaml)
+
+**Status:** exploratory research software. Version 0.1.0 is the immutable executed Study 0;
+the current 0.2.0 development line adds a falsifiable research programme. The included
+negative result is reported intentionally; it is not a production biometric-performance
+claim.
 
 A bounded, replayable experiment that asks one question:
 
 > Can a supervised 512→128 linear metric projection reduce face-template storage by
 > four without an unacceptable loss of verification performance?
+
+The broader v0.2 programme asks when that question can be answered credibly across
+face-specific backbones, independent datasets, dimensions, 1:N retrieval and engineering
+constraints. The paper, protocol, claims and gates are versioned together and checked by
+the research-assurance workflow.
 
 The project is inspired by Antonio Díaz-Cano's educational Siamese-network repository,
 but changes the purpose of the experiment. It does not merely show that a distance can
