@@ -11,6 +11,8 @@ import tempfile
 import unittest
 from pathlib import Path
 
+from PIL import Image
+
 ROOT = Path(__file__).resolve().parents[1]
 EXPECTED_STEMS = {
     "study0_benchmark_metrics",
@@ -61,6 +63,11 @@ class GeneratedFigureTests(unittest.TestCase):
             for name, expected in manifest_first["outputs"].items():
                 self.assertEqual(digest(first / name), expected)
                 self.assertEqual(digest(second / name), expected)
+                if name.endswith(".png"):
+                    with Image.open(first / name) as image:
+                        image.verify()
+                    with Image.open(second / name) as image:
+                        image.verify()
 
 
 if __name__ == "__main__":

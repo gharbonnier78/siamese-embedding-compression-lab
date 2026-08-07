@@ -73,12 +73,22 @@ def save_figure(fig: plt.Figure, output_dir: Path, stem: str) -> list[Path]:
     paths: list[Path] = []
     pdf_path = output_dir / f"{stem}.pdf"
     png_path = output_dir / f"{stem}.png"
+    pdf_staging = output_dir / f".{stem}.pdf.tmp"
+    png_staging = output_dir / f".{stem}.png.tmp"
     fig.savefig(
-        pdf_path,
+        pdf_staging,
+        format="pdf",
         metadata={"CreationDate": None, "ModDate": None, "Creator": "replay pipeline"},
     )
-    fig.savefig(png_path, dpi=180, metadata={"Software": "replay pipeline"})
+    fig.savefig(
+        png_staging,
+        format="png",
+        dpi=180,
+        metadata={"Software": "replay pipeline"},
+    )
     plt.close(fig)
+    pdf_staging.replace(pdf_path)
+    png_staging.replace(png_path)
     paths.extend([pdf_path, png_path])
     return paths
 
@@ -413,7 +423,9 @@ def generate(root: Path, evidence: Path, output_dir: Path) -> dict[str, object]:
         ],
     }
     manifest_path = output_dir / "figures_manifest.json"
-    manifest_path.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n")
+    manifest_staging = output_dir / ".figures_manifest.json.tmp"
+    manifest_staging.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n")
+    manifest_staging.replace(manifest_path)
     return manifest
 
 
