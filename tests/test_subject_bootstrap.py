@@ -3,6 +3,7 @@ from __future__ import annotations
 import tempfile
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 import numpy as np
 
@@ -93,6 +94,27 @@ class SubjectBootstrapTests(unittest.TestCase):
         second = draw_subject_multiplicities(subjects, np.random.Generator(np.random.PCG64(7)))
         self.assertEqual(first, second)
         self.assertEqual(sum(first.values()), 3)
+
+    def test_candidate_and_reference_receive_identical_edge_weights(self) -> None:
+        rows = _fixture_rows()
+        candidate = np.asarray([0.7, 0.5, 0.2, 0.9])
+        reference = np.asarray([0.6, 0.4, 0.3, 0.8])
+        with patch(
+            "siamese_compression_lab.subject_bootstrap.weighted_threshold_at_fmr",
+            wraps=weighted_threshold_at_fmr,
+        ) as threshold_call:
+            subject_bootstrap_delta_fnmr(
+                rows=rows,
+                candidate_distances=candidate,
+                reference_distances=reference,
+                target_fmr=0.25,
+                replicates=1,
+                seed=123,
+            )
+        self.assertEqual(threshold_call.call_count, 2)
+        candidate_weights = threshold_call.call_args_list[0].args[2]
+        reference_weights = threshold_call.call_args_list[1].args[2]
+        np.testing.assert_array_equal(candidate_weights, reference_weights)
 
     def test_paired_routes_replay_identically_from_root_seed(self) -> None:
         rows = _fixture_rows()
