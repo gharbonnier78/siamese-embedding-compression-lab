@@ -1,0 +1,245 @@
+# Siamese Embedding Compression Lab
+
+[![CI](https://github.com/gharbonnier78/siamese-embedding-compression-lab/actions/workflows/ci.yml/badge.svg)](https://github.com/gharbonnier78/siamese-embedding-compression-lab/actions/workflows/ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+
+**Status:** exploratory research software, version 0.1.0. The included negative result is
+reported intentionally; it is not a production biometric-performance claim.
+
+A bounded, replayable experiment that asks one question:
+
+> Can a supervised 512→128 linear metric projection reduce face-template storage by
+> four without an unacceptable loss of verification performance?
+
+The project is inspired by Antonio Díaz-Cano's educational Siamese-network repository,
+but changes the purpose of the experiment. It does not merely show that a distance can
+still be computed after projection. It compares the learned projection against the
+uncompressed embedding and two compression controls under a pre-declared protocol.
+
+## Scientific status
+
+Version 0.1 contains two execution profiles:
+
+| Profile | Purpose | Permitted conclusion |
+|---|---|---|
+| `configs/smoke.yaml` | Verify code, gradients, replay, splits and artifacts | No biometric conclusion |
+| `configs/lfw_resnet18.yaml` | Reproduce the frozen ImageNet ResNet-18 setting on LFW | Limited exploratory LFW conclusion |
+
+The ImageNet ResNet-18 profile is deliberately retained to audit the original educational
+idea. It is **not a biometric-grade face extractor**. A future confirmatory study should
+repeat the protocol with an independently validated face backbone and a larger operationally
+representative benchmark.
+
+## Routes compared
+
+All routes receive the same frozen input embeddings and the same pair splits.
+
+1. `raw`: L2-normalized 512D embedding; no compression.
+2. `random`: seeded Gaussian 512→128 projection; no learning.
+3. `pca`: unsupervised PCA 512→128 fitted on TRAIN endpoints only.
+4. `siamese`: shared trainable linear 512→128 projection optimized with contrastive loss.
+
+The random and PCA controls answer different questions:
+
+- random: is any dimensionality reduction already sufficient?
+- PCA: is ordinary unsupervised compression sufficient?
+- Siamese: does the pair supervision add measurable value at the same output dimension?
+
+## Pre-declared hypothesis
+
+The primary exploratory **representation** endpoint is the paired difference
+
+\[
+\Delta_{FNMR} = FNMR_{candidate} - FNMR_{raw512}
+\]
+
+at the same benchmark `FMR = 0.01` on TEST. For each bootstrap replicate, the candidate
+and the raw reference are independently recalibrated to the target FMR, then compared on
+the same resampled genuine pairs. These TEST thresholds compare discrimination only and
+are explicitly **non-deployable**.
+
+Separately, every route receives a deployable-style threshold selected on VALIDATION and
+frozen before TEST. Those results measure threshold transfer and calibration, not equal-FMR
+representation quality.
+
+The configuration declares an exploratory non-inferiority margin of `+0.03` absolute FNMR.
+The upper bound of the paired, label-stratified 95% bootstrap interval must not exceed that
+margin for every pre-specified seed before method-level robustness is reported.
+
+This margin is an experimental convention, not a regulatory or product acceptance rule.
+
+## Leakage controls
+
+The execution order is enforced and written to the audit stream:
+
+1. freeze configuration and seeds;
+2. validate identity-disjoint TRAIN / VALIDATION / TEST;
+3. fit projections on TRAIN only;
+4. early-stop the Siamese head on VALIDATION only;
+5. select each deployable-style operating threshold on VALIDATION only;
+6. freeze all routes and thresholds;
+7. open TEST once;
+8. report validation-frozen operating metrics;
+9. locate equal-FMR TEST benchmark points solely to compare discrimination;
+10. report every pre-specified seed without selecting a winner on TEST.
+
+Test EER, ROC AUC and equal-FMR points are descriptive benchmark metrics. Their use of TEST
+labels does not turn any corresponding threshold into a deployable operating threshold.
+
+## Why LFW cannot support low-FMR claims
+
+An empirical split containing `N` impostor pairs has an FMR resolution of `1/N`. A test set
+with 500 impostor pairs changes in steps of `0.002`; it cannot establish performance at
+`10^-4`, `10^-5` or lower. The run manifest records the exact resolution and prevents the
+LFW profile from being described as an industrial biometric validation.
+
+## MMALS activity-replay compatibility
+
+Each immutable run contains the Replay Bundle v1 core:
+
+```text
+run_manifest.json
+data/events.jsonl
+routes.csv
+metrics.csv
+audit_trace.jsonl
+replay.compact.json
+```
+
+It also contains:
+
+```text
+config.resolved.yaml
+split_summary.csv
+thresholds.csv
+benchmark_thresholds_non_deployable.csv
+results_wide.csv
+test_pair_scores.csv
+paired_noninferiority.csv
+method_noninferiority_summary.csv
+method_summary.csv
+training_history.csv
+storage_engineering.csv
+models/*.npz
+figures/*.png
+```
+
+The domain pack preserves MMALS CSV interoperability. `routes.csv` represents the four
+experimental transformation routes. Every event has a logical step. Every audit decision
+declares whether evidence is observed, derived or declared. Artifact checksums are stored
+in `run_manifest.json`.
+
+The existing `mmals-activity-replay` v0.1.1 contract is not modified; this is a new domain
+pack that can be loaded alongside legacy route-function replay.
+
+## Quick start: deterministic smoke replay
+
+```bash
+python -m venv .venv
+. .venv/bin/activate
+pip install -e .
+python -m unittest discover -s tests -v
+siamese-compression-lab --config configs/smoke.yaml --output runs
+```
+
+The expected final status is:
+
+```text
+SMOKE_VALIDATED
+```
+
+That status means the experimental plumbing executed. It never means that the projection
+is biometrically effective.
+
+## Colab / Jupyter
+
+Open `notebooks/siamese_embedding_compression_colab.ipynb`. The notebook embeds an exact
+copy of the small source package, so it can execute as a standalone Colab file before a
+GitHub repository exists.
+
+The default notebook parameter is:
+
+```python
+RUN_MODE = "smoke"
+```
+
+Run it once in smoke mode. Then switch to:
+
+```python
+RUN_MODE = "lfw"
+```
+
+The real profile installs the optional PyTorch/Kaggle dependencies, retrieves the public
+LFW mirror when necessary, extracts frozen ResNet-18 features, caches those features outside
+the replay bundle, and runs the pre-declared comparison.
+
+No LFW image or face-feature cache is redistributed in this repository or copied into the
+MMALS bundle.
+
+## LFW data acquisition
+
+The current torchvision API no longer downloads LFW automatically. The notebook therefore:
+
+1. uses `data_root` if the expected DevTrain/DevTest CSV files are present;
+2. otherwise uses `kagglehub` with the public `jessicali9530/lfw-dataset` mirror;
+3. hashes the pair files and every image actually used by the protocol;
+4. records acquisition and checksums in the manifest.
+
+If public download behavior changes, place the dataset locally and update only `data_root`.
+
+## Output interpretation
+
+The most important files are:
+
+- `method_summary.csv`: validation-frozen and equal-FMR results across all seeds;
+- `paired_noninferiority.csv`: seed-level equal-FMR paired bootstrap differences;
+- `method_noninferiority_summary.csv`: robust decision across every declared seed;
+- `thresholds.csv`: proof that operating thresholds came from VALIDATION;
+- `benchmark_thresholds_non_deployable.csv`: TEST thresholds used only to compare at equal FMR;
+- `split_summary.csv`: identity and pair counts plus split digests;
+- `audit_trace.jsonl`: leakage and scientific-status decisions;
+- `run_manifest.json`: exact configuration, environment, status and artifact hashes.
+
+For synthetic runs, `paired_noninferiority.csv` always reports
+`SMOKE_ONLY_NOT_ASSESSED`, independently of the numerical score.
+
+## Edge-storage calculation
+
+With float32 templates:
+
+| Dimension | Bytes/template | 150 million templates |
+|---:|---:|---:|
+| 512 | 2,048 | about 286.1 GiB |
+| 128 | 512 | about 71.5 GiB |
+
+These figures concern gallery-template storage only. They do not include indexes, metadata,
+replication, encryption, the image extractor, the projection matrix or database overhead.
+
+The learned projection itself contains `512×128 + 128 = 65,664` trainable values, about
+256.5 KiB in float32. This cost is tiny compared with a very large gallery but not with one
+or two templates on a phone.
+
+## Known limits and next gates
+
+The project should advance only in bounded gates:
+
+1. **Gate 0 — completed:** synthetic replay and numerical-gradient validation.
+2. **Gate 1 — completed:** frozen ResNet-18/LFW replication without leakage; see
+   `RESULTS_LFW_V0.1.md`. Non-inferiority of every tested 128D route was not shown.
+3. **Gate 2:** repeat with a recognized face-specific backbone.
+4. **Gate 3:** evaluate dimensions 64/128/256 under matched budgets.
+5. **Gate 4:** add 1:N retrieval, gallery indexing and latency measurements.
+6. **Gate 5:** evaluate sensor, quality, age and demographic regimes on authorized data.
+
+Failure at a gate is a valid result and should stop scope expansion until understood.
+
+## Provenance
+
+See `THIRD_PARTY_NOTICES.md`. The original Antonio repository is MIT licensed. This project
+uses an independent implementation and records the inspected commit for traceability.
+
+## Citation and contributions
+
+Citation metadata is provided in `CITATION.cff`. Contributions are welcome when they
+preserve the leakage controls and evidence distinctions described in `CONTRIBUTING.md`.
+Please use `SECURITY.md` for responsible handling of security or privacy concerns.
