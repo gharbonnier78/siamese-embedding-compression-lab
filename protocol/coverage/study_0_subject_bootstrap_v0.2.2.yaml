@@ -1,0 +1,54 @@
+schema_version: "1.0.0"
+contract_id: study_0_subject_bootstrap_coverage_v0_2_2
+purpose: validate_subject_bootstrap_interval_coverage_before_historical_reanalysis
+status: IMPLEMENTATION_REVIEW_REQUIRED
+historical_study_0_scores_permitted: false
+root_seed: 20260807
+bootstrap:
+  replicates_per_simulated_dataset: 10000
+  rng: numpy_generator_pcg64
+simulation_precision:
+  dataset_checkpoints: [2000, 4000, 10000]
+  stop_rule: first_checkpoint_where_all_metric_mcse_lte_0_005
+  maximum_monte_carlo_standard_error: 0.005
+coverage_gate:
+  nominal_coverage: 0.95
+  binomial_interval: clopper_pearson_exact_two_sided_95
+  lower_bound_minimum: 0.93
+  pooled_coverage_can_satisfy_gate: false
+  degenerate_dataset_tolerance: 0
+metrics:
+  - representation_delta_fnmr
+  - operational_fnmr
+  - operational_fmr
+graph:
+  subjects: 963
+  genuine_edges: 500
+  impostor_edges: 500
+  sparse_degree_exponent: 1.1
+  synthesize_missing_edges: false
+scenarios:
+  - name: independent_pair_null
+    target_delta_fnmr: 0.0
+    subject_effect_sd_genuine: 0.0
+    subject_effect_sd_impostor: 0.0
+    candidate_reference_noise_correlation: 0.7
+  - name: subject_dependence_null
+    target_delta_fnmr: 0.0
+    subject_effect_sd_genuine: 0.08
+    subject_effect_sd_impostor: 0.05
+    candidate_reference_noise_correlation: 0.7
+  - name: subject_dependence_noninferior
+    target_delta_fnmr: 0.015
+    subject_effect_sd_genuine: 0.08
+    subject_effect_sd_impostor: 0.05
+    candidate_reference_noise_correlation: 0.7
+  - name: subject_dependence_boundary
+    target_delta_fnmr: 0.03
+    subject_effect_sd_genuine: 0.08
+    subject_effect_sd_impostor: 0.05
+    candidate_reference_noise_correlation: 0.7
+review_boundary:
+  must_be_accepted_before_gate_execution: true
+  changing_after_seeing_historical_study_0_scores: forbidden
+  changing_after_gate_failure_requires_versioned_amendment: true
