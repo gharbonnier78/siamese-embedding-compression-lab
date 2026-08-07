@@ -30,6 +30,7 @@ The paper, CI and replay bundles are clients of machine-readable specifications:
 | CAL decision gate | `gates/cal_spec.yaml` |
 | Prior and belief revision | `beliefs/prior_posterior.yaml` |
 | Run evidence | immutable MMALS replay bundle |
+| Paper evidence views | `evidence/study_0_lfw/` + generated-figure manifest |
 
 `scripts/validate_research_program.py` checks cross-file consistency. It does not establish
 biometric validity; it establishes that the evidence contract is internally coherent.
@@ -88,7 +89,11 @@ a regulatory certification, a biometric product approval or a complete safety pr
 
 ```bash
 python scripts/validate_research_program.py --root .
+python scripts/generate_research_figures.py
 python -m unittest discover -s tests -v
 latexmk -pdf -interaction=nonstopmode -halt-on-error -cd paper/main.tex
 ```
 
+The figure step deterministically regenerates the paper's Study 0 protocol, benchmark,
+non-inferiority, threshold-transfer and payload-scaling views. CI rejects a commit when
+those views differ from the evidence-bound snapshots in `paper/figures-generated/`.

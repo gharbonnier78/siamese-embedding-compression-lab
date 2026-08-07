@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import shutil
 import tempfile
 import unittest
 from pathlib import Path
@@ -39,6 +40,8 @@ class ResearchAssuranceTests(unittest.TestCase):
                 target = clone / evidence
                 target.parent.mkdir(parents=True, exist_ok=True)
                 target.write_bytes((ROOT / evidence).read_bytes())
+            shutil.copytree(ROOT / "evidence", clone / "evidence")
+            shutil.copytree(ROOT / "paper/figures-generated", clone / "paper/figures-generated")
 
             path = clone / "protocol/studies/study_1_face_backbone.yaml"
             study = yaml.safe_load(path.read_text(encoding="utf-8"))
@@ -70,6 +73,8 @@ class ResearchAssuranceTests(unittest.TestCase):
                 target = clone / relative
                 target.parent.mkdir(parents=True, exist_ok=True)
                 target.write_bytes((ROOT / relative).read_bytes())
+            shutil.copytree(ROOT / "evidence", clone / "evidence")
+            shutil.copytree(ROOT / "paper/figures-generated", clone / "paper/figures-generated")
             path = clone / "gates/cal_spec.yaml"
             cal = yaml.safe_load(path.read_text(encoding="utf-8"))
             cal["default_outcome"] = "ADMISSIBLE"

@@ -1,0 +1,40 @@
+{
+  "generator": "scripts/generate_research_figures.py",
+  "interpretation_constraints": [
+    "AUC and EER are descriptive in Study 0.",
+    "Equal-FMR TEST thresholds are non-deployable.",
+    "Storage values cover float32 template payload only.",
+    "No industrial biometric-performance claim is permitted."
+  ],
+  "outputs": {
+    "study0_benchmark_metrics.pdf": "a407bde01de6a15b4371a50283dd7954e31df066e9193c64f1e296d946cc4d8d",
+    "study0_benchmark_metrics.png": "2f515a4f52245c35173b6679ed883cbebfcd9292be6a6e267acb0a10473a3d87",
+    "study0_noninferiority.pdf": "9d259d73e645fab55198cc01a9285feda93790c86218196adca33ee92ba6a32a",
+    "study0_noninferiority.png": "7bb9c757810f4daa99f43dbc15a226684c827ff1db8d1acffb6c30f0c5f730e7",
+    "study0_protocol.pdf": "98a770c5c4f4403e376039604c21a417c8ac13c0a05c680601580f01bb1d49d7",
+    "study0_protocol.png": "74435e3ead3d633f4392cf3e97fd9a58cc8fdd7d571fc14f6d08415e9443a57d",
+    "study0_storage.pdf": "23bbd048223dd8a44c5c357dfa5d391503820565c55b0cc0aa864783d1a29472",
+    "study0_storage.png": "8f9792f27bac6ce83957dc7f459e3d4389fe2c52202eb3900fac74bf43279afd",
+    "study0_threshold_transfer.pdf": "540b72ebcb220b1daccc8c83b70738fa785dc92573db12f5cb095a2650d608a8",
+    "study0_threshold_transfer.png": "cf18ef24d298ee4c7efa8f0bee94b8a8e286dbed89b37c175f7ef24cd24f2315"
+  },
+  "protocol_sources": {
+    "datasets/lfw_datasheet.yaml": "e3bc3105951fbd8bf711b8d72d30b66e3cf7957a6bcfdb988ff1653f2be6cb50",
+    "gates/gate_spec.yaml": "5d7fcf6f3d30e208e37b1237bcab05063bcf182b836406c08c9757fcaa203bc9",
+    "protocol/studies/study_0_lfw.yaml": "c6e476872020dad9c8bb42c6d5788525dfbce7abed94034a7304bd264a6884f2"
+  },
+  "run_id": "lfw_resnet18_siamese_projection_v0_1-89179914-911192ee-64559cbd",
+  "schema_version": "1.0.0",
+  "source_files": {
+    "audit_trace.jsonl": "209af29d6b871c799e20afe72ae793f55e38955030f17ad73e324adb8f8d80b2",
+    "method_noninferiority_summary.csv": "c4fdb92394abad11f7282530d360403e9b7908ff14a8ab2a6bbda6f0c012e3b6",
+    "method_summary.csv": "a0bac3f33d731c53f451ecdacc9755751b67ee1dba43819e1031e6ce2b80006d",
+    "paired_noninferiority.csv": "d9c923bacf1ead7799ae51dabdc0627b91a4d8d21b4eb3cdb26378395316a09b",
+    "routes.csv": "b1d4f3d4b49c2b93dbdabb1a6eb58a895c85af3e4a03b19529af6cce43c253e9",
+    "run_manifest.json": "5ef955b554773fb34d1229347af74c7f4c9acdcf16d711cc5a10eb645c5e95a4",
+    "split_summary.csv": "0e17121df85e02ea11eae37b586923b018e487203f62e2e3349e0fb71b5374f7",
+    "storage_engineering.csv": "1f4c0acdf1001d793e7a2ccb6e3c8ef3408d671378272d884dce0bfd9ee9fb31",
+    "thresholds.csv": "e7d6bce43a8f9f3bba31ebf5b2d24927205d2e016c51303b908aafa13360df47",
+    "training_history.csv": "8d8f69e41d5a8b226a16eb89b868abcf4cb87166dfc43d595a266ff58939216c"
+  }
+}

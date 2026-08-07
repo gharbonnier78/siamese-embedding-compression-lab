@@ -9,10 +9,13 @@ on:
       - "beliefs/**"
       - "datasets/**"
       - "gates/**"
+      - "evidence/**"
       - "protocol/**"
       - "paper/**"
+      - "scripts/generate_research_figures.py"
       - "scripts/validate_research_program.py"
       - "src/siamese_compression_lab/research_assurance.py"
+      - "tests/test_generated_figures.py"
       - "tests/test_research_assurance.py"
       - ".github/workflows/research-assurance.yml"
 
@@ -35,11 +38,18 @@ jobs:
         run: python -m pip install --upgrade pip && python -m pip install -e ".[dev]"
       - name: Validate machine-readable research programme
         run: python scripts/validate_research_program.py --root . --output assurance-report.json
+      - name: Regenerate figures from replay evidence
+        env:
+          MPLCONFIGDIR: /tmp/matplotlib
+        run: |
+          python scripts/generate_research_figures.py
+          git diff --exit-code -- paper/figures-generated
       - name: Run assurance unit tests
-        run: python -m unittest tests.test_research_assurance -v
+        run: python -m unittest tests.test_research_assurance tests.test_generated_figures -v
 
   paper:
     name: Rebuild research paper
+    needs: contracts
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5

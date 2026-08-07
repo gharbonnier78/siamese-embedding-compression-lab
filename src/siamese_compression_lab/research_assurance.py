@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hashlib
 import json
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -32,6 +33,10 @@ def _require(condition: bool, message: str, errors: list[str]) -> None:
         errors.append(message)
 
 
+def _sha256(path: Path) -> str:
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
 def validate_research_program(root: str | Path) -> AssuranceReport:
     """Return a deterministic cross-contract validation report."""
     root = Path(root)
@@ -50,6 +55,11 @@ def validate_research_program(root: str | Path) -> AssuranceReport:
         "gates/gate_spec.yaml",
         "gates/cal_spec.yaml",
         "paper/main.tex",
+        "paper/figures-generated/figures_manifest.json",
+        "evidence/study_0_lfw/run_manifest.json",
+        "evidence/study_0_lfw/method_summary.csv",
+        "evidence/study_0_lfw/paired_noninferiority.csv",
+        "evidence/study_0_lfw/storage_engineering.csv",
     ]
     for relative in required:
         _require((root / relative).is_file(), f"missing required file: {relative}", errors)
@@ -119,6 +129,43 @@ def validate_research_program(root: str | Path) -> AssuranceReport:
         errors,
     )
     checks.append("study_zero_frozen_evidence_consistent")
+
+    figure_manifest = json.loads(
+        (root / "paper/figures-generated/figures_manifest.json").read_text(encoding="utf-8")
+    )
+    _require(
+        figure_manifest.get("run_id") == study_zero["run"]["run_id"],
+        "figure manifest run ID diverges from Study 0",
+        errors,
+    )
+    for relative, expected_digest in figure_manifest.get("source_files", {}).items():
+        source_path = root / "evidence/study_0_lfw" / relative
+        _require(source_path.is_file(), f"figure source missing: {relative}", errors)
+        if source_path.is_file():
+            _require(
+                _sha256(source_path) == expected_digest,
+                f"figure source digest mismatch: {relative}",
+                errors,
+            )
+    for relative, expected_digest in figure_manifest.get("protocol_sources", {}).items():
+        source_path = root / relative
+        _require(source_path.is_file(), f"figure protocol source missing: {relative}", errors)
+        if source_path.is_file():
+            _require(
+                _sha256(source_path) == expected_digest,
+                f"figure protocol digest mismatch: {relative}",
+                errors,
+            )
+    for filename, expected_digest in figure_manifest.get("outputs", {}).items():
+        output_path = root / "paper/figures-generated" / filename
+        _require(output_path.is_file(), f"generated figure missing: {filename}", errors)
+        if output_path.is_file():
+            _require(
+                _sha256(output_path) == expected_digest,
+                f"generated figure digest mismatch: {filename}",
+                errors,
+            )
+    checks.append("generated_figures_bound_to_replay_evidence")
 
     gate_ids = {gate.get("id") for gate in gate_doc.get("gates", [])}
     _require(gate_ids == {f"G{index}" for index in range(8)}, "expected gates G0 through G7", errors)

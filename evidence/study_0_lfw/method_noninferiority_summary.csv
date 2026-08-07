@@ -1,0 +1,4 @@
+run_id,candidate_method,target_fmr,predeclared_seeds,seeds_evaluated,worst_delta_fnmr_ci_high,mean_delta_fnmr,noninferiority_margin_fnmr,method_decision,metric_protocol
+lfw_resnet18_siamese_projection_v0_1-89179914-911192ee-64559cbd,pca,0.01,5,5,0.09999999999999998,0.004509999999999996,0.03,NONINFERIORITY_NOT_SHOWN_ACROSS_ALL_SEEDS,test_equal_fmr_benchmark
+lfw_resnet18_siamese_projection_v0_1-89179914-911192ee-64559cbd,random,0.01,5,5,0.118,0.03560019999999999,0.03,NONINFERIORITY_NOT_SHOWN_ACROSS_ALL_SEEDS,test_equal_fmr_benchmark
+lfw_resnet18_siamese_projection_v0_1-89179914-911192ee-64559cbd,siamese,0.01,5,5,0.15600000000000003,0.023400999999999995,0.03,NONINFERIORITY_NOT_SHOWN_ACROSS_ALL_SEEDS,test_equal_fmr_benchmark
