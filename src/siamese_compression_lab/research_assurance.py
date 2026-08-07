@@ -50,8 +50,14 @@ def validate_research_program(root: str | Path) -> AssuranceReport:
         "protocol/experiment_ledger.yaml",
         "protocol/research_program.yaml",
         "protocol/studies/study_0_lfw.yaml",
+        "protocol/studies/study_0_subject_bootstrap_spec.md",
+        "protocol/studies/study_0_subject_bootstrap_v0.2.2.yaml",
         "protocol/studies/study_1_face_backbone.yaml",
         "protocol/studies/study_1_preregistration.md",
+        "protocol/studies/study_2_compression_ablation.yaml",
+        "protocol/studies/study_3_external_shift.yaml",
+        "protocol/studies/study_4_identification_engineering.yaml",
+        "protocol/studies/study_5_independent_reproduction.yaml",
         "claims/registry.yaml",
         "beliefs/prior_posterior.yaml",
         "configs/lfw_resnet18.yaml",
@@ -86,8 +92,7 @@ def validate_research_program(root: str | Path) -> AssuranceReport:
     study_ids = [study.get("study_id") for study in studies]
     _require(len(study_ids) == len(set(study_ids)), "duplicate study_id", errors)
     for study_id in programme.get("study_order", []):
-        if study_id in {"study_0_lfw", "study_1_face_backbone"}:
-            _require(study_id in study_ids, f"declared study missing: {study_id}", errors)
+        _require(study_id in study_ids, f"declared study missing: {study_id}", errors)
     checks.append("study_registry_consistent")
 
     allowed_study_states = {
@@ -108,6 +113,54 @@ def validate_research_program(root: str | Path) -> AssuranceReport:
         if state in {"PLANNED", "DRAFT_PREREGISTRATION", "PREREGISTERED"}:
             _require(study.get("results") in (None, {}), f"{study.get('study_id')}: unexecuted study has results", errors)
     checks.append("study_status_guards_passed")
+
+    reanalysis = next(
+        study
+        for study in studies
+        if study.get("study_id") == "study_0_subject_bootstrap_v0_2_2"
+    )
+    _require(
+        reanalysis.get("execution_status") == "SPECIFIED_NOT_EXECUTED",
+        "v0.2.2 reanalysis must remain specified and unexecuted on the spec branch",
+        errors,
+    )
+    reanalysis_status = reanalysis.get("status")
+    _require(
+        reanalysis_status in {"DRAFT_PREREGISTRATION", "PREREGISTERED"},
+        "v0.2.2 spec status must be DRAFT_PREREGISTRATION or PREREGISTERED",
+        errors,
+    )
+    _require(
+        reanalysis.get("results") in (None, {}),
+        "unexecuted v0.2.2 reanalysis cannot contain results",
+        errors,
+    )
+    _require(
+        str(reanalysis.get("decision", {}).get("g2", "")).startswith("FAIL_"),
+        "unexecuted v0.2.2 reanalysis cannot pass G2",
+        errors,
+    )
+    _require(reanalysis.get("study_1_started") is False, "v0.2.2 cannot start Study 1", errors)
+    subject_spec = (root / "protocol/studies/study_0_subject_bootstrap_spec.md").read_text(
+        encoding="utf-8"
+    )
+    status_token = (
+        "SPECIFICATION DRAFT"
+        if reanalysis_status == "DRAFT_PREREGISTRATION"
+        else "PREREGISTERED"
+    )
+    for token in [
+        status_token,
+        "NOT IMPLEMENTED",
+        "NO REANALYSIS RESULTS",
+        "w_e = m_i",
+        "w_e = m_i * m_j",
+        "never synthesized",
+        "10,000",
+        "Study 1",
+    ]:
+        _require(token in subject_spec, f"v0.2.2 specification missing token: {token}", errors)
+    checks.append("v0_2_2_specification_is_non_executing")
 
     study_zero = next(study for study in studies if study.get("study_id") == "study_0_lfw")
     design = study_zero.get("design") or {}
@@ -146,10 +199,20 @@ def validate_research_program(root: str | Path) -> AssuranceReport:
     ledger_study_zero = next(
         item for item in ledger.get("studies", []) if item.get("study_id") == "study_0_lfw"
     )
+    ledger_reanalysis = next(
+        item
+        for item in ledger.get("studies", [])
+        if item.get("study_id") == "study_0_subject_bootstrap_v0_2_2"
+    )
     _require(ledger.get("append_only") is True, "experiment ledger must be append-only", errors)
     _require(
         ledger_study_zero.get("run_id") == study_zero["run"]["run_id"],
         "experiment ledger changed the Study 0 run ID",
+        errors,
+    )
+    _require(
+        ledger_reanalysis.get("execution_status") == "SPECIFIED_NOT_EXECUTED",
+        "experiment ledger cannot report an executed v0.2.2 reanalysis",
         errors,
     )
     archived_pdf = root / ledger_study_zero["original_paper"]

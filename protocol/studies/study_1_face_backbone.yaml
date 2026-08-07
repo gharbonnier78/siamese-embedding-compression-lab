@@ -8,7 +8,8 @@ purpose: >-
   Test whether pair supervision adds compression value when the frozen source embedding
   is produced by a face-specific extractor rather than an ImageNet classifier.
 blocking_items:
-  - resolve E-STAT-001 and validate identity-dependence-aware interval coverage
+  - implement the v0.2.2 weighted subject-slot bootstrap specification
+  - resolve E-STAT-001 after identity-dependence-aware interval coverage validation
   - pin backbone architecture, weights, training provenance and licence
   - pin development and untouched qualification datasets
   - declare target population and capture regimes
@@ -26,7 +27,7 @@ design:
   representation_endpoint: delta_fnmr_equal_fmr_non_deployable
   operational_endpoint: validation_frozen_fnmr_with_test_fmr_constraint
   secondary_endpoints: [eer_descriptive, roc_auc_descriptive, threshold_transfer]
-  uncertainty: BLOCKED_PENDING_SPECIFICATION_AND_E_STAT_001
+  uncertainty: SPECIFIED_BUT_BLOCKED_PENDING_IMPLEMENTATION_COVERAGE_AND_E_STAT_001
   random_control: gaussian_variance_1_over_d_then_l2_normalize
 sample_size:
   status: BLOCKED

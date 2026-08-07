@@ -28,7 +28,7 @@ claims:
     statement: Siamese 128D is non-inferior to raw 512D at FMR 0.01 on Study 0.
     status: NOT_DEMONSTRATED
     plane: representation_benchmark
-    evidence: [RESULTS_LFW_V0.1.md, protocol/studies/study_0_lfw.yaml, ERRATA_STUDY_0.md]
+    evidence: [RESULTS_LFW_V0.1.md, protocol/studies/study_0_lfw.yaml, ERRATA_STUDY_0.md, protocol/studies/study_0_subject_bootstrap_spec.md]
     required_gates: [G0, G1, G2]
     permitted_wording: Non-inferiority was not demonstrated by the original pair-level Study 0 analysis; its identity-aware coverage claim is inadmissible under E-STAT-001 pending reanalysis.
     forbidden_wording: Accuracy is preserved.
@@ -36,7 +36,7 @@ claims:
     statement: Pair supervision improves 128D compression over PCA and random controls.
     status: NOT_DEMONSTRATED
     plane: representation_benchmark
-    evidence: [RESULTS_LFW_V0.1.md, ERRATA_STUDY_0.md]
+    evidence: [RESULTS_LFW_V0.1.md, ERRATA_STUDY_0.md, protocol/studies/study_0_subject_bootstrap_spec.md]
     required_gates: [G0, G1, G2, G3]
     permitted_wording: Added value over matched controls remains an open hypothesis.
     forbidden_wording: Siamese is the best compression route.

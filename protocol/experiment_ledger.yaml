@@ -22,11 +22,21 @@ studies:
     execution_status: NOT_EXECUTED
     preregistration: protocol/studies/study_1_face_backbone.yaml
     depends_on_reanalysis: [E-STAT-001]
+  - study_id: study_0_subject_bootstrap_v0_2_2
+    generation: 0.2.2
+    execution_status: SPECIFIED_NOT_EXECUTED
+    parent_run_id: lfw_resnet18_siamese_projection_v0_1-89179914-911192ee-64559cbd
+    specification: protocol/studies/study_0_subject_bootstrap_spec.md
+    machine_contract: protocol/studies/study_0_subject_bootstrap_v0.2.2.yaml
+    changes_original_scores: false
+    changes_original_outputs: false
+    study_1_started: false
+    depends_on: [E-STAT-001]
 errata:
   - id: E-STAT-001
     study_id: study_0_lfw
     record: ERRATA_STUDY_0.md
-    status: REANALYSIS_PLANNED
+    status: SPECIFIED_PENDING_IMPLEMENTATION
     affected_gate: G2
     affected_claims: [C-NI-001, C-SUP-001]
     original_artifacts_preserved: true

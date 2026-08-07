@@ -4,7 +4,27 @@ This changelog is append-only. Published studies, negative results and known def
 never rewritten as if they had not occurred. Corrections add a new entry and point back to
 the original run, artifact and claim state.
 
-## [0.2.1-draft] - 2026-08-07
+## [0.2.2-spec] - 2026-08-07
+
+### Added
+
+- A formal, implementation-independent specification for the Study 0 weighted
+  subject-slot bootstrap reanalysis.
+- Exact multiplicity rules for genuine and observed impostor edges on the sparse LFW
+  DevTest pair graph.
+- Frozen estimands, coverage-simulation gate, normative tests, replay outputs and erratum
+  closure criteria.
+- Machine-readable `PLANNED` placeholders for Studies 2, 3 and 5, closing gaps between
+  the declared study sequence and the study registry without starting those studies.
+
+### Status boundary
+
+- No corrected bootstrap has been implemented.
+- No Study 0 reanalysis result exists.
+- `E-STAT-001` remains open and G2 remains failed.
+- Study 1 remains blocked and unexecuted.
+
+## [0.2.1] - 2026-08-07
 
 ### Added
 

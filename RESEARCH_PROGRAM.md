@@ -1,7 +1,8 @@
-# Research programme v0.2.1
+# Research programme v0.2.2-spec
 
-Version 0.2.1 is a methodological correction and does not start Study 1. Executed studies,
-negative results and errors are append-only records governed by
+Version 0.2.1 records the methodological erratum. Version 0.2.2-spec adds only the
+preregistered, implementation-independent correction contract and does not start Study 1.
+Executed studies, negative results and errors are append-only records governed by
 `docs/EXPERIMENT_HISTORY_AND_ERRATA.md` and `protocol/experiment_ledger.yaml`. Study 0
 remains reproducible from its frozen configuration while `E-STAT-001` records the G2
 bootstrap-unit defect and blocks Study 1 execution.
@@ -46,6 +47,7 @@ biometric validity; it establishes that the evidence contract is internally cohe
 | Study | Status | Purpose | Maximum permitted conclusion |
 |---|---|---|---|
 | Study 0 | completed | Audit the educational ImageNet ResNet-18/LFW setting | Limited LFW result |
+| Study 0 v0.2.2 reanalysis | preregistered | Correct uncertainty on the unchanged sparse LFW pair graph | None before implementation, coverage validation and review |
 | Study 1 | draft preregistration | Face-specific backbone, 1:1 non-inferiority | Exploratory external result |
 | Study 2 | planned | Dimensions, projection families and quantization | Compression ablation |
 | Study 3 | planned | External datasets and operational shifts | Bounded robustness claim |
@@ -59,6 +61,11 @@ the current Study 0 supplies arithmetic bounds but no measured latency or 1:N be
 No later study may overwrite Study 0. A failed gate lowers the permitted claim level; it
 does not authorize changing the endpoint, selecting a seed on TEST or silently replacing
 the hypothesis.
+
+The normative preregistration for the bounded Study 0 correction is
+`protocol/studies/study_0_subject_bootstrap_spec.md`. It resamples subject slots, preserves
+their multiplicities on the 1,000 observed LFW DevTest edges, and never constructs missing
+all-pairs comparisons. It contains no corrected result; `E-STAT-001` and G2 remain open.
 
 ## Primary estimand
 

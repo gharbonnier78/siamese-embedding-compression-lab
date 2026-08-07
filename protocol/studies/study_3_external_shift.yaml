@@ -1,0 +1,17 @@
+schema_version: "1.0.0"
+study_id: study_3_external_shift
+title: External-dataset and operational-shift evaluation
+status: PLANNED
+claim_level: NONE_UNTIL_PREREGISTERED_AND_EXECUTED
+purpose: >-
+  Test whether bounded conclusions transfer across independently sourced datasets and
+  declared capture, sensor, quality, age and demographic regimes.
+blocking_items:
+  - resolve E-STAT-001
+  - complete and review Study 1
+  - freeze authorized datasets, target populations and overlap audits
+  - preregister regime-specific estimands and multiplicity controls
+results: null
+decision:
+  state: INDETERMINATE
+  rationale: This is a programme placeholder, not a preregistered or executed study.
