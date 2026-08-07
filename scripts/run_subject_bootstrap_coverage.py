@@ -11,6 +11,7 @@ from pathlib import Path
 import yaml
 
 from siamese_compression_lab.coverage_simulation import (
+    CoverageResult,
     CoverageScenario,
     coverage_gate_passes,
     run_coverage_scenario,
@@ -72,8 +73,13 @@ def main() -> int:
         checkpoints = [2]
         bootstrap_replicates = 10
     else:
-        checkpoints = [int(value) for value in contract["simulation_precision"]["dataset_checkpoints"]]
-        bootstrap_replicates = int(contract["bootstrap"]["replicates_per_simulated_dataset"])
+        checkpoints = [
+            int(value)
+            for value in contract["simulation_precision"]["dataset_checkpoints"]
+        ]
+        bootstrap_replicates = int(
+            contract["bootstrap"]["replicates_per_simulated_dataset"]
+        )
 
     scenarios = [
         _scenario_from_contract(contract, item) for item in contract["scenarios"]
@@ -95,9 +101,11 @@ def main() -> int:
         if args.smoke:
             selected_checkpoint = checkpoint
             break
+        maximum_mcse = float(
+            contract["simulation_precision"]["maximum_monte_carlo_standard_error"]
+        )
         if all(
-            float(row["monte_carlo_standard_error"])
-            <= float(contract["simulation_precision"]["maximum_monte_carlo_standard_error"])
+            float(row["monte_carlo_standard_error"]) <= maximum_mcse
             for row in checkpoint_rows
         ):
             selected_checkpoint = checkpoint
@@ -109,15 +117,7 @@ def main() -> int:
     args.output_dir.mkdir(parents=True, exist_ok=True)
     _write_csv(args.output_dir / "coverage_simulation.csv", final_rows)
     gate_pass = (not args.smoke) and coverage_gate_passes(
-        [
-            # Rehydrate only fields consumed by coverage_gate_passes via the original
-            # dataclass constructor to keep the JSON/CSV contract exact.
-            __import__(
-                "siamese_compression_lab.coverage_simulation",
-                fromlist=["CoverageResult"],
-            ).CoverageResult(**row)
-            for row in final_rows
-        ]
+        [CoverageResult(**row) for row in final_rows]
     )
     gate = {
         "status": "PASS" if gate_pass else ("SMOKE_ONLY" if args.smoke else "FAIL"),
