@@ -66,6 +66,11 @@ thresholds above are descriptive benchmark thresholds and are explicitly non-dep
   preserves low-FMR verification performance.
 - Reducing 512 float32 values to 128 cuts template storage from 2,048 to 512 bytes. At
   150 million templates, the payload-only estimate falls from about 286.1 to 71.5 GiB.
+- The frozen ResNet-18 extractor is unchanged. The learned route adds a 65,664-parameter
+  float32 projection (262,656 bytes), so route-specific storage is `2048N` versus
+  `512N + 262656` bytes: equality at 171 templates and strict savings only above 171.
+- Exact cosine search has a 512N-versus-128N vector-component work proxy, but this run did
+  not measure extraction, projection, search or end-to-end latency. No speed-up is claimed.
 
 ## Limits and next gate
 

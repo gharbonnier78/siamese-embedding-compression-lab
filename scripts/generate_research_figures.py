@@ -300,6 +300,68 @@ def storage(evidence: Path, output_dir: Path) -> list[Path]:
     return save_figure(fig, output_dir, "study0_storage")
 
 
+def engineering_bounds(evidence: Path, output_dir: Path) -> list[Path]:
+    routes = pd.read_csv(evidence / "routes.csv")
+    raw_row = routes[routes.method == "raw"].iloc[0]
+    learned_row = routes[routes.method == "siamese"].iloc[0]
+    raw_bytes = int(raw_row.template_bytes_float32)
+    projected_bytes = int(learned_row.template_bytes_float32)
+    projection_bytes = int(learned_row.trainable_parameters) * 4
+    break_even = projection_bytes / (raw_bytes - projected_bytes)
+    gallery = np.unique(np.geomspace(1, 150_000_000, 300).astype(int))
+
+    fig, axes = plt.subplots(1, 2, figsize=(10.2, 4.15))
+    ax = axes[0]
+    ax.loglog(gallery, raw_bytes * gallery, color=NAVY, linewidth=2, label="Raw: 2,048N")
+    ax.loglog(
+        gallery,
+        projected_bytes * gallery + projection_bytes,
+        color=ORANGE,
+        linewidth=2,
+        label="Projected: 512N + 262,656",
+    )
+    ax.axvline(break_even, color=RED, linestyle="--", linewidth=1.3)
+    ax.annotate(
+        "equal at N=171",
+        (break_even, raw_bytes * break_even),
+        xytext=(14, 18),
+        textcoords="offset points",
+        arrowprops={"arrowstyle": "->", "color": RED},
+        color=RED,
+    )
+    ax.set_xlabel("Gallery templates (N)")
+    ax.set_ylabel("Incremental route bytes")
+    ax.set_title("Storage including projection head", fontweight="bold")
+    ax.grid(which="both", alpha=0.22)
+    ax.legend(frameon=False, fontsize=8)
+
+    ax = axes[1]
+    raw_work = int(raw_row.target_dim) * gallery
+    projected_work = int(learned_row.target_dim) * gallery
+    ax.loglog(gallery, raw_work, color=NAVY, linewidth=2, label="Raw: 512N")
+    ax.loglog(gallery, projected_work, color=ORANGE, linewidth=2, label="Projected: 128N")
+    ax.fill_between(gallery, projected_work, raw_work, color=TEAL, alpha=0.12)
+    ax.text(0.54, 0.46, "4× fewer\ncomponents", transform=ax.transAxes, color=TEAL, ha="center")
+    ax.set_xlabel("Gallery templates (N)")
+    ax.set_ylabel("Components compared per probe")
+    ax.set_title("Exact-search work proxy, not latency", fontweight="bold")
+    ax.grid(which="both", alpha=0.22)
+    ax.legend(frameon=False, fontsize=8)
+
+    fig.suptitle("What 512D→128D can reduce—and what remains unmeasured", color=NAVY, fontweight="bold")
+    fig.text(
+        0.5,
+        -0.01,
+        "Common frozen extractor cancels. Excludes index, metadata, replicas and measured milliseconds; "
+        "the projection adds work after extraction.",
+        ha="center",
+        color=GREY,
+        fontsize=8,
+    )
+    fig.tight_layout(rect=(0, 0.04, 1, 0.94))
+    return save_figure(fig, output_dir, "study0_engineering_bounds")
+
+
 def protocol_flow(root: Path, evidence: Path, output_dir: Path) -> list[Path]:
     study = yaml.safe_load((root / "protocol/studies/study_0_lfw.yaml").read_text())
     datasheet = yaml.safe_load((root / "datasets/lfw_datasheet.yaml").read_text())
@@ -401,6 +463,7 @@ def generate(root: Path, evidence: Path, output_dir: Path) -> dict[str, object]:
     outputs.extend(noninferiority(evidence, output_dir))
     outputs.extend(threshold_transfer(evidence, output_dir))
     outputs.extend(storage(evidence, output_dir))
+    outputs.extend(engineering_bounds(evidence, output_dir))
     outputs.extend(protocol_flow(root, evidence, output_dir))
 
     manifest: dict[str, object] = {

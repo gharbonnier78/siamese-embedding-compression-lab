@@ -16,6 +16,7 @@ from PIL import Image
 ROOT = Path(__file__).resolve().parents[1]
 EXPECTED_STEMS = {
     "study0_benchmark_metrics",
+    "study0_engineering_bounds",
     "study0_noninferiority",
     "study0_protocol",
     "study0_storage",

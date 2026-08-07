@@ -1,0 +1,61 @@
+schema_version: "1.0.0"
+study_id: study_4_identification_engineering
+status: PLANNED
+title: Edge watchlist and 1:N engineering qualification
+purpose: >-
+  Test whether an accuracy-qualified 128D route produces useful end-to-end storage,
+  latency, throughput or energy gains relative to the common frozen 512D extractor.
+scope_boundary:
+  common_pipeline: image -> unchanged frozen extractor -> 512D embedding
+  raw_route: normalize 512D -> store/index/search
+  projected_route: learned 512x128 affine projection -> normalize 128D -> store/index/search
+  excluded_intervention: input-image resizing, backbone compression, pruning, quantization or distillation
+hypotheses:
+  - id: H-FE-SIZE-NULL
+    expectation: The post-extractor projection does not reduce extractor parameters or binary size.
+    falsification: A route-specific packaged extractor is demonstrably smaller because of a separately declared intervention.
+  - id: H-FE-LATENCY-NULL
+    expectation: Extraction time does not improve; projection adds bounded work after extraction.
+    falsification: Stage-isolated measurements show a repeatable extraction-time change with identical extractor artifact and inputs.
+  - id: H-WATCHLIST-ARITHMETIC
+    expectation: >-
+      With float32 templates and a 65664-parameter float32 projection, incremental raw
+      storage is 2048N bytes and projected storage is 512N+262656 bytes. Equality occurs
+      at N=171; projected storage is strictly smaller for N>171 before other overhead.
+    falsification: Byte accounting under the declared representation disagrees with the formula.
+  - id: H-1N-WORK-PROXY
+    expectation: Exact brute-force vector-component work changes from 512N to 128N per probe.
+    limitation: This fourfold work proxy is not a fourfold latency claim.
+primary_gate:
+  prerequisite: Candidate passes the preregistered 1:1 and 1:N accuracy constraints.
+  decision: >-
+    Claim engineering utility only when confidence intervals satisfy the declared accuracy
+    constraint and at least one system endpoint improves without a prohibited regression.
+gallery_sizes: [1, 10, 100, 171, 1000, 100000, 1000000]
+search_modes:
+  - exact_cosine
+  - approximate_nearest_neighbour_separately_configured
+measurement_profiles:
+  - constrained_edge_cpu
+  - representative_edge_device
+  - server_reference
+conditions:
+  cache: [cold, warm]
+  batch_sizes: [1, 16]
+  concurrency: [1, declared_device_saturation]
+endpoints:
+  accuracy: [FNIR, FPIR, Recall_at_K]
+  storage: [extractor_bytes, projection_bytes, template_payload_bytes, metadata_bytes, index_bytes, replica_bytes]
+  latency_ms: [extract, project, search, postprocess, end_to_end]
+  latency_quantiles: [p50, p95, p99]
+  resources: [peak_RSS, steady_state_RSS, bytes_read, throughput]
+  optional: [energy_per_probe]
+controls:
+  - identical images and frozen extractor artifact
+  - identical gallery identities and probe ordering
+  - exact search before ANN comparisons
+  - repeated randomized run order with warm-up reported separately
+  - hardware, threads, SIMD/GPU backend and software versions pinned
+results: null
+decision: INDETERMINATE_NOT_RUN
+permitted_conclusion: No latency, throughput, energy or industrial 1:N benefit is currently established.

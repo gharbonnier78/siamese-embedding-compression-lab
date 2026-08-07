@@ -250,6 +250,29 @@ The learned projection itself contains `512×128 + 128 = 65,664` trainable value
 256.5 KiB in float32. This cost is tiny compared with a very large gallery but not with one
 or two templates on a phone.
 
+For the two routes in this repository, the frozen ResNet-18 extractor is identical and
+therefore cancels from an incremental comparison. Including only the route-specific
+projection and template payload gives:
+
+```text
+raw(N)       = 2,048 N bytes
+projected(N) =   512 N + 262,656 bytes
+```
+
+The two totals are equal at `N = 171`; the learned route is strictly smaller only above
+171 templates under these assumptions. It does **not** shrink the feature-extractor
+library and does **not** accelerate feature extraction. It adds one 512×128 projection
+after extraction. Reducing the extractor itself would require a different intervention,
+such as a smaller backbone, pruning, quantization, distillation or end-to-end 128D training.
+
+For exact 1:N cosine search, a useful work proxy falls from `512N` to `128N` vector
+components per probe. This is a theoretical fourfold reduction in comparison work and
+memory traffic, **not** a measured fourfold response-time gain. The relevant decomposition is
+`T_total = T_extract + T_project + T_search + T_postprocess`; cache, vectorization, index
+type and hardware can dominate. Study 0 records no end-to-end latency or 1:N result. The
+planned, preregistered measurement contract is
+[`protocol/studies/study_4_identification_engineering.yaml`](protocol/studies/study_4_identification_engineering.yaml).
+
 ## Known limits and next gates
 
 The project should advance only in bounded gates:

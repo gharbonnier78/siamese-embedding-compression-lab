@@ -9,13 +9,21 @@ claims:
     permitted_wording: The implemented contrastive loss updates the shared projection.
     forbidden_wording: Siamese training is necessarily useful.
   - id: C-STORAGE-001
-    statement: A float32 512-to-128 projection divides template payload by four.
+    statement: A float32 512-to-128 projection divides template payload by four, with a bounded head-inclusive break-even.
     status: ESTABLISHED_ARITHMETIC
     plane: system_engineering
-    evidence: [RESULTS_LFW_V0.1.md]
+    evidence: [RESULTS_LFW_V0.1.md, evidence/study_0_lfw/routes.csv, evidence/study_0_lfw/storage_engineering.csv]
     required_gates: [G0]
-    permitted_wording: Template payload falls from 2048 to 512 bytes before overhead.
+    permitted_wording: Under float32 payload-only assumptions, templates fall from 2048 to 512 bytes; including the 262656-byte learned projection but excluding common extractor and system overhead, projected storage becomes smaller above 171 templates.
     forbidden_wording: End-to-end system memory is divided by four.
+  - id: C-FE-001
+    statement: The current post-extractor projection changes neither extractor weights nor extractor computation.
+    status: ESTABLISHED_ARCHITECTURAL
+    plane: system_engineering
+    evidence: [protocol/studies/study_0_lfw.yaml, evidence/study_0_lfw/routes.csv]
+    required_gates: [G0]
+    permitted_wording: The frozen extractor is common to both routes; the learned projection adds 65664 parameters and a projection step after extraction.
+    forbidden_wording: The 512-to-128 projection makes the feature extractor smaller or faster.
   - id: C-NI-001
     statement: Siamese 128D is non-inferior to raw 512D at FMR 0.01 on Study 0.
     status: NOT_DEMONSTRATED
@@ -44,7 +52,7 @@ claims:
     statement: Compression preserves 1:N identification and improves system cost.
     status: OPEN
     plane: system_engineering
-    evidence: [protocol/research_program.yaml]
+    evidence: [protocol/research_program.yaml, protocol/studies/study_4_identification_engineering.yaml]
     required_gates: [G0, G1, G2, G3, G4, G5]
     permitted_wording: Identification and engineering value are future study questions.
     forbidden_wording: Smaller templates make national matching faster.
@@ -56,4 +64,3 @@ claims:
     required_gates: [G0, G6]
     permitted_wording: CAL conformance is an internal evidence-gating property.
     forbidden_wording: CAL certifies biometric safety or regulatory compliance.
-

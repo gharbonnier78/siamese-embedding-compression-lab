@@ -9,6 +9,8 @@
   "outputs": {
     "study0_benchmark_metrics.pdf": "05fa22d1fc033f5ea0ec3d3f46f210b641975d6da40facea8e855ea61f1bc8c5",
     "study0_benchmark_metrics.png": "ace190e90889ea161f6be1019f5d8ac26916ac6b5285b6e749980d39882d922e",
+    "study0_engineering_bounds.pdf": "4dde3afad57b0e5f417a6536887cb538ec10e20674a0a5b62bd5bc5bf07b3acb",
+    "study0_engineering_bounds.png": "e17d3508397bfbc7493e80dce00400c3fc544a67634456a037eba2d99f4be873",
     "study0_noninferiority.pdf": "aacafcf480b9bf4fd5662010d58993f7c5d00263617257eaea833d8e6a78472c",
     "study0_noninferiority.png": "17fac5fe43d16c2df1becfbb54f5e8ab2f71b0e15cc15468f417a200cc1358f3",
     "study0_protocol.pdf": "65d983158cf4692d800c8021a02f8fcd39e995c265afa21a448477ad5dabb203",

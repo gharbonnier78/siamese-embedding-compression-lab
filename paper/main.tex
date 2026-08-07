@@ -94,7 +94,9 @@ claim to automated evidence gates. A completed preliminary study uses frozen Ima
 ResNet-18 features on the Labeled Faces in the Wild development protocol. The contrastive
 training mechanism is real, but non-inferiority of the 128-dimensional Siamese projection
 to the raw 512-dimensional representation is not demonstrated. The result is intentionally
-retained as negative evidence. Future registered studies replace the unsuitable extractor,
+retained as negative evidence. The post-extractor projection does not shrink or accelerate
+the common frozen extractor; it adds 65,664 parameters. It reduces each float32 template
+payload fourfold, while 1:N latency remains unmeasured. Future registered studies replace the unsuitable extractor,
 strengthen dataset representativity, add external and shifted evaluation, and measure 1:N
 retrieval and end-to-end engineering cost. Immutable MMALS replay bundles preserve the
 execution history. MMALS-CAL provides a three-state internal claim gate---admissible,
@@ -169,6 +171,7 @@ ID & Bounded claim & Current status\\
 \midrule
 \claim{C-MECHANISM-001} & Pair supervision updates the shared projection & Established, limited\\
 \claim{C-STORAGE-001} & Float32 payload falls from 512D to 128D by factor four & Arithmetic only\\
+\claim{C-FE-001} & The current route does not shrink or accelerate the extractor & Architectural\\
 \claim{C-NI-001} & Siamese-128 is non-inferior to raw-512 in Study 0 & Not demonstrated\\
 \claim{C-SUP-001} & Pair supervision adds value over PCA/random & Not demonstrated\\
 \claim{C-FACE-001} & Result transfers to face-specific backbones/external data & Open\\
@@ -390,6 +393,47 @@ Study 4 will report at least:
 The expected scientific product is a Pareto frontier, not necessarily one universal winner.
 A 128D representation may be useful for a large in-memory watchlist and irrelevant for a
 phone holding one or two enrolled templates.
+
+\subsection{What this intervention can and cannot reduce}
+
+The current intervention is post-extractor dimensionality reduction, not input-image
+resizing and not backbone compression. Both routes execute the same frozen ResNet-18 to
+produce $z\in\mathbb{R}^{512}$. The learned route then executes an affine $512\times128$
+projection and normalisation. Consequently, extractor parameters and extractor time are
+unchanged by construction; projection parameters and projection time are added.
+
+Let $N$ be the number of stored float32 templates. Excluding the common extractor and all
+database/index overhead, the route-specific storage bounds are
+\begin{align}
+M_{\mathrm{raw}}(N) &= 2048N,\\
+M_{\mathrm{proj}}(N) &= 512N + 4(512\times128+128)=512N+262656.
+\end{align}
+They are equal at $N=171$ and the learned route is strictly smaller for $N>171$. Thus a
+one- or two-template phone does not obtain a storage benefit under this implementation,
+whereas a large edge watchlist can. The unchanged extractor binary cancels only in this
+incremental comparison; it still contributes to absolute deployment size.
+
+For brute-force exact cosine search, the component-count proxy changes from $512N$ to
+$128N$ per probe. It is reasonable to hypothesise less comparison work and memory traffic,
+but it is scientifically invalid to translate that ratio directly into milliseconds. The
+end-to-end decomposition is
+\begin{equation}
+T_{\mathrm{total}}=T_{\mathrm{extract}}+T_{\mathrm{project}}+
+T_{\mathrm{search}}+T_{\mathrm{post}}.
+\end{equation}
+Cache state, SIMD/GPU kernels, index construction, batch size and candidate post-processing
+can dominate. Study 0 measured none of these durations. Shrinking the extractor itself
+would require another intervention such as a smaller backbone, pruning, quantisation,
+distillation or direct low-dimensional end-to-end training.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth]{figures-generated/study0_engineering_bounds.pdf}
+\caption{Analytical engineering bounds regenerated from the Study 0 route table. The left
+panel includes the learned projection but excludes common and system overhead. The right
+panel is a work proxy, not an observed speed-up.}
+\label{fig:engineering-bounds}
+\end{figure}
 
 \begin{figure}[htbp]
 \centering

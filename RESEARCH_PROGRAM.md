@@ -46,6 +46,10 @@ biometric validity; it establishes that the evidence contract is internally cohe
 | Study 4 | planned | 1:N retrieval and edge/system cost | Bounded engineering claim |
 | Study 5 | planned | Independent replay and qualification | Reproduction claim |
 
+Study 4 is preregistered in `protocol/studies/study_4_identification_engineering.yaml`.
+It separates the unchanged extractor, added projection, gallery storage and search stages;
+the current Study 0 supplies arithmetic bounds but no measured latency or 1:N benefit.
+
 No later study may overwrite Study 0. A failed gate lowers the permitted claim level; it
 does not authorize changing the endpoint, selecting a seed on TEST or silently replacing
 the hypothesis.
