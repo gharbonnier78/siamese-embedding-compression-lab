@@ -6,6 +6,7 @@ import hashlib
 from pathlib import Path
 from typing import Sequence
 
+import numpy as np
 import pandas as pd
 
 from .subject_bootstrap import SubjectPairRow
@@ -68,9 +69,10 @@ def load_and_validate_score_join(
 
     expected_labels = {row.pair_id: row.same for row in rows}
     expected_ids = set(expected_labels)
-    if set(frame["pair_id"].astype(str)) != expected_ids:
-        missing_ids = sorted(expected_ids - set(frame["pair_id"].astype(str)))
-        extra_ids = sorted(set(frame["pair_id"].astype(str)) - expected_ids)
+    actual_ids = set(frame["pair_id"].astype(str))
+    if actual_ids != expected_ids:
+        missing_ids = sorted(expected_ids - actual_ids)
+        extra_ids = sorted(actual_ids - expected_ids)
         raise ValueError(
             "historical score pair_id universe differs from subject map: "
             f"missing={missing_ids[:5]}, extra={extra_ids[:5]}"
@@ -88,6 +90,6 @@ def load_and_validate_score_join(
 
     if not pd.api.types.is_numeric_dtype(frame["distance"]):
         raise ValueError("historical distance column must be numeric")
-    if not pd.Series(frame["distance"]).map(lambda value: float(value)).map(pd.notna).all():
+    if not np.isfinite(frame["distance"].to_numpy(dtype=np.float64)).all():
         raise ValueError("historical distance column contains non-finite values")
     return frame
