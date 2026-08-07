@@ -57,7 +57,7 @@ def main() -> int:
     parser.add_argument(
         "--contract",
         type=Path,
-        default=Path("protocol/studies/study_0_subject_bootstrap_coverage.yaml"),
+        default=Path("protocol/coverage/study_0_subject_bootstrap_v0.2.2.yaml"),
     )
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument(
