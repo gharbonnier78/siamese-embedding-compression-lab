@@ -1,0 +1,84 @@
+schema_version: "1.0.0"
+study_id: study_0_subject_bootstrap_v0_2_2
+title: Protocol-preserving weighted subject-bootstrap reanalysis of Study 0
+status: DRAFT_PREREGISTRATION
+execution_status: SPECIFIED_NOT_EXECUTED
+claim_level: NONE_UNTIL_EXECUTED
+normative_specification: protocol/studies/study_0_subject_bootstrap_spec.md
+parent_study: study_0_lfw
+resolves_if_all_gates_pass: E-STAT-001
+study_1_started: false
+historical_inputs:
+  run_id: lfw_resnet18_siamese_projection_v0_1-89179914-911192ee-64559cbd
+  test_pairs: 1000
+  genuine_pairs: 500
+  impostor_pairs: 500
+  identities: 963
+  original_scores_mutable: false
+  original_outputs_mutable: false
+scope:
+  projection: frozen_existing_512_to_128
+  retraining: false
+  score_recomputation: false
+  all_pairs_generation: false
+  primary_support: observed_lfw_devtest_pair_graph_only
+identity_mapping:
+  source: original_lfw_devtest_matched_and_mismatched_files
+  source_hashes_required: true
+  public_identity_policy: deterministic_pseudonyms
+  output: test_pair_subject_map_v0.2.2.csv
+  blocking_invariants:
+    unique_pairs: 1000
+    genuine_pairs: 500
+    impostor_pairs: 500
+    endpoint_subjects: 963
+    one_to_one_score_join: true
+bootstrap:
+  name: protocol_preserving_weighted_subject_slot_bootstrap
+  sampling_unit: subject_slot
+  subject_draws_per_replicate: 963
+  replacement: true
+  preserve_repeated_slots: true
+  deduplicate_subjects: false
+  genuine_edge_weight: m_i
+  observed_impostor_edge_weight: m_i_times_m_j
+  synthesize_unobserved_edges: false
+  paired_routes_same_draw: true
+  rng: numpy_generator_pcg64
+  replicates: 10000
+  convergence_checkpoints: [2000, 5000, 10000]
+estimands:
+  representation:
+    id: delta_fnmr_equal_weighted_test_fmr
+    target_fmr: 0.01
+    reference: raw512
+    candidates: [random128, pca128, siamese128]
+    route_specific_test_thresholds: true
+    deployable: false
+  operational:
+    id: validation_frozen_threshold_transfer
+    threshold_source: validation
+    test_recalibration: false
+noninferiority:
+  delta_fnmr: 0.03
+  interval: percentile_two_sided_95
+  upper_bound_quantile: 0.975
+  all_seeds_must_pass: true
+  seeds: [11, 29, 47, 71, 101]
+coverage_validation:
+  required: true
+  nominal_coverage: 0.95
+  maximum_monte_carlo_standard_error: 0.005
+  gate: lower_95_percent_binomial_bound_gte_0_93
+  include_sparse_two_subject_dependence: true
+degenerate_replicates:
+  silent_redraw: false
+  default_action: FAIL_REANALYSIS
+outputs:
+  directory: evidence/study_0_subject_bootstrap_v0.2.2
+  overwrite_original_study_zero: false
+results: null
+decision:
+  state: INDETERMINATE
+  g2: FAIL_PENDING_IMPLEMENTATION_COVERAGE_AND_REANALYSIS
+  rationale: The draft specification is open for review; no corrected estimator or result exists.

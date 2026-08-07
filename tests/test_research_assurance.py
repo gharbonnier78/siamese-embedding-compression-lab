@@ -27,8 +27,14 @@ class ResearchAssuranceTests(unittest.TestCase):
                 "protocol/experiment_ledger.yaml",
                 "protocol/research_program.yaml",
                 "protocol/studies/study_0_lfw.yaml",
+                "protocol/studies/study_0_subject_bootstrap_spec.md",
+                "protocol/studies/study_0_subject_bootstrap_v0.2.2.yaml",
                 "protocol/studies/study_1_face_backbone.yaml",
                 "protocol/studies/study_1_preregistration.md",
+                "protocol/studies/study_2_compression_ablation.yaml",
+                "protocol/studies/study_3_external_shift.yaml",
+                "protocol/studies/study_4_identification_engineering.yaml",
+                "protocol/studies/study_5_independent_reproduction.yaml",
                 "claims/registry.yaml",
                 "beliefs/prior_posterior.yaml",
                 "configs/lfw_resnet18.yaml",
@@ -67,8 +73,14 @@ class ResearchAssuranceTests(unittest.TestCase):
                 "protocol/experiment_ledger.yaml",
                 "protocol/research_program.yaml",
                 "protocol/studies/study_0_lfw.yaml",
+                "protocol/studies/study_0_subject_bootstrap_spec.md",
+                "protocol/studies/study_0_subject_bootstrap_v0.2.2.yaml",
                 "protocol/studies/study_1_face_backbone.yaml",
                 "protocol/studies/study_1_preregistration.md",
+                "protocol/studies/study_2_compression_ablation.yaml",
+                "protocol/studies/study_3_external_shift.yaml",
+                "protocol/studies/study_4_identification_engineering.yaml",
+                "protocol/studies/study_5_independent_reproduction.yaml",
                 "claims/registry.yaml",
                 "beliefs/prior_posterior.yaml",
                 "configs/lfw_resnet18.yaml",
@@ -104,6 +116,20 @@ class ResearchAssuranceTests(unittest.TestCase):
             report = validate_research_program(clone)
             self.assertEqual(report.status, "FAIL")
             self.assertIn("archived v0.2 paper is missing or changed", report.errors)
+
+    def test_subject_bootstrap_spec_cannot_claim_unexecuted_results(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            clone = Path(directory)
+            shutil.copytree(ROOT, clone, dirs_exist_ok=True)
+            path = clone / "protocol/studies/study_0_subject_bootstrap_v0.2.2.yaml"
+            reanalysis = yaml.safe_load(path.read_text(encoding="utf-8"))
+            reanalysis["results"] = {"invented_ucb": 0.01}
+            reanalysis["decision"]["g2"] = "PASS"
+            path.write_text(yaml.safe_dump(reanalysis), encoding="utf-8")
+            report = validate_research_program(clone)
+            self.assertEqual(report.status, "FAIL")
+            self.assertIn("unexecuted v0.2.2 reanalysis cannot contain results", report.errors)
+            self.assertIn("unexecuted v0.2.2 reanalysis cannot pass G2", report.errors)
 
 
 if __name__ == "__main__":

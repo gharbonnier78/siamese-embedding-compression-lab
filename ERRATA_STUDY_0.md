@@ -9,7 +9,7 @@ tables or the original v0.2 paper.
 - Affected run: `lfw_resnet18_siamese_projection_v0_1-89179914-911192ee-64559cbd`
 - Affected claims: `C-NI-001`, `C-SUP-001`
 - Affected gate: `G2 estimator_and_statistical_validity`
-- Status: `REANALYSIS_PLANNED`
+- Status: `SPECIFIED_PENDING_IMPLEMENTATION`
 
 ### What was declared
 
@@ -49,3 +49,16 @@ their separately bounded claims.
 
 Until those steps pass, Study 1 execution and its a-priori sample-size calculation are
 blocked.
+
+### Frozen correction specification
+
+Version `0.2.2-spec` freezes the proposed protocol-preserving weighted subject-slot
+bootstrap in
+[`protocol/studies/study_0_subject_bootstrap_spec.md`](protocol/studies/study_0_subject_bootstrap_spec.md).
+It resamples 963 subject slots with replacement, assigns weight `m_i` to each observed
+genuine edge and `m_i*m_j` to each observed impostor edge, preserves repeated slots, and
+never synthesizes a pair absent from LFW DevTest.
+
+This specification is not an implementation or result. G2 remains `FAIL`, this erratum
+remains open, and Study 1 remains blocked until the implementation, coverage validation,
+versioned reanalysis and independent review all pass.

@@ -1,0 +1,16 @@
+schema_version: "1.0.0"
+study_id: study_5_independent_reproduction
+title: Independent replay and qualification
+status: PLANNED
+claim_level: NONE_UNTIL_PREREGISTERED_AND_EXECUTED
+purpose: >-
+  Replay an immutable qualified bundle in an independent environment or by an independent
+  team and report every material discrepancy.
+blocking_items:
+  - complete the studies whose claims are selected for reproduction
+  - freeze the replay bundle, environment and acceptance tolerances
+  - nominate an independent reproducer and review process
+results: null
+decision:
+  state: INDETERMINATE
+  rationale: This is a programme placeholder, not a preregistered or executed study.

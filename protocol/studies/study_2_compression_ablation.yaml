@@ -1,0 +1,18 @@
+schema_version: "1.0.0"
+study_id: study_2_compression_ablation
+title: Compression-family and dimensionality ablation
+status: PLANNED
+claim_level: NONE_UNTIL_PREREGISTERED_AND_EXECUTED
+purpose: >-
+  Compare projection families, output dimensions and quantization under matched data,
+  training, seed and evaluation budgets after the Study 0 correction and Study 1.
+blocking_items:
+  - resolve E-STAT-001
+  - complete and review Study 1
+  - preregister dimensions, controls, compute budget and operating points
+planned_routes: [raw, random, pca, siamese]
+planned_dimensions: [64, 128, 256]
+results: null
+decision:
+  state: INDETERMINATE
+  rationale: This is a programme placeholder, not a preregistered or executed study.

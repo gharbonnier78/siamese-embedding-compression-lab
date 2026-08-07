@@ -1,6 +1,6 @@
 schema_version: "1.0.0"
 programme_id: siamese_embedding_compression_research_program
-programme_version: "0.2.1-draft"
+programme_version: "0.2.2-spec"
 status: ACTIVE_EXPLORATORY
 title: Falsifiable biometric embedding compression with metric learning
 owner: Guillaume Harbonnier
@@ -24,7 +24,8 @@ primary_estimand:
   direction: lower_is_better
   uncertainty: >-
     Study 0 executed a paired label-stratified pair-level bootstrap; identity-aware
-    uncertainty is blocked by E-STAT-001 and required before Study 1.
+    uncertainty is specified in v0.2.2 but remains unimplemented and blocked by
+    E-STAT-001 before Study 1.
 evidence_planes:
   - biometric_matcher
   - representation_benchmark
@@ -37,6 +38,7 @@ required_controls:
   - supervised_siamese_projection
 study_order:
   - study_0_lfw
+  - study_0_subject_bootstrap_v0_2_2
   - study_1_face_backbone
   - study_2_compression_ablation
   - study_3_external_shift

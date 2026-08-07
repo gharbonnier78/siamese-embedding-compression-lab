@@ -11,16 +11,19 @@
 · [Research programme](RESEARCH_PROGRAM.md)
 · [Study 0 results](RESULTS_LFW_V0.1.md)
 · [Study 0 errata](ERRATA_STUDY_0.md)
+· [v0.2.2 subject-bootstrap specification](protocol/studies/study_0_subject_bootstrap_spec.md)
 · [Experiment ledger](protocol/experiment_ledger.yaml)
 · [Changelog](CHANGELOG.md)
 · [Claims registry](claims/registry.yaml)
 · [Generated figures](paper/figures-generated)
 
 **Status:** exploratory research software. Version 0.1.0 is the immutable executed Study 0;
-the current 0.2.1 development line is a methodological correction, not the execution of
-Study 1. It records `E-STAT-001`: Study 0 executed a paired, label-stratified pair-level
-bootstrap although the programme described identity-aware uncertainty. The original
-negative result and artifacts remain visible; G2 is failed pending versioned reanalysis.
+version 0.2.1 records the methodological erratum `E-STAT-001`. The current 0.2.2 branch is
+**specification only**: no corrected bootstrap or reanalysis result exists and Study 1 has
+not started. Study 0 executed a paired, label-stratified pair-level bootstrap although the
+programme described identity-aware uncertainty. The original negative result and artifacts
+remain visible; G2 is failed pending implementation, coverage validation and versioned
+reanalysis.
 
 A bounded, replayable experiment that asks one question:
 
@@ -107,6 +110,11 @@ The executed Study 0 bootstrap resampled pair indices, not identity clusters. It
 is retained as the original diagnostic but is inadmissible as identity-aware evidence; see
 [`E-STAT-001`](ERRATA_STUDY_0.md). Study 1 is blocked until the dependence-aware estimator
 and its coverage are specified and tested.
+
+The v0.2.2 specification now defines that estimator as a protocol-preserving weighted
+subject-slot bootstrap over the 963 TEST identities and the 1,000 **observed** LFW DevTest
+pairs. Repeated subject slots are preserved; missing all-pairs comparisons are not invented.
+The specification is available for review, but it has not yet been implemented.
 
 This margin is an experimental convention, not a regulatory or product acceptance rule.
 
