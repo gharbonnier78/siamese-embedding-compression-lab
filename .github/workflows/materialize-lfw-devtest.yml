@@ -1,0 +1,45 @@
+name: Materialize LFW DevTest evidence
+
+on:
+  pull_request:
+    paths:
+      - "scripts/materialize_lfw_devtest.py"
+      - ".github/workflows/materialize-lfw-devtest.yml"
+      - "src/siamese_compression_lab/subject_bootstrap.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  materialize:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install materialization dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]" "kagglehub>=0.3"
+
+      - name: Materialize exact Kaggle v4 DevTest evidence
+        run: |
+          python scripts/materialize_lfw_devtest.py \
+            --output-dir /tmp/lfw-devtest-evidence
+
+      - name: Show immutable evidence manifest
+        run: cat /tmp/lfw-devtest-evidence/source_manifest.json
+
+      - name: Upload verified evidence
+        uses: actions/upload-artifact@v4
+        with:
+          name: lfw-devtest-v0.2.2-source-evidence
+          path: /tmp/lfw-devtest-evidence
+          if-no-files-found: error
+          retention-days: 30
