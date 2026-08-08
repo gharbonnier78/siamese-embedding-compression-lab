@@ -63,19 +63,26 @@ def main() -> int:
     plan = compile_edge_weight_plan(graph)
 
     rng = np.random.Generator(np.random.PCG64(20260810))
-    multiplicity_draws = [
+    scalar_multiplicity_draws = [
         draw_subject_multiplicities(subjects, rng) for _ in range(args.component_draws)
+    ]
+    vector_multiplicity_draws = [
+        np.asarray([draw[subject] for subject in plan.subjects], dtype=np.int64)
+        for draw in scalar_multiplicity_draws
     ]
 
     scalar_component_times = []
     vector_component_times = []
     for _ in range(args.repeats):
         elapsed, scalar_weights = _timed(
-            lambda: [edge_weights(graph, draw) for draw in multiplicity_draws]
+            lambda: [edge_weights(graph, draw) for draw in scalar_multiplicity_draws]
         )
         scalar_component_times.append(elapsed)
         elapsed, vector_weights = _timed(
-            lambda: [edge_weights_vectorized(plan, draw) for draw in multiplicity_draws]
+            lambda: [
+                edge_weights_vectorized(plan, draw)
+                for draw in vector_multiplicity_draws
+            ]
         )
         vector_component_times.append(elapsed)
         for scalar, vectorized in zip(scalar_weights, vector_weights):
