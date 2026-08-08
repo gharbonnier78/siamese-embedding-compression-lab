@@ -123,12 +123,19 @@ def main() -> int:
     scenario_count = 5
     first_checkpoint_datasets_total = first_checkpoint_datasets_per_scenario * scenario_count
     estimated_seconds_per_dataset = combined_seconds_per_replicate * frozen_bootstrap_replicates
-    estimated_first_checkpoint_seconds_single_worker = estimated_seconds_per_dataset * first_checkpoint_datasets_total
+    estimated_seconds_per_scenario = estimated_seconds_per_dataset * first_checkpoint_datasets_per_scenario
+    estimated_first_checkpoint_seconds_single_worker = estimated_seconds_per_scenario * scenario_count
 
     result = {
         "benchmark_kind": "non_outcome_computational_feasibility",
         "historical_study_0_scores_read": False,
         "coverage_outcomes_computed": False,
+        "frozen_parameters": {
+            "target_fmr": scenario.target_fmr,
+            "bootstrap_replicates_per_dataset": frozen_bootstrap_replicates,
+            "first_checkpoint_datasets_per_scenario": first_checkpoint_datasets_per_scenario,
+            "scenario_count": scenario_count,
+        },
         "graph": {
             "pairs": len(rows),
             "genuine": int(np.sum(same == 1)),
@@ -146,11 +153,10 @@ def main() -> int:
             "components": component,
         },
         "frozen_scale_extrapolation": {
-            "bootstrap_replicates_per_dataset": frozen_bootstrap_replicates,
-            "first_checkpoint_datasets_per_scenario": first_checkpoint_datasets_per_scenario,
-            "scenario_count": scenario_count,
             "first_checkpoint_datasets_total": first_checkpoint_datasets_total,
             "estimated_seconds_per_dataset": estimated_seconds_per_dataset,
+            "estimated_seconds_per_scenario_single_worker": estimated_seconds_per_scenario,
+            "estimated_hours_per_scenario_single_worker": estimated_seconds_per_scenario / 3600.0,
             "estimated_first_checkpoint_seconds_single_worker": estimated_first_checkpoint_seconds_single_worker,
             "estimated_first_checkpoint_hours_single_worker": estimated_first_checkpoint_seconds_single_worker / 3600.0,
             "note": "Linear extrapolation from a non-outcome synthetic timing benchmark; not a production runtime guarantee.",
