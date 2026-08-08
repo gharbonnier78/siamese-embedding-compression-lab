@@ -7,12 +7,12 @@ from dataclasses import dataclass
 
 import numpy as np
 
+from .edge_weight_plan import build_edge_weight_plan, edge_weights_from_plan
 from .subject_bootstrap import (
     DegenerateReplicateError,
     SubjectPairRow,
     _degenerate_audit,
     draw_subject_multiplicities,
-    edge_weights,
     subject_universe,
     weighted_rates_at_threshold,
 )
@@ -46,12 +46,13 @@ def subject_bootstrap_fixed_threshold(
         raise ValueError("subject map and route distances must align one-to-one")
     same = np.asarray([row.same for row in rows], dtype=np.int8)
     subjects = subject_universe(rows)
+    weight_plan = build_edge_weight_plan(rows, subjects)
     rng = np.random.Generator(np.random.PCG64(seed))
     output: list[OperationalReplicate] = []
 
     for replicate in range(replicates):
         multiplicities = draw_subject_multiplicities(subjects, rng)
-        weights = edge_weights(rows, multiplicities)
+        weights = edge_weights_from_plan(weight_plan, multiplicities)
         try:
             rates = weighted_rates_at_threshold(
                 same,
