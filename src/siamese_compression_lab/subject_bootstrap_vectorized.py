@@ -7,7 +7,7 @@ sequence. The reviewed scalar implementation remains available as a reference pa
 
 from __future__ import annotations
 
-from collections.abc import Mapping, Sequence
+from collections.abc import Sequence
 from dataclasses import dataclass
 
 import numpy as np
@@ -17,7 +17,6 @@ from .subject_bootstrap import (
     DegenerateReplicateError,
     SubjectPairRow,
     _degenerate_audit,
-    draw_subject_multiplicities,
     subject_universe,
     weighted_rates_at_threshold,
     weighted_threshold_at_fmr,
@@ -33,11 +32,14 @@ class EdgeWeightPlan:
     endpoint_1: np.ndarray
     endpoint_2: np.ndarray
     same: np.ndarray
+    probabilities: np.ndarray
 
 
 def compile_edge_weight_plan(rows: Sequence[SubjectPairRow]) -> EdgeWeightPlan:
     """Index subject endpoints once while preserving the exact observed row order."""
     subjects = tuple(subject_universe(rows))
+    if not subjects:
+        raise ValueError("subject bootstrap requires at least one subject")
     positions = {subject: index for index, subject in enumerate(subjects)}
     return EdgeWeightPlan(
         subjects=subjects,
@@ -48,26 +50,34 @@ def compile_edge_weight_plan(rows: Sequence[SubjectPairRow]) -> EdgeWeightPlan:
             [positions[row.subject_slot_id_2] for row in rows], dtype=np.int64
         ),
         same=np.asarray([row.same for row in rows], dtype=np.int8),
+        probabilities=np.full(len(subjects), 1.0 / len(subjects), dtype=np.float64),
+    )
+
+
+def draw_subject_multiplicity_vector(
+    plan: EdgeWeightPlan,
+    rng: np.random.Generator,
+) -> np.ndarray:
+    """Draw the same multinomial subject multiplicities as the scalar reference path."""
+    return np.asarray(
+        rng.multinomial(len(plan.subjects), plan.probabilities),
+        dtype=np.int64,
     )
 
 
 def edge_weights_vectorized(
     plan: EdgeWeightPlan,
-    multiplicities: Mapping[str, int],
+    multiplicities: np.ndarray,
 ) -> np.ndarray:
     """Apply frozen m_i / m_i*m_j rules using pre-indexed NumPy gathers."""
-    counts = np.fromiter(
-        (int(multiplicities.get(subject, 0)) for subject in plan.subjects),
-        dtype=np.int64,
-        count=len(plan.subjects),
-    )
+    counts = np.asarray(multiplicities, dtype=np.int64)
+    if counts.ndim != 1 or len(counts) != len(plan.subjects):
+        raise ValueError("subject multiplicity vector must align with indexed subjects")
     if np.any(counts < 0):
         raise ValueError("subject multiplicities must be non-negative")
     first = counts[plan.endpoint_1]
-    weights = first.copy()
-    impostor = plan.same != 1
-    weights[impostor] = first[impostor] * counts[plan.endpoint_2[impostor]]
-    return weights
+    second = counts[plan.endpoint_2]
+    return np.where(plan.same == 1, first, first * second).astype(np.int64, copy=False)
 
 
 def subject_bootstrap_delta_fnmr_vectorized(
@@ -92,7 +102,7 @@ def subject_bootstrap_delta_fnmr_vectorized(
     output: list[BootstrapReplicate] = []
 
     for replicate in range(replicates):
-        multiplicities = draw_subject_multiplicities(plan.subjects, rng)
+        multiplicities = draw_subject_multiplicity_vector(plan, rng)
         weights = edge_weights_vectorized(plan, multiplicities)
         try:
             candidate_threshold = weighted_threshold_at_fmr(
@@ -163,7 +173,7 @@ def subject_bootstrap_fixed_threshold_vectorized(
     output: list[OperationalReplicate] = []
 
     for replicate in range(replicates):
-        multiplicities = draw_subject_multiplicities(plan.subjects, rng)
+        multiplicities = draw_subject_multiplicity_vector(plan, rng)
         weights = edge_weights_vectorized(plan, multiplicities)
         try:
             rates = weighted_rates_at_threshold(
