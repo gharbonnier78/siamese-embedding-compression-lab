@@ -1,0 +1,65 @@
+schema_version: "1.0.0"
+chronicle_id: siamese_embedding_compression_scientific_chronicle
+policy: docs/SCIENTIFIC_HARNESS.md
+gate_contract: gates/scientific_harness.yaml
+append_only: true
+entries:
+  - id: CHRON-20260808-001
+    recorded_at_utc: "2026-08-08T07:47:00Z"
+    scope: study_0_subject_bootstrap_v0_2_2
+    kind: cost_risk
+    status: OPEN
+    outcome_evidence_seen: false
+    summary: >-
+      The frozen production coverage design may be computationally impractical with the
+      reviewed reference threshold implementation because weighted_threshold_at_fmr scans
+      unique impostor distances in Python and repeatedly recomputes weighted sums.
+    rationale: >-
+      The production design nests 10,000 subject-bootstrap replicates inside up to 10,000
+      simulated datasets across five scenarios. Runtime pressure must not silently cause a
+      reduction of preregistered replicates, scenarios, stopping rules, or threshold semantics.
+    evidence_refs:
+      - src/siamese_compression_lab/subject_bootstrap.py
+      - src/siamese_compression_lab/coverage_simulation.py
+      - scripts/run_subject_bootstrap_coverage.py
+      - protocol/coverage/study_0_subject_bootstrap_v0.2.2.yaml
+      - protocol/studies/study_0_subject_bootstrap_spec.md
+    considered_options:
+      - benchmark_reference_implementation_at_small_non_outcome_scale
+      - vectorize_threshold_computation_with_stable_sort_and_cumulative_weights
+      - reduce_preregistered_simulation_scale
+    rejected_or_constrained_options:
+      - option: reduce_preregistered_simulation_scale
+        reason: >-
+          Runtime convenience alone is not a semantics-preserving implementation change and
+          would require a versioned methodological amendment before execution.
+    next_action: >-
+      Benchmark the reviewed reference implementation, implement the vectorized threshold
+      path if needed, and prove equivalence against the reviewed algorithm including tie
+      blocks and sentinel behavior before production coverage execution.
+    blocks:
+      - production_coverage_gate
+
+  - id: CHRON-20260808-002
+    recorded_at_utc: "2026-08-08T07:50:00Z"
+    scope: siamese_embedding_compression_research_program
+    kind: process_integrity_incident
+    status: RESOLVED
+    outcome_evidence_seen: false
+    summary: >-
+      While introducing the chronicle harness, several connector writes were accidentally
+      targeted at main instead of a dedicated review branch; affected content was restored
+      and the harness work was moved to agent/scientific-chronicle-harness.
+    rationale: >-
+      Research-process provenance includes tooling and branch-discipline failures when they
+      could compromise reviewability. The incident did not alter Study 0 result artifacts or
+      outcome-bearing evidence, but it demonstrates why review-before-merge and immutable
+      history are required.
+    evidence_refs:
+      - docs/SCIENTIFIC_HARNESS.md
+      - protocol/research_program.yaml
+    resolution: >-
+      Restore the previous research_program content bit-for-bit, remove temporary files, and
+      require all further harness changes to occur on the dedicated branch and PR.
+    next_action: null
+    blocks: []
