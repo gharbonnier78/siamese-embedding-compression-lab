@@ -8,7 +8,7 @@ entries:
     recorded_at_utc: "2026-08-08T07:47:00Z"
     scope: study_0_subject_bootstrap_v0_2_2
     kind: cost_risk
-    status: OPEN
+    status: RESOLVED
     outcome_evidence_seen: false
     summary: >-
       The frozen production coverage design may be computationally impractical with the
@@ -24,6 +24,12 @@ entries:
       - scripts/run_subject_bootstrap_coverage.py
       - protocol/coverage/study_0_subject_bootstrap_v0.2.2.yaml
       - protocol/studies/study_0_subject_bootstrap_spec.md
+      - https://github.com/gharbonnier78/siamese-embedding-compression-lab/pull/7
+      - https://github.com/gharbonnier78/siamese-embedding-compression-lab/pull/8
+      - https://github.com/gharbonnier78/siamese-embedding-compression-lab/pull/11
+      - "github-actions:run/31261726312:artifact/9022980518:sha256:5777861668b9818d1bd2b2638ea3781b8818fdd20b8f940073b48226d67e3ab6"
+      - "github-actions:run/31261726288:artifact/9022980927:sha256:30880b346467eb3935fd1c5be9faf7a96fdb4407b816649eb3d51053fe19236f"
+      - "github-actions:run/31261918151:artifact/9023037425:sha256:ad79e5628061765dfb3a941f7e7b50d90ad690be6a94e82b5e4ff0b1cbb246f6"
     considered_options:
       - benchmark_reference_implementation_at_small_non_outcome_scale
       - vectorize_threshold_computation_with_stable_sort_and_cumulative_weights
@@ -39,3 +45,23 @@ entries:
       blocks and sentinel behavior before production coverage execution.
     blocks:
       - production_coverage_gate
+    resolved_at_utc: "2026-08-08T14:28:00Z"
+    resolution: >-
+      The feasibility risk is resolved without changing the frozen statistical method or
+      reducing preregistered scale. Experiment #1 established deterministic SeedSequence
+      substreams and process-level dataset parallelism with serial/parallel and isolated-replay
+      equivalence. Experiment #2 pre-indexed the sparse subject graph and replaced per-replicate
+      Python dictionary/edge traversal with an equivalent vector multiplicity and NumPy edge-
+      weight path. Scalar/vectorized outputs are identical under matched RNG state. On the
+      reviewed synthetic 963-subject/1000-pair geometry, representation plus operational
+      bootstrap execution improved by about 3.72x end-to-end. Re-running the parallel scaling
+      benchmark on the optimized path estimated the frozen first 2,000-dataset checkpoint at
+      about 1.14 h/scenario with one worker, 0.60 h/scenario with two workers, and 0.44 h/scenario
+      with four workers; five scenarios sequentially at four workers are about 2.21 h. A direct
+      non-outcome 1,000-to-10,000 replicate timing check observed a 9.773x runtime ratio for a
+      10x replicate increase (0.977x the linear prediction), supporting the scale extrapolation.
+      CI, equivalence tests, the vectorization benchmark, parallel scaling benchmark and direct
+      frozen-scale timing check are green on the reviewed branch. Historical Study 0 scores
+      remain unread. This resolution releases only the computational preflight blocker; it does
+      not make any Study 0 scientific claim admissible, does not close E-STAT-001 or G2, and does
+      not itself execute production coverage.
