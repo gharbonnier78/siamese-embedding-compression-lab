@@ -1,0 +1,41 @@
+schema_version: "1.0.0"
+contract_id: scientific-chronicle-harness/1.0-draft
+scope: research_process_provenance_and_execution_preflight
+not_outcome_evidence: true
+append_only_required: true
+allowed_statuses:
+  - OPEN
+  - RESOLVED
+  - SUPERSEDED
+  - ACCEPTED_RISK
+  - INFORMATIONAL
+required_entry_fields:
+  - id
+  - recorded_at_utc
+  - scope
+  - kind
+  - status
+  - outcome_evidence_seen
+  - summary
+  - rationale
+  - evidence_refs
+  - blocks
+rules:
+  unique_entry_ids: true
+  open_entry_requires_next_action: true
+  informational_entry_cannot_block: true
+  post_outcome_methodological_change_cannot_be_preregistered: true
+  unresolved_blocker_prevents_named_production_step: true
+  chronicle_cannot_close_scientific_or_cal_gate: true
+  optimization_of_statistical_logic_requires_equivalence_evidence: true
+execution_steps:
+  production_coverage_gate:
+    blocked_by_open_chronicle_entries: true
+  corrected_study_0_reanalysis:
+    blocked_by_open_chronicle_entries: true
+  study_1_execution:
+    blocked_by_open_chronicle_entries: true
+pedagogy:
+  progressive_exposition_allowed: true
+  authoritative_sources_must_be_linked: true
+  pedagogical_artifacts_are_not_outcome_evidence: true
