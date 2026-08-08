@@ -10,11 +10,14 @@ from pathlib import Path
 
 import yaml
 
+from siamese_compression_lab.coverage_execution import (
+    run_coverage_scenario_seedsequence,
+    spawn_scenario_seed_sequences,
+)
 from siamese_compression_lab.coverage_simulation import (
     CoverageResult,
     CoverageScenario,
     coverage_gate_passes,
-    run_coverage_scenario,
 )
 from siamese_compression_lab.scientific_harness import assert_execution_unblocked
 
@@ -25,6 +28,11 @@ def _load_contract(path: Path) -> dict:
         raise TypeError("coverage contract must be a YAML mapping")
     if value.get("historical_study_0_scores_permitted") is not False:
         raise ValueError("coverage simulation contract must prohibit historical Study 0 scores")
+    hierarchy = value.get("rng_hierarchy", {})
+    if hierarchy.get("derivation") != "numpy_seedsequence_spawn":
+        raise ValueError("coverage contract must require numpy SeedSequence.spawn hierarchy")
+    if hierarchy.get("arithmetic_seed_offsets_forbidden") is not True:
+        raise ValueError("coverage contract must forbid arithmetic seed offsets")
     return value
 
 
@@ -72,11 +80,19 @@ def main() -> int:
     )
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument(
+        "--workers",
+        type=int,
+        default=1,
+        help="Independent dataset worker processes. Worker count must not change outputs.",
+    )
+    parser.add_argument(
         "--smoke",
         action="store_true",
         help="Use tiny counts to validate plumbing only; cannot satisfy the coverage gate.",
     )
     args = parser.parse_args()
+    if args.workers <= 0:
+        raise ValueError("workers must be positive")
 
     contract = _load_contract(args.contract)
     if not args.smoke:
@@ -102,17 +118,19 @@ def main() -> int:
     scenarios = [
         _scenario_from_contract(contract, item) for item in contract["scenarios"]
     ]
+    scenario_seeds = spawn_scenario_seed_sequences(root_seed, len(scenarios))
     final_rows: list[dict] = []
     selected_checkpoint: int | None = None
 
     for checkpoint in checkpoints:
         checkpoint_rows: list[dict] = []
-        for scenario_index, scenario in enumerate(scenarios):
-            results = run_coverage_scenario(
+        for scenario, scenario_seed in zip(scenarios, scenario_seeds):
+            results = run_coverage_scenario_seedsequence(
                 scenario,
                 simulated_datasets=checkpoint,
                 bootstrap_replicates=bootstrap_replicates,
-                root_seed=root_seed + scenario_index * 10_000_000,
+                scenario_seed=scenario_seed,
+                workers=args.workers,
             )
             checkpoint_rows.extend(asdict(result) for result in results)
         final_rows = checkpoint_rows
@@ -142,6 +160,9 @@ def main() -> int:
         "selected_dataset_checkpoint": selected_checkpoint,
         "bootstrap_replicates_per_dataset": bootstrap_replicates,
         "root_seed": root_seed,
+        "rng_derivation": "numpy_seedsequence_spawn",
+        "arithmetic_seed_offsets_used": False,
+        "workers": args.workers,
         "binomial_interval": contract["coverage_gate"]["binomial_interval"],
         "lower_bound_minimum": contract["coverage_gate"]["lower_bound_minimum"],
         "maximum_monte_carlo_standard_error": contract["simulation_precision"][
