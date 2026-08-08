@@ -1,0 +1,63 @@
+name: Vectorized parallel coverage scaling benchmark
+
+on:
+  pull_request:
+    paths:
+      - "src/siamese_compression_lab/coverage_execution_vectorized.py"
+      - "src/siamese_compression_lab/subject_bootstrap_vectorized.py"
+      - "src/siamese_compression_lab/edge_weights_vectorized.py"
+      - "scripts/benchmark_vectorized_parallel_scaling.py"
+      - "tests/test_coverage_execution_vectorized.py"
+      - ".github/workflows/benchmark-vectorized-parallel-scaling.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      PYTHONPATH: src
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install benchmark dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+      - name: Run exact combined execution tests
+        run: python -m pytest tests/test_coverage_execution_vectorized.py -q
+      - name: Run non-outcome combined scaling benchmark
+        run: |
+          python scripts/benchmark_vectorized_parallel_scaling.py \
+            --datasets 16 \
+            --bootstrap-replicates 1000 \
+            --repeats 3 \
+            --workers 1 2 4 \
+            --output vectorized-parallel-scaling.json
+      - name: Assert benchmark boundaries and equivalence
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          result = json.loads(Path("vectorized-parallel-scaling.json").read_text())
+          assert result["historical_study_0_scores_read"] is False
+          assert result["coverage_outcomes_aggregated"] is False
+          assert result["production_coverage_gate_executed"] is False
+          assert result["exact_dataset_outcome_equivalence_verified"] is True
+          assert result["configuration"]["bootstrap_replicates_per_dataset"] == 1000
+          assert result["configuration"]["frozen_bootstrap_replicates_per_dataset"] == 10000
+          assert [row["workers"] for row in result["results"]] == [1, 2, 4]
+          assert all(row["production_scale_factor"] == 10.0 for row in result["results"])
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: vectorized-parallel-scaling
+          path: vectorized-parallel-scaling.json
+          if-no-files-found: error
+          retention-days: 30
