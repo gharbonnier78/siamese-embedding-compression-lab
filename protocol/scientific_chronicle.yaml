@@ -39,3 +39,40 @@ entries:
       blocks and sentinel behavior before production coverage execution.
     blocks:
       - production_coverage_gate
+
+  - id: CHRON-20260808-003
+    recorded_at_utc: "2026-08-08T14:33:00Z"
+    scope: study_0_subject_bootstrap_v0_2_2
+    kind: decision
+    status: RESOLVED
+    outcome_evidence_seen: false
+    summary: >-
+      The production-coverage computational-feasibility blocker is resolved after measured
+      profiling, deterministic dataset-level parallelism, sparse-edge pre-indexing, exact
+      equivalence tests, and a direct benchmark at the frozen 10,000-replicate inner scale.
+    rationale: >-
+      The initial threshold-hotspot hypothesis was not supported at target FMR 0.01. Profiling
+      instead justified dataset-level process parallelism and pre-indexing of the fixed sparse
+      subject graph. The optimized path preserves the frozen weighting rule, SeedSequence RNG
+      hierarchy, threshold/tie/sentinel semantics, estimands, and degenerate-replicate policy.
+      CI and replay-equivalence tests are green. The direct frozen-inner benchmark at 10,000
+      replicates per simulated dataset measured approximately 8.886 s/dataset with one worker,
+      4.552 s/dataset with two workers, and 4.103 s/dataset with four workers on the recorded
+      four-logical-CPU GitHub runner. This corresponds to approximately 4.94 h, 2.53 h, and
+      2.28 h respectively for 2,000 datasets in one scenario, or about 11.40 h for all five
+      scenarios sequentially at four workers. These are feasibility measurements and linear
+      checkpoint projections, not runtime guarantees. No historical Study 0 score or coverage
+      outcome was inspected in reaching this decision.
+    evidence_refs:
+      - src/siamese_compression_lab/coverage_execution.py
+      - src/siamese_compression_lab/edge_weight_plan.py
+      - src/siamese_compression_lab/subject_bootstrap.py
+      - src/siamese_compression_lab/subject_bootstrap_operational.py
+      - tests/test_coverage_execution.py
+      - tests/test_edge_weight_plan.py
+      - tests/test_scientific_harness.py
+      - github-actions-run:31261787826/artifact:9022994761/sha256:876eae9de0c0d49c8cab3caa31aca7370c5926ce22284f558ea71d3cb475d19e
+      - github-actions-run:31261787834/artifact:9023010478/sha256:ffc55fb9d20b99d61848acbddb4222f08ea04a8d90b8a81d222a59866a966aa2
+      - github-actions-run:31261930797/artifact:9023059449/sha256:096b239ee1e1d7072f66bd2e6fe81e02b6b5776eaa01335d52bcf4ca2961f583
+    supersedes: CHRON-20260808-001
+    blocks: []
