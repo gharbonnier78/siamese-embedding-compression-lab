@@ -72,6 +72,18 @@ class VectorizedFullBootstrapTests(unittest.TestCase):
         )
         self.assertEqual(actual, expected)
 
+    def test_vectorized_operational_threshold_remains_frozen(self) -> None:
+        threshold = scenario_truth(self.scenario).candidate_threshold
+        actual = subject_bootstrap_fixed_threshold_vectorized(
+            rows=self.rows,
+            distances=self.candidate,
+            validation_threshold=threshold,
+            replicates=100,
+            seed=31,
+        )
+        self.assertTrue(actual)
+        self.assertTrue(all(row.threshold == threshold for row in actual))
+
     def test_study0_like_geometry_matches_for_fixed_seed(self) -> None:
         scenario = CoverageScenario(
             name="study0_like_vectorized_fixture",
