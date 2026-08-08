@@ -8,6 +8,7 @@ on:
       - "src/siamese_compression_lab/edge_weights_vectorized.py"
       - "tests/test_coverage_execution_vectorized.py"
       - "scripts/benchmark_vectorized_coverage_execution.py"
+      - "protocol/coverage/study_0_subject_bootstrap_v0.2.2.yaml"
       - ".github/workflows/benchmark-vectorized-coverage-execution.yml"
   workflow_dispatch:
 
@@ -51,11 +52,16 @@ jobs:
           assert result["coverage_outcomes_aggregated"] is False
           assert result["production_coverage_gate_executed"] is False
           assert result["exact_dataset_outcome_equivalence_verified"] is True
-          assert result["legacy_is_default_engine"] is True
+          assert result["execution_contract"]["selected_engine"] == "vectorized"
+          assert result["execution_contract"]["reference_oracle_engine"] == "legacy"
+          assert result["execution_contract"]["exact_dataset_outcome_equivalence_required"] is True
+          assert result["interpretation_boundary"]["speedup_compares_same_worker_count"] is True
+          assert "same worker count" in result["speedup_definition"]
           assert result["configuration"]["bootstrap_replicates_per_dataset"] == 1000
           assert result["configuration"]["frozen_bootstrap_replicates_per_dataset"] == 10000
           assert [row["workers"] for row in result["results"]] == [1, 2, 4]
           assert all(row["production_scale_factor"] == 10 for row in result["results"])
+          assert all(row["speedup_definition"] == result["speedup_definition"] for row in result["results"])
           PY
       - uses: actions/upload-artifact@v4
         with:
