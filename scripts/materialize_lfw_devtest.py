@@ -82,10 +82,8 @@ def main() -> int:
         mismatched_sha256 = _require_digest(mismatched, EXPECTED_MISMATCHED_SHA256)
 
         sources_dir.mkdir(parents=True, exist_ok=True)
-        matched_evidence = sources_dir / MATCHED_FILE
-        mismatched_evidence = sources_dir / MISMATCHED_FILE
-        shutil.copyfile(matched, matched_evidence)
-        shutil.copyfile(mismatched, mismatched_evidence)
+        shutil.copyfile(matched, sources_dir / MATCHED_FILE)
+        shutil.copyfile(mismatched, sources_dir / MISMATCHED_FILE)
 
         rows = reconstruct_lfw_devtest_subject_map(matched, mismatched)
         counts = validate_subject_map(
@@ -102,10 +100,12 @@ def main() -> int:
     manifest = {
         "dataset_handle": DATASET_HANDLE,
         "historical_study_0_scores_read": False,
-        "matched_source": str(matched_evidence.relative_to(output_dir)),
+        "source_files_committed": False,
+        "source_files_retained_in_workflow_artifact": True,
+        "matched_source_file": MATCHED_FILE,
         "matched_source_sha256": matched_sha256,
         "matched_source_expected_sha256": EXPECTED_MATCHED_SHA256,
-        "mismatched_source": str(mismatched_evidence.relative_to(output_dir)),
+        "mismatched_source_file": MISMATCHED_FILE,
         "mismatched_source_sha256": mismatched_sha256,
         "mismatched_source_expected_sha256": EXPECTED_MISMATCHED_SHA256,
         "subject_map": subject_map.name,
