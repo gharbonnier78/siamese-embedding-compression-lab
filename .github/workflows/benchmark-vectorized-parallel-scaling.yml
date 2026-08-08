@@ -7,6 +7,7 @@ on:
       - "src/siamese_compression_lab/subject_bootstrap_vectorized.py"
       - "src/siamese_compression_lab/edge_weights_vectorized.py"
       - "scripts/benchmark_vectorized_parallel_scaling.py"
+      - "scripts/benchmark_vectorized_frozen_inner.py"
       - "tests/test_coverage_execution_vectorized.py"
       - ".github/workflows/benchmark-vectorized-parallel-scaling.yml"
   workflow_dispatch:
@@ -40,7 +41,7 @@ jobs:
             --repeats 3 \
             --workers 1 2 4 \
             --output vectorized-parallel-scaling.json
-      - name: Assert benchmark boundaries and equivalence
+      - name: Assert combined benchmark boundaries and equivalence
         run: |
           python - <<'PY'
           import json
@@ -55,9 +56,32 @@ jobs:
           assert [row["workers"] for row in result["results"]] == [1, 2, 4]
           assert all(row["production_scale_factor"] == 10.0 for row in result["results"])
           PY
+      - name: Run direct frozen-10k inner-scale benchmark
+        run: |
+          python scripts/benchmark_vectorized_frozen_inner.py \
+            --datasets 8 \
+            --repeats 3 \
+            --workers 1 2 4 \
+            --output vectorized-frozen-inner.json
+      - name: Assert frozen-inner boundaries and exact replay
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          result = json.loads(Path("vectorized-frozen-inner.json").read_text())
+          assert result["historical_study_0_scores_read"] is False
+          assert result["coverage_outcomes_aggregated"] is False
+          assert result["production_coverage_gate_executed"] is False
+          assert result["exact_10000_replicate_legacy_equivalence_verified"] is True
+          assert result["worker_count_equivalence_verified"] is True
+          assert result["configuration"]["bootstrap_replicates_per_dataset"] == 10000
+          assert [row["workers"] for row in result["results"]] == [1, 2, 4]
+          PY
       - uses: actions/upload-artifact@v4
         with:
           name: vectorized-parallel-scaling
-          path: vectorized-parallel-scaling.json
+          path: |
+            vectorized-parallel-scaling.json
+            vectorized-frozen-inner.json
           if-no-files-found: error
           retention-days: 30
