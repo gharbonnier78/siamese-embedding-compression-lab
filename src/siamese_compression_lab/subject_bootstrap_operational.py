@@ -8,7 +8,9 @@ from dataclasses import dataclass
 import numpy as np
 
 from .subject_bootstrap import (
+    DegenerateReplicateError,
     SubjectPairRow,
+    _degenerate_audit,
     draw_subject_multiplicities,
     edge_weights,
     subject_universe,
@@ -50,12 +52,27 @@ def subject_bootstrap_fixed_threshold(
     for replicate in range(replicates):
         multiplicities = draw_subject_multiplicities(subjects, rng)
         weights = edge_weights(rows, multiplicities)
-        rates = weighted_rates_at_threshold(
-            same,
-            distances,
-            weights,
-            float(validation_threshold),
-        )
+        try:
+            rates = weighted_rates_at_threshold(
+                same,
+                distances,
+                weights,
+                float(validation_threshold),
+            )
+        except ValueError as exc:
+            reason = str(exc)
+            if not reason.startswith("degenerate replicate:"):
+                raise
+            raise DegenerateReplicateError(
+                _degenerate_audit(
+                    replicate=replicate,
+                    reason=reason,
+                    same=same,
+                    weights=weights,
+                    completed_replicates=len(output),
+                ),
+                output,
+            ) from exc
         output.append(
             OperationalReplicate(
                 replicate=replicate,
