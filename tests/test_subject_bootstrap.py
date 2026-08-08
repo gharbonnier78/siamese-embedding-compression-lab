@@ -8,6 +8,7 @@ from unittest.mock import patch
 import numpy as np
 
 from siamese_compression_lab.subject_bootstrap import (
+    DegenerateReplicateError,
     SubjectPairRow,
     draw_subject_multiplicities,
     edge_weights,
@@ -140,6 +141,37 @@ class SubjectBootstrapTests(unittest.TestCase):
         self.assertEqual(percentile_summary(first), percentile_summary(second))
         self.assertGreater(first[0].genuine_weight, 0)
         self.assertGreater(first[0].impostor_weight, 0)
+
+    def test_degenerate_replicate_preserves_audit_and_prior_results(self) -> None:
+        rows = _fixture_rows()
+        candidate = np.asarray([0.7, 0.5, 0.2, 0.9])
+        reference = np.asarray([0.6, 0.4, 0.3, 0.8])
+        draws = [
+            {"A": 1, "B": 1, "C": 1},
+            {"A": 0, "B": 0, "C": 3},
+        ]
+        with patch(
+            "siamese_compression_lab.subject_bootstrap.draw_subject_multiplicities",
+            side_effect=draws,
+        ):
+            with self.assertRaises(DegenerateReplicateError) as caught:
+                subject_bootstrap_delta_fnmr(
+                    rows=rows,
+                    candidate_distances=candidate,
+                    reference_distances=reference,
+                    target_fmr=0.25,
+                    replicates=2,
+                    seed=123,
+                )
+        error = caught.exception
+        self.assertEqual(error.audit.replicate, 1)
+        self.assertEqual(error.audit.completed_replicates, 1)
+        self.assertEqual(len(error.completed_replicates), 1)
+        self.assertEqual(error.audit.genuine_weight, 0)
+        self.assertEqual(error.audit.impostor_weight, 0)
+        self.assertEqual(error.audit.effective_genuine_edges, 0)
+        self.assertEqual(error.audit.effective_impostor_edges, 0)
+        self.assertIn("positive-weight impostor", error.audit.reason)
 
     def test_mapping_reconstruction_preserves_source_edges(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
