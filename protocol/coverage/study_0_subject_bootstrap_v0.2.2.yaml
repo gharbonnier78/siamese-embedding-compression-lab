@@ -17,6 +17,12 @@ rng_hierarchy:
   worker_count_must_not_change_outputs: true
   isolated_dataset_replay_from_seed_lineage_required: true
   note: "Pre-outcome execution clarification only; does not change estimands, scenarios, bootstrap weights, thresholds, or coverage criteria."
+execution:
+  engine: vectorized
+  reference_oracle_engine: legacy
+  exact_dataset_outcome_equivalence_required: true
+  implementation_only: true
+  note: "Pre-outcome execution selection after exact legacy/vectorized replay and non-outcome profiling; changes execution cost only, not the frozen statistical contract."
 bootstrap:
   replicates_per_simulated_dataset: 10000
   rng: numpy_generator_pcg64
