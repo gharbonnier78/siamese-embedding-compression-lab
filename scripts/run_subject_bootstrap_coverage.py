@@ -33,6 +33,15 @@ def _load_contract(path: Path) -> dict:
         raise ValueError("coverage contract must require numpy SeedSequence.spawn hierarchy")
     if hierarchy.get("arithmetic_seed_offsets_forbidden") is not True:
         raise ValueError("coverage contract must forbid arithmetic seed offsets")
+    execution = value.get("execution", {})
+    if execution.get("engine") not in {"legacy", "vectorized"}:
+        raise ValueError("coverage contract must select legacy or vectorized execution engine")
+    if execution.get("reference_oracle_engine") != "legacy":
+        raise ValueError("coverage contract must preserve legacy as the execution oracle")
+    if execution.get("exact_dataset_outcome_equivalence_required") is not True:
+        raise ValueError("coverage contract must require exact engine equivalence")
+    if execution.get("implementation_only") is not True:
+        raise ValueError("coverage engine selection must be implementation-only")
     return value
 
 
@@ -95,6 +104,7 @@ def main() -> int:
         raise ValueError("workers must be positive")
 
     contract = _load_contract(args.contract)
+    engine = str(contract["execution"]["engine"])
     if not args.smoke:
         assert_execution_unblocked(
             args.chronicle,
@@ -131,6 +141,7 @@ def main() -> int:
                 bootstrap_replicates=bootstrap_replicates,
                 scenario_seed=scenario_seed,
                 workers=args.workers,
+                engine=engine,  # type: ignore[arg-type]
             )
             checkpoint_rows.extend(asdict(result) for result in results)
         final_rows = checkpoint_rows
@@ -163,6 +174,8 @@ def main() -> int:
         "rng_derivation": "numpy_seedsequence_spawn",
         "arithmetic_seed_offsets_used": False,
         "workers": args.workers,
+        "execution_engine": engine,
+        "reference_oracle_engine": contract["execution"]["reference_oracle_engine"],
         "binomial_interval": contract["coverage_gate"]["binomial_interval"],
         "lower_bound_minimum": contract["coverage_gate"]["lower_bound_minimum"],
         "maximum_monte_carlo_standard_error": contract["simulation_precision"][
