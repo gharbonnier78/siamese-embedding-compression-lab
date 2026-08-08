@@ -7,8 +7,10 @@ root_seed: 20260807
 bootstrap:
   replicates_per_simulated_dataset: 10000
   rng: numpy_generator_pcg64
+  checkpoint_axis_note: "Inner estimator axis; Study 0 section 8 uses 2000/5000/10000 bootstrap-replicate convergence checkpoints."
 simulation_precision:
   dataset_checkpoints: [2000, 4000, 10000]
+  checkpoint_axis_note: "Outer validation axis; counts independently simulated datasets, not bootstrap replicates."
   stop_rule: first_checkpoint_where_all_metric_mcse_lte_0_005
   maximum_monte_carlo_standard_error: 0.005
 coverage_gate:
@@ -45,6 +47,12 @@ scenarios:
     candidate_reference_noise_correlation: 0.7
   - name: subject_dependence_boundary
     target_delta_fnmr: 0.03
+    subject_effect_sd_genuine: 0.08
+    subject_effect_sd_impostor: 0.05
+    candidate_reference_noise_correlation: 0.7
+  - name: subject_dependence_inferior
+    target_delta_fnmr: 0.05
+    regime_note: "Beyond frozen NI margin delta=0.03; validates interval coverage here, not a separate inferiority decision gate."
     subject_effect_sd_genuine: 0.08
     subject_effect_sd_impostor: 0.05
     candidate_reference_noise_correlation: 0.7
