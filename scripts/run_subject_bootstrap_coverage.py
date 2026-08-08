@@ -16,6 +16,7 @@ from siamese_compression_lab.coverage_simulation import (
     coverage_gate_passes,
     run_coverage_scenario,
 )
+from siamese_compression_lab.scientific_harness import assert_execution_unblocked
 
 
 def _load_contract(path: Path) -> dict:
@@ -59,6 +60,16 @@ def main() -> int:
         type=Path,
         default=Path("protocol/coverage/study_0_subject_bootstrap_v0.2.2.yaml"),
     )
+    parser.add_argument(
+        "--chronicle",
+        type=Path,
+        default=Path("protocol/scientific_chronicle.yaml"),
+    )
+    parser.add_argument(
+        "--scientific-harness",
+        type=Path,
+        default=Path("gates/scientific_harness.yaml"),
+    )
     parser.add_argument("--output-dir", type=Path, required=True)
     parser.add_argument(
         "--smoke",
@@ -68,6 +79,13 @@ def main() -> int:
     args = parser.parse_args()
 
     contract = _load_contract(args.contract)
+    if not args.smoke:
+        assert_execution_unblocked(
+            args.chronicle,
+            args.scientific_harness,
+            "production_coverage_gate",
+        )
+
     root_seed = int(contract["root_seed"])
     if args.smoke:
         checkpoints = [2]
