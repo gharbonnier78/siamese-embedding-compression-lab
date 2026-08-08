@@ -134,7 +134,14 @@ def build_scenario_execution_plan(
 
 
 def seed_descriptor_to_int(seed: SeedSequenceDescriptor) -> int:
-    """Convert a spawned leaf into a deterministic 128-bit PCG64 seed token."""
+    """Convert a spawned leaf into a deterministic 128-bit PCG64 seed token.
+
+    The statistical substream identity is established *before this boundary* by the
+    reviewed ``SeedSequence.spawn`` hierarchy. ``generate_state`` is used only to adapt
+    that already-spawned leaf to existing estimator APIs that accept an integer seed.
+    This deliberately avoids changing the reviewed estimator functions or passing mutable
+    Generator state between processes; it is not an arithmetic re-derivation of the seed.
+    """
     state = seed.materialize().generate_state(4, dtype=np.uint32)
     value = 0
     for offset, word in enumerate(state):
