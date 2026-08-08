@@ -39,3 +39,43 @@ entries:
       blocks and sentinel behavior before production coverage execution.
     blocks:
       - production_coverage_gate
+
+  - id: CHRON-20260808-003
+    recorded_at_utc: "2026-08-08T18:06:00Z"
+    scope: study_0_subject_bootstrap_v0_2_2
+    kind: cost_risk_resolution
+    status: RESOLVED
+    outcome_evidence_seen: false
+    supersedes: CHRON-20260808-001
+    summary: >-
+      The production coverage cost risk is resolved by a semantics-preserving vectorized
+      subject-edge weight execution path with exact end-to-end equivalence to the legacy
+      reference engine and materially lower measured runtime.
+    rationale: >-
+      On PR #15 final head aa23068a1f32b3038f649f277bb13adf161ef372, CI,
+      Research Assurance, the inherited parallel scaling benchmark, and the vectorized
+      end-to-end coverage benchmark all completed successfully. The end-to-end benchmark
+      verified exact DatasetCoverageOutcome equality, including bootstrap-vector SHA-256
+      digests, before reporting performance. The frozen execution contract selects
+      vectorized as the implementation-only engine and legacy as the reference oracle.
+      At four workers the final benchmark measured a legacy/vectorized speedup of about
+      4.797 at the same worker count and extrapolated the frozen 2,000-dataset checkpoint
+      to about 0.722 hours per scenario, or about 3.611 hours for five scenarios run
+      sequentially. These extrapolations are feasibility estimates, not runtime guarantees.
+      No historical Study 0 score was read, no coverage outcome was aggregated, and the
+      production coverage gate was not executed while establishing this resolution.
+    evidence_refs:
+      - https://github.com/gharbonnier78/siamese-embedding-compression-lab/pull/15
+      - commit:aa23068a1f32b3038f649f277bb13adf161ef372
+      - workflow:31270744962:CI:success
+      - workflow:31270744974:Research-assurance:success
+      - workflow:31270744958:Parallel-coverage-scaling-benchmark:success
+      - workflow:31270744942:Vectorized-end-to-end-coverage-benchmark:success
+      - artifact:9025549445
+      - artifact_sha256:548fb205fccf28a6928657432246df9d11c49d8c485c7a4fe7ffc953ea9eced2
+      - scripts/benchmark_vectorized_coverage_execution.py
+      - src/siamese_compression_lab/coverage_execution.py
+      - src/siamese_compression_lab/subject_bootstrap_vectorized.py
+      - src/siamese_compression_lab/edge_weights_vectorized.py
+      - protocol/coverage/study_0_subject_bootstrap_v0.2.2.yaml
+    blocks: []

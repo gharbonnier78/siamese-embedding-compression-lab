@@ -19,6 +19,20 @@ def _load_yaml(path: Path) -> dict[str, Any]:
     return value
 
 
+def _superseded_ids(entries: list[dict[str, Any]]) -> set[str]:
+    """Return earlier entry IDs explicitly superseded by later terminal entries."""
+    terminal_statuses = {"RESOLVED", "SUPERSEDED", "ACCEPTED_RISK"}
+    superseded: set[str] = set()
+    for entry in entries:
+        if entry.get("status") not in terminal_statuses:
+            continue
+        targets = entry.get("supersedes") or []
+        if isinstance(targets, str):
+            targets = [targets]
+        superseded.update(str(target) for target in targets)
+    return superseded
+
+
 def validate_scientific_chronicle(
     chronicle_path: str | Path,
     gate_path: str | Path,
@@ -35,17 +49,22 @@ def validate_scientific_chronicle(
 
     required_fields = list(gate.get("required_entry_fields", []))
     allowed_statuses = set(gate.get("allowed_statuses", []))
-    entries = chronicle.get("entries", [])
-    if not isinstance(entries, list):
+    raw_entries = chronicle.get("entries", [])
+    if not isinstance(raw_entries, list):
         return errors + ["scientific chronicle entries must be a list"]
 
+    entries: list[dict[str, Any]] = []
     ids: list[str] = []
-    for index, entry in enumerate(entries):
+    id_positions: dict[str, int] = {}
+    for index, entry in enumerate(raw_entries):
         if not isinstance(entry, dict):
             errors.append(f"chronicle entry {index} must be a mapping")
             continue
+        entries.append(entry)
         entry_id = str(entry.get("id", ""))
         ids.append(entry_id)
+        if entry_id and entry_id not in id_positions:
+            id_positions[entry_id] = index
         for field_name in required_fields:
             if field_name not in entry:
                 errors.append(f"{entry_id or index}: missing chronicle field {field_name}")
@@ -57,7 +76,9 @@ def validate_scientific_chronicle(
         blocks = entry.get("blocks") or []
         if status == "INFORMATIONAL" and blocks:
             errors.append(f"{entry_id or index}: INFORMATIONAL entry cannot block execution")
-        if entry.get("outcome_evidence_seen") is not True and entry.get("outcome_evidence_seen") is not False:
+        if entry.get("outcome_evidence_seen") is not True and entry.get(
+            "outcome_evidence_seen"
+        ) is not False:
             errors.append(f"{entry_id or index}: outcome_evidence_seen must be boolean")
         if (
             entry.get("outcome_evidence_seen") is True
@@ -72,6 +93,32 @@ def validate_scientific_chronicle(
         errors.append("duplicate scientific chronicle id")
     if any(not entry_id for entry_id in ids):
         errors.append("scientific chronicle entry id cannot be empty")
+
+    terminal_statuses = {"RESOLVED", "SUPERSEDED", "ACCEPTED_RISK"}
+    for index, entry in enumerate(raw_entries):
+        if not isinstance(entry, dict) or "supersedes" not in entry:
+            continue
+        entry_id = str(entry.get("id", index))
+        targets = entry.get("supersedes")
+        if isinstance(targets, str):
+            targets = [targets]
+        if not isinstance(targets, list) or not targets:
+            errors.append(f"{entry_id}: supersedes must name at least one earlier entry")
+            continue
+        if entry.get("status") not in terminal_statuses:
+            errors.append(
+                f"{entry_id}: only terminal chronicle entries may supersede earlier entries"
+            )
+        for target in targets:
+            target_id = str(target)
+            target_position = id_positions.get(target_id)
+            if target_position is None:
+                errors.append(f"{entry_id}: supersedes unknown chronicle entry {target_id}")
+            elif target_position >= index:
+                errors.append(
+                    f"{entry_id}: supersedes must reference an earlier chronicle entry"
+                )
+
     return errors
 
 
@@ -79,13 +126,19 @@ def open_blockers_for_step(
     chronicle_path: str | Path,
     step: str,
 ) -> list[dict[str, Any]]:
-    """Return OPEN chronicle entries that explicitly block a named execution step."""
+    """Return effective OPEN blockers after valid append-only supersession."""
     chronicle = _load_yaml(Path(chronicle_path))
+    entries = [
+        entry for entry in chronicle.get("entries", []) if isinstance(entry, dict)
+    ]
+    superseded = _superseded_ids(entries)
     blockers: list[dict[str, Any]] = []
-    for entry in chronicle.get("entries", []):
-        if not isinstance(entry, dict):
-            continue
-        if entry.get("status") == "OPEN" and step in (entry.get("blocks") or []):
+    for entry in entries:
+        if (
+            entry.get("status") == "OPEN"
+            and str(entry.get("id")) not in superseded
+            and step in (entry.get("blocks") or [])
+        ):
             blockers.append(entry)
     return blockers
 

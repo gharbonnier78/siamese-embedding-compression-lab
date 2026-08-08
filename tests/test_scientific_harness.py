@@ -21,12 +21,17 @@ class ScientificHarnessTests(unittest.TestCase):
     def test_repository_chronicle_contract_is_valid(self) -> None:
         self.assertEqual(validate_scientific_chronicle(CHRONICLE, GATE), [])
 
-    def test_open_cost_risk_blocks_production_coverage(self) -> None:
-        with self.assertRaisesRegex(
-            ScientificChronicleError,
-            "CHRON-20260808-001",
-        ):
-            assert_execution_unblocked(CHRONICLE, GATE, "production_coverage_gate")
+    def test_open_cost_risk_blocks_without_resolution(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "chronicle.yaml"
+            doc = yaml.safe_load(CHRONICLE.read_text(encoding="utf-8"))
+            doc["entries"] = [doc["entries"][0]]
+            path.write_text(yaml.safe_dump(doc, sort_keys=False), encoding="utf-8")
+            with self.assertRaisesRegex(
+                ScientificChronicleError,
+                "CHRON-20260808-001",
+            ):
+                assert_execution_unblocked(path, GATE, "production_coverage_gate")
 
     def test_open_entry_requires_next_action(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
@@ -37,23 +42,29 @@ class ScientificHarnessTests(unittest.TestCase):
             errors = validate_scientific_chronicle(path, GATE)
             self.assertTrue(any("requires next_action" in error for error in errors))
 
-    def test_informational_entry_cannot_block_execution(self) -> None:
+    def test_append_only_resolution_releases_named_step(self) -> None:
+        assert_execution_unblocked(CHRONICLE, GATE, "production_coverage_gate")
+
+    def test_nonterminal_supersession_is_invalid(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "chronicle.yaml"
             doc = yaml.safe_load(CHRONICLE.read_text(encoding="utf-8"))
-            doc["entries"][0]["status"] = "INFORMATIONAL"
+            doc["entries"][-1]["status"] = "OPEN"
+            doc["entries"][-1]["next_action"] = "still investigating"
             path.write_text(yaml.safe_dump(doc, sort_keys=False), encoding="utf-8")
             errors = validate_scientific_chronicle(path, GATE)
-            self.assertTrue(any("INFORMATIONAL entry cannot block" in error for error in errors))
+            self.assertTrue(
+                any("only terminal chronicle entries may supersede" in error for error in errors)
+            )
 
-    def test_resolved_entry_releases_named_step(self) -> None:
+    def test_supersession_must_reference_earlier_entry(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "chronicle.yaml"
             doc = yaml.safe_load(CHRONICLE.read_text(encoding="utf-8"))
-            doc["entries"][0]["status"] = "RESOLVED"
-            doc["entries"][0]["next_action"] = None
+            doc["entries"][-1]["supersedes"] = "CHRON-DOES-NOT-EXIST"
             path.write_text(yaml.safe_dump(doc, sort_keys=False), encoding="utf-8")
-            assert_execution_unblocked(path, GATE, "production_coverage_gate")
+            errors = validate_scientific_chronicle(path, GATE)
+            self.assertTrue(any("supersedes unknown" in error for error in errors))
 
 
 if __name__ == "__main__":
