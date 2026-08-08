@@ -62,15 +62,14 @@ class OperationalSubjectBootstrapTests(unittest.TestCase):
         with patch(
             "siamese_compression_lab.subject_bootstrap_operational.draw_subject_multiplicities",
             side_effect=draws,
-        ):
-            with self.assertRaises(DegenerateReplicateError) as caught:
-                subject_bootstrap_fixed_threshold(
-                    rows=rows,
-                    distances=np.asarray([0.7, 0.5, 0.2, 0.9]),
-                    validation_threshold=0.42,
-                    replicates=2,
-                    seed=123,
-                )
+        ), self.assertRaises(DegenerateReplicateError) as caught:
+            subject_bootstrap_fixed_threshold(
+                rows=rows,
+                distances=np.asarray([0.7, 0.5, 0.2, 0.9]),
+                validation_threshold=0.42,
+                replicates=2,
+                seed=123,
+            )
         error = caught.exception
         self.assertEqual(error.audit.replicate, 1)
         self.assertEqual(error.audit.completed_replicates, 1)
