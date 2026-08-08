@@ -1,4 +1,4 @@
-schema_version: "1.0.0"
+schema_version: "1.0.1"
 chronicle_id: siamese_embedding_compression_scientific_chronicle
 policy: docs/SCIENTIFIC_HARNESS.md
 gate_contract: gates/scientific_harness.yaml
@@ -39,27 +39,3 @@ entries:
       blocks and sentinel behavior before production coverage execution.
     blocks:
       - production_coverage_gate
-
-  - id: CHRON-20260808-002
-    recorded_at_utc: "2026-08-08T07:50:00Z"
-    scope: siamese_embedding_compression_research_program
-    kind: process_integrity_incident
-    status: RESOLVED
-    outcome_evidence_seen: false
-    summary: >-
-      While introducing the chronicle harness, several connector writes were accidentally
-      targeted at main instead of a dedicated review branch; affected content was restored
-      and the harness work was moved to agent/scientific-chronicle-harness.
-    rationale: >-
-      Research-process provenance includes tooling and branch-discipline failures when they
-      could compromise reviewability. The incident did not alter Study 0 result artifacts or
-      outcome-bearing evidence, but it demonstrates why review-before-merge and immutable
-      history are required.
-    evidence_refs:
-      - docs/SCIENTIFIC_HARNESS.md
-      - protocol/research_program.yaml
-    resolution: >-
-      Restore the previous research_program content bit-for-bit, remove temporary files, and
-      require all further harness changes to occur on the dedicated branch and PR.
-    next_action: null
-    blocks: []
