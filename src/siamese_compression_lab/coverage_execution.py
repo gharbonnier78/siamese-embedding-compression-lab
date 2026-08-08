@@ -11,6 +11,7 @@ from __future__ import annotations
 import hashlib
 from concurrent.futures import ProcessPoolExecutor
 from dataclasses import dataclass
+from typing import Literal
 
 import numpy as np
 
@@ -25,6 +26,12 @@ from .coverage_simulation import (
 )
 from .subject_bootstrap import DegenerateReplicateError, subject_bootstrap_delta_fnmr
 from .subject_bootstrap_operational import subject_bootstrap_fixed_threshold
+from .subject_bootstrap_vectorized import (
+    subject_bootstrap_delta_fnmr_vectorized,
+    subject_bootstrap_fixed_threshold_vectorized,
+)
+
+CoverageEngine = Literal["legacy", "vectorized"]
 
 
 @dataclass(frozen=True)
@@ -154,13 +161,26 @@ def _float64_digest(values: np.ndarray) -> str:
     return hashlib.sha256(contiguous.tobytes(order="C")).hexdigest()
 
 
+def _bootstrap_functions(engine: CoverageEngine):
+    if engine == "legacy":
+        return subject_bootstrap_delta_fnmr, subject_bootstrap_fixed_threshold
+    if engine == "vectorized":
+        return (
+            subject_bootstrap_delta_fnmr_vectorized,
+            subject_bootstrap_fixed_threshold_vectorized,
+        )
+    raise ValueError(f"unknown coverage engine: {engine}")
+
+
 def run_coverage_dataset(
     scenario: CoverageScenario,
     graph,
     lineage: DatasetSeedLineage,
     bootstrap_replicates: int,
+    engine: CoverageEngine = "legacy",
 ) -> DatasetCoverageOutcome:
     """Execute one dataset from its recorded lineage; safe for isolated replay."""
+    representation_bootstrap, operational_bootstrap = _bootstrap_functions(engine)
     truth = scenario_truth(scenario)
     candidate, reference = simulate_distances(
         scenario,
@@ -169,7 +189,7 @@ def run_coverage_dataset(
     )
     bootstrap_seed = seed_descriptor_to_int(lineage.bootstrap)
     try:
-        representation_replicates = subject_bootstrap_delta_fnmr(
+        representation_replicates = representation_bootstrap(
             rows=graph,
             candidate_distances=candidate,
             reference_distances=reference,
@@ -181,7 +201,7 @@ def run_coverage_dataset(
             [row.delta_fnmr for row in representation_replicates], dtype=np.float64
         )
 
-        operational_replicates = subject_bootstrap_fixed_threshold(
+        operational_replicates = operational_bootstrap(
             rows=graph,
             distances=candidate,
             validation_threshold=truth.candidate_threshold,
@@ -226,8 +246,14 @@ def run_coverage_dataset(
 
 
 def _dataset_worker(args) -> DatasetCoverageOutcome:
-    scenario, graph, lineage, bootstrap_replicates = args
-    return run_coverage_dataset(scenario, graph, lineage, bootstrap_replicates)
+    scenario, graph, lineage, bootstrap_replicates, engine = args
+    return run_coverage_dataset(
+        scenario,
+        graph,
+        lineage,
+        bootstrap_replicates,
+        engine=engine,
+    )
 
 
 def run_coverage_scenario_datasets(
@@ -237,16 +263,18 @@ def run_coverage_scenario_datasets(
     bootstrap_replicates: int,
     scenario_seed: SeedSequenceDescriptor,
     workers: int = 1,
+    engine: CoverageEngine = "legacy",
 ) -> list[DatasetCoverageOutcome]:
     """Run a scenario serially or in processes without changing dataset RNG streams."""
     if bootstrap_replicates <= 0:
         raise ValueError("bootstrap_replicates must be positive")
     if workers <= 0:
         raise ValueError("workers must be positive")
+    _bootstrap_functions(engine)
     plan = build_scenario_execution_plan(scenario_seed, simulated_datasets)
     graph = make_sparse_graph(scenario, seed=seed_descriptor_to_int(plan.graph))
     tasks = [
-        (scenario, graph, lineage, bootstrap_replicates)
+        (scenario, graph, lineage, bootstrap_replicates, engine)
         for lineage in plan.datasets
     ]
     if workers == 1:
@@ -298,6 +326,7 @@ def run_coverage_scenario_seedsequence(
     bootstrap_replicates: int,
     scenario_seed: SeedSequenceDescriptor,
     workers: int = 1,
+    engine: CoverageEngine = "legacy",
 ) -> list[CoverageResult]:
     outcomes = run_coverage_scenario_datasets(
         scenario,
@@ -305,6 +334,7 @@ def run_coverage_scenario_seedsequence(
         bootstrap_replicates=bootstrap_replicates,
         scenario_seed=scenario_seed,
         workers=workers,
+        engine=engine,
     )
     return aggregate_dataset_outcomes(
         scenario,
