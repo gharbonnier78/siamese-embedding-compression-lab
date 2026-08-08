@@ -99,6 +99,32 @@ class VectorizedFullBootstrapTests(unittest.TestCase):
         )
         self.assertEqual(actual, expected)
 
+    def test_study0_like_operational_matches_for_fixed_seed(self) -> None:
+        scenario = CoverageScenario(
+            name="study0_like_vectorized_operational_fixture",
+            target_delta_fnmr=0.015,
+            subject_effect_sd_genuine=0.08,
+            subject_effect_sd_impostor=0.05,
+        )
+        rows = make_sparse_graph(scenario, seed=20260808)
+        candidate, _reference = simulate_distances(scenario, rows, seed=20260809)
+        threshold = scenario_truth(scenario).candidate_threshold
+        expected = subject_bootstrap_fixed_threshold(
+            rows=rows,
+            distances=candidate,
+            validation_threshold=threshold,
+            replicates=25,
+            seed=20260810,
+        )
+        actual = subject_bootstrap_fixed_threshold_vectorized(
+            rows=rows,
+            distances=candidate,
+            validation_threshold=threshold,
+            replicates=25,
+            seed=20260810,
+        )
+        self.assertEqual(actual, expected)
+
 
 if __name__ == "__main__":
     unittest.main()
