@@ -1,4 +1,4 @@
-schema_version: "1.0.0"
+schema_version: "1.0.1"
 contract_id: scientific-chronicle-harness/1.0-draft
 scope: research_process_provenance_and_execution_preflight
 not_outcome_evidence: true
@@ -8,7 +8,6 @@ allowed_statuses:
   - RESOLVED
   - SUPERSEDED
   - ACCEPTED_RISK
-  - INFORMATIONAL
 required_entry_fields:
   - id
   - recorded_at_utc
@@ -23,7 +22,8 @@ required_entry_fields:
 rules:
   unique_entry_ids: true
   open_entry_requires_next_action: true
-  informational_entry_cannot_block: true
+  every_chronicle_entry_must_change_execution_behavior: true
+  non_behavioral_records_belong_elsewhere: true
   post_outcome_methodological_change_cannot_be_preregistered: true
   unresolved_blocker_prevents_named_production_step: true
   chronicle_cannot_close_scientific_or_cal_gate: true
@@ -35,6 +35,11 @@ execution_steps:
     blocked_by_open_chronicle_entries: true
   study_1_execution:
     blocked_by_open_chronicle_entries: true
+record_routing:
+  chronicle: material reasoning records that constrain or release executable behavior
+  changelog: implementation and process history without executable consequence
+  scientific_decision_record: durable rationale for a decision that does not itself block execution
+  pedagogy: derived learning artifacts and conceptual explanations
 pedagogy:
   progressive_exposition_allowed: true
   authoritative_sources_must_be_linked: true
