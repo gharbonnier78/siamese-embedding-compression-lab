@@ -23,8 +23,11 @@ from .coverage_simulation import (
     scenario_truth,
     simulate_distances,
 )
-from .subject_bootstrap import DegenerateReplicateError, subject_bootstrap_delta_fnmr
-from .subject_bootstrap_operational import subject_bootstrap_fixed_threshold
+from .subject_bootstrap import DegenerateReplicateError
+from .subject_bootstrap_vectorized import (
+    subject_bootstrap_delta_fnmr_vectorized as subject_bootstrap_delta_fnmr,
+    subject_bootstrap_fixed_threshold_vectorized as subject_bootstrap_fixed_threshold,
+)
 
 
 @dataclass(frozen=True)
