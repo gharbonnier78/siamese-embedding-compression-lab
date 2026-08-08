@@ -1,0 +1,58 @@
+name: Parallel coverage scaling benchmark
+
+on:
+  pull_request:
+    paths:
+      - "scripts/benchmark_parallel_coverage_scaling.py"
+      - "src/siamese_compression_lab/coverage_execution.py"
+      - "src/siamese_compression_lab/coverage_simulation.py"
+      - "src/siamese_compression_lab/subject_bootstrap.py"
+      - "src/siamese_compression_lab/subject_bootstrap_operational.py"
+      - ".github/workflows/benchmark-parallel-coverage-scaling.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      PYTHONPATH: src
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install benchmark dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+      - name: Run non-outcome parallel scaling benchmark
+        run: |
+          python scripts/benchmark_parallel_coverage_scaling.py \
+            --datasets 16 \
+            --bootstrap-replicates 1000 \
+            --repeats 3 \
+            --workers 1 2 4 \
+            --output parallel-coverage-scaling.json
+      - name: Assert benchmark boundary and equivalence
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          result = json.loads(Path("parallel-coverage-scaling.json").read_text())
+          assert result["historical_study_0_scores_read"] is False
+          assert result["coverage_outcomes_aggregated"] is False
+          assert result["production_coverage_gate_executed"] is False
+          assert result["equivalence_verified_against_workers_1"] is True
+          assert [row["workers"] for row in result["results"]] == [1, 2, 4]
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: parallel-coverage-scaling
+          path: parallel-coverage-scaling.json
+          if-no-files-found: error
+          retention-days: 30
