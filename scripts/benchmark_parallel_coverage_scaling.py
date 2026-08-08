@@ -25,6 +25,11 @@ from siamese_compression_lab.coverage_execution import (
 from siamese_compression_lab.coverage_simulation import CoverageScenario
 
 
+FROZEN_BOOTSTRAP_REPLICATES = 10_000
+FIRST_CHECKPOINT_DATASETS_PER_SCENARIO = 2_000
+SCENARIO_COUNT = 5
+
+
 def _run_once(
     scenario: CoverageScenario,
     *,
@@ -94,12 +99,14 @@ def main() -> int:
 
     assert serial_reference is not None
     serial_median = statistics.median(timings[1])
+    production_scale_factor = FROZEN_BOOTSTRAP_REPLICATES / args.bootstrap_replicates
     rows = []
-    first_checkpoint_datasets_per_scenario = 2000
-    scenario_count = 5
     for worker in workers:
         median = statistics.median(timings[worker])
-        effective_seconds_per_dataset = median / args.datasets
+        benchmark_seconds_per_dataset = median / args.datasets
+        estimated_production_seconds_per_dataset = (
+            benchmark_seconds_per_dataset * production_scale_factor
+        )
         rows.append(
             {
                 "workers": worker,
@@ -107,16 +114,20 @@ def main() -> int:
                 "median_elapsed_seconds": median,
                 "speedup_vs_1_worker": serial_median / median,
                 "parallel_efficiency_vs_1_worker": (serial_median / median) / worker,
-                "effective_seconds_per_dataset": effective_seconds_per_dataset,
+                "benchmark_seconds_per_dataset": benchmark_seconds_per_dataset,
+                "production_scale_factor": production_scale_factor,
+                "estimated_production_seconds_per_dataset": (
+                    estimated_production_seconds_per_dataset
+                ),
                 "estimated_hours_per_2000_dataset_scenario": (
-                    effective_seconds_per_dataset
-                    * first_checkpoint_datasets_per_scenario
+                    estimated_production_seconds_per_dataset
+                    * FIRST_CHECKPOINT_DATASETS_PER_SCENARIO
                     / 3600.0
                 ),
                 "estimated_hours_all_5_scenarios_sequential": (
-                    effective_seconds_per_dataset
-                    * first_checkpoint_datasets_per_scenario
-                    * scenario_count
+                    estimated_production_seconds_per_dataset
+                    * FIRST_CHECKPOINT_DATASETS_PER_SCENARIO
+                    * SCENARIO_COUNT
                     / 3600.0
                 ),
             }
@@ -131,6 +142,11 @@ def main() -> int:
         "configuration": {
             "datasets_per_timed_run": args.datasets,
             "bootstrap_replicates_per_dataset": args.bootstrap_replicates,
+            "frozen_bootstrap_replicates_per_dataset": FROZEN_BOOTSTRAP_REPLICATES,
+            "first_checkpoint_datasets_per_scenario": (
+                FIRST_CHECKPOINT_DATASETS_PER_SCENARIO
+            ),
+            "scenario_count": SCENARIO_COUNT,
             "repeats": args.repeats,
             "workers": workers,
             "root_seed": args.root_seed,
@@ -146,8 +162,10 @@ def main() -> int:
         "interpretation_boundary": {
             "speedup_is_measured_not_assumed": True,
             "extrapolation_is_not_a_runtime_guarantee": True,
+            "production_extrapolation_scales_to_frozen_10000_bootstrap_replicates": True,
             "chronicle_resolution_requires_review": True,
             "edge_weights_optimization_not_skipped_by_definition": True,
+            "small_sample_speedup_is_qualitative_not_high_precision": True,
         },
     }
     args.output.parent.mkdir(parents=True, exist_ok=True)
