@@ -15,6 +15,8 @@ from typing import Any
 
 import numpy as np
 
+from .edge_weight_plan import build_edge_weight_plan, edge_weights_from_plan
+
 
 @dataclass(frozen=True)
 class SubjectPairRow:
@@ -375,12 +377,13 @@ def subject_bootstrap_delta_fnmr(
     if not (len(rows) == len(candidate_distances) == len(reference_distances)):
         raise ValueError("subject map and route distance arrays must align one-to-one")
     subjects = subject_universe(rows)
+    weight_plan = build_edge_weight_plan(rows, subjects)
     rng = np.random.Generator(np.random.PCG64(seed))
     output: list[BootstrapReplicate] = []
 
     for replicate in range(replicates):
         multiplicities = draw_subject_multiplicities(subjects, rng)
-        weights = edge_weights(rows, multiplicities)
+        weights = edge_weights_from_plan(weight_plan, multiplicities)
         try:
             candidate_threshold = weighted_threshold_at_fmr(
                 same, candidate_distances, weights, target_fmr
