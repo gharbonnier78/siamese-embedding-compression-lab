@@ -8,13 +8,13 @@ reads historical Study 0 scores, or executes the production coverage gate.
 from __future__ import annotations
 
 import argparse
-from dataclasses import asdict
 import json
 import os
-from pathlib import Path
 import platform
 import statistics
 import time
+from dataclasses import asdict
+from pathlib import Path
 
 import numpy as np
 
