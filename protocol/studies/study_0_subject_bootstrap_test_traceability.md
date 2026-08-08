@@ -8,6 +8,10 @@ This matrix maps the 15 normative requirements in
 close `E-STAT-001`; coverage validation, immutable-input verification, replay execution and
 independent review remain required.
 
+Current status: **14/15 normative implementation requirements fully implemented.** Requirement
+#12 remains PARTIAL because the complete historical replay bundle has not yet been
+rematerialized and verified bitwise.
+
 | # | Normative requirement | Current automated evidence | Status |
 |---:|---|---|---|
 | 1 | Exact subject multiplicities for a fixed RNG seed | `test_fixed_rng_draw_is_deterministic` | IMPLEMENTED |
@@ -21,10 +25,34 @@ independent review remain required.
 | 9 | Deterministic threshold/tie/sentinel handling | `test_whole_tie_block_is_never_split`, `test_no_admissible_observed_threshold_uses_sentinel` | IMPLEMENTED |
 | 10 | Operational thresholds remain VALIDATION-frozen | `test_validation_threshold_remains_frozen` | IMPLEMENTED |
 | 11 | Deterministic replay from root seed/configuration | `test_paired_routes_replay_identically_from_root_seed` | IMPLEMENTED |
-| 12 | Historical pair-level files and archived PDFs bitwise unchanged | existing research-assurance PDF guards + new score-artifact hash guard; complete rematerialized bundle verification pending | PARTIAL |
-| 13 | Identity-map counts, labels, join cardinality and source digests | mapping fixture + production CLI + score join guard; real 1000/500/500/963 execution pending source materialization | PARTIAL |
+| 12 | Historical pair-level files and archived PDFs bitwise unchanged | existing research-assurance PDF guards + score-artifact hash guard; complete historical replay bundle rematerialization/verification still pending | PARTIAL |
+| 13 | Identity-map counts, labels, join cardinality and source digests | exact Kaggle v4 DevTest materialization workflow + immutable source-digest checks + production map build; versioned `source_manifest.json` records 1000/500/500/963 and map SHA-256 `112c0d06963170665cd73b220d33251aae34511a331261d143de4e6644f7feea`; score-map one-to-one join guard remains implemented for later reanalysis | IMPLEMENTED |
 | 14 | Coverage-gate behavior on passing/failing simulations, separately by estimand/metric/regime | `test_coverage_gate_passes_only_when_every_stream_passes` exercises PASS, one local coverage failure, and degenerate failure; production gate-sized execution still required as validation evidence | IMPLEMENTED |
 | 15 | Unexecuted reanalysis cannot contain results or close `E-STAT-001` | existing `test_subject_bootstrap_spec_cannot_claim_unexecuted_results` | IMPLEMENTED |
+
+## Production DevTest source-map evidence
+
+The historical DevTest source-materialization blocker for requirement #13 is now closed without
+opening any historical Study 0 score artifact.
+
+The `Materialize LFW DevTest evidence` workflow downloads only the two pair CSVs from the exact
+Study 0 source version `jessicali9530/lfw-dataset/versions/4` and blocks unless their bytes
+match the frozen run-manifest digests:
+
+- matched SHA-256: `9428d939063ff006b72bc79f50b7305e7da51b46b52bf2c25ca14b3a29479fb6`;
+- mismatched SHA-256: `cf1a1326577bf33abc98d1bbc938d3c2ec00304d1ace9b4392f5b38b19e182d0`.
+
+The verified production build records exactly 1,000 observed pairs, 500 genuine pairs, 500
+impostor pairs and 963 endpoint subjects. The pseudonymized map is versioned at
+`evidence/study_0_subject_bootstrap_v0.2.2/test_pair_subject_map_v0.2.2.csv` with SHA-256
+`112c0d06963170665cd73b220d33251aae34511a331261d143de4e6644f7feea`. Its provenance and
+counts are recorded in the adjacent `source_manifest.json`. The original source CSVs, which
+contain identity names, remain outside Git and are retained only in the temporary workflow
+artifact. The manifest explicitly records `historical_study_0_scores_read: false`.
+
+This closes source-map materialization only. It does not satisfy requirement #12, execute the
+production coverage gate, open `test_pair_scores.csv`, produce a corrected Study 0 result,
+or change `E-STAT-001`, G2 or the Study 1 block.
 
 ## Section 9 degenerate-replicate audit
 
