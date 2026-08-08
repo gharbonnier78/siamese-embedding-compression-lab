@@ -19,6 +19,21 @@ def _load_yaml(path: Path) -> dict[str, Any]:
     return value
 
 
+def _superseded_entry_ids(entries: list[Any]) -> set[str]:
+    """Return entry IDs explicitly released by later append-only resolution records."""
+    releasing_statuses = {"RESOLVED", "SUPERSEDED", "ACCEPTED_RISK"}
+    released: set[str] = set()
+    for entry in entries:
+        if not isinstance(entry, dict) or entry.get("status") not in releasing_statuses:
+            continue
+        supersedes = entry.get("supersedes")
+        if isinstance(supersedes, str):
+            released.add(supersedes)
+        elif isinstance(supersedes, list):
+            released.update(str(value) for value in supersedes)
+    return released
+
+
 def validate_scientific_chronicle(
     chronicle_path: str | Path,
     gate_path: str | Path,
@@ -72,6 +87,22 @@ def validate_scientific_chronicle(
         errors.append("duplicate scientific chronicle id")
     if any(not entry_id for entry_id in ids):
         errors.append("scientific chronicle entry id cannot be empty")
+
+    known_ids = set(ids)
+    for entry in entries:
+        if not isinstance(entry, dict):
+            continue
+        supersedes = entry.get("supersedes")
+        targets: list[str] = []
+        if isinstance(supersedes, str):
+            targets = [supersedes]
+        elif isinstance(supersedes, list):
+            targets = [str(value) for value in supersedes]
+        for target in targets:
+            if target == entry.get("id"):
+                errors.append(f"{entry.get('id')}: chronicle entry cannot supersede itself")
+            elif target not in known_ids:
+                errors.append(f"{entry.get('id')}: supersedes unknown chronicle id {target}")
     return errors
 
 
@@ -79,13 +110,21 @@ def open_blockers_for_step(
     chronicle_path: str | Path,
     step: str,
 ) -> list[dict[str, Any]]:
-    """Return OPEN chronicle entries that explicitly block a named execution step."""
+    """Return effective OPEN blockers after append-only resolution records are applied."""
     chronicle = _load_yaml(Path(chronicle_path))
+    entries = chronicle.get("entries", [])
+    if not isinstance(entries, list):
+        return []
+    released_ids = _superseded_entry_ids(entries)
     blockers: list[dict[str, Any]] = []
-    for entry in chronicle.get("entries", []):
+    for entry in entries:
         if not isinstance(entry, dict):
             continue
-        if entry.get("status") == "OPEN" and step in (entry.get("blocks") or []):
+        if (
+            entry.get("status") == "OPEN"
+            and str(entry.get("id")) not in released_ids
+            and step in (entry.get("blocks") or [])
+        ):
             blockers.append(entry)
     return blockers
 
