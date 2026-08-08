@@ -36,7 +36,7 @@ class SeedSequenceDescriptor:
     pool_size: int = 4
 
     @classmethod
-    def from_seed_sequence(cls, value: np.random.SeedSequence) -> "SeedSequenceDescriptor":
+    def from_seed_sequence(cls, value: np.random.SeedSequence) -> SeedSequenceDescriptor:
         entropy = value.entropy
         if isinstance(entropy, (list, tuple, np.ndarray)):
             normalized_entropy: int | tuple[int, ...] = tuple(int(item) for item in entropy)
