@@ -153,16 +153,15 @@ class SubjectBootstrapTests(unittest.TestCase):
         with patch(
             "siamese_compression_lab.subject_bootstrap.draw_subject_multiplicities",
             side_effect=draws,
-        ):
-            with self.assertRaises(DegenerateReplicateError) as caught:
-                subject_bootstrap_delta_fnmr(
-                    rows=rows,
-                    candidate_distances=candidate,
-                    reference_distances=reference,
-                    target_fmr=0.25,
-                    replicates=2,
-                    seed=123,
-                )
+        ), self.assertRaises(DegenerateReplicateError) as caught:
+            subject_bootstrap_delta_fnmr(
+                rows=rows,
+                candidate_distances=candidate,
+                reference_distances=reference,
+                target_fmr=0.25,
+                replicates=2,
+                seed=123,
+            )
         error = caught.exception
         self.assertEqual(error.audit.replicate, 1)
         self.assertEqual(error.audit.completed_replicates, 1)
