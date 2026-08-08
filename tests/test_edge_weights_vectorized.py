@@ -50,6 +50,17 @@ class VectorizedEdgeWeightTests(unittest.TestCase):
             np.testing.assert_array_equal(actual_mapping, expected)
             np.testing.assert_array_equal(actual_array, expected)
 
+    def test_large_expected_multiplicities_match_legacy_exactly(self) -> None:
+        rows = _rows()
+        prepared = prepare_edge_index(rows)
+        multiplicities = {"A": 963, "B": 962, "C": 961}
+        expected = edge_weights(rows, multiplicities)
+        actual = edge_weights_vectorized(prepared, multiplicities)
+        np.testing.assert_array_equal(actual, expected)
+        self.assertEqual(int(actual[0]), 963)
+        self.assertEqual(int(actual[3]), 963 * 962)
+        self.assertEqual(actual.dtype, np.int64)
+
     def test_prepared_index_preserves_observed_edge_count_and_order(self) -> None:
         rows = _rows()
         prepared = prepare_edge_index(rows)
