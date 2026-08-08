@@ -21,17 +21,26 @@ class ScientificHarnessTests(unittest.TestCase):
     def test_repository_chronicle_contract_is_valid(self) -> None:
         self.assertEqual(validate_scientific_chronicle(CHRONICLE, GATE), [])
 
-    def test_open_cost_risk_blocks_production_coverage(self) -> None:
-        with self.assertRaisesRegex(
-            ScientificChronicleError,
-            "CHRON-20260808-001",
-        ):
-            assert_execution_unblocked(CHRONICLE, GATE, "production_coverage_gate")
+    def test_resolved_cost_risk_releases_production_coverage(self) -> None:
+        assert_execution_unblocked(CHRONICLE, GATE, "production_coverage_gate")
+
+    def test_open_cost_risk_still_blocks_production_coverage(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "chronicle.yaml"
+            doc = yaml.safe_load(CHRONICLE.read_text(encoding="utf-8"))
+            doc["entries"][0]["status"] = "OPEN"
+            path.write_text(yaml.safe_dump(doc, sort_keys=False), encoding="utf-8")
+            with self.assertRaisesRegex(
+                ScientificChronicleError,
+                "CHRON-20260808-001",
+            ):
+                assert_execution_unblocked(path, GATE, "production_coverage_gate")
 
     def test_open_entry_requires_next_action(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "chronicle.yaml"
             doc = yaml.safe_load(CHRONICLE.read_text(encoding="utf-8"))
+            doc["entries"][0]["status"] = "OPEN"
             doc["entries"][0]["next_action"] = None
             path.write_text(yaml.safe_dump(doc, sort_keys=False), encoding="utf-8")
             errors = validate_scientific_chronicle(path, GATE)
