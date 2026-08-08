@@ -94,14 +94,14 @@ class VectorizedEdgeWeightTests(unittest.TestCase):
         )
         rows = make_sparse_graph(scenario, seed=11)
         candidate, reference = simulate_distances(scenario, rows, seed=29)
-        kwargs = dict(
-            rows=rows,
-            candidate_distances=candidate,
-            reference_distances=reference,
-            target_fmr=scenario.target_fmr,
-            replicates=50,
-            seed=47,
-        )
+        kwargs = {
+            "rows": rows,
+            "candidate_distances": candidate,
+            "reference_distances": reference,
+            "target_fmr": scenario.target_fmr,
+            "replicates": 50,
+            "seed": 47,
+        }
         try:
             scalar = subject_bootstrap_delta_fnmr(**kwargs)
         except DegenerateReplicateError as scalar_error:
@@ -129,13 +129,13 @@ class VectorizedEdgeWeightTests(unittest.TestCase):
         )
         rows = make_sparse_graph(scenario, seed=71)
         candidate, _ = simulate_distances(scenario, rows, seed=101)
-        kwargs = dict(
-            rows=rows,
-            distances=candidate,
-            validation_threshold=scenario_truth(scenario).candidate_threshold,
-            replicates=50,
-            seed=47,
-        )
+        kwargs = {
+            "rows": rows,
+            "distances": candidate,
+            "validation_threshold": scenario_truth(scenario).candidate_threshold,
+            "replicates": 50,
+            "seed": 47,
+        }
         try:
             scalar = subject_bootstrap_fixed_threshold(**kwargs)
         except DegenerateReplicateError as scalar_error:
