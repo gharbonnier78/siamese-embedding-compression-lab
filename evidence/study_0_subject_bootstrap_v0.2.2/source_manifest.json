@@ -1,0 +1,23 @@
+{
+  "counts": {
+    "genuine": 500,
+    "impostor": 500,
+    "pairs": 1000,
+    "subjects": 963
+  },
+  "dataset_handle": "jessicali9530/lfw-dataset/versions/4",
+  "historical_source_hashes_verified": true,
+  "historical_study_0_scores_read": false,
+  "identity_policy": "sha256 namespace pseudonyms; source identities not published in subject map",
+  "matched_source_expected_sha256": "9428d939063ff006b72bc79f50b7305e7da51b46b52bf2c25ca14b3a29479fb6",
+  "matched_source_file": "matchpairsDevTest.csv",
+  "matched_source_sha256": "9428d939063ff006b72bc79f50b7305e7da51b46b52bf2c25ca14b3a29479fb6",
+  "mismatched_source_expected_sha256": "cf1a1326577bf33abc98d1bbc938d3c2ec00304d1ace9b4392f5b38b19e182d0",
+  "mismatched_source_file": "mismatchpairsDevTest.csv",
+  "mismatched_source_sha256": "cf1a1326577bf33abc98d1bbc938d3c2ec00304d1ace9b4392f5b38b19e182d0",
+  "pair_order": "matched source order followed by mismatched source order",
+  "source_files_committed": false,
+  "source_files_retained_in_workflow_artifact": true,
+  "subject_map": "test_pair_subject_map_v0.2.2.csv",
+  "subject_map_sha256": "112c0d06963170665cd73b220d33251aae34511a331261d143de4e6644f7feea"
+}
