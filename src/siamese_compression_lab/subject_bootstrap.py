@@ -11,6 +11,7 @@ import hashlib
 from collections.abc import Mapping, Sequence
 from dataclasses import dataclass
 from pathlib import Path
+from typing import Any
 
 import numpy as np
 
@@ -44,6 +45,45 @@ class BootstrapReplicate:
     reference_threshold: float
     genuine_weight: int
     impostor_weight: int
+
+
+@dataclass(frozen=True)
+class DegenerateReplicateAudit:
+    """Structured §9 evidence for a bootstrap replicate that cannot be evaluated."""
+
+    replicate: int
+    reason: str
+    genuine_weight: int
+    impostor_weight: int
+    effective_genuine_edges: int
+    effective_impostor_edges: int
+    completed_replicates: int
+
+    def as_dict(self) -> dict[str, int | str]:
+        return {
+            "replicate": self.replicate,
+            "reason": self.reason,
+            "genuine_weight": self.genuine_weight,
+            "impostor_weight": self.impostor_weight,
+            "effective_genuine_edges": self.effective_genuine_edges,
+            "effective_impostor_edges": self.effective_impostor_edges,
+            "completed_replicates": self.completed_replicates,
+        }
+
+
+class DegenerateReplicateError(RuntimeError):
+    """Blocking failure that preserves the failed replicate audit and prior results."""
+
+    def __init__(
+        self,
+        audit: DegenerateReplicateAudit,
+        completed_replicates: Sequence[Any] = (),
+    ) -> None:
+        self.audit = audit
+        self.completed_replicates = tuple(completed_replicates)
+        super().__init__(
+            f"degenerate bootstrap replicate {audit.replicate}: {audit.reason}"
+        )
 
 
 def _read_csv_rows(path: Path) -> list[list[str]]:
@@ -204,6 +244,42 @@ def edge_weights(
     return weights
 
 
+def bootstrap_weight_diagnostics(
+    same: np.ndarray,
+    weights: np.ndarray,
+) -> dict[str, int]:
+    """Return the §9 totals/effective-edge counts even for a degenerate replicate."""
+    same = np.asarray(same, dtype=np.int8)
+    weights = np.asarray(weights, dtype=np.int64)
+    if len(same) != len(weights):
+        raise ValueError("same and weights must have equal length")
+    genuine = same == 1
+    impostor = same == 0
+    return {
+        "genuine_weight": int(weights[genuine].sum()),
+        "impostor_weight": int(weights[impostor].sum()),
+        "effective_genuine_edges": int(np.count_nonzero(weights[genuine] > 0)),
+        "effective_impostor_edges": int(np.count_nonzero(weights[impostor] > 0)),
+    }
+
+
+def _degenerate_audit(
+    *,
+    replicate: int,
+    reason: str,
+    same: np.ndarray,
+    weights: np.ndarray,
+    completed_replicates: int,
+) -> DegenerateReplicateAudit:
+    diagnostics = bootstrap_weight_diagnostics(same, weights)
+    return DegenerateReplicateAudit(
+        replicate=replicate,
+        reason=reason.removeprefix("degenerate replicate: "),
+        completed_replicates=completed_replicates,
+        **diagnostics,
+    )
+
+
 def weighted_threshold_at_fmr(
     same: np.ndarray,
     distances: np.ndarray,
@@ -259,6 +335,9 @@ def weighted_rates_at_threshold(
         raise ValueError("same, distances and weights must have equal length")
     if np.any(weights < 0):
         raise ValueError("edge weights must be non-negative")
+    positive = weights > 0
+    if not np.all(np.isfinite(distances[positive])):
+        raise ValueError("degenerate replicate: non-finite positive-weight distance")
     genuine = same == 1
     impostor = same == 0
     genuine_weight = int(weights[genuine].sum())
@@ -267,6 +346,8 @@ def weighted_rates_at_threshold(
         raise ValueError("degenerate replicate: zero genuine or impostor total weight")
     fnmr = float(weights[genuine & (distances > threshold)].sum() / genuine_weight)
     fmr = float(weights[impostor & (distances <= threshold)].sum() / impostor_weight)
+    if not (np.isfinite(fnmr) and np.isfinite(fmr)):
+        raise ValueError("degenerate replicate: non-finite statistic")
     return WeightedRates(
         threshold=float(threshold),
         fmr=fmr,
@@ -300,18 +381,33 @@ def subject_bootstrap_delta_fnmr(
     for replicate in range(replicates):
         multiplicities = draw_subject_multiplicities(subjects, rng)
         weights = edge_weights(rows, multiplicities)
-        candidate_threshold = weighted_threshold_at_fmr(
-            same, candidate_distances, weights, target_fmr
-        )
-        reference_threshold = weighted_threshold_at_fmr(
-            same, reference_distances, weights, target_fmr
-        )
-        candidate = weighted_rates_at_threshold(
-            same, candidate_distances, weights, candidate_threshold
-        )
-        reference = weighted_rates_at_threshold(
-            same, reference_distances, weights, reference_threshold
-        )
+        try:
+            candidate_threshold = weighted_threshold_at_fmr(
+                same, candidate_distances, weights, target_fmr
+            )
+            reference_threshold = weighted_threshold_at_fmr(
+                same, reference_distances, weights, target_fmr
+            )
+            candidate = weighted_rates_at_threshold(
+                same, candidate_distances, weights, candidate_threshold
+            )
+            reference = weighted_rates_at_threshold(
+                same, reference_distances, weights, reference_threshold
+            )
+        except ValueError as exc:
+            reason = str(exc)
+            if not reason.startswith("degenerate replicate:"):
+                raise
+            raise DegenerateReplicateError(
+                _degenerate_audit(
+                    replicate=replicate,
+                    reason=reason,
+                    same=same,
+                    weights=weights,
+                    completed_replicates=len(output),
+                ),
+                output,
+            ) from exc
         if (
             candidate.genuine_weight != reference.genuine_weight
             or candidate.impostor_weight != reference.impostor_weight
