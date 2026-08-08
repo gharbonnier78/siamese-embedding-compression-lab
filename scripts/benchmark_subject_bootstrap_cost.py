@@ -16,7 +16,11 @@ from pathlib import Path
 
 import numpy as np
 
-from siamese_compression_lab.coverage_simulation import CoverageScenario, make_sparse_graph, simulate_distances
+from siamese_compression_lab.coverage_simulation import (
+    CoverageScenario,
+    make_sparse_graph,
+    simulate_distances,
+)
 from siamese_compression_lab.subject_bootstrap import (
     draw_subject_multiplicities,
     edge_weights,
@@ -25,7 +29,9 @@ from siamese_compression_lab.subject_bootstrap import (
     weighted_rates_at_threshold,
     weighted_threshold_at_fmr,
 )
-from siamese_compression_lab.subject_bootstrap_operational import subject_bootstrap_fixed_threshold
+from siamese_compression_lab.subject_bootstrap_operational import (
+    subject_bootstrap_fixed_threshold,
+)
 
 
 def _seconds(callable_) -> float:
