@@ -18,6 +18,7 @@ from dataclasses import asdict
 from pathlib import Path
 
 import numpy as np
+import yaml
 
 from siamese_compression_lab.coverage_execution import (
     run_coverage_scenario_datasets,
@@ -28,6 +29,10 @@ from siamese_compression_lab.coverage_simulation import CoverageScenario
 FROZEN_BOOTSTRAP_REPLICATES = 10_000
 FIRST_CHECKPOINT_DATASETS_PER_SCENARIO = 2_000
 SCENARIO_COUNT = 5
+SPEEDUP_DEFINITION = (
+    "legacy median elapsed time divided by vectorized median elapsed time "
+    "at the same worker count"
+)
 
 
 def _run_once(
@@ -52,6 +57,22 @@ def _run_once(
     return time.perf_counter() - started, outcomes
 
 
+def _load_execution_contract(path: Path) -> dict[str, object]:
+    contract = yaml.safe_load(path.read_text(encoding="utf-8"))
+    if not isinstance(contract, dict):
+        raise TypeError("coverage contract must be a YAML mapping")
+    execution = contract.get("execution")
+    if not isinstance(execution, dict):
+        raise ValueError("coverage contract must define execution")
+    if execution.get("engine") != "vectorized":
+        raise ValueError("benchmark expects contract execution.engine=vectorized")
+    if execution.get("reference_oracle_engine") != "legacy":
+        raise ValueError("benchmark expects legacy reference oracle")
+    if execution.get("exact_dataset_outcome_equivalence_required") is not True:
+        raise ValueError("contract must require exact dataset outcome equivalence")
+    return execution
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--datasets", type=int, default=16)
@@ -59,6 +80,11 @@ def main() -> int:
     parser.add_argument("--repeats", type=int, default=3)
     parser.add_argument("--workers", type=int, nargs="+", default=[1, 2, 4])
     parser.add_argument("--root-seed", type=int, default=20260807)
+    parser.add_argument(
+        "--contract",
+        type=Path,
+        default=Path("protocol/coverage/study_0_subject_bootstrap_v0.2.2.yaml"),
+    )
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
     if args.datasets <= 0 or args.bootstrap_replicates <= 0 or args.repeats <= 0:
@@ -69,16 +95,14 @@ def main() -> int:
     if 1 not in workers:
         raise ValueError("worker list must include workers=1")
 
+    execution_contract = _load_execution_contract(args.contract)
     scenario = CoverageScenario(
         name="vectorized_end_to_end_benchmark",
         target_delta_fnmr=0.015,
         subject_effect_sd_genuine=0.08,
         subject_effect_sd_impostor=0.05,
     )
-    timings = {
-        worker: {"legacy": [], "vectorized": []}
-        for worker in workers
-    }
+    timings = {worker: {"legacy": [], "vectorized": []} for worker in workers}
     equivalence_verified = True
 
     for _ in range(args.repeats):
@@ -126,9 +150,8 @@ def main() -> int:
                 "end_to_end_speedup_legacy_over_vectorized": (
                     legacy_median / vectorized_median
                 ),
-                "vectorized_benchmark_seconds_per_dataset": (
-                    vectorized_seconds_per_dataset
-                ),
+                "speedup_definition": SPEEDUP_DEFINITION,
+                "vectorized_benchmark_seconds_per_dataset": vectorized_seconds_per_dataset,
                 "production_scale_factor": production_scale_factor,
                 "estimated_vectorized_production_seconds_per_dataset": (
                     estimated_production_seconds_per_dataset
@@ -153,7 +176,15 @@ def main() -> int:
         "coverage_outcomes_aggregated": False,
         "production_coverage_gate_executed": False,
         "exact_dataset_outcome_equivalence_verified": equivalence_verified,
-        "legacy_is_default_engine": True,
+        "speedup_definition": SPEEDUP_DEFINITION,
+        "execution_contract": {
+            "selected_engine": execution_contract["engine"],
+            "reference_oracle_engine": execution_contract["reference_oracle_engine"],
+            "exact_dataset_outcome_equivalence_required": execution_contract[
+                "exact_dataset_outcome_equivalence_required"
+            ],
+            "implementation_only": execution_contract.get("implementation_only"),
+        },
         "configuration": {
             "datasets_per_timed_run": args.datasets,
             "bootstrap_replicates_per_dataset": args.bootstrap_replicates,
@@ -176,11 +207,12 @@ def main() -> int:
         },
         "interpretation_boundary": {
             "speedup_is_measured_not_assumed": True,
+            "speedup_compares_same_worker_count": True,
             "small_sample_speedup_is_qualitative_not_high_precision": True,
             "production_extrapolation_scales_to_frozen_10000_bootstrap_replicates": True,
             "extrapolation_is_not_a_runtime_guarantee": True,
             "chronicle_resolution_requires_review": True,
-            "vectorized_engine_not_yet_default": True,
+            "contract_selected_engine_is_vectorized": True,
         },
     }
     args.output.parent.mkdir(parents=True, exist_ok=True)
