@@ -49,6 +49,16 @@ jobs:
           assert result["production_coverage_gate_executed"] is False
           assert result["equivalence_verified_against_workers_1"] is True
           assert [row["workers"] for row in result["results"]] == [1, 2, 4]
+          config = result["configuration"]
+          expected_scale = (
+              config["frozen_bootstrap_replicates_per_dataset"]
+              / config["bootstrap_replicates_per_dataset"]
+          )
+          assert expected_scale == 10.0
+          assert all(row["production_scale_factor"] == expected_scale for row in result["results"])
+          assert result["interpretation_boundary"][
+              "production_extrapolation_scales_to_frozen_10000_bootstrap_replicates"
+          ] is True
           PY
       - uses: actions/upload-artifact@v4
         with:
