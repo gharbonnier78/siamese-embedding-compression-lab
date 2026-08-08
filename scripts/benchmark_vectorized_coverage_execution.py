@@ -63,7 +63,7 @@ def _load_execution_contract(path: Path) -> dict[str, object]:
         raise TypeError("coverage contract must be a YAML mapping")
     execution = contract.get("execution")
     if not isinstance(execution, dict):
-        raise ValueError("coverage contract must define execution")
+        raise TypeError("coverage contract must define execution")
     if execution.get("engine") != "vectorized":
         raise ValueError("benchmark expects contract execution.engine=vectorized")
     if execution.get("reference_oracle_engine") != "legacy":
