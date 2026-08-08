@@ -8,13 +8,13 @@ reads historical Study 0 scores, or executes the production coverage gate.
 from __future__ import annotations
 
 import argparse
-from dataclasses import asdict
 import json
 import os
-from pathlib import Path
 import platform
 import statistics
 import time
+from dataclasses import asdict
+from pathlib import Path
 
 import numpy as np
 
@@ -23,7 +23,6 @@ from siamese_compression_lab.coverage_execution import (
     spawn_scenario_seed_sequences,
 )
 from siamese_compression_lab.coverage_simulation import CoverageScenario
-
 
 FROZEN_BOOTSTRAP_REPLICATES = 10_000
 FIRST_CHECKPOINT_DATASETS_PER_SCENARIO = 2_000
