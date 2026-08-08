@@ -26,6 +26,8 @@ from .coverage_simulation import (
 from .subject_bootstrap import DegenerateReplicateError
 from .subject_bootstrap_vectorized import (
     subject_bootstrap_delta_fnmr_vectorized as subject_bootstrap_delta_fnmr,
+)
+from .subject_bootstrap_vectorized import (
     subject_bootstrap_fixed_threshold_vectorized as subject_bootstrap_fixed_threshold,
 )
 
