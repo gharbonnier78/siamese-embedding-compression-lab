@@ -22,8 +22,8 @@ This chronicle is therefore part of the research evidence chain, but it is **not
 
 ## 2. Core principles
 
-### 2.1 Non-repudiating chronology
-Entries are append-only. Incorrect or superseded entries are not silently rewritten; they receive a linked correction or superseding entry. Git history is part of the provenance record.
+### 2.1 Append-only, non-silent-rewrite chronology
+Entries are append-only. Incorrect or superseded entries are not silently rewritten; they receive a linked correction or superseding entry. Git history is part of the provenance record. This improves traceability and makes silent rewriting visible, but it is **not cryptographic non-repudiation of author identity**; stronger guarantees would require signed commits/tags or an external transparency mechanism.
 
 ### 2.2 Pre-outcome versus post-outcome separation
 Every entry must state whether outcome-bearing evidence had already been inspected when the decision, doubt, or proposal was recorded. A methodological change after outcome inspection must be explicit and versioned; it must never be represented as preregistered.
