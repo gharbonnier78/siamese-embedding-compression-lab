@@ -61,6 +61,50 @@ class VectorizedCoverageExecutionTests(unittest.TestCase):
         )
         self.assertEqual(parallel, serial)
 
+    def test_progress_callback_preserves_exact_serial_outcomes(self) -> None:
+        baseline = run_coverage_scenario_datasets(
+            self.scenario,
+            simulated_datasets=4,
+            bootstrap_replicates=40,
+            scenario_seed=self.scenario_seed,
+            workers=1,
+            engine="vectorized",
+        )
+        events: list[tuple[int, int]] = []
+        instrumented = run_coverage_scenario_datasets(
+            self.scenario,
+            simulated_datasets=4,
+            bootstrap_replicates=40,
+            scenario_seed=self.scenario_seed,
+            workers=1,
+            engine="vectorized",
+            progress_callback=lambda completed, total: events.append((completed, total)),
+        )
+        self.assertEqual(instrumented, baseline)
+        self.assertEqual(events, [(1, 4), (2, 4), (3, 4), (4, 4)])
+
+    def test_progress_callback_preserves_exact_parallel_outcomes(self) -> None:
+        baseline = run_coverage_scenario_datasets(
+            self.scenario,
+            simulated_datasets=4,
+            bootstrap_replicates=40,
+            scenario_seed=self.scenario_seed,
+            workers=2,
+            engine="vectorized",
+        )
+        events: list[tuple[int, int]] = []
+        instrumented = run_coverage_scenario_datasets(
+            self.scenario,
+            simulated_datasets=4,
+            bootstrap_replicates=40,
+            scenario_seed=self.scenario_seed,
+            workers=2,
+            engine="vectorized",
+            progress_callback=lambda completed, total: events.append((completed, total)),
+        )
+        self.assertEqual(instrumented, baseline)
+        self.assertEqual(events, [(1, 4), (2, 4), (3, 4), (4, 4)])
+
     def test_legacy_remains_default_engine(self) -> None:
         implicit = run_coverage_scenario_datasets(
             self.scenario,
