@@ -9,9 +9,10 @@ parameters. Independent scenario/dataset substreams are derived exclusively with
 from __future__ import annotations
 
 import hashlib
+from collections.abc import Callable
 from concurrent.futures import ProcessPoolExecutor
 from dataclasses import dataclass
-from typing import Callable, Literal
+from typing import Literal
 
 import numpy as np
 
