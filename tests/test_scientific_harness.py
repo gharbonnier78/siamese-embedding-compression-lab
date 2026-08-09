@@ -45,12 +45,28 @@ class ScientificHarnessTests(unittest.TestCase):
     def test_append_only_resolution_releases_named_step(self) -> None:
         assert_execution_unblocked(CHRONICLE, GATE, "production_coverage_gate")
 
+    def test_decomposed_production_waits_for_exact_equivalence_evidence(self) -> None:
+        with self.assertRaisesRegex(
+            ScientificChronicleError,
+            "CHRON-20260809-004",
+        ):
+            assert_execution_unblocked(
+                CHRONICLE,
+                GATE,
+                "decomposed_production_coverage_gate",
+            )
+
     def test_nonterminal_supersession_is_invalid(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "chronicle.yaml"
             doc = yaml.safe_load(CHRONICLE.read_text(encoding="utf-8"))
-            doc["entries"][-1]["status"] = "OPEN"
-            doc["entries"][-1]["next_action"] = "still investigating"
+            resolution = next(
+                entry
+                for entry in doc["entries"]
+                if entry["id"] == "CHRON-20260808-003"
+            )
+            resolution["status"] = "OPEN"
+            resolution["next_action"] = "still investigating"
             path.write_text(yaml.safe_dump(doc, sort_keys=False), encoding="utf-8")
             errors = validate_scientific_chronicle(path, GATE)
             self.assertTrue(
@@ -61,7 +77,12 @@ class ScientificHarnessTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "chronicle.yaml"
             doc = yaml.safe_load(CHRONICLE.read_text(encoding="utf-8"))
-            doc["entries"][-1]["supersedes"] = "CHRON-DOES-NOT-EXIST"
+            resolution = next(
+                entry
+                for entry in doc["entries"]
+                if entry["id"] == "CHRON-20260808-003"
+            )
+            resolution["supersedes"] = "CHRON-DOES-NOT-EXIST"
             path.write_text(yaml.safe_dump(doc, sort_keys=False), encoding="utf-8")
             errors = validate_scientific_chronicle(path, GATE)
             self.assertTrue(any("supersedes unknown" in error for error in errors))
