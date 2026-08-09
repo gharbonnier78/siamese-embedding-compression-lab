@@ -6,6 +6,7 @@ import argparse
 import csv
 import json
 import time
+from collections.abc import Callable
 from dataclasses import asdict
 from pathlib import Path
 
@@ -85,6 +86,67 @@ def _runtime_estimate(remaining: int, completed: int, elapsed_seconds: float) ->
     if completed <= 0 or elapsed_seconds <= 0:
         return None
     return remaining * elapsed_seconds / completed
+
+
+def _make_progress_callback(
+    *,
+    progress_path: Path,
+    checkpoint: int,
+    checkpoint_index: int,
+    checkpoint_total: int,
+    checkpoint_started: float,
+    scenario_name: str,
+    scenario_index: int,
+    scenario_count: int,
+    scenario_started: float,
+) -> Callable[[int, int], None]:
+    def report_progress(completed: int, total: int) -> None:
+        if completed != total and completed % PROGRESS_EVERY_DATASETS != 0:
+            return
+        now = time.monotonic()
+        scenario_elapsed = now - scenario_started
+        checkpoint_elapsed = now - checkpoint_started
+        checkpoint_completed = (scenario_index - 1) * checkpoint + completed
+        scenario_eta = _runtime_estimate(total - completed, completed, scenario_elapsed)
+        checkpoint_eta = _runtime_estimate(
+            checkpoint_total - checkpoint_completed,
+            checkpoint_completed,
+            checkpoint_elapsed,
+        )
+        event = {
+            "event": "dataset_progress",
+            "checkpoint": checkpoint,
+            "checkpoint_index": checkpoint_index,
+            "scenario": scenario_name,
+            "scenario_index": scenario_index,
+            "scenario_count": scenario_count,
+            "datasets_completed": completed,
+            "datasets_total": total,
+            "scenario_progress_percent": round(100.0 * completed / total, 3),
+            "checkpoint_datasets_completed": checkpoint_completed,
+            "checkpoint_datasets_total": checkpoint_total,
+            "checkpoint_progress_percent": round(
+                100.0 * checkpoint_completed / checkpoint_total, 3
+            ),
+            "scenario_elapsed_seconds": round(scenario_elapsed, 3),
+            "checkpoint_elapsed_seconds": round(checkpoint_elapsed, 3),
+            "scenario_throughput_datasets_per_minute": round(
+                60.0 * completed / scenario_elapsed, 4
+            )
+            if scenario_elapsed > 0
+            else None,
+            "scenario_eta_seconds": round(scenario_eta, 3)
+            if scenario_eta is not None
+            else None,
+            "checkpoint_eta_seconds": round(checkpoint_eta, 3)
+            if checkpoint_eta is not None
+            else None,
+            "eta_is_runtime_estimate": True,
+            "runtime_observability_only": True,
+        }
+        _append_progress(progress_path, event)
+
+    return report_progress
 
 
 def main() -> int:
@@ -174,55 +236,17 @@ def main() -> int:
             zip(scenarios, scenario_seeds), start=1
         ):
             scenario_started = time.monotonic()
-
-            def report_progress(completed: int, total: int) -> None:
-                if completed != total and completed % PROGRESS_EVERY_DATASETS != 0:
-                    return
-                now = time.monotonic()
-                scenario_elapsed = now - scenario_started
-                checkpoint_elapsed = now - checkpoint_started
-                checkpoint_completed = (scenario_index - 1) * checkpoint + completed
-                scenario_eta = _runtime_estimate(
-                    total - completed, completed, scenario_elapsed
-                )
-                checkpoint_eta = _runtime_estimate(
-                    checkpoint_total - checkpoint_completed,
-                    checkpoint_completed,
-                    checkpoint_elapsed,
-                )
-                event = {
-                    "event": "dataset_progress",
-                    "checkpoint": checkpoint,
-                    "checkpoint_index": checkpoint_index,
-                    "scenario": scenario.name,
-                    "scenario_index": scenario_index,
-                    "scenario_count": len(scenarios),
-                    "datasets_completed": completed,
-                    "datasets_total": total,
-                    "scenario_progress_percent": round(100.0 * completed / total, 3),
-                    "checkpoint_datasets_completed": checkpoint_completed,
-                    "checkpoint_datasets_total": checkpoint_total,
-                    "checkpoint_progress_percent": round(
-                        100.0 * checkpoint_completed / checkpoint_total, 3
-                    ),
-                    "scenario_elapsed_seconds": round(scenario_elapsed, 3),
-                    "checkpoint_elapsed_seconds": round(checkpoint_elapsed, 3),
-                    "scenario_throughput_datasets_per_minute": round(
-                        60.0 * completed / scenario_elapsed, 4
-                    )
-                    if scenario_elapsed > 0
-                    else None,
-                    "scenario_eta_seconds": round(scenario_eta, 3)
-                    if scenario_eta is not None
-                    else None,
-                    "checkpoint_eta_seconds": round(checkpoint_eta, 3)
-                    if checkpoint_eta is not None
-                    else None,
-                    "eta_is_runtime_estimate": True,
-                    "runtime_observability_only": True,
-                }
-                _append_progress(progress_path, event)
-
+            progress_callback = _make_progress_callback(
+                progress_path=progress_path,
+                checkpoint=checkpoint,
+                checkpoint_index=checkpoint_index,
+                checkpoint_total=checkpoint_total,
+                checkpoint_started=checkpoint_started,
+                scenario_name=scenario.name,
+                scenario_index=scenario_index,
+                scenario_count=len(scenarios),
+                scenario_started=scenario_started,
+            )
             results = run_coverage_scenario_seedsequence(
                 scenario,
                 simulated_datasets=checkpoint,
@@ -230,7 +254,7 @@ def main() -> int:
                 scenario_seed=scenario_seed,
                 workers=args.workers,
                 engine=engine,  # type: ignore[arg-type]
-                progress_callback=report_progress,
+                progress_callback=progress_callback,
             )
             checkpoint_rows.extend(asdict(result) for result in results)
             _append_progress(
