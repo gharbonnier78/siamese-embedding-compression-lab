@@ -9,6 +9,7 @@ parameters. Independent scenario/dataset substreams are derived exclusively with
 from __future__ import annotations
 
 import hashlib
+from collections.abc import Callable
 from concurrent.futures import ProcessPoolExecutor
 from dataclasses import dataclass
 from typing import Literal
@@ -32,6 +33,7 @@ from .subject_bootstrap_vectorized import (
 )
 
 CoverageEngine = Literal["legacy", "vectorized"]
+CoverageProgressCallback = Callable[[int, int], None]
 
 
 @dataclass(frozen=True)
@@ -264,8 +266,9 @@ def run_coverage_scenario_datasets(
     scenario_seed: SeedSequenceDescriptor,
     workers: int = 1,
     engine: CoverageEngine = "legacy",
+    progress_callback: CoverageProgressCallback | None = None,
 ) -> list[DatasetCoverageOutcome]:
-    """Run a scenario serially or in processes without changing dataset RNG streams."""
+    """Run a scenario without changing RNG streams; optionally report consumed progress."""
     if bootstrap_replicates <= 0:
         raise ValueError("bootstrap_replicates must be positive")
     if workers <= 0:
@@ -277,11 +280,22 @@ def run_coverage_scenario_datasets(
         (scenario, graph, lineage, bootstrap_replicates, engine)
         for lineage in plan.datasets
     ]
+    outcomes: list[DatasetCoverageOutcome] = []
     if workers == 1:
-        return [_dataset_worker(task) for task in tasks]
+        iterator = (_dataset_worker(task) for task in tasks)
+        for completed, outcome in enumerate(iterator, start=1):
+            outcomes.append(outcome)
+            if progress_callback is not None:
+                progress_callback(completed, simulated_datasets)
+        return outcomes
+
     with ProcessPoolExecutor(max_workers=workers) as executor:
         # executor.map preserves input order; scheduling/completion order cannot alter output order.
-        return list(executor.map(_dataset_worker, tasks))
+        for completed, outcome in enumerate(executor.map(_dataset_worker, tasks), start=1):
+            outcomes.append(outcome)
+            if progress_callback is not None:
+                progress_callback(completed, simulated_datasets)
+    return outcomes
 
 
 def aggregate_dataset_outcomes(
@@ -327,6 +341,7 @@ def run_coverage_scenario_seedsequence(
     scenario_seed: SeedSequenceDescriptor,
     workers: int = 1,
     engine: CoverageEngine = "legacy",
+    progress_callback: CoverageProgressCallback | None = None,
 ) -> list[CoverageResult]:
     outcomes = run_coverage_scenario_datasets(
         scenario,
@@ -335,6 +350,7 @@ def run_coverage_scenario_seedsequence(
         scenario_seed=scenario_seed,
         workers=workers,
         engine=engine,
+        progress_callback=progress_callback,
     )
     return aggregate_dataset_outcomes(
         scenario,
