@@ -38,29 +38,59 @@
         "base64_sha256": "cfda996eb3cf79d2464c7e7b28185d823f633cb9576f97cb840018c01927cb96",
         "parts": [
           {
-            "path": "progress.jsonl.gz.b64.part000",
-            "bytes": 9000,
-            "sha256": "7112bcd7b09851fbd65e0420b658cd7ea8378cea963f27aadeffb52d2a17948e"
+            "path": "progress.jsonl.gz.b64.v3.part000",
+            "bytes": 5000,
+            "sha256": "9c62ce92bf9bf4886162416464b1eee8a17391b1068daf7e424e7ac0ae97586b"
           },
           {
-            "path": "progress.jsonl.gz.b64.part001",
-            "bytes": 9000,
-            "sha256": "fff66676ce428379db8b160803a79756f50e0360221fdf48b14433919fe1cd23"
+            "path": "progress.jsonl.gz.b64.v3.part001",
+            "bytes": 5000,
+            "sha256": "028dd5c60c7564f9932025017b07293d28eb12e0263f5c46f4e39ae336310c97"
           },
           {
-            "path": "progress.jsonl.gz.b64.part002",
-            "bytes": 9000,
-            "sha256": "6c8330e18d3770bfd84e31463209e2be7785fa0417665eb6f5e6de94869a4b51"
+            "path": "progress.jsonl.gz.b64.v3.part002a",
+            "bytes": 2500,
+            "sha256": "a721d252178a6743887e5aa78bd6e3575645fd218b195cafc9f1d0b141fe6f7d"
           },
           {
-            "path": "progress.jsonl.gz.b64.part003",
-            "bytes": 8712,
-            "sha256": "9cf5e68ada130c2bb4621dd3aa49331bd134ade76a1e3ca30ccf98aa4e537751"
+            "path": "progress.jsonl.gz.b64.v3.part002b",
+            "bytes": 2500,
+            "sha256": "8c832120b196561aa6bae021594e4b1efbf14462297c72648bc8b6eaef29ddd8"
+          },
+          {
+            "path": "progress.jsonl.gz.b64.v3.part003",
+            "bytes": 5000,
+            "sha256": "aa274895b31f1cf5d05b912eeb1ba1b93a0e2bb6a9dabd4f026998d07bf05930"
+          },
+          {
+            "path": "progress.jsonl.gz.b64.v3.part004",
+            "bytes": 5000,
+            "sha256": "53817fd8696abc9092dca9a079eca5794a69a6887cce5b9f7b8b0f4e24e8aea0"
+          },
+          {
+            "path": "progress.jsonl.gz.b64.v3.part005a",
+            "bytes": 2500,
+            "sha256": "5b17ec9bf2575afd79f16b3c26f44a85eddcea564f9007b1c32cac26f86e35ac"
+          },
+          {
+            "path": "progress.jsonl.gz.b64.v3.part005b",
+            "bytes": 2500,
+            "sha256": "17b5711700868d8e1714871a4d69c5fbec941e5df998495eb67e677f6f75501a"
+          },
+          {
+            "path": "progress.jsonl.gz.b64.v3.part006",
+            "bytes": 5000,
+            "sha256": "611039a0a30bcabe140d394aed133b2e734cfdc8d253b83e9f2a7d2b2c66f7d0"
+          },
+          {
+            "path": "progress.jsonl.gz.b64.v3.part007",
+            "bytes": 712,
+            "sha256": "ad1a315375522036f416f662da2b4b0788267958263258222f6e931d85655bdc"
           }
         ],
         "verifier": "scripts/verify_cancelled_runtime_evidence.py"
       },
-      "note": "The exact raw progress bytes are preserved losslessly as deterministic gzip encoded in four base64 text parts. The verifier reconstructs the raw JSONL and checks its original SHA-256, byte length and event count. The Actions artifact remains the original provenance source."
+      "note": "The exact raw progress bytes are preserved losslessly as deterministic gzip encoded in the manifest-listed base64 text parts. The verifier reconstructs the raw JSONL and checks its original SHA-256, byte length and event count. The Actions artifact remains the original provenance source."
     }
   },
   "run_started_at_utc": "2026-08-09T11:56:02Z",
