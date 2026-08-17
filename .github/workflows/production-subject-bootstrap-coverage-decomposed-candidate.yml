@@ -1,0 +1,462 @@
+name: Production subject-bootstrap coverage decomposed candidate
+
+on:
+  workflow_dispatch:
+    inputs:
+      confirm_production_coverage:
+        description: "Explicitly confirm the reviewed production coverage campaign"
+        required: true
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: study-0-decomposed-production-coverage
+  cancel-in-progress: false
+
+env:
+  PYTHONPATH: src
+  COVERAGE_CONTRACT: protocol/coverage/study_0_subject_bootstrap_v0.2.2.yaml
+
+jobs:
+  preflight:
+    name: Assert reviewed execution authorization
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Require explicit dispatch confirmation
+        shell: bash
+        run: |
+          if [[ "${{ inputs.confirm_production_coverage }}" != "true" ]]; then
+            echo "Production coverage was not explicitly confirmed."
+            exit 2
+          fi
+
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install package
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+
+      - name: Require authorized contract and resolved decomposed gate
+        run: python scripts/preflight_decomposed_coverage.py
+
+  coverage_2000:
+    name: Coverage 2000 / ${{ matrix.scenario }}
+    needs: preflight
+    runs-on: ubuntu-24.04
+    # GitHub-hosted jobs have a six-hour hard ceiling. Keep a 30-minute margin.
+    timeout-minutes: 330
+    strategy:
+      fail-fast: false
+      matrix:
+        scenario:
+          - independent_pair_null
+          - subject_dependence_null
+          - subject_dependence_noninferior
+          - subject_dependence_boundary
+          - subject_dependence_inferior
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install package
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+      - name: Execute one complete frozen scenario
+        run: |
+          python scripts/run_subject_bootstrap_coverage_scenario.py \
+            --scenario "${{ matrix.scenario }}" \
+            --checkpoint 2000 \
+            --workers 4 \
+            --git-commit "$GITHUB_SHA" \
+            --output-dir "artifacts/coverage/2000/${{ matrix.scenario }}"
+      - name: Preserve complete or interrupted runtime evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-2000-${{ matrix.scenario }}
+          path: artifacts/coverage/2000/${{ matrix.scenario }}/
+          if-no-files-found: warn
+          retention-days: 90
+
+  aggregate_2000:
+    name: Precision decision 2000
+    needs: coverage_2000
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    outputs:
+      stop: ${{ steps.decision.outputs.stop }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install package
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+      - name: Download all five complete scenario artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: coverage-2000-*
+          path: artifacts/downloaded
+      - name: Aggregate only the frozen MCSE stopping criterion
+        shell: bash
+        run: |
+          set -euo pipefail
+          artifact_args=()
+          for directory in artifacts/downloaded/coverage-2000-*; do
+            artifact_args+=(--artifact-dir "$directory")
+          done
+          python scripts/aggregate_subject_bootstrap_coverage.py \
+            "${artifact_args[@]}" \
+            --checkpoint 2000 \
+            --git-commit "$GITHUB_SHA" \
+            --output-dir artifacts/precision-2000
+      - name: Expose only the stop/continue control signal
+        id: decision
+        shell: bash
+        run: |
+          stop=$(python -c 'import json; print(str(json.load(open("artifacts/precision-2000/checkpoint_decision.json"))["all_metric_mcse_lte_threshold"]).lower())')
+          echo "stop=$stop" >> "$GITHUB_OUTPUT"
+      - name: Preserve precision decision
+        uses: actions/upload-artifact@v4
+        with:
+          name: precision-decision-2000
+          path: artifacts/precision-2000/
+          if-no-files-found: error
+          retention-days: 90
+
+  finalize_2000:
+    name: Final coverage gate 2000
+    needs: aggregate_2000
+    if: needs.aggregate_2000.outputs.stop == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install package
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: coverage-2000-*
+          path: artifacts/downloaded
+      - name: Finalize selected checkpoint without masking a scientific FAIL
+        id: final
+        shell: bash
+        run: |
+          set -uo pipefail
+          artifact_args=()
+          for directory in artifacts/downloaded/coverage-2000-*; do
+            artifact_args+=(--artifact-dir "$directory")
+          done
+          set +e
+          python scripts/finalize_subject_bootstrap_coverage.py \
+            "${artifact_args[@]}" \
+            --checkpoint 2000 \
+            --git-commit "$GITHUB_SHA" \
+            --output-dir artifacts/final-coverage
+          status=$?
+          set -e
+          echo "gate_exit=$status" >> "$GITHUB_OUTPUT"
+      - name: Upload final evidence before propagating the gate
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: study-0-v0.2.2-decomposed-coverage-final-2000
+          path: artifacts/final-coverage/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Propagate scientific gate result
+        if: steps.final.outputs.gate_exit != '0'
+        run: exit "${{ steps.final.outputs.gate_exit }}"
+
+  coverage_4000:
+    name: Coverage 4000 / ${{ matrix.scenario }}
+    needs: aggregate_2000
+    if: needs.aggregate_2000.outputs.stop != 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 330
+    strategy:
+      fail-fast: false
+      matrix:
+        scenario:
+          - independent_pair_null
+          - subject_dependence_null
+          - subject_dependence_noninferior
+          - subject_dependence_boundary
+          - subject_dependence_inferior
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install package
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+      - name: Execute one complete frozen scenario
+        run: |
+          python scripts/run_subject_bootstrap_coverage_scenario.py \
+            --scenario "${{ matrix.scenario }}" \
+            --checkpoint 4000 \
+            --workers 4 \
+            --git-commit "$GITHUB_SHA" \
+            --output-dir "artifacts/coverage/4000/${{ matrix.scenario }}"
+      - name: Preserve complete or interrupted runtime evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-4000-${{ matrix.scenario }}
+          path: artifacts/coverage/4000/${{ matrix.scenario }}/
+          if-no-files-found: warn
+          retention-days: 90
+
+  aggregate_4000:
+    name: Precision decision 4000
+    needs: coverage_4000
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    outputs:
+      stop: ${{ steps.decision.outputs.stop }}
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install package
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: coverage-4000-*
+          path: artifacts/downloaded
+      - name: Aggregate only the frozen MCSE stopping criterion
+        shell: bash
+        run: |
+          set -euo pipefail
+          artifact_args=()
+          for directory in artifacts/downloaded/coverage-4000-*; do
+            artifact_args+=(--artifact-dir "$directory")
+          done
+          python scripts/aggregate_subject_bootstrap_coverage.py \
+            "${artifact_args[@]}" \
+            --checkpoint 4000 \
+            --git-commit "$GITHUB_SHA" \
+            --output-dir artifacts/precision-4000
+      - name: Expose only the stop/continue control signal
+        id: decision
+        shell: bash
+        run: |
+          stop=$(python -c 'import json; print(str(json.load(open("artifacts/precision-4000/checkpoint_decision.json"))["all_metric_mcse_lte_threshold"]).lower())')
+          echo "stop=$stop" >> "$GITHUB_OUTPUT"
+      - name: Preserve precision decision
+        uses: actions/upload-artifact@v4
+        with:
+          name: precision-decision-4000
+          path: artifacts/precision-4000/
+          if-no-files-found: error
+          retention-days: 90
+
+  finalize_4000:
+    name: Final coverage gate 4000
+    needs: [aggregate_2000, aggregate_4000]
+    if: needs.aggregate_2000.outputs.stop != 'true' && needs.aggregate_4000.outputs.stop == 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install package
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: coverage-4000-*
+          path: artifacts/downloaded
+      - name: Finalize selected checkpoint without masking a scientific FAIL
+        id: final
+        shell: bash
+        run: |
+          set -uo pipefail
+          artifact_args=()
+          for directory in artifacts/downloaded/coverage-4000-*; do
+            artifact_args+=(--artifact-dir "$directory")
+          done
+          set +e
+          python scripts/finalize_subject_bootstrap_coverage.py \
+            "${artifact_args[@]}" \
+            --checkpoint 4000 \
+            --git-commit "$GITHUB_SHA" \
+            --output-dir artifacts/final-coverage
+          status=$?
+          set -e
+          echo "gate_exit=$status" >> "$GITHUB_OUTPUT"
+      - name: Upload final evidence before propagating the gate
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: study-0-v0.2.2-decomposed-coverage-final-4000
+          path: artifacts/final-coverage/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Propagate scientific gate result
+        if: steps.final.outputs.gate_exit != '0'
+        run: exit "${{ steps.final.outputs.gate_exit }}"
+
+  coverage_10000:
+    name: Coverage 10000 / ${{ matrix.scenario }}
+    needs: aggregate_4000
+    if: needs.aggregate_4000.outputs.stop != 'true'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 330
+    strategy:
+      fail-fast: false
+      matrix:
+        scenario:
+          - independent_pair_null
+          - subject_dependence_null
+          - subject_dependence_noninferior
+          - subject_dependence_boundary
+          - subject_dependence_inferior
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install package
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+      - name: Execute one complete frozen scenario
+        run: |
+          python scripts/run_subject_bootstrap_coverage_scenario.py \
+            --scenario "${{ matrix.scenario }}" \
+            --checkpoint 10000 \
+            --workers 4 \
+            --git-commit "$GITHUB_SHA" \
+            --output-dir "artifacts/coverage/10000/${{ matrix.scenario }}"
+      - name: Preserve complete or interrupted runtime evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-10000-${{ matrix.scenario }}
+          path: artifacts/coverage/10000/${{ matrix.scenario }}/
+          if-no-files-found: warn
+          retention-days: 90
+
+  aggregate_10000:
+    name: Precision decision 10000
+    needs: coverage_10000
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install package
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: coverage-10000-*
+          path: artifacts/downloaded
+      - name: Aggregate only the frozen MCSE stopping criterion
+        shell: bash
+        run: |
+          set -euo pipefail
+          artifact_args=()
+          for directory in artifacts/downloaded/coverage-10000-*; do
+            artifact_args+=(--artifact-dir "$directory")
+          done
+          python scripts/aggregate_subject_bootstrap_coverage.py \
+            "${artifact_args[@]}" \
+            --checkpoint 10000 \
+            --git-commit "$GITHUB_SHA" \
+            --output-dir artifacts/precision-10000
+      - name: Preserve precision decision
+        uses: actions/upload-artifact@v4
+        with:
+          name: precision-decision-10000
+          path: artifacts/precision-10000/
+          if-no-files-found: error
+          retention-days: 90
+
+  finalize_10000:
+    name: Final coverage gate 10000
+    needs: aggregate_10000
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install package
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: coverage-10000-*
+          path: artifacts/downloaded
+      - name: Finalize last allowed checkpoint without masking a scientific FAIL
+        id: final
+        shell: bash
+        run: |
+          set -uo pipefail
+          artifact_args=()
+          for directory in artifacts/downloaded/coverage-10000-*; do
+            artifact_args+=(--artifact-dir "$directory")
+          done
+          set +e
+          python scripts/finalize_subject_bootstrap_coverage.py \
+            "${artifact_args[@]}" \
+            --checkpoint 10000 \
+            --git-commit "$GITHUB_SHA" \
+            --output-dir artifacts/final-coverage
+          status=$?
+          set -e
+          echo "gate_exit=$status" >> "$GITHUB_OUTPUT"
+      - name: Upload final evidence before propagating the gate
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: study-0-v0.2.2-decomposed-coverage-final-10000
+          path: artifacts/final-coverage/
+          if-no-files-found: error
+          retention-days: 90
+      - name: Propagate scientific gate result
+        if: steps.final.outputs.gate_exit != '0'
+        run: exit "${{ steps.final.outputs.gate_exit }}"
