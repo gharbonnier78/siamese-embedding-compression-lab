@@ -17,6 +17,7 @@ on:
       - "scripts/validate_research_program.py"
       - "scripts/validate_scientific_harness.py"
       - "scripts/run_subject_bootstrap_coverage.py"
+      - ".github/workflows/production-subject-bootstrap-coverage.yml"
       - "src/siamese_compression_lab/research_assurance.py"
       - "src/siamese_compression_lab/scientific_harness.py"
       - "tests/test_generated_figures.py"
@@ -58,6 +59,8 @@ jobs:
           python -m unittest
           tests.test_research_assurance
           tests.test_scientific_harness
+          tests.test_coverage_contract_authorization
+          tests.test_production_coverage_workflow
           tests.test_generated_figures
           -v
 
