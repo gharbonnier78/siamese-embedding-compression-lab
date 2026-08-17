@@ -1,4 +1,10 @@
-"""Aggregate complete decomposed Study 0 coverage chunks in canonical contract order."""
+"""Aggregate complete decomposed Study 0 coverage chunks in canonical contract order.
+
+Production checkpoint aggregation intentionally emits only the MCSE stopping decision. Full
+coverage values are materialized only once, by the finalizer, after the selected checkpoint
+is known. Smoke fixtures may persist their synthetic rows because they are explicitly
+non-production and scientifically inadmissible.
+"""
 
 from __future__ import annotations
 
@@ -44,11 +50,11 @@ def main() -> int:
         checkpoint=args.checkpoint,
         require_execution_authorized=not args.smoke,
     )
-    rows = [asdict(result) for result in results]
     args.output_dir.mkdir(parents=True, exist_ok=True)
-    _write_csv(args.output_dir / "coverage_simulation.csv", rows)
 
     if args.smoke:
+        rows = [asdict(result) for result in results]
+        _write_csv(args.output_dir / "coverage_simulation.synthetic_smoke.csv", rows)
         decision = {
             **decision,
             "underlying_fixture_mcse_state": decision["status"],
