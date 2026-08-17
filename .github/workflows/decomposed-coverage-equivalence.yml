@@ -1,0 +1,115 @@
+name: Decomposed coverage equivalence
+
+on:
+  pull_request:
+    paths:
+      - "src/siamese_compression_lab/decomposed_coverage.py"
+      - "scripts/run_subject_bootstrap_coverage_scenario.py"
+      - "scripts/aggregate_subject_bootstrap_coverage.py"
+      - "tests/test_decomposed_coverage.py"
+      - ".github/workflows/decomposed-coverage-equivalence.yml"
+      - "protocol/coverage/study_0_subject_bootstrap_v0.2.2.yaml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  scenario-smoke:
+    name: Smoke ${{ matrix.scenario }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        scenario:
+          - independent_pair_null
+          - subject_dependence_null
+          - subject_dependence_noninferior
+          - subject_dependence_boundary
+          - subject_dependence_inferior
+    env:
+      PYTHONPATH: src
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install package
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+
+      - name: Execute non-production scenario fixture
+        run: |
+          python scripts/run_subject_bootstrap_coverage_scenario.py \
+            --scenario "${{ matrix.scenario }}" \
+            --checkpoint 2 \
+            --workers 2 \
+            --git-commit "$GITHUB_SHA" \
+            --output-dir "artifacts/decomposed-smoke/${{ matrix.scenario }}" \
+            --smoke
+
+      - name: Upload complete scenario fixture
+        uses: actions/upload-artifact@v4
+        with:
+          name: decomposed-smoke-${{ matrix.scenario }}
+          path: artifacts/decomposed-smoke/${{ matrix.scenario }}/
+          if-no-files-found: error
+          retention-days: 14
+
+  aggregate-smoke:
+    name: Aggregate decomposed smoke
+    needs: scenario-smoke
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    env:
+      PYTHONPATH: src
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Install package
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+
+      - name: Download scenario fixtures
+        uses: actions/download-artifact@v4
+        with:
+          pattern: decomposed-smoke-*
+          path: artifacts/downloaded
+
+      - name: Aggregate only after all five complete artifacts exist
+        shell: bash
+        run: |
+          set -euo pipefail
+          artifact_args=()
+          for directory in artifacts/downloaded/decomposed-smoke-*; do
+            artifact_args+=(--artifact-dir "$directory")
+          done
+          if [[ "${#artifact_args[@]}" -ne 10 ]]; then
+            echo "Expected five --artifact-dir pairs; got ${#artifact_args[@]} shell arguments"
+            exit 1
+          fi
+          python scripts/aggregate_subject_bootstrap_coverage.py \
+            "${artifact_args[@]}" \
+            --checkpoint 2 \
+            --git-commit "$GITHUB_SHA" \
+            --output-dir artifacts/decomposed-smoke-aggregate \
+            --smoke
+
+      - name: Upload aggregation fixture
+        uses: actions/upload-artifact@v4
+        with:
+          name: decomposed-smoke-aggregate
+          path: artifacts/decomposed-smoke-aggregate/
+          if-no-files-found: error
+          retention-days: 14
