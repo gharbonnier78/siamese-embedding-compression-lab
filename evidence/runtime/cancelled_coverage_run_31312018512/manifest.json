@@ -1,0 +1,46 @@
+{
+  "schema_version": "1.0.0",
+  "evidence_type": "cancelled_runtime_observability",
+  "repository": "gharbonnier78/siamese-embedding-compression-lab",
+  "workflow_run_id": 31312018512,
+  "workflow_job_id": 93241146532,
+  "workflow_name": "Production subject-bootstrap coverage",
+  "workflow_run_url": "https://github.com/gharbonnier78/siamese-embedding-compression-lab/actions/runs/31312018512",
+  "event": "pull_request",
+  "head_branch": "agent/v0.2.2-production-coverage-gate-v2",
+  "head_sha": "98d0cf9225ff69ac143ef1e098b8db4d6edbc72b",
+  "workflow_git_ref": "refs/pull/19/merge",
+  "workflow_git_sha": "efb4e0be892cb8d074655f69b43266bb5f51bbf1",
+  "artifact_id": 9041998610,
+  "artifact_name": "study-0-v0.2.2-production-coverage-v2",
+  "artifact_archive_sha256": "c08c4043c8aaba608e37bd56b7086c9055e898ab068f012f74239192b10eed58",
+  "artifact_created_at_utc": "2026-08-09T17:56:20Z",
+  "artifact_expires_at_utc": "2026-11-07T11:56:02Z",
+  "artifact_archive_verified_against_github_digest_at_utc": "2026-08-17T21:12:00Z",
+  "files": {
+    "execution_metadata.json": {
+      "sha256": "fc5c789f3d72f2b8938f91cfb6fb71df17455a2115c24ddef0fac587743bd978",
+      "bytes": 348,
+      "repository_copy": true
+    },
+    "progress.jsonl": {
+      "sha256": "8f04887118ce400463047c4ee78cddf38cd5c0369caf583f351a8719a84adec6",
+      "bytes": 404279,
+      "events": 654,
+      "repository_copy": false,
+      "source": "GitHub Actions artifact 9041998610",
+      "note": "Exact bytes were downloaded and digest-verified during PR A preparation. The connector used for this change cannot stream a local binary/text file into a GitHub contents write, so the immutable Actions artifact and exact digest remain the authoritative byte source until a repository copy is materialized by a file-capable path."
+    }
+  },
+  "run_started_at_utc": "2026-08-09T11:56:02Z",
+  "coverage_step_started_at_utc": "2026-08-09T11:56:39Z",
+  "cancelled_at_utc": "2026-08-09T17:56:18Z",
+  "conclusion": "cancelled",
+  "runtime_observability_only": true,
+  "outcome_evidence_seen": false,
+  "historical_study_0_scores_read": false,
+  "coverage_gate_result_admissible": false,
+  "production_gate_result_claimed": false,
+  "progress_summary": "progress_summary.json",
+  "scientific_interpretation": "This run is evidence of execution cost and runtime observability only. It is not admissible evidence of estimator coverage and no incomplete scientific outcome is reused."
+}
