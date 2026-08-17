@@ -1,0 +1,65 @@
+schema_version: "0.1"
+
+harness:
+  repository: gharbonnier78/scientific-research-harness
+  ref: "1cead5808c126fd38e7505c27502fb3e7671c69a"
+  entrypoint: HARNESS.md
+
+consumer:
+  repository: gharbonnier78/siamese-embedding-compression-lab
+  project_id: siamese-embedding-compression-lab
+  instruction_entrypoints:
+    - AGENTS.md
+
+authority:
+  sources:
+    - id: study0_protocol
+      reference: protocol/
+      role: frozen scientific contracts, gates and Chronicle
+    - id: study0_implementation
+      reference: src/
+      role: executable implementation
+    - id: study0_tests
+      reference: tests/
+      role: bounded behavioral evidence
+  domain_experts: []
+  prohibited_substitution:
+    - "The harness and LLM explanations do not replace source papers, frozen protocols, executable evidence or expert judgment."
+
+artifacts:
+  claims:
+    - protocol/
+  evidence:
+    - artifacts/
+    - tests/
+  scientific_gates:
+    - protocol/scientific_chronicle.yaml
+  chronicle: protocol/scientific_chronicle.yaml
+  pedagogy:
+    - pedagogy/
+  handoff: null
+
+execution:
+  environment_lock: null
+  replay_commands:
+    - "PYTHONPATH=src python -m unittest tests.test_harness_adoption tests.test_scientific_harness tests.test_coverage_execution tests.test_coverage_execution_vectorized -v"
+  randomness:
+    status: declared
+    root_entropy_policy: "Frozen protocol seed with task-bound SeedSequence lineage"
+    lineage_artifact: "DatasetCoverageOutcome seed-lineage fields and replay tests"
+  concurrency:
+    status: declared
+    reference_path: "Reviewed monolithic/reference coverage execution"
+    equivalence_evidence: "Serial/worker-count outcome and digest equivalence tests"
+
+local_extensions:
+  - protocol/
+  - pedagogy/
+  - tests/
+
+deviations: []
+
+adoption:
+  adopted_at: "2026-08-17"
+  adopted_by: "clean post-PR #25 integration change"
+  notes: "Pinned to the merged immutable harness commit from PR #5; no stable tag exists yet."
