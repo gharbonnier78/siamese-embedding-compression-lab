@@ -2,12 +2,15 @@ from __future__ import annotations
 
 import unittest
 
+from siamese_compression_lab.coverage_execution import (
+    run_coverage_scenario_seedsequence,
+    spawn_scenario_seed_sequences,
+)
 from siamese_compression_lab.coverage_simulation import (
     CoverageResult,
     CoverageScenario,
     coverage_gate_passes,
     make_sparse_graph,
-    run_coverage_scenario,
     scenario_truth,
 )
 
@@ -64,11 +67,13 @@ class CoverageSimulationTests(unittest.TestCase):
             subject_effect_sd_genuine=0.02,
             subject_effect_sd_impostor=0.02,
         )
-        results = run_coverage_scenario(
+        scenario_seed = spawn_scenario_seed_sequences(91, 1)[0]
+        results = run_coverage_scenario_seedsequence(
             scenario,
             simulated_datasets=2,
             bootstrap_replicates=10,
-            root_seed=91,
+            scenario_seed=scenario_seed,
+            workers=1,
         )
         self.assertEqual(
             {result.metric for result in results},

@@ -1,0 +1,54 @@
+name: Subject-bootstrap cost benchmark
+
+on:
+  pull_request:
+    paths:
+      - "scripts/benchmark_subject_bootstrap_cost.py"
+      - "src/siamese_compression_lab/subject_bootstrap.py"
+      - "src/siamese_compression_lab/subject_bootstrap_operational.py"
+      - "src/siamese_compression_lab/coverage_simulation.py"
+      - ".github/workflows/benchmark-subject-bootstrap-cost.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      PYTHONPATH: src
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install benchmark dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+      - name: Run non-outcome cost benchmark
+        run: |
+          python scripts/benchmark_subject_bootstrap_cost.py \
+            --replicates 1000 \
+            --repeats 3 \
+            --output benchmark-subject-bootstrap-cost.json
+      - name: Assert benchmark boundary
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          result = json.loads(Path("benchmark-subject-bootstrap-cost.json").read_text())
+          assert result["historical_study_0_scores_read"] is False
+          assert result["coverage_outcomes_computed"] is False
+          assert result["decision_boundary"]["production_coverage_gate_executed"] is False
+          assert result["decision_boundary"]["historical_reanalysis_permitted_by_this_benchmark"] is False
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: subject-bootstrap-cost-benchmark
+          path: benchmark-subject-bootstrap-cost.json
+          if-no-files-found: error
+          retention-days: 30

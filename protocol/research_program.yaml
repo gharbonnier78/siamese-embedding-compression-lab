@@ -50,10 +50,14 @@ normative_snapshot:
 reproducibility:
   replay_contract: mmals-replay-domain-pack/1.0
   cal_contract: mmals-cal/1.0-draft
+  scientific_harness: gates/scientific_harness.yaml
+  scientific_chronicle: protocol/scientific_chronicle.yaml
+  scientific_harness_guidance: docs/SCIENTIFIC_HARNESS.md
   immutable_run_required: true
   artifact_hashes_required: true
   container_or_environment_lock_required_for_qualification: true
   experiment_ledger: protocol/experiment_ledger.yaml
   append_only_study_history: true
+  append_only_scientific_chronicle: true
   original_artifacts_never_overwritten: true
   errata_are_linked_new_records: true

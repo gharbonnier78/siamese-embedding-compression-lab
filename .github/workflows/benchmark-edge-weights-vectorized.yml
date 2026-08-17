@@ -1,0 +1,57 @@
+name: Vectorized edge-weight benchmark
+
+on:
+  pull_request:
+    paths:
+      - "src/siamese_compression_lab/edge_weights_vectorized.py"
+      - "tests/test_edge_weights_vectorized.py"
+      - "scripts/benchmark_edge_weights_vectorized.py"
+      - ".github/workflows/benchmark-edge-weights-vectorized.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    env:
+      PYTHONPATH: src
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install package
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+      - name: Run vectorized edge-weight tests
+        run: pytest -q tests/test_edge_weights_vectorized.py
+      - name: Run isolated microbenchmark
+        run: |
+          python scripts/benchmark_edge_weights_vectorized.py \
+            --draws 5000 \
+            --repeats 3 \
+            --output edge-weights-vectorized-benchmark.json
+      - name: Assert experiment boundaries
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          result = json.loads(Path("edge-weights-vectorized-benchmark.json").read_text())
+          assert result["historical_study_0_scores_read"] is False
+          assert result["production_coverage_gate_executed"] is False
+          assert result["estimator_integration_changed"] is False
+          assert result["equivalence_checked_before_timing"] is True
+          assert result["configuration"]["subjects"] == 963
+          assert result["configuration"]["edges"] == 1000
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: edge-weights-vectorized-benchmark
+          path: edge-weights-vectorized-benchmark.json
+          if-no-files-found: error
+          retention-days: 30

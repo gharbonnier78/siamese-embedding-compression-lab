@@ -1,9 +1,28 @@
-schema_version: "1.0.0"
+schema_version: "1.0.1"
 contract_id: study_0_subject_bootstrap_coverage_v0_2_2
 purpose: validate_subject_bootstrap_interval_coverage_before_historical_reanalysis
 status: IMPLEMENTATION_REVIEW_REQUIRED
 historical_study_0_scores_permitted: false
 root_seed: 20260807
+rng_hierarchy:
+  derivation: numpy_seedsequence_spawn
+  bit_generator: PCG64
+  levels:
+    - root
+    - scenario
+    - scenario_graph_or_dataset
+    - dataset_distance_or_bootstrap
+  arithmetic_seed_offsets_forbidden: true
+  shared_generator_between_datasets_forbidden: true
+  worker_count_must_not_change_outputs: true
+  isolated_dataset_replay_from_seed_lineage_required: true
+  note: "Pre-outcome execution clarification only; does not change estimands, scenarios, bootstrap weights, thresholds, or coverage criteria."
+execution:
+  engine: vectorized
+  reference_oracle_engine: legacy
+  exact_dataset_outcome_equivalence_required: true
+  implementation_only: true
+  note: "Pre-outcome execution selection after exact legacy/vectorized replay and non-outcome profiling; changes execution cost only, not the frozen statistical contract."
 bootstrap:
   replicates_per_simulated_dataset: 10000
   rng: numpy_generator_pcg64
