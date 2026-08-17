@@ -4,6 +4,17 @@ This changelog is append-only. Published studies, negative results and known def
 never rewritten as if they had not occurred. Corrections add a new entry and point back to
 the original run, artifact and claim state.
 
+## [Unreleased] - 2026-08-17
+
+### Documentation
+
+- Added a complete pedagogical and methodological note connecting PCA, random projection,
+  raw 512D embeddings and the supervised Siamese 512→128 projection.
+- Preserved the originating questions and distinguished embedding compression from backbone
+  model compression.
+- Clarified that Study 0 still reports `G2 = FAIL` and `NOT_DEMONSTRATED`; this note adds no
+  experimental result and does not rewrite historical evidence.
+
 ## [0.2.2-spec] - 2026-08-07
 
 ### Added
