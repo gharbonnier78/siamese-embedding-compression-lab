@@ -12,6 +12,7 @@ from pathlib import Path
 
 import numpy as np
 
+from siamese_compression_lab.coverage_execution import spawn_scenario_seed_sequences
 from siamese_compression_lab.decomposed_coverage import (
     DECOMPOSED_PRODUCTION_GATE,
     load_coverage_contract,
@@ -19,7 +20,6 @@ from siamese_compression_lab.decomposed_coverage import (
     scenarios_from_contract,
     write_scenario_chunk_artifact,
 )
-from siamese_compression_lab.coverage_execution import spawn_scenario_seed_sequences
 from siamese_compression_lab.scientific_harness import assert_execution_unblocked
 
 PROGRESS_EVERY_DATASETS = 25
