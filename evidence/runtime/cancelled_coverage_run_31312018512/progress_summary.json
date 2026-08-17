@@ -1,0 +1,40 @@
+{
+  "schema_version": "1.0.0",
+  "source_progress_sha256": "8f04887118ce400463047c4ee78cddf38cd5c0369caf583f351a8719a84adec6",
+  "event_count": 654,
+  "checkpoint_2000": {
+    "datasets_total": 10000,
+    "scenarios_complete": 5,
+    "status": "complete"
+  },
+  "checkpoint_4000": {
+    "datasets_total": 20000,
+    "datasets_completed_observed": 6150,
+    "progress_percent": 30.75,
+    "independent_pair_null": {
+      "datasets_completed": 4000,
+      "datasets_total": 4000,
+      "status": "complete"
+    },
+    "subject_dependence_null": {
+      "datasets_completed": 2150,
+      "datasets_total": 4000,
+      "status": "interrupted"
+    }
+  },
+  "last_event": {
+    "checkpoint": 4000,
+    "scenario": "subject_dependence_null",
+    "datasets_completed": 2150,
+    "datasets_total": 4000,
+    "checkpoint_datasets_completed": 6150,
+    "checkpoint_datasets_total": 20000,
+    "checkpoint_progress_percent": 30.75,
+    "scenario_throughput_datasets_per_minute": 44.8297,
+    "scenario_eta_seconds": 2476.036,
+    "checkpoint_eta_seconds": 18450.938,
+    "runtime_observability_only": true
+  },
+  "scientific_outcome_reuse_permitted": false,
+  "historical_study_0_scores_read": false
+}
