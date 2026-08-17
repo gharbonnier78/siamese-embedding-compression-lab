@@ -12,6 +12,7 @@
 · [Study 0 results](RESULTS_LFW_V0.1.md)
 · [Study 0 errata](ERRATA_STUDY_0.md)
 · [v0.2.2 subject-bootstrap specification](protocol/studies/study_0_subject_bootstrap_spec.md)
+· [Study 2 quantization concept](protocol/studies/study_2_quantization_concept.md)
 · [Experiment ledger](protocol/experiment_ledger.yaml)
 · [Changelog](CHANGELOG.md)
 · [Claims registry](claims/registry.yaml)
@@ -321,7 +322,9 @@ The project should advance only in bounded gates:
    resampling was incorrectly described as identity-aware. Correct this before Study 1.
 4. **Study 1 — not started:** freeze the face-backbone preregistration and sample-size
    design only after resolving the statistical blocker.
-5. **Gate 3:** evaluate dimensions 64/128/256 under matched budgets.
+5. **Gate 3:** evaluate dimensions 64/128/256 and matched template-quantization routes
+   under preregistered biometric and actual-byte budgets; see the
+   [Study 2 quantization concept](protocol/studies/study_2_quantization_concept.md).
 6. **Gate 4:** add 1:N retrieval, gallery indexing and latency measurements.
 7. **Gate 5:** evaluate sensor, quality, age and demographic regimes on authorized data.
 
