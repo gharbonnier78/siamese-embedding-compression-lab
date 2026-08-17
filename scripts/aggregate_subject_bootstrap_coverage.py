@@ -1,9 +1,7 @@
 """Aggregate complete decomposed Study 0 coverage chunks in canonical contract order.
 
-Production checkpoint aggregation intentionally emits only the MCSE stopping decision. Full
-coverage values are materialized only once, by the finalizer, after the selected checkpoint
-is known. Smoke fixtures may persist their synthetic rows because they are explicitly
-non-production and scientifically inadmissible.
+Production checkpoint aggregation intentionally emits only the MCSE stopping decision. Full coverage values are materialized only once, by the finalizer, after the selected checkpoint is known.
+Smoke fixtures may persist their synthetic rows because they are explicitly non-production and scientifically inadmissible.
 """
 
 from __future__ import annotations
