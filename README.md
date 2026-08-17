@@ -12,6 +12,7 @@
 · [Study 0 results](RESULTS_LFW_V0.1.md)
 · [Study 0 errata](ERRATA_STUDY_0.md)
 · [v0.2.2 subject-bootstrap specification](protocol/studies/study_0_subject_bootstrap_spec.md)
+· [WaX distribution-shift concept](protocol/studies/future_explainable_distribution_shift_wax_concept.md)
 · [Experiment ledger](protocol/experiment_ledger.yaml)
 · [Changelog](CHANGELOG.md)
 · [Claims registry](claims/registry.yaml)
