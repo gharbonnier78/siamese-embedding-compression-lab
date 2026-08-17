@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.0.0",
+  "schema_version": "1.0.1",
   "evidence_type": "cancelled_runtime_observability",
   "repository": "gharbonnier78/siamese-embedding-compression-lab",
   "workflow_run_id": 31312018512,
@@ -27,9 +27,40 @@
       "sha256": "8f04887118ce400463047c4ee78cddf38cd5c0369caf583f351a8719a84adec6",
       "bytes": 404279,
       "events": 654,
-      "repository_copy": false,
       "source": "GitHub Actions artifact 9041998610",
-      "note": "Exact bytes were downloaded and digest-verified during PR A preparation. The connector used for this change cannot stream a local binary/text file into a GitHub contents write, so the immutable Actions artifact and exact digest remain the authoritative byte source until a repository copy is materialized by a file-capable path."
+      "raw_repository_file": false,
+      "repository_lossless_encoded_copy": {
+        "encoding": "deterministic-gzip-base64-split",
+        "reconstructable_exact_raw_bytes": true,
+        "gzip_bytes": 26782,
+        "gzip_sha256": "72fbfb16bcf738aa8dab6477d3854d9a52a9da173b12aef93993bdc2655901c4",
+        "base64_bytes": 35712,
+        "base64_sha256": "cfda996eb3cf79d2464c7e7b28185d823f633cb9576f97cb840018c01927cb96",
+        "parts": [
+          {
+            "path": "progress.jsonl.gz.b64.part000",
+            "bytes": 9000,
+            "sha256": "7112bcd7b09851fbd65e0420b658cd7ea8378cea963f27aadeffb52d2a17948e"
+          },
+          {
+            "path": "progress.jsonl.gz.b64.part001",
+            "bytes": 9000,
+            "sha256": "fff66676ce428379db8b160803a79756f50e0360221fdf48b14433919fe1cd23"
+          },
+          {
+            "path": "progress.jsonl.gz.b64.part002",
+            "bytes": 9000,
+            "sha256": "6c8330e18d3770bfd84e31463209e2be7785fa0417665eb6f5e6de94869a4b51"
+          },
+          {
+            "path": "progress.jsonl.gz.b64.part003",
+            "bytes": 8712,
+            "sha256": "9cf5e68ada130c2bb4621dd3aa49331bd134ade76a1e3ca30ccf98aa4e537751"
+          }
+        ],
+        "verifier": "scripts/verify_cancelled_runtime_evidence.py"
+      },
+      "note": "The exact raw progress bytes are preserved losslessly as deterministic gzip encoded in four base64 text parts. The verifier reconstructs the raw JSONL and checks its original SHA-256, byte length and event count. The Actions artifact remains the original provenance source."
     }
   },
   "run_started_at_utc": "2026-08-09T11:56:02Z",
