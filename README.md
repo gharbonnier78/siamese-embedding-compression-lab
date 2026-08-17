@@ -11,6 +11,7 @@
 · [Research programme](RESEARCH_PROGRAM.md)
 · [Study 0 results](RESULTS_LFW_V0.1.md)
 · [Study 0 errata](ERRATA_STUDY_0.md)
+· [PCA and Siamese compression note](docs/PCA_AND_SIAMESE_EMBEDDING_COMPRESSION.md)
 · [v0.2.2 subject-bootstrap specification](protocol/studies/study_0_subject_bootstrap_spec.md)
 · [Experiment ledger](protocol/experiment_ledger.yaml)
 · [Changelog](CHANGELOG.md)
