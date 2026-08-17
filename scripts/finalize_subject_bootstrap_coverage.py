@@ -11,7 +11,9 @@ from pathlib import Path
 from siamese_compression_lab.coverage_simulation import coverage_gate_passes
 from siamese_compression_lab.decomposed_coverage import (
     aggregate_checkpoint_artifacts,
+    contract_sha256,
     load_coverage_contract,
+    sha256_file,
 )
 
 DEFAULT_CONTRACT = Path("protocol/coverage/study_0_subject_bootstrap_v0.2.2.yaml")
@@ -54,7 +56,9 @@ def main() -> int:
     gate_pass = coverage_gate_passes(results)
     rows = [asdict(result) for result in results]
     args.output_dir.mkdir(parents=True, exist_ok=True)
-    _write_csv(args.output_dir / "coverage_simulation.csv", rows)
+    simulation_path = args.output_dir / "coverage_simulation.csv"
+    gate_path = args.output_dir / "coverage_gate.json"
+    _write_csv(simulation_path, rows)
     gate = {
         "status": "PASS" if gate_pass else "FAIL",
         "selected_dataset_checkpoint": args.checkpoint,
@@ -64,6 +68,9 @@ def main() -> int:
         "root_seed": int(contract["root_seed"]),
         "rng_derivation": "numpy_seedsequence_spawn",
         "arithmetic_seed_offsets_used": False,
+        "git_commit": args.git_commit,
+        "contract_id": contract["contract_id"],
+        "contract_sha256": contract_sha256(args.contract),
         "execution_engine": contract["execution"]["engine"],
         "reference_oracle_engine": contract["execution"]["reference_oracle_engine"],
         "binomial_interval": contract["coverage_gate"]["binomial_interval"],
@@ -79,8 +86,24 @@ def main() -> int:
         "historical_study_0_scores_read": False,
         "production_coverage_gate_executed": True,
     }
-    (args.output_dir / "coverage_gate.json").write_text(
+    gate_path.write_text(
         json.dumps(gate, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
+    )
+    manifest = {
+        "schema_version": "1.0.0",
+        "artifact_type": "study0_decomposed_coverage_final",
+        "git_commit": args.git_commit,
+        "contract_id": contract["contract_id"],
+        "contract_sha256": contract_sha256(args.contract),
+        "selected_dataset_checkpoint": args.checkpoint,
+        "coverage_simulation_sha256": sha256_file(simulation_path),
+        "coverage_gate_sha256": sha256_file(gate_path),
+        "historical_study_0_scores_read": False,
+        "complete": True,
+    }
+    (args.output_dir / "manifest.json").write_text(
+        json.dumps(manifest, indent=2, sort_keys=True) + "\n",
         encoding="utf-8",
     )
     print(json.dumps(gate, indent=2, sort_keys=True))
