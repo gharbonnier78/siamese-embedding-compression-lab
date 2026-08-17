@@ -1,5 +1,8 @@
 from __future__ import annotations
 
+import base64
+import gzip
+import hashlib
 import json
 import unittest
 from pathlib import Path
@@ -13,9 +16,12 @@ from siamese_compression_lab.decomposed_coverage import (
 class CancelledRuntimeEvidenceTests(unittest.TestCase):
     def setUp(self) -> None:
         self.root = Path("evidence/runtime/cancelled_coverage_run_31312018512")
+        self.manifest = json.loads(
+            (self.root / "manifest.json").read_text(encoding="utf-8")
+        )
 
     def test_cancelled_run_is_bound_as_runtime_only_evidence(self) -> None:
-        manifest = json.loads((self.root / "manifest.json").read_text(encoding="utf-8"))
+        manifest = self.manifest
         validate_cancelled_runtime_manifest(manifest)
         self.assertEqual(manifest["workflow_run_id"], 31312018512)
         self.assertEqual(manifest["workflow_job_id"], 93241146532)
@@ -28,11 +34,40 @@ class CancelledRuntimeEvidenceTests(unittest.TestCase):
             sha256_file(self.root / "execution_metadata.json"),
             manifest["files"]["execution_metadata.json"]["sha256"],
         )
-        self.assertFalse(manifest["files"]["progress.jsonl"]["repository_copy"])
+        progress = manifest["files"]["progress.jsonl"]
+        self.assertFalse(progress["raw_repository_file"])
+        self.assertTrue(
+            progress["repository_lossless_encoded_copy"][
+                "reconstructable_exact_raw_bytes"
+            ]
+        )
         self.assertEqual(
-            manifest["files"]["progress.jsonl"]["sha256"],
+            progress["sha256"],
             "8f04887118ce400463047c4ee78cddf38cd5c0369caf583f351a8719a84adec6",
         )
+
+    def test_lossless_encoded_progress_reconstructs_exact_original_bytes(self) -> None:
+        progress = self.manifest["files"]["progress.jsonl"]
+        encoded = progress["repository_lossless_encoded_copy"]
+        parts = []
+        for part in encoded["parts"]:
+            payload = (self.root / part["path"]).read_bytes()
+            self.assertEqual(len(payload), part["bytes"])
+            self.assertEqual(hashlib.sha256(payload).hexdigest(), part["sha256"])
+            parts.append(payload)
+
+        base64_payload = b"".join(parts)
+        self.assertEqual(len(base64_payload), encoded["base64_bytes"])
+        self.assertEqual(
+            hashlib.sha256(base64_payload).hexdigest(), encoded["base64_sha256"]
+        )
+        compressed = base64.b64decode(base64_payload, validate=True)
+        self.assertEqual(len(compressed), encoded["gzip_bytes"])
+        self.assertEqual(hashlib.sha256(compressed).hexdigest(), encoded["gzip_sha256"])
+        raw = gzip.decompress(compressed)
+        self.assertEqual(len(raw), progress["bytes"])
+        self.assertEqual(hashlib.sha256(raw).hexdigest(), progress["sha256"])
+        self.assertEqual(len(raw.splitlines()), progress["events"])
 
     def test_progress_summary_carries_no_admissible_scientific_result(self) -> None:
         summary = json.loads(
