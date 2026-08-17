@@ -4,6 +4,31 @@ This changelog is append-only. Published studies, negative results and known def
 never rewritten as if they had not occurred. Corrections add a new entry and point back to
 the original run, artifact and claim state.
 
+## [0.2.2-harness-draft] - 2026-08-08
+
+### Added
+
+- A project-level Scientific Chronicle & Reproducibility Harness complementing CAL and
+  MMALS replay with append-only reasoning provenance: doubts, assumptions, reviewer
+  findings, computational constraints, rejected alternatives, changes of belief and
+  pedagogically important clarifications.
+- Machine-readable `protocol/scientific_chronicle.yaml` and
+  `gates/scientific_harness.yaml`, validated independently in Research Assurance.
+- An execution preflight that blocks named production steps while a chronicle entry is
+  explicitly OPEN and blocking; smoke/benchmark work remains possible to resolve the risk.
+- A first pre-outcome chronicle entry recording the computational-feasibility concern for
+  the nested Study 0 v0.2.2 coverage simulation before any production coverage result is
+  observed.
+
+### Current blocking rationale
+
+- `production_coverage_gate` is blocked while `CHRON-20260808-001` is OPEN.
+- Resolution requires either a feasibility benchmark of the reviewed implementation or a
+  semantics-preserving optimization with equivalence tests for threshold/tie/sentinel
+  behavior.
+- Runtime convenience alone must not silently reduce the frozen bootstrap count, scenario
+  set, stopping rule, or statistical semantics.
+
 ## [0.2.2-spec] - 2026-08-07
 
 ### Added

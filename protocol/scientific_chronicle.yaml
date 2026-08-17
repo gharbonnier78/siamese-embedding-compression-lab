@@ -1,0 +1,81 @@
+schema_version: "1.0.1"
+chronicle_id: siamese_embedding_compression_scientific_chronicle
+policy: docs/SCIENTIFIC_HARNESS.md
+gate_contract: gates/scientific_harness.yaml
+append_only: true
+entries:
+  - id: CHRON-20260808-001
+    recorded_at_utc: "2026-08-08T07:47:00Z"
+    scope: study_0_subject_bootstrap_v0_2_2
+    kind: cost_risk
+    status: OPEN
+    outcome_evidence_seen: false
+    summary: >-
+      The frozen production coverage design may be computationally impractical with the
+      reviewed reference threshold implementation because weighted_threshold_at_fmr scans
+      unique impostor distances in Python and repeatedly recomputes weighted sums.
+    rationale: >-
+      The production design nests 10,000 subject-bootstrap replicates inside up to 10,000
+      simulated datasets across five scenarios. Runtime pressure must not silently cause a
+      reduction of preregistered replicates, scenarios, stopping rules, or threshold semantics.
+    evidence_refs:
+      - src/siamese_compression_lab/subject_bootstrap.py
+      - src/siamese_compression_lab/coverage_simulation.py
+      - scripts/run_subject_bootstrap_coverage.py
+      - protocol/coverage/study_0_subject_bootstrap_v0.2.2.yaml
+      - protocol/studies/study_0_subject_bootstrap_spec.md
+    considered_options:
+      - benchmark_reference_implementation_at_small_non_outcome_scale
+      - vectorize_threshold_computation_with_stable_sort_and_cumulative_weights
+      - reduce_preregistered_simulation_scale
+    rejected_or_constrained_options:
+      - option: reduce_preregistered_simulation_scale
+        reason: >-
+          Runtime convenience alone is not a semantics-preserving implementation change and
+          would require a versioned methodological amendment before execution.
+    next_action: >-
+      Benchmark the reviewed reference implementation, implement the vectorized threshold
+      path if needed, and prove equivalence against the reviewed algorithm including tie
+      blocks and sentinel behavior before production coverage execution.
+    blocks:
+      - production_coverage_gate
+
+  - id: CHRON-20260808-003
+    recorded_at_utc: "2026-08-08T18:06:00Z"
+    scope: study_0_subject_bootstrap_v0_2_2
+    kind: cost_risk_resolution
+    status: RESOLVED
+    outcome_evidence_seen: false
+    supersedes: CHRON-20260808-001
+    summary: >-
+      The production coverage cost risk is resolved by a semantics-preserving vectorized
+      subject-edge weight execution path with exact end-to-end equivalence to the legacy
+      reference engine and materially lower measured runtime.
+    rationale: >-
+      On PR #15 final head aa23068a1f32b3038f649f277bb13adf161ef372, CI,
+      Research Assurance, the inherited parallel scaling benchmark, and the vectorized
+      end-to-end coverage benchmark all completed successfully. The end-to-end benchmark
+      verified exact DatasetCoverageOutcome equality, including bootstrap-vector SHA-256
+      digests, before reporting performance. The frozen execution contract selects
+      vectorized as the implementation-only engine and legacy as the reference oracle.
+      At four workers the final benchmark measured a legacy/vectorized speedup of about
+      4.797 at the same worker count and extrapolated the frozen 2,000-dataset checkpoint
+      to about 0.722 hours per scenario, or about 3.611 hours for five scenarios run
+      sequentially. These extrapolations are feasibility estimates, not runtime guarantees.
+      No historical Study 0 score was read, no coverage outcome was aggregated, and the
+      production coverage gate was not executed while establishing this resolution.
+    evidence_refs:
+      - https://github.com/gharbonnier78/siamese-embedding-compression-lab/pull/15
+      - commit:aa23068a1f32b3038f649f277bb13adf161ef372
+      - workflow:31270744962:CI:success
+      - workflow:31270744974:Research-assurance:success
+      - workflow:31270744958:Parallel-coverage-scaling-benchmark:success
+      - workflow:31270744942:Vectorized-end-to-end-coverage-benchmark:success
+      - artifact:9025549445
+      - artifact_sha256:548fb205fccf28a6928657432246df9d11c49d8c485c7a4fe7ffc953ea9eced2
+      - scripts/benchmark_vectorized_coverage_execution.py
+      - src/siamese_compression_lab/coverage_execution.py
+      - src/siamese_compression_lab/subject_bootstrap_vectorized.py
+      - src/siamese_compression_lab/edge_weights_vectorized.py
+      - protocol/coverage/study_0_subject_bootstrap_v0.2.2.yaml
+    blocks: []

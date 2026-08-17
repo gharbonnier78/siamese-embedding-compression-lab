@@ -1,7 +1,8 @@
-"""Controlled coverage simulations for the v0.2.2 subject-bootstrap estimator.
+"""Controlled coverage simulation primitives for the v0.2.2 subject-bootstrap estimator.
 
-The Study 0 scores are never read here. This harness validates interval behavior under known
-synthetic data-generating processes before the historical reanalysis may be opened.
+The Study 0 scores are never read here. This module defines the synthetic data-generating
+process and coverage summaries only. Execution, RNG hierarchy, and parallelism live in
+``coverage_execution.py`` so there is a single reviewed execution path.
 """
 
 from __future__ import annotations
@@ -11,8 +12,7 @@ from dataclasses import dataclass
 import numpy as np
 from scipy.stats import binomtest, norm
 
-from .subject_bootstrap import SubjectPairRow, subject_bootstrap_delta_fnmr
-from .subject_bootstrap_operational import subject_bootstrap_fixed_threshold
+from .subject_bootstrap import SubjectPairRow
 
 
 @dataclass(frozen=True)
@@ -60,7 +60,9 @@ class CoverageResult:
 
 def scenario_truth(scenario: CoverageScenario) -> ScenarioTruth:
     if not -0.95 < scenario.candidate_reference_noise_correlation < 0.95:
-        raise ValueError("candidate/reference noise correlation must lie strictly inside (-0.95, 0.95)")
+        raise ValueError(
+            "candidate/reference noise correlation must lie strictly inside (-0.95, 0.95)"
+        )
     if scenario.n_subjects < 3:
         raise ValueError("coverage scenario requires at least three subjects")
     if scenario.n_genuine <= 0 or scenario.n_impostor <= 0:
@@ -142,7 +144,16 @@ def make_sparse_graph(scenario: CoverageScenario, *, seed: int) -> list[SubjectP
         genuine_subjects.append(int(rng.choice(scenario.n_subjects, p=propensity)))
     for index, subject_index in enumerate(genuine_subjects):
         subject = subjects[subject_index]
-        rows.append(SubjectPairRow(f"sim_g_{index:05d}", 1, subject, subject, "sim", index))
+        rows.append(
+            SubjectPairRow(
+                f"sim_g_{index:05d}",
+                1,
+                subject,
+                subject,
+                "sim",
+                index,
+            )
+        )
 
     uncovered = guaranteed[len(set(genuine_subjects)) :]
     forced_endpoints = list(uncovered)
@@ -195,11 +206,23 @@ def simulate_distances(
     truth = scenario_truth(scenario)
     rng = np.random.Generator(np.random.PCG64(seed))
     subjects = sorted(
-        {subject for row in rows for subject in (row.subject_slot_id_1, row.subject_slot_id_2)}
+        {
+            subject
+            for row in rows
+            for subject in (row.subject_slot_id_1, row.subject_slot_id_2)
+        }
     )
     index = {subject: position for position, subject in enumerate(subjects)}
-    genuine_effect = rng.normal(0.0, scenario.subject_effect_sd_genuine, len(subjects))
-    impostor_effect = rng.normal(0.0, scenario.subject_effect_sd_impostor, len(subjects))
+    genuine_effect = rng.normal(
+        0.0,
+        scenario.subject_effect_sd_genuine,
+        len(subjects),
+    )
+    impostor_effect = rng.normal(
+        0.0,
+        scenario.subject_effect_sd_impostor,
+        len(subjects),
+    )
     candidate_genuine_mean = _candidate_genuine_mean(scenario, truth)
 
     same = np.asarray([row.same for row in rows], dtype=np.int8)
@@ -223,7 +246,9 @@ def simulate_distances(
     for offset, row_index in enumerate(genuine_indices):
         row = rows[row_index]
         effect = genuine_effect[index[row.subject_slot_id_1]]
-        reference[row_index] = scenario.reference_genuine_mean + effect + ref_g_noise[offset]
+        reference[row_index] = (
+            scenario.reference_genuine_mean + effect + ref_g_noise[offset]
+        )
         candidate[row_index] = candidate_genuine_mean + effect + cand_g_noise[offset]
     for offset, row_index in enumerate(impostor_indices):
         row = rows[row_index]
@@ -257,7 +282,8 @@ def _coverage_result(
     mcse = float(np.sqrt(coverage * (1.0 - coverage) / total))
     lower = float(
         binomtest(successes, total).proportion_ci(
-            confidence_level=0.95, method="exact"
+            confidence_level=0.95,
+            method="exact",
         ).low
     )
     return CoverageResult(
@@ -273,97 +299,6 @@ def _coverage_result(
     )
 
 
-def run_coverage_scenario(
-    scenario: CoverageScenario,
-    *,
-    simulated_datasets: int,
-    bootstrap_replicates: int,
-    root_seed: int,
-) -> list[CoverageResult]:
-    """Evaluate representation delta-FNMR and operational FNMR/FMR coverage separately."""
-    if simulated_datasets <= 0 or bootstrap_replicates <= 0:
-        raise ValueError("simulation and bootstrap counts must be positive")
-    truth = scenario_truth(scenario)
-    graph = make_sparse_graph(scenario, seed=root_seed)
-    representation: list[bool] = []
-    operational_fnmr: list[bool] = []
-    operational_fmr: list[bool] = []
-    degenerate = 0
-
-    for dataset_index in range(simulated_datasets):
-        dataset_seed = root_seed + 10_000 + dataset_index
-        bootstrap_seed = root_seed + 1_000_000 + dataset_index
-        candidate, reference = simulate_distances(
-            scenario, graph, seed=dataset_seed
-        )
-        try:
-            representation_replicates = subject_bootstrap_delta_fnmr(
-                rows=graph,
-                candidate_distances=candidate,
-                reference_distances=reference,
-                target_fmr=scenario.target_fmr,
-                replicates=bootstrap_replicates,
-                seed=bootstrap_seed,
-            )
-            representation.append(
-                _covered(
-                    np.asarray([row.delta_fnmr for row in representation_replicates]),
-                    truth.delta_fnmr,
-                )
-            )
-
-            operational_replicates = subject_bootstrap_fixed_threshold(
-                rows=graph,
-                distances=candidate,
-                validation_threshold=truth.candidate_threshold,
-                replicates=bootstrap_replicates,
-                seed=bootstrap_seed,
-            )
-            operational_fnmr.append(
-                _covered(
-                    np.asarray([row.fnmr for row in operational_replicates]),
-                    truth.candidate_fnmr,
-                )
-            )
-            operational_fmr.append(
-                _covered(
-                    np.asarray([row.fmr for row in operational_replicates]),
-                    truth.operational_candidate_fmr,
-                )
-            )
-        except ValueError as exc:
-            if "degenerate replicate" not in str(exc):
-                raise
-            degenerate += 1
-            representation.append(False)
-            operational_fnmr.append(False)
-            operational_fmr.append(False)
-
-    return [
-        _coverage_result(
-            scenario.name,
-            "representation_delta_fnmr",
-            representation,
-            degenerate_datasets=degenerate,
-            bootstrap_replicates=bootstrap_replicates,
-        ),
-        _coverage_result(
-            scenario.name,
-            "operational_fnmr",
-            operational_fnmr,
-            degenerate_datasets=degenerate,
-            bootstrap_replicates=bootstrap_replicates,
-        ),
-        _coverage_result(
-            scenario.name,
-            "operational_fmr",
-            operational_fmr,
-            degenerate_datasets=degenerate,
-            bootstrap_replicates=bootstrap_replicates,
-        ),
-    ]
-
-
 def coverage_gate_passes(results: list[CoverageResult]) -> bool:
     if not results:
         return False
@@ -373,33 +308,3 @@ def coverage_gate_passes(results: list[CoverageResult]) -> bool:
         and result.degenerate_datasets == 0
         for result in results
     )
-
-
-def preregistered_scenarios() -> list[CoverageScenario]:
-    """Primary regimes frozen for the implementation review before Study 0 is reopened."""
-    return [
-        CoverageScenario(
-            name="independent_pair_null",
-            target_delta_fnmr=0.0,
-            subject_effect_sd_genuine=0.0,
-            subject_effect_sd_impostor=0.0,
-        ),
-        CoverageScenario(
-            name="subject_dependence_null",
-            target_delta_fnmr=0.0,
-            subject_effect_sd_genuine=0.08,
-            subject_effect_sd_impostor=0.05,
-        ),
-        CoverageScenario(
-            name="subject_dependence_noninferior",
-            target_delta_fnmr=0.015,
-            subject_effect_sd_genuine=0.08,
-            subject_effect_sd_impostor=0.05,
-        ),
-        CoverageScenario(
-            name="subject_dependence_boundary",
-            target_delta_fnmr=0.03,
-            subject_effect_sd_genuine=0.08,
-            subject_effect_sd_impostor=0.05,
-        ),
-    ]
