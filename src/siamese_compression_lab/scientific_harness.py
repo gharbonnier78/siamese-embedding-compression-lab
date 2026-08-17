@@ -49,6 +49,7 @@ def validate_scientific_chronicle(
 
     required_fields = list(gate.get("required_entry_fields", []))
     allowed_statuses = set(gate.get("allowed_statuses", []))
+    declared_steps = set(gate.get("execution_steps", {}))
     raw_entries = chronicle.get("entries", [])
     if not isinstance(raw_entries, list):
         return errors + ["scientific chronicle entries must be a list"]
@@ -74,6 +75,14 @@ def validate_scientific_chronicle(
         if status == "OPEN" and not entry.get("next_action"):
             errors.append(f"{entry_id or index}: OPEN chronicle entry requires next_action")
         blocks = entry.get("blocks") or []
+        if not isinstance(blocks, list):
+            errors.append(f"{entry_id or index}: blocks must be a list")
+            blocks = []
+        for blocked_step in blocks:
+            if blocked_step not in declared_steps:
+                errors.append(
+                    f"{entry_id or index}: blocks undeclared execution step {blocked_step}"
+                )
         if status == "INFORMATIONAL" and blocks:
             errors.append(f"{entry_id or index}: INFORMATIONAL entry cannot block execution")
         if entry.get("outcome_evidence_seen") is not True and entry.get(
@@ -149,6 +158,10 @@ def assert_execution_unblocked(
     step: str,
 ) -> None:
     """Fail before production execution when chronicle policy or blockers are unresolved."""
+    gate = _load_yaml(Path(gate_path))
+    declared_steps = gate.get("execution_steps", {})
+    if step not in declared_steps:
+        raise ScientificChronicleError(f"unknown execution step {step!r}")
     errors = validate_scientific_chronicle(chronicle_path, gate_path)
     if errors:
         raise ScientificChronicleError("scientific chronicle invalid: " + "; ".join(errors))

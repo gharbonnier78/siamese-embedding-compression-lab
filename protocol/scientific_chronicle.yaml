@@ -79,3 +79,70 @@ entries:
       - src/siamese_compression_lab/edge_weights_vectorized.py
       - protocol/coverage/study_0_subject_bootstrap_v0.2.2.yaml
     blocks: []
+
+  - id: CHRON-20260809-004
+    recorded_at_utc: "2026-08-09T22:23:50Z"
+    scope: study_0_subject_bootstrap_v0_2_2
+    kind: execution_architecture_assurance
+    status: OPEN
+    outcome_evidence_seen: false
+    related_entries:
+      - CHRON-20260808-001
+      - CHRON-20260808-003
+    summary: >-
+      The frozen experiment required deterministic dataset-level parallelism because its
+      preregistered scale was not operationally credible on the reviewed serial path.
+      Parallelism was admissible only after identical ordered DatasetCoverageOutcome values,
+      seed lineages and bootstrap digests were demonstrated with and without parallel
+      execution. The proposed checkpoint-by-scenario decomposition is a new execution
+      architecture and must independently preserve that equivalence before production use.
+    rationale: >-
+      CHRON-20260808-001 arose from the nested cost of five scenarios, up to 10,000
+      independently simulated datasets per scenario and 10,000 subject-bootstrap
+      replicates per dataset. Reducing the frozen scale for runtime convenience was not
+      admissible, so profiling led first to deterministic dataset-level process parallelism
+      and then to vectorized subject-edge weights. Concurrency introduced scientific risks:
+      a worker-dependent seed scheme could change the logical dataset-to-stream mapping;
+      scheduling could alter output order; retries or redraws could alter the simulated
+      ensemble; and a faster implementation could silently change threshold, degeneracy or
+      stopping semantics. The condition required to release the original production block
+      was therefore not merely a speed benchmark. It was exact reference/vectorized and
+      serial/parallel replay evidence, including worker-count invariance, isolated dataset
+      lineage and byte-level bootstrap digests. CHRON-20260808-003 records that bounded
+      resolution for the current execution path. It established execution feasibility,
+      not estimator coverage or 128D non-inferiority. After the 720-minute infrastructure
+      timeout, checkpoint-by-scenario decomposition is now being considered to make work
+      observable and restartable. That route must not inherit the earlier resolution by
+      assumption: monolithic and decomposed executions must produce the same ordered
+      outcomes, coverage summaries, degeneracy decisions and selected stopping checkpoint
+      under the frozen SeedSequence hierarchy.
+    required_equivalence:
+      reference_execution: monolithic_checkpoint_scenario_loop
+      candidate_execution: decomposed_checkpoint_by_scenario
+      relation: exact_scientific_output_equivalence
+      invariants:
+        - identical_dataset_seed_lineages
+        - identical_ordered_dataset_coverage_outcomes
+        - identical_bootstrap_vector_digests
+        - identical_degeneracy_outcomes
+        - identical_scenario_metric_coverage_summaries
+        - identical_selected_checkpoint_and_stopping_decision
+        - worker_count_does_not_change_outputs
+        - historical_study_0_scores_remain_unread
+    next_action: >-
+      Implement a non-production decomposed runner from the current reviewed execution
+      head, compare it against the monolithic runner on the same frozen fixture and root
+      seed, and preserve complete equivalence evidence before requesting a resolution that
+      releases decomposed production coverage.
+    evidence_refs:
+      - CHRON-20260808-001
+      - CHRON-20260808-003
+      - protocol/coverage/study_0_subject_bootstrap_v0.2.2.yaml
+      - src/siamese_compression_lab/coverage_execution.py
+      - tests/test_coverage_execution.py
+      - tests/test_coverage_execution_vectorized.py
+      - scripts/benchmark_parallel_coverage_scaling.py
+      - scripts/benchmark_vectorized_coverage_execution.py
+      - workflow:31312018512:production-subject-bootstrap-coverage:cancelled
+    blocks:
+      - decomposed_production_coverage_gate

@@ -31,6 +31,8 @@ rules:
 execution_steps:
   production_coverage_gate:
     blocked_by_open_chronicle_entries: true
+  decomposed_production_coverage_gate:
+    blocked_by_open_chronicle_entries: true
   corrected_study_0_reanalysis:
     blocked_by_open_chronicle_entries: true
   study_1_execution:

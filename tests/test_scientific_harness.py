@@ -42,15 +42,44 @@ class ScientificHarnessTests(unittest.TestCase):
             errors = validate_scientific_chronicle(path, GATE)
             self.assertTrue(any("requires next_action" in error for error in errors))
 
-    def test_append_only_resolution_releases_named_step(self) -> None:
+    def test_monolithic_production_remains_unblocked_after_decomposition_blocker(self) -> None:
         assert_execution_unblocked(CHRONICLE, GATE, "production_coverage_gate")
+
+    def test_decomposed_production_waits_for_exact_equivalence_evidence(self) -> None:
+        with self.assertRaisesRegex(
+            ScientificChronicleError,
+            "CHRON-20260809-004",
+        ):
+            assert_execution_unblocked(
+                CHRONICLE,
+                GATE,
+                "decomposed_production_coverage_gate",
+            )
+
+    def test_unknown_execution_step_cannot_bypass_the_gate_contract(self) -> None:
+        with self.assertRaisesRegex(ScientificChronicleError, "unknown execution step"):
+            assert_execution_unblocked(CHRONICLE, GATE, "misspelled_production_gate")
+
+    def test_chronicle_cannot_block_an_undeclared_execution_step(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "chronicle.yaml"
+            doc = yaml.safe_load(CHRONICLE.read_text(encoding="utf-8"))
+            doc["entries"][-1]["blocks"] = ["misspelled_production_gate"]
+            path.write_text(yaml.safe_dump(doc, sort_keys=False), encoding="utf-8")
+            errors = validate_scientific_chronicle(path, GATE)
+            self.assertTrue(any("blocks undeclared execution step" in error for error in errors))
 
     def test_nonterminal_supersession_is_invalid(self) -> None:
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "chronicle.yaml"
             doc = yaml.safe_load(CHRONICLE.read_text(encoding="utf-8"))
-            doc["entries"][-1]["status"] = "OPEN"
-            doc["entries"][-1]["next_action"] = "still investigating"
+            resolution = next(
+                entry
+                for entry in doc["entries"]
+                if entry["id"] == "CHRON-20260808-003"
+            )
+            resolution["status"] = "OPEN"
+            resolution["next_action"] = "still investigating"
             path.write_text(yaml.safe_dump(doc, sort_keys=False), encoding="utf-8")
             errors = validate_scientific_chronicle(path, GATE)
             self.assertTrue(
@@ -61,7 +90,12 @@ class ScientificHarnessTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             path = Path(directory) / "chronicle.yaml"
             doc = yaml.safe_load(CHRONICLE.read_text(encoding="utf-8"))
-            doc["entries"][-1]["supersedes"] = "CHRON-DOES-NOT-EXIST"
+            resolution = next(
+                entry
+                for entry in doc["entries"]
+                if entry["id"] == "CHRON-20260808-003"
+            )
+            resolution["supersedes"] = "CHRON-DOES-NOT-EXIST"
             path.write_text(yaml.safe_dump(doc, sort_keys=False), encoding="utf-8")
             errors = validate_scientific_chronicle(path, GATE)
             self.assertTrue(any("supersedes unknown" in error for error in errors))

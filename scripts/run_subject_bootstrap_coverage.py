@@ -24,12 +24,26 @@ from siamese_compression_lab.coverage_simulation import (
 from siamese_compression_lab.scientific_harness import assert_execution_unblocked
 
 PROGRESS_EVERY_DATASETS = 25
+EXECUTION_AUTHORIZED_CONTRACT_STATUS = "EXECUTION_AUTHORIZED"
 
 
-def _load_contract(path: Path) -> dict:
+def _load_contract(
+    path: Path,
+    *,
+    require_execution_authorized: bool = True,
+) -> dict:
     value = yaml.safe_load(path.read_text(encoding="utf-8"))
     if not isinstance(value, dict):
         raise TypeError("coverage contract must be a YAML mapping")
+    if (
+        require_execution_authorized
+        and value.get("status") != EXECUTION_AUTHORIZED_CONTRACT_STATUS
+    ):
+        raise ValueError(
+            "coverage contract status must be "
+            f"{EXECUTION_AUTHORIZED_CONTRACT_STATUS!r} for production execution; "
+            f"got {value.get('status')!r}"
+        )
     if value.get("historical_study_0_scores_permitted") is not False:
         raise ValueError("coverage simulation contract must prohibit historical Study 0 scores")
     hierarchy = value.get("rng_hierarchy", {})
@@ -182,7 +196,10 @@ def main() -> int:
     if args.workers <= 0:
         raise ValueError("workers must be positive")
 
-    contract = _load_contract(args.contract)
+    contract = _load_contract(
+        args.contract,
+        require_execution_authorized=not args.smoke,
+    )
     engine = str(contract["execution"]["engine"])
     if not args.smoke:
         assert_execution_unblocked(
