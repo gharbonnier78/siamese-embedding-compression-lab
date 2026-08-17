@@ -10,7 +10,10 @@ ROOT = Path(__file__).resolve().parents[1]
 MANIFEST = ROOT / "harness-adoption.yaml"
 AGENT_INSTRUCTIONS = ROOT / "AGENTS.md"
 CASE_STUDY = ROOT / "pedagogy/case-studies/concurrency-is-not-free.md"
+CHRONICLE = ROOT / "protocol/scientific_chronicle.yaml"
 PINNED_HARNESS_COMMIT = "1cead5808c126fd38e7505c27502fb3e7671c69a"
+PEDAGOGY_ENTRY_ID = "CHRON-20260809-004"
+PEDAGOGY_PATH = "pedagogy/case-studies/concurrency-is-not-free.md"
 
 
 class HarnessAdoptionTests(unittest.TestCase):
@@ -64,6 +67,16 @@ class HarnessAdoptionTests(unittest.TestCase):
         self.assertIn("not outcome evidence", case_study)
         self.assertIn(PINNED_HARNESS_COMMIT, case_study)
         self.assertIn("removing this file changes no runner behavior", case_study)
+
+    def test_chronicle_and_pedagogy_are_cross_referenced_without_outcome_claim(self) -> None:
+        chronicle = yaml.safe_load(CHRONICLE.read_text(encoding="utf-8"))
+        entry = next(
+            item for item in chronicle["entries"] if item["id"] == PEDAGOGY_ENTRY_ID
+        )
+        case_study = CASE_STUDY.read_text(encoding="utf-8")
+        self.assertIn(PEDAGOGY_PATH, entry["evidence_refs"])
+        self.assertFalse(entry["outcome_evidence_seen"])
+        self.assertIn(PEDAGOGY_ENTRY_ID, case_study)
 
 
 if __name__ == "__main__":

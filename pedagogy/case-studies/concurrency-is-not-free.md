@@ -379,10 +379,10 @@ Without a reviewed concurrent path, the honest choices were an operationally pro
 serial run or an unverified execution whose random streams and replay semantics could
 invalidate the validation instrument.
 
-The project therefore used a Scientific Chronicle entry to block production until a
-deterministic, replay-verified execution route existed. That resolution established
-execution feasibility only. It did not establish estimator coverage and did not reopen the
-historical Study 0 result.
+The project therefore used Scientific Chronicle entry `CHRON-20260809-004` to block
+production until a deterministic, replay-verified execution route existed. That resolution
+established execution feasibility only. It did not establish estimator coverage and did not
+reopen the historical Study 0 result.
 
 This is the crossing the case study exposes:
 

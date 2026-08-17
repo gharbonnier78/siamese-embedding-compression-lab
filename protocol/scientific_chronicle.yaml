@@ -144,5 +144,6 @@ entries:
       - scripts/benchmark_parallel_coverage_scaling.py
       - scripts/benchmark_vectorized_coverage_execution.py
       - workflow:31312018512:production-subject-bootstrap-coverage:cancelled
+      - pedagogy/case-studies/concurrency-is-not-free.md
     blocks:
       - decomposed_production_coverage_gate
