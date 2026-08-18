@@ -293,7 +293,7 @@ class DecomposedCoverageTests(unittest.TestCase):
                 merge_scenario_chunks([first, first, second], checkpoint=4)
 
             wrong_commit_dir, _ = self._write_chunk(
-                directory,
+                directory / "wrong-commit",
                 contract_path=contract_path,
                 contract=contract,
                 scenario_index_zero=0,
@@ -388,19 +388,15 @@ class DecomposedCoverageTests(unittest.TestCase):
                 distances_spawn_key=lineage.distances.spawn_key,
                 bootstrap_spawn_key=lineage.bootstrap.spawn_key,
             )
-            normal_dir, normal_outcomes = self._write_chunk(
-                directory / "degenerate",
-                contract_path=contract_path,
-                contract=contract,
-                scenario_index_zero=0,
-                checkpoint=4,
-                start=0,
-                stop=1,
+            degenerate_dir = directory / "degenerate-direct" / "fixture_a-0-1"
+            degenerate_dir.mkdir(parents=True, exist_ok=True)
+            progress = degenerate_dir / "progress.jsonl"
+            progress.write_text(
+                json.dumps({"runtime_observability_only": True}) + "\n",
+                encoding="utf-8",
             )
-            self.assertEqual(normal_outcomes[0].dataset_index, 0)
-            progress = normal_dir / "progress.jsonl"
             write_scenario_chunk_artifact(
-                normal_dir,
+                degenerate_dir,
                 outcomes=[degenerate],
                 progress_path=progress,
                 execution_metadata={"complete": True, "historical_study_0_scores_read": False},
@@ -420,7 +416,7 @@ class DecomposedCoverageTests(unittest.TestCase):
                 workers=1,
                 synthetic_nonproduction_fixture=True,
             )
-            _, round_trip = load_scenario_chunk_artifact(normal_dir)
+            _, round_trip = load_scenario_chunk_artifact(degenerate_dir)
             self.assertEqual(round_trip, [degenerate])
 
     def test_cancelled_runtime_manifest_cannot_be_outcome_evidence(self) -> None:

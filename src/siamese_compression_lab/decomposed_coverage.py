@@ -213,17 +213,20 @@ def _write_json(path: Path, value: Mapping[str, Any]) -> None:
     path.write_text(json.dumps(value, indent=2, sort_keys=True) + "\n", encoding="utf-8")
 
 
+def _serialize_outcomes(outcomes: Iterable[DatasetCoverageOutcome]) -> bytes:
+    return "".join(
+        json.dumps(
+            _outcome_to_jsonable(outcome),
+            sort_keys=True,
+            separators=(",", ":"),
+        )
+        + "\n"
+        for outcome in outcomes
+    ).encode("utf-8")
+
+
 def _write_outcomes(path: Path, outcomes: Iterable[DatasetCoverageOutcome]) -> None:
-    with path.open("w", encoding="utf-8") as handle:
-        for outcome in outcomes:
-            handle.write(
-                json.dumps(
-                    _outcome_to_jsonable(outcome),
-                    sort_keys=True,
-                    separators=(",", ":"),
-                )
-                + "\n"
-            )
+    path.write_bytes(_serialize_outcomes(outcomes))
 
 
 def write_scenario_chunk_artifact(
@@ -248,7 +251,7 @@ def write_scenario_chunk_artifact(
     workers: int,
     synthetic_nonproduction_fixture: bool,
 ) -> Path:
-    """Persist one complete, hash-bound chunk; incomplete chunks have no valid manifest."""
+    """Persist one complete, hash-bound chunk; reject divergent deterministic re-execution."""
     output_dir.mkdir(parents=True, exist_ok=True)
     if progress_path.resolve() != (output_dir / "progress.jsonl").resolve():
         raise ValueError("progress_path must be output_dir/progress.jsonl")
@@ -261,17 +264,60 @@ def write_scenario_chunk_artifact(
 
     outcomes_path = output_dir / "dataset_outcomes.jsonl"
     metadata_path = output_dir / "execution_metadata.json"
-    _write_outcomes(outcomes_path, outcomes)
+    manifest_path = output_dir / "manifest.json"
+    execution = contract["execution"]
+    contract_digest = contract_sha256(contract_path)
+    serialized_outcomes = _serialize_outcomes(outcomes)
+
+    if manifest_path.exists():
+        existing_manifest = _read_json(manifest_path)
+        if existing_manifest.get("complete") is True:
+            expected_identity = {
+                "schema_version": SCENARIO_CHUNK_SCHEMA_VERSION,
+                "artifact_type": SCENARIO_CHUNK_ARTIFACT_TYPE,
+                "repository": repository,
+                "git_commit": git_commit,
+                "contract_path": str(contract_path.as_posix()),
+                "contract_sha256": contract_digest,
+                "contract_id": str(contract["contract_id"]),
+                "scenario": scenario_name,
+                "scenario_index": scenario_index,
+                "scenario_count": scenario_count,
+                "checkpoint": checkpoint,
+                "dataset_start": dataset_start,
+                "dataset_stop": dataset_stop,
+                "bootstrap_replicates": bootstrap_replicates,
+                "root_seed": root_seed,
+                "scenario_seed_entropy": scenario_seed.entropy,
+                "scenario_spawn_key": list(scenario_seed.spawn_key),
+                "engine": str(execution["engine"]),
+                "reference_oracle_engine": str(execution["reference_oracle_engine"]),
+                "synthetic_nonproduction_fixture": synthetic_nonproduction_fixture,
+            }
+            for field, expected_value in expected_identity.items():
+                if existing_manifest.get(field) != expected_value:
+                    raise ValueError(
+                        "existing complete coverage chunk identity differs for "
+                        f"{field}"
+                    )
+            if not outcomes_path.exists():
+                raise ValueError("existing complete coverage chunk is missing dataset outcomes")
+            if outcomes_path.read_bytes() != serialized_outcomes:
+                raise ValueError(
+                    "existing complete coverage chunk outcomes diverge on deterministic "
+                    "re-execution"
+                )
+
+    outcomes_path.write_bytes(serialized_outcomes)
     _write_json(metadata_path, execution_metadata)
 
-    execution = contract["execution"]
     manifest = {
         "schema_version": SCENARIO_CHUNK_SCHEMA_VERSION,
         "artifact_type": SCENARIO_CHUNK_ARTIFACT_TYPE,
         "repository": repository,
         "git_commit": git_commit,
         "contract_path": str(contract_path.as_posix()),
-        "contract_sha256": contract_sha256(contract_path),
+        "contract_sha256": contract_digest,
         "contract_id": str(contract["contract_id"]),
         "scenario": scenario_name,
         "scenario_index": scenario_index,
@@ -299,7 +345,6 @@ def write_scenario_chunk_artifact(
         "progress_sha256": sha256_file(progress_path),
         "execution_metadata_sha256": sha256_file(metadata_path),
     }
-    manifest_path = output_dir / "manifest.json"
     _write_json(manifest_path, manifest)
     return manifest_path
 
