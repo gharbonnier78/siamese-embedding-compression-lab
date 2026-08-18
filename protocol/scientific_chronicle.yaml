@@ -192,11 +192,8 @@ entries:
       - commit:d27b2f9a6b94d5e0c0268d68c22bb1e70e762164
       - workflow:32097120379:CI:success
       - workflow:32097120420:Decomposed-coverage-equivalence:success
-      - protocol/coverage/study_0_decomposed_execution_contract.md
       - src/siamese_compression_lab/decomposed_coverage.py
       - tests/test_decomposed_coverage.py
-      - tests/test_decomposed_coverage_equivalence.py
-      - tests/test_decomposed_coverage_seed_invariance.py
       - tests/test_decomposed_coverage_integration.py
       - tests/test_decomposed_coverage_idempotence.py
       - scripts/preflight_decomposed_coverage.py
@@ -206,3 +203,39 @@ entries:
       checkpoint. Do not read historical Study 0 scores before the complete coverage gate
       passes and is reviewed.
     blocks: []
+
+  - id: CHRON-20260818-006
+    recorded_at_utc: "2026-08-18T14:37:00Z"
+    scope: study_0_subject_bootstrap_v0_2_2
+    kind: execution_scope_guard
+    status: OPEN
+    outcome_evidence_seen: false
+    summary: >-
+      Execution authorization is intentionally scoped to the reviewed decomposed production
+      path. The legacy monolithic production coverage path remains blocked even though the
+      shared coverage contract is execution-authorized.
+    rationale: >-
+      Independent review of PR #30 identified that the shared contract status alone would
+      make both the reviewed decomposed runner and the historical monolithic runner eligible
+      for production because production_coverage_gate was otherwise unblocked. Manual
+      workflow confirmation prevents automatic execution but does not narrow machine-level
+      authorization. The monolithic path does not use the decomposed complete-chunk
+      idempotence, corruption and restart safeguards established in PR #28 and PR #29.
+      Therefore production_coverage_gate remains explicitly blocked while
+      decomposed_production_coverage_gate is left unblocked. This guard changes execution
+      scope only; it does not change the frozen statistical contract, authorize historical
+      Study 0 score access, execute any production outcome, or release a scientific gate.
+    evidence_refs:
+      - https://github.com/gharbonnier78/siamese-embedding-compression-lab/pull/30
+      - scripts/run_subject_bootstrap_coverage.py
+      - scripts/preflight_decomposed_coverage.py
+      - .github/workflows/production-subject-bootstrap-coverage.yml
+      - .github/workflows/production-subject-bootstrap-coverage-decomposed-candidate.yml
+      - gates/scientific_harness.yaml
+      - tests/test_scientific_harness.py
+    next_action: >-
+      Keep the monolithic production path blocked unless a separate explicit decision later
+      retires it, archives it, or independently reviews and authorizes it. Production Study 0
+      coverage should use only the reviewed decomposed path after a separate researcher GO.
+    blocks:
+      - production_coverage_gate
