@@ -239,3 +239,51 @@ entries:
       coverage should use only the reviewed decomposed path after a separate researcher GO.
     blocks:
       - production_coverage_gate
+
+  - id: CHRON-20260818-007
+    recorded_at_utc: "2026-08-18T20:44:00Z"
+    scope: study_0_subject_bootstrap_v0_2_2
+    kind: known_truth_coverage_result_review_pending
+    status: OPEN
+    outcome_evidence_seen: true
+    summary: >-
+      La campagne de validation de couverture connue du Study 0 v0.2.2 a produit un
+      coverage gate PASS au premier checkpoint satisfaisant la précision Monte Carlo,
+      soit 4 000 datasets simulés par scénario. Ce résultat valide de façon bornée la
+      procédure d'intervalle subject-bootstrap sur les scénarios synthétiques preregistrés ;
+      il ne démontre pas encore la non-infériorité de la compression 512D vers 128D.
+    rationale: >-
+      Le run GitHub Actions 32157868533 a exécuté le chemin décomposé autorisé sur le commit
+      f542962a55a095193539a916705dba85d83f0af9. Les cinq scénarios du checkpoint 2 000 ont
+      terminé puis la décision intermédiaire a demandé de continuer car toutes les MCSE
+      n'étaient pas encore <= 0.005. Les cinq scénarios du checkpoint 4 000 ont ensuite
+      terminé, les 15 MCSE ont satisfait le seuil, le checkpoint 10 000 a été ignoré et le
+      gate final 4 000 a produit PASS. Les 15 combinaisons scénario x métrique ont une borne
+      inférieure exacte Clopper-Pearson >= 0.93, une MCSE <= 0.005 et zéro dataset dégénéré.
+      La marge de couverture la plus faible observée dans ce run est
+      subject_dependence_noninferior / operational_fnmr : 3781/4000, couverture 0.94525,
+      MCSE 0.0035969583504677936, borne inférieure 0.937743380785155. Les artifacts 2 000
+      sont byte-for-byte égaux aux préfixes 2 000 correspondants des outcomes 4 000. Aucun
+      score historique Study 0 n'a été lu. Le PASS est donc un résultat scientifique borné
+      sur la fiabilité de la procédure d'intervalle, pas encore sur la valeur de la
+      compression. Une revue indépendante de l'exécution, des hashes et du recalcul du gate
+      est requise avant d'autoriser corrected_study_0_reanalysis.
+    evidence_refs:
+      - https://github.com/gharbonnier78/siamese-embedding-compression-lab/actions/runs/32157868533
+      - commit:f542962a55a095193539a916705dba85d83f0af9
+      - artifact:9337291600
+      - artifact_sha256:106d08bc771a66fccdcc5f925223e9d10f5be738619b80541a77cf0f207d6c3f
+      - evidence/study_0_subject_bootstrap_v0.2.2/coverage_validation_run_32157868533/archive_manifest.json
+      - evidence/study_0_subject_bootstrap_v0.2.2/coverage_validation_run_32157868533/coverage_gate.json
+      - evidence/study_0_subject_bootstrap_v0.2.2/coverage_validation_run_32157868533/coverage_simulation.csv
+      - evidence/study_0_subject_bootstrap_v0.2.2/coverage_validation_run_32157868533/verification_report.fr.md
+      - evidence/study_0_subject_bootstrap_v0.2.2/coverage_validation_run_32157868533/review_request.fr.md
+      - pedagogy/case-studies/coverage-validation-metrologie-statistique.fr.md
+    next_action: >-
+      Faire effectuer une revue indépendante evidence-based du run 32157868533, recalculer
+      les 15 résultats depuis les dataset_outcomes, vérifier les manifests, hashes, préfixes,
+      stopping rule et frontière historique, puis ajouter une entrée append-only de
+      résolution uniquement si le reviewer conclut APPROVE. Ne pas lire les scores
+      historiques Study 0 avant cette résolution.
+    blocks:
+      - corrected_study_0_reanalysis
