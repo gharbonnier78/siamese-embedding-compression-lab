@@ -16,7 +16,7 @@ class DecomposedCoverageWorkflowTests(unittest.TestCase):
             encoding="utf-8"
         )
 
-    def test_candidate_is_manual_confirmed_and_currently_gate_blocked(self) -> None:
+    def test_production_workflow_is_manual_confirmed_and_preflight_guarded(self) -> None:
         self.assertIn("workflow_dispatch:", self.workflow)
         self.assertNotIn("pull_request:", self.workflow)
         self.assertNotIn("push:", self.workflow)
@@ -54,7 +54,7 @@ class DecomposedCoverageWorkflowTests(unittest.TestCase):
     def test_intermediate_production_aggregation_is_precision_only(self) -> None:
         self.assertIn("Full coverage values are materialized only once", self.aggregator)
         self.assertIn("coverage_simulation.synthetic_smoke.csv", self.aggregator)
-        self.assertNotIn('coverage_simulation.csv", rows', self.aggregator)
+        self.assertNotIn('coverage_simulation.csv\", rows', self.aggregator)
         self.assertIn("all_metric_mcse_lte_threshold", self.workflow)
         self.assertNotIn("lower_bound", self.workflow)
 
