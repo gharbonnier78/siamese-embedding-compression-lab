@@ -1,0 +1,41 @@
+{
+  "schema_version": "1.0.0",
+  "repository": "gharbonnier78/siamese-embedding-compression-lab",
+  "workflow_run_id": 32157868533,
+  "workflow_run_url": "https://github.com/gharbonnier78/siamese-embedding-compression-lab/actions/runs/32157868533",
+  "head_branch": "main",
+  "head_sha": "f542962a55a095193539a916705dba85d83f0af9",
+  "source_contract_id": "study_0_subject_bootstrap_coverage_v0_2_2",
+  "source_contract_sha256": "0f8c8623f6dc46edd893a48dde3832b0bc08c7b6655f7ef623ba46364c760641",
+  "artifact_count": 13,
+  "artifacts": [
+    {"artifact_id": 9337291600, "artifact_name": "study-0-v0.2.2-decomposed-coverage-final-4000", "file_name": "study0-final-4000.zip", "size_in_bytes": 1891, "sha256": "106d08bc771a66fccdcc5f925223e9d10f5be738619b80541a77cf0f207d6c3f", "expires_at": "2026-11-16T16:00:29Z"},
+    {"artifact_id": 9337268967, "artifact_name": "precision-decision-4000", "file_name": "precision-4000.zip", "size_in_bytes": 384, "sha256": "ca17109597fb79d2ae166523bd855ec68643815f2234e0055f478d0aefc9ccc5", "expires_at": "2026-11-16T16:00:29Z"},
+    {"artifact_id": 9337248511, "artifact_name": "coverage-4000-subject_dependence_noninferior", "file_name": "coverage-4000-subject_dependence_noninferior.zip", "size_in_bytes": 514034, "sha256": "43b8d232cade339c5e3c000428a4ff41286191a817819454fdabe397dab6a797", "expires_at": "2026-11-16T16:00:29Z"},
+    {"artifact_id": 9336930254, "artifact_name": "coverage-4000-subject_dependence_inferior", "file_name": "coverage-4000-subject_dependence_inferior.zip", "size_in_bytes": 514450, "sha256": "fae4cba84b6c259dc9dda0f40177e20feadacb3821c4fc96519be758b1128d41", "expires_at": "2026-11-16T16:00:29Z"},
+    {"artifact_id": 9336910909, "artifact_name": "coverage-4000-independent_pair_null", "file_name": "coverage-4000-independent_pair_null.zip", "size_in_bytes": 515025, "sha256": "528f109d68615ecf7ef748ed8880d8b3247e8e4a30c01e352ab1442a42bee8e0", "expires_at": "2026-11-16T16:00:29Z"},
+    {"artifact_id": 9336690806, "artifact_name": "coverage-4000-subject_dependence_null", "file_name": "coverage-4000-subject_dependence_null.zip", "size_in_bytes": 514293, "sha256": "c4573f7f0cfe19439086be5106bff8fcf1c657b000111821d2dfd58db53285de", "expires_at": "2026-11-16T16:00:29Z"},
+    {"artifact_id": 9336690377, "artifact_name": "coverage-4000-subject_dependence_boundary", "file_name": "coverage-4000-subject_dependence_boundary.zip", "size_in_bytes": 514298, "sha256": "d36e394fef6b4a526aac97a9bf1cd8bc0219f8eaba021411c5077a78b589e1de", "expires_at": "2026-11-16T16:00:29Z"},
+    {"artifact_id": 9334028741, "artifact_name": "precision-decision-2000", "file_name": "precision-2000.zip", "size_in_bytes": 395, "sha256": "7b7f3e080d30aadcea5292a090cbabac4180773ee3482a915f857ddffb33c4d2", "expires_at": "2026-11-16T16:00:29Z"},
+    {"artifact_id": 9334006226, "artifact_name": "coverage-2000-subject_dependence_boundary", "file_name": "coverage-2000-subject_dependence_boundary.zip", "size_in_bytes": 258215, "sha256": "3855ba5cdbb76f27bb159e23c0cc0110d24d7856fde0da1930448b8b78dfbce1", "expires_at": "2026-11-16T16:00:29Z"},
+    {"artifact_id": 9333983773, "artifact_name": "coverage-2000-independent_pair_null", "file_name": "coverage-2000-independent_pair_null.zip", "size_in_bytes": 258503, "sha256": "f1c88a28828bb3312cc39c6f012f10e7eb0ec4ad722cb72a21944e9a19065e0a", "expires_at": "2026-11-16T16:00:29Z"},
+    {"artifact_id": 9333861882, "artifact_name": "coverage-2000-subject_dependence_inferior", "file_name": "coverage-2000-subject_dependence_inferior.zip", "size_in_bytes": 258388, "sha256": "670485e89a67240c3794a13da307fea4a3a8203fe90b1179528d39e3308118a6", "expires_at": "2026-11-16T16:00:29Z"},
+    {"artifact_id": 9333855975, "artifact_name": "coverage-2000-subject_dependence_null", "file_name": "coverage-2000-subject_dependence_null.zip", "size_in_bytes": 258216, "sha256": "295ec33955c684d8d3c75feb8d8a8a704273fa22b73f8c70653b3b952ee01d37", "expires_at": "2026-11-16T16:00:29Z"},
+    {"artifact_id": 9333854771, "artifact_name": "coverage-2000-subject_dependence_noninferior", "file_name": "coverage-2000-subject_dependence_noninferior.zip", "size_in_bytes": 258104, "sha256": "9529c4be869cb144af0e1c80ff69e436694f9a832d269ff59272a3eae934a554", "expires_at": "2026-11-16T16:00:29Z"}
+  ],
+  "archive_bundle": {
+    "format": "deterministic tar.gz containing the exact 13 downloaded ZIP payloads",
+    "tar_gz_file": "study0_run_32157868533_artifacts.tar.gz",
+    "tar_gz_size_in_bytes": 3754871,
+    "tar_gz_sha256": "01fec05bb8f635dec1216ed244c677b9ff3059d83641d3c807b121a923f2f96a",
+    "repo_mirror_status": "NOT_COMMITTED_BY_CONNECTOR_BINARY_UPLOAD_UNAVAILABLE",
+    "note": "The repository retains exact artifact IDs/digests, authoritative small outputs, scenario manifests and verification notes. The exact binary bundle is a separate handoff for durable release/storage."
+  },
+  "scientific_boundary": {
+    "coverage_gate_observed": "PASS",
+    "selected_checkpoint": 4000,
+    "historical_study_0_scores_read": false,
+    "independent_review_status": "PENDING",
+    "historical_reanalysis_authorized": false
+  }
+}
