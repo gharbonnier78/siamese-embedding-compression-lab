@@ -1,0 +1,11 @@
+{
+  "coverage_step_outcome": "cancelled",
+  "git_ref": "refs/pull/19/merge",
+  "git_sha": "efb4e0be892cb8d074655f69b43266bb5f51bbf1",
+  "historical_study_0_scores_permitted": false,
+  "progress_instrumentation_expected": true,
+  "smoke_mode": false,
+  "timeout_minutes": 720,
+  "workers": 4,
+  "workflow": "production-subject-bootstrap-coverage"
+}
