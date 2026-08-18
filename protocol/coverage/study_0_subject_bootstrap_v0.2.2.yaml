@@ -1,7 +1,7 @@
 schema_version: "1.0.1"
 contract_id: study_0_subject_bootstrap_coverage_v0_2_2
 purpose: validate_subject_bootstrap_interval_coverage_before_historical_reanalysis
-status: IMPLEMENTATION_REVIEW_REQUIRED
+status: EXECUTION_AUTHORIZED
 historical_study_0_scores_permitted: false
 root_seed: 20260807
 rng_hierarchy:
