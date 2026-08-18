@@ -42,8 +42,12 @@ class ScientificHarnessTests(unittest.TestCase):
             errors = validate_scientific_chronicle(path, GATE)
             self.assertTrue(any("requires next_action" in error for error in errors))
 
-    def test_monolithic_production_remains_unblocked_after_decomposition_resolution(self) -> None:
-        assert_execution_unblocked(CHRONICLE, GATE, "production_coverage_gate")
+    def test_monolithic_production_remains_blocked_by_explicit_scope_guard(self) -> None:
+        with self.assertRaisesRegex(
+            ScientificChronicleError,
+            "CHRON-20260818-006",
+        ):
+            assert_execution_unblocked(CHRONICLE, GATE, "production_coverage_gate")
 
     def test_decomposed_production_is_unblocked_after_reviewed_equivalence_resolution(self) -> None:
         assert_execution_unblocked(
@@ -63,6 +67,18 @@ class ScientificHarnessTests(unittest.TestCase):
         self.assertEqual(resolution["supersedes"], "CHRON-20260809-004")
         self.assertFalse(resolution["outcome_evidence_seen"])
         self.assertEqual(resolution["blocks"], [])
+
+    def test_monolithic_scope_guard_is_open_and_only_blocks_legacy_gate(self) -> None:
+        doc = yaml.safe_load(CHRONICLE.read_text(encoding="utf-8"))
+        guard = next(
+            entry
+            for entry in doc["entries"]
+            if entry["id"] == "CHRON-20260818-006"
+        )
+        self.assertEqual(guard["status"], "OPEN")
+        self.assertFalse(guard["outcome_evidence_seen"])
+        self.assertEqual(guard["blocks"], ["production_coverage_gate"])
+        self.assertTrue(guard["next_action"])
 
     def test_unknown_execution_step_cannot_bypass_the_gate_contract(self) -> None:
         with self.assertRaisesRegex(ScientificChronicleError, "unknown execution step"):
