@@ -42,19 +42,27 @@ class ScientificHarnessTests(unittest.TestCase):
             errors = validate_scientific_chronicle(path, GATE)
             self.assertTrue(any("requires next_action" in error for error in errors))
 
-    def test_monolithic_production_remains_unblocked_after_decomposition_blocker(self) -> None:
+    def test_monolithic_production_remains_unblocked_after_decomposition_resolution(self) -> None:
         assert_execution_unblocked(CHRONICLE, GATE, "production_coverage_gate")
 
-    def test_decomposed_production_waits_for_exact_equivalence_evidence(self) -> None:
-        with self.assertRaisesRegex(
-            ScientificChronicleError,
-            "CHRON-20260809-004",
-        ):
-            assert_execution_unblocked(
-                CHRONICLE,
-                GATE,
-                "decomposed_production_coverage_gate",
-            )
+    def test_decomposed_production_is_unblocked_after_reviewed_equivalence_resolution(self) -> None:
+        assert_execution_unblocked(
+            CHRONICLE,
+            GATE,
+            "decomposed_production_coverage_gate",
+        )
+
+    def test_decomposed_resolution_supersedes_the_open_architecture_blocker(self) -> None:
+        doc = yaml.safe_load(CHRONICLE.read_text(encoding="utf-8"))
+        resolution = next(
+            entry
+            for entry in doc["entries"]
+            if entry["id"] == "CHRON-20260818-005"
+        )
+        self.assertEqual(resolution["status"], "RESOLVED")
+        self.assertEqual(resolution["supersedes"], "CHRON-20260809-004")
+        self.assertFalse(resolution["outcome_evidence_seen"])
+        self.assertEqual(resolution["blocks"], [])
 
     def test_unknown_execution_step_cannot_bypass_the_gate_contract(self) -> None:
         with self.assertRaisesRegex(ScientificChronicleError, "unknown execution step"):
