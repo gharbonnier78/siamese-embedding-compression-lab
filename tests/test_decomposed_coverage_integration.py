@@ -166,35 +166,23 @@ class DecomposedCoverageIntegrationTests(unittest.TestCase):
             self.assertFalse(manifest["historical_study_0_scores_read"])
             self.assertFalse(manifest["production_gate_claimed"])
 
-    def test_current_contract_blocks_production_scenario_execution(self) -> None:
-        with tempfile.TemporaryDirectory() as directory_name:
-            output_dir = Path(directory_name) / "blocked"
-            env = dict(os.environ)
-            env["PYTHONPATH"] = "src"
-            completed = subprocess.run(
-                [
-                    sys.executable,
-                    "scripts/run_subject_bootstrap_coverage_scenario.py",
-                    "--scenario",
-                    "independent_pair_null",
-                    "--checkpoint",
-                    "2000",
-                    "--workers",
-                    "4",
-                    "--git-commit",
-                    "must-not-run",
-                    "--output-dir",
-                    str(output_dir),
-                ],
-                check=False,
-                capture_output=True,
-                text=True,
-                env=env,
-            )
-            self.assertNotEqual(completed.returncode, 0)
-            self.assertIn("EXECUTION_AUTHORIZED", completed.stderr)
-            self.assertFalse((output_dir / "manifest.json").exists())
-            self.assertFalse((output_dir / "dataset_outcomes.jsonl").exists())
+    def test_current_governance_preflight_authorizes_without_executing_outcomes(self) -> None:
+        env = dict(os.environ)
+        env["PYTHONPATH"] = "src"
+        completed = subprocess.run(
+            [sys.executable, "scripts/preflight_decomposed_coverage.py"],
+            check=False,
+            capture_output=True,
+            text=True,
+            env=env,
+        )
+        self.assertEqual(completed.returncode, 0, msg=completed.stderr)
+        payload = json.loads(completed.stdout)
+        self.assertEqual(payload["status"], "EXECUTION_PREFLIGHT_PASS")
+        self.assertEqual(payload["checkpoints"], [2000, 4000, 10000])
+        self.assertFalse(payload["historical_study_0_scores_read"])
+        self.assertFalse(payload["outcome_evidence_seen"])
+        self.assertFalse(payload["production_coverage_gate_executed"])
 
 
 if __name__ == "__main__":
