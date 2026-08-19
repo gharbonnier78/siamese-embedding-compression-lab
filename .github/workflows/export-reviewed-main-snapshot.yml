@@ -1,0 +1,42 @@
+name: Export reviewed main snapshot
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/export-reviewed-main-snapshot.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - name: Checkout exact reviewed post-PR33 main
+        uses: actions/checkout@v5
+        with:
+          ref: 8a7f7deca349544667d9766b806dc5fa0d2701c5
+          fetch-depth: 0
+          path: repo
+
+      - name: Verify exact source commit
+        run: |
+          test "$(git -C repo rev-parse HEAD)" = "8a7f7deca349544667d9766b806dc5fa0d2701c5"
+          git -C repo status --short
+
+      - name: Package checkout including git metadata
+        run: |
+          tar -czf reviewed-main-8a7f7deca349544667d9766b806dc5fa0d2701c5.tar.gz repo
+          sha256sum reviewed-main-8a7f7deca349544667d9766b806dc5fa0d2701c5.tar.gz > reviewed-main.SHA256
+
+      - name: Upload exact reviewed source snapshot
+        uses: actions/upload-artifact@v4
+        with:
+          name: reviewed-main-8a7f7dec-source-snapshot
+          path: |
+            reviewed-main-8a7f7deca349544667d9766b806dc5fa0d2701c5.tar.gz
+            reviewed-main.SHA256
+          if-no-files-found: error
+          retention-days: 30
