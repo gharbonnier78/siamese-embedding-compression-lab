@@ -1,33 +1,75 @@
-schema_version: "1.0.0"
+schema_version: "1.1.0"
 study_id: study_1_face_backbone
 title: Face-specific backbone 1:1 compression study
 status: DRAFT_PREREGISTRATION
 claim_level: NONE_UNTIL_EXECUTED
 human_readable_checklist: protocol/studies/study_1_preregistration.md
+lesson_learned: docs/LESSONS_LEARNED_STUDY0_PROGRESSIVE_EVIDENCE.md
 purpose: >-
   Test whether pair supervision adds compression value when the frozen source embedding
-  is produced by a face-specific extractor rather than an ImageNet classifier.
+  is produced by a face-specific extractor rather than an ImageNet classifier, using an
+  explicit screen-then-qualify evidence escalation so that full qualification cost is paid
+  only after a non-claim-bearing screening signal justifies it.
+strategy:
+  mode: progressive_evidence_escalation
+  study_1_execution_permitted: false
+  screening_is_claim_bearing: false
+  qualification_test_open_during_screening: false
+  screening_outcomes_may_drop_unfavorable_qualification_seeds: false
+  geometry_exploration_permitted: false
 blocking_items:
-  - implement the v0.2.2 weighted subject-slot bootstrap specification
-  - resolve E-STAT-001 after identity-dependence-aware interval coverage validation
+  - complete independent interpretation review and append-only closure of Study 0 E-STAT-001/G2
+  - independently review and merge this Study 1 design amendment
   - pin backbone architecture, weights, training provenance and licence
-  - pin development and untouched qualification datasets
+  - pin development, screening and untouched qualification datasets
   - declare target population and capture regimes
   - run identity-overlap and near-duplicate audit
+  - freeze the screening promotion and stop rule before opening screening outcomes
   - calculate identity-and-capture sample size for the selected target FMR and uncertainty requirement
   - freeze primary FMR, non-inferiority margin and multiplicity policy
-  - freeze compute budget and all seeds
-design:
+  - freeze compute budget and all qualification seeds
+screening:
+  status: DRAFT_NOT_AUTHORIZED_FOR_EXECUTION
+  evidence_mode: EXPLORATORY_SCREENING_NOT_FOR_CLAIM
+  objective: >-
+    Decide whether the face-specific backbone and at least one 128D compression route show
+    enough decision-relevant low-FMR promise to justify a full qualification campaign.
+  dataset_role: dedicated_screening_set_only
+  qualification_test_access: forbidden
+  routes: [raw, random, pca, siamese]
+  dimensions: [128]
+  predeclared_screening_seeds: [11, 29]
+  screening_seeds_are_not_qualification_seed_selection: true
+  minimum_checks:
+    - raw_backbone_viability_at_decision_relevant_low_fmr
+    - matched_raw_random_pca_siamese_comparison
+    - threshold_transfer_diagnostic
+    - basic_storage_and_compute_value
+  promotion_rule:
+    status: TO_BE_FROZEN_BEFORE_SCREENING
+    requirements:
+      - raw_backbone_is_credible_at_the_screening_low_fmr_endpoint
+      - at_least_one_compression_route_has_plausible_retention_signal_against_raw_and_matched_controls
+      - expected_engineering_value_is_large_enough_to_justify_qualification_cost
+    note: >-
+      Promotion is a research-investment decision, not a scientific claim. Numerical
+      screening thresholds must be frozen before outcomes are read.
+  stop_rule:
+    - stop_or_redirect_if_raw_backbone_is_not_viable_at_the_relevant_operating_point
+    - stop_or_redirect_if_no_compression_route_has_a_credible_retention_signal
+    - preserve_negative_screening_result_and_do_not_open_qualification_test
+qualification:
+  status: BLOCKED_PENDING_SCREENING_PROMOTION_AND_PREREGISTRATION
   routes: [raw, random, pca, siamese]
   dimensions: [128]
   planned_seeds: [11, 29, 47, 71, 101]
   split_unit: identity
   threshold_policy: validation_then_freeze
-  test_open_policy: once_after_all_routes_frozen
+  test_open_policy: once_after_all_routes_and_qualification_rules_are_frozen
   representation_endpoint: delta_fnmr_equal_fmr_non_deployable
   operational_endpoint: validation_frozen_fnmr_with_test_fmr_constraint
   secondary_endpoints: [eer_descriptive, roc_auc_descriptive, threshold_transfer]
-  uncertainty: SPECIFIED_BUT_BLOCKED_PENDING_IMPLEMENTATION_COVERAGE_AND_E_STAT_001
+  uncertainty: SUBJECT_SLOT_BOOTSTRAP_VALIDATED_IN_STUDY0_PENDING_FINAL_GATE_CLOSURE
   random_control: gaussian_variance_1_over_d_then_l2_normalize
 sample_size:
   status: BLOCKED
@@ -46,4 +88,7 @@ sample_size:
 results: null
 decision:
   state: INDETERMINATE
-  rationale: Study is not yet fully preregistered or executed.
+  rationale: >-
+    Study 1 remains draft and unexecuted. The design now requires an explicit exploratory
+    screening stage before any qualification campaign, and both stages remain blocked until
+    Study 0 final interpretation/gate closure and independent review of this amendment.
