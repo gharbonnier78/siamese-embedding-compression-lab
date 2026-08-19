@@ -1,0 +1,25 @@
+{
+  "schema_version": "1.0",
+  "recovery_date": "2026-08-19",
+  "historical_run_id": "lfw_resnet18_siamese_projection_v0_1-89179914-911192ee-64559cbd",
+  "archive_filename": "lfw-resnet18-siamese-projection-v0.1-mmals-replay.zip",
+  "archive_bytes": 4158610,
+  "archive_sha256": "7429c75a7da827281ca172d7a4184c65fcc27dbfa845eb9ffd27e04d81331897",
+  "archive_member_count": 40,
+  "required_members_confirmed": true,
+  "test_pair_scores_bytes": 1821547,
+  "recovery_source": "ChatGPT conversation attachment",
+  "prior_checksum_evidence": "SHA256SUMS(2).txt in ChatGPT File Library",
+  "durable_private_backup": {
+    "status": "CREATED",
+    "medium": "Gmail draft attachment",
+    "subject": "ARCHIVE — Study 0 historical MMALS replay recovered 2026-08-19"
+  },
+  "scientific_boundary": {
+    "historical_score_values_read_during_recovery_verification": false,
+    "scientific_interpretation_performed": false,
+    "claim_or_gate_promoted": false,
+    "study_1_started": false
+  },
+  "note": "Recovered after previous temporary sandbox paths had become unavailable. The recovered ZIP SHA-256 matches the release checksum preserved before recovery. This record archives identity and recovery provenance only; it is not outcome evidence and does not replace the binary backup itself."
+}
