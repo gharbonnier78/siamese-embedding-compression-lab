@@ -1,4 +1,4 @@
-schema_version: "1.1.0"
+schema_version: "1.1.1"
 study_id: study_1_face_backbone
 title: Face-specific backbone 1:1 compression study
 status: DRAFT_PREREGISTRATION
@@ -17,9 +17,22 @@ strategy:
   qualification_test_open_during_screening: false
   screening_outcomes_may_drop_unfavorable_qualification_seeds: false
   geometry_exploration_permitted: false
+prerequisites:
+  study_0_corrected_reanalysis_closure:
+    status: SATISFIED
+    commit: 935b3dd02fd11d47b6b64a14d1cdef59eddecbb4
+    decision: evidence/study_0_subject_bootstrap_v0.2.2/STUDY0_CLOSURE_DECISION_2026-08-19.yaml
+    consequences:
+      E_STAT_001: REANALYZED
+      G2: PASS
+      C_NI_001: NOT_DEMONSTRATED
+      C_SUP_001: NOT_DEMONSTRATED
+    note: >-
+      This prerequisite being satisfied does not itself authorize Study 1 screening or
+      qualification execution.
 blocking_items:
-  - complete independent interpretation review and append-only closure of Study 0 E-STAT-001/G2
   - independently review and merge this Study 1 design amendment
+  - obtain a separate researcher authorization before any Study 1 screening execution
   - pin backbone architecture, weights, training provenance and licence
   - pin development, screening and untouched qualification datasets
   - declare target population and capture regimes
@@ -69,7 +82,7 @@ qualification:
   representation_endpoint: delta_fnmr_equal_fmr_non_deployable
   operational_endpoint: validation_frozen_fnmr_with_test_fmr_constraint
   secondary_endpoints: [eer_descriptive, roc_auc_descriptive, threshold_transfer]
-  uncertainty: SUBJECT_SLOT_BOOTSTRAP_VALIDATED_IN_STUDY0_PENDING_FINAL_GATE_CLOSURE
+  uncertainty: SUBJECT_SLOT_BOOTSTRAP_VALIDATED_AND_G2_PASS_IN_STUDY0
   random_control: gaussian_variance_1_over_d_then_l2_normalize
 sample_size:
   status: BLOCKED
@@ -89,6 +102,8 @@ results: null
 decision:
   state: INDETERMINATE
   rationale: >-
-    Study 1 remains draft and unexecuted. The design now requires an explicit exploratory
-    screening stage before any qualification campaign, and both stages remain blocked until
-    Study 0 final interpretation/gate closure and independent review of this amendment.
+    Study 0 corrected reanalysis is now closed and G2 is PASS for that bounded scope, but
+    Study 1 remains draft and unexecuted. The design requires an explicit exploratory
+    screening stage before any qualification campaign, independent review/merge of this
+    amendment, all remaining preregistration inputs, and a separate researcher authorization
+    before screening execution.
