@@ -1,0 +1,56 @@
+schema_version: "1.0.0"
+decision_id: study0_corrected_reanalysis_closure_2026_08_19
+recorded_at_utc: "2026-08-19T21:01:00Z"
+study_id: study_0_subject_bootstrap_v0_2_2
+parent_study: study_0_lfw
+historical_run_id: lfw_resnet18_siamese_projection_v0_1-89179914-911192ee-64559cbd
+harness_ref: 1cead5808c126fd38e7505c27502fb3e7671c69a
+basis:
+  frozen_protocol: protocol/studies/study_0_subject_bootstrap_v0.2.2.yaml
+  materialization_review: evidence/study_0_subject_bootstrap_v0.2.2/review_materialization_2026-08-19_approve.fr.md
+  interpretation: evidence/study_0_subject_bootstrap_v0.2.2/INTERPRETATION_DRAFT_2026-08-19.md
+  interpretation_review: evidence/study_0_subject_bootstrap_v0.2.2/INTERPRETATION_REVIEW_APPROVE_2026-08-19.fr.md
+independent_interpretation_review:
+  verdict: APPROVE
+  blocking_findings: 0
+  non_blocking_findings: 0
+  cosmetic_findings: 0
+decisions:
+  E_STAT_001:
+    state: REANALYZED
+    meaning: >-
+      The bootstrap-unit defect has been corrected through the frozen weighted subject-slot
+      bootstrap, validated by known-truth coverage simulation, executed on the immutable
+      historical score bundle, materialized, and independently reviewed through interpretation.
+  G2:
+    name: estimator_and_statistical_validity
+    state: PASS
+    scope: corrected_study_0_reanalysis
+    rationale: >-
+      The estimator now matches the declared subject-level sampling unit; the endpoint and
+      non-inferiority margin were predeclared; the interval procedure passed the frozen
+      known-truth coverage gate; the historical corrected reanalysis was executed without
+      score recomputation; and the final interpretation received independent APPROVE.
+  C_NI_001:
+    state: NOT_DEMONSTRATED
+    rationale: >-
+      No tested 128D route satisfies the frozen all-seeds non-inferiority rule at empirical
+      FMR 0.01; this is failure to demonstrate non-inferiority, not proof of inferiority.
+  C_SUP_001:
+    state: NOT_DEMONSTRATED
+    rationale: >-
+      Study 0 contains no preregistered superiority margin or Pareto rule for Siamese versus
+      PCA/random controls, and the corrected results do not support promotion of a superiority claim.
+execution_consequence:
+  corrected_study_0_reanalysis: CLOSED
+  study_1_execution: NOT_AUTHORIZED_BY_THIS_DECISION
+  geometry_exploration: OUT_OF_SCOPE
+prohibited_inferences:
+  - accuracy_is_preserved
+  - siamese_is_proven_inferior
+  - siamese_is_the_best_compression_route
+  - lfw_establishes_industrial_biometric_validity
+  - this_decision_automatically_authorizes_study_1
+notes:
+  - The Chronicle records the behavioral consequence append-only; it does not itself close G2.
+  - The scientific gate transition above is owned by this evidence-backed decision record.
