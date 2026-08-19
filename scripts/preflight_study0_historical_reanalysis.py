@@ -32,14 +32,14 @@ ACCESS_AUTHORIZATION_ID = "CHRON-20260819-009"
 def _load_yaml(path: Path) -> dict[str, Any]:
     value = yaml.safe_load(path.read_text(encoding="utf-8"))
     if not isinstance(value, dict):
-        raise ValueError(f"{path}: expected YAML mapping")
+        raise TypeError(f"{path}: expected YAML mapping")
     return value
 
 
 def _load_json(path: Path) -> dict[str, Any]:
     value = json.loads(path.read_text(encoding="utf-8"))
     if not isinstance(value, dict):
-        raise ValueError(f"{path}: expected JSON object")
+        raise TypeError(f"{path}: expected JSON object")
     return value
 
 
