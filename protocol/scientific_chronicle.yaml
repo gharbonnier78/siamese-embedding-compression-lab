@@ -368,3 +368,41 @@ entries:
       avant toute lecture historique. Si la revue élargit ou modifie matériellement le
       périmètre, demander un nouveau GO explicite.
     blocks: []
+
+  - id: CHRON-20260819-010
+    recorded_at_utc: "2026-08-19T09:48:00Z"
+    scope: study_0_subject_bootstrap_v0_2_2
+    kind: reviewer_finding_resolution
+    status: RESOLVED
+    outcome_evidence_seen: true
+    related_entries:
+      - CHRON-20260819-009
+    summary: >-
+      La revue indépendante round 1 de PR #32 a conclu REQUEST_CHANGES parce que le preflight
+      pouvait retourner PASS depuis la branche d'autorisation non fusionnée. La remédiation
+      lie désormais l'activation à une preuve Git fail-closed que le HEAD d'exécution est
+      atteignable depuis main et étend les tests négatifs de dérive du contrat.
+    rationale: >-
+      Le reviewer a exécuté le preflight sur le head exact
+      07a9c7087cade8ecf7f2e7d3824a034a8fae7880 avant merge et a démontré que la chaîne
+      activation=merge_to_main_after_review était seulement déclarative. Aucun score
+      historique Study 0 n'a été ouvert pendant cette revue. Le finding PR32-1 est corrigé
+      par un contrôle Git réel : l'absence de référence main locale fait échouer le preflight,
+      un HEAD non ancêtre de main fait échouer le preflight, et seul un HEAD atteignable
+      depuis main peut franchir cette barrière. Le finding PR32-2 est également durci par des
+      tests de mutation couvrant SHA prérequis, run historique, study id, seeds, nombre de
+      bootstrap, unité d'échantillonnage, dégénérescence, recomputation, all-pairs, gate de
+      couverture, checkpoint, review path et résolution Chronicle. Cette remédiation ne
+      change ni le périmètre scientifique ni le contrat statistique gelé et ne requiert donc
+      pas de nouveau GO chercheur. Elle ne constitue pas encore une approbation de PR #32 :
+      le nouveau head doit repasser CI/Research Assurance et une revue indépendante fraîche.
+    evidence_refs:
+      - evidence/study_0_subject_bootstrap_v0.2.2/historical_reanalysis_authorization_pr32_review_round1_request_changes.fr.md
+      - scripts/preflight_study0_historical_reanalysis.py
+      - tests/test_historical_reanalysis_authorization.py
+      - commit:5bb8e5dfbf0fe5abfe6c02bdb2631015757314ed
+    next_action: >-
+      Vérifier CI et Research Assurance sur le nouveau head exact puis demander une nouvelle
+      revue indépendante de PR #32. Ne pas fusionner, ne pas lancer la réanalyse historique
+      et ne pas ouvrir les scores historiques avant un APPROVE sur ce nouveau head.
+    blocks: []
