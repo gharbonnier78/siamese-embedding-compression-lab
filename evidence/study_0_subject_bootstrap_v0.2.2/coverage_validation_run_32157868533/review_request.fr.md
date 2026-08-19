@@ -1,5 +1,7 @@
 # Demande de revue indépendante — Study 0 known-truth coverage run 32157868533
 
+**Statut historique : remplacée opérationnellement par le round 2, désormais APPROVE.** Ce fichier reste conservé comme contrat de revue initial ; voir `review_round1_request_changes.fr.md`, `review_round2_request.fr.md` et `review_round2_approve.fr.md` pour la séquence complète.
+
 Je te demande une **revue indépendante et evidence-based** du paquet de validation de couverture Study 0 v0.2.2. Merci de ne pas prendre le statut vert GitHub ni mon interprétation comme preuve suffisante : pars des contrats, artefacts et hashes.
 
 ## Objet exact de la revue
