@@ -331,3 +331,40 @@ entries:
       - pedagogy/case-studies/coverage-validation-metrologie-statistique.fr.md
       - pedagogy/case-studies/quand-un-pass-ne-suffit-pas-chaine-de-preuve.fr.md
     blocks: []
+
+  - id: CHRON-20260819-009
+    recorded_at_utc: "2026-08-19T08:57:00Z"
+    scope: study_0_subject_bootstrap_v0_2_2
+    kind: historical_score_access_authorization
+    status: RESOLVED
+    outcome_evidence_seen: true
+    summary: >-
+      Après fusion de PR #31 et GO explicite du chercheur, l'accès aux scores historiques
+      Study 0 est autorisé uniquement pour corrected_study_0_reanalysis sous le protocole
+      v0.2.2 gelé, sous réserve de revue puis fusion de cette autorisation sur main.
+    rationale: >-
+      Le known-truth coverage est PASS et sa chaîne de preuve a reçu un APPROVE indépendant.
+      PR #31 a été fusionnée sur le commit 91b5b84f1d83c15bd2e3fbfa589f809461a77c8b,
+      en conservant explicitement l'interdiction historique jusqu'à une décision séparée.
+      Le chercheur a ensuite donné un GO explicite à 2026-08-19T10:57:00+02:00. La présente
+      décision ne modifie pas le contrat statistique gelé : elle ajoute une autorisation
+      d'accès séparée, bornée à la réanalyse historique corrigée. Elle interdit toujours le
+      réentraînement, le recalcul des scores, la génération de nouvelles paires, tout
+      changement méthodologique après ouverture des historiques, l'interprétation avant
+      matérialisation complète, Study 1 et toute exploration géométrique. Elle ne démontre
+      aucune non-infériorité, ne ferme pas E-STAT-001, ne passe pas G2 et ne promeut aucun
+      claim. Une modification matérielle du périmètre lors de la revue invalide le GO courant
+      et exige un nouveau GO explicite avant accès historique.
+    evidence_refs:
+      - commit:91b5b84f1d83c15bd2e3fbfa589f809461a77c8b
+      - evidence/study_0_subject_bootstrap_v0.2.2/coverage_validation_run_32157868533/coverage_gate.json
+      - evidence/study_0_subject_bootstrap_v0.2.2/coverage_validation_run_32157868533/review_round2_approve.fr.md
+      - protocol/authorizations/study_0_historical_reanalysis_v0.2.2.yaml
+      - scripts/preflight_study0_historical_reanalysis.py
+      - protocol/studies/study_0_subject_bootstrap_v0.2.2.yaml
+    next_action: >-
+      Faire revoir cette autorisation sans ouvrir les scores historiques. Si le périmètre
+      reste inchangé et la revue conclut APPROVE, fusionner sur main puis exécuter le preflight
+      avant toute lecture historique. Si la revue élargit ou modifie matériellement le
+      périmètre, demander un nouveau GO explicite.
+    blocks: []
