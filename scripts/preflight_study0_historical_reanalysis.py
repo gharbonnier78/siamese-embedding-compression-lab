@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import subprocess
 from pathlib import Path
 from typing import Any
 
@@ -27,6 +28,7 @@ HARNESS_GATE = ROOT / "gates/scientific_harness.yaml"
 PR31_MERGE_SHA = "91b5b84f1d83c15bd2e3fbfa589f809461a77c8b"
 COVERAGE_RESOLUTION_ID = "CHRON-20260819-008"
 ACCESS_AUTHORIZATION_ID = "CHRON-20260819-009"
+MAIN_REFS = ("refs/remotes/origin/main", "refs/heads/main")
 
 
 def _load_yaml(path: Path) -> dict[str, Any]:
@@ -49,6 +51,70 @@ def _chronicle_entry(chronicle: dict[str, Any], entry_id: str) -> dict[str, Any]
         if isinstance(entry, dict) and entry.get("id") == entry_id:
             return entry
     raise ValueError(f"required Chronicle entry {entry_id} is missing")
+
+
+def assert_authorization_merged_to_main(
+    root: Path = ROOT,
+    main_refs: tuple[str, ...] = MAIN_REFS,
+) -> str:
+    """Fail closed unless the current execution HEAD is reachable from a local main ref."""
+    try:
+        head_result = subprocess.run(
+            ["git", "rev-parse", "HEAD"],
+            cwd=root,
+            check=True,
+            capture_output=True,
+            text=True,
+        )
+    except (OSError, subprocess.CalledProcessError) as exc:
+        raise RuntimeError(
+            "cannot establish authorization activation: git HEAD is unavailable"
+        ) from exc
+
+    head_sha = head_result.stdout.strip()
+    if not head_sha:
+        raise RuntimeError("cannot establish authorization activation: git HEAD is empty")
+
+    available_refs: list[str] = []
+    for ref in main_refs:
+        try:
+            ref_result = subprocess.run(
+                ["git", "show-ref", "--verify", "--quiet", ref],
+                cwd=root,
+                check=False,
+            )
+        except OSError as exc:
+            raise RuntimeError(
+                "cannot establish authorization activation: git executable is unavailable"
+            ) from exc
+
+        if ref_result.returncode != 0:
+            continue
+        available_refs.append(ref)
+
+        ancestor_result = subprocess.run(
+            ["git", "merge-base", "--is-ancestor", head_sha, ref],
+            cwd=root,
+            check=False,
+        )
+        if ancestor_result.returncode == 0:
+            return ref
+        if ancestor_result.returncode != 1:
+            raise RuntimeError(
+                f"cannot establish authorization activation against {ref}: "
+                f"git merge-base returned {ancestor_result.returncode}"
+            )
+
+    if not available_refs:
+        raise RuntimeError(
+            "authorization activation cannot be verified: no local origin/main or main ref; "
+            "fetch main and retry"
+        )
+
+    raise RuntimeError(
+        "historical Study 0 authorization is not active: current HEAD is not reachable "
+        "from main; merge the independently reviewed authorization and run from main"
+    )
 
 
 def validate_historical_reanalysis_authorization(
@@ -199,16 +265,25 @@ def validate_historical_reanalysis_authorization(
     return authorization
 
 
+def preflight_historical_reanalysis(
+    authorization_path: Path = AUTHORIZATION,
+) -> tuple[dict[str, Any], str]:
+    """Validate the frozen authorization and enforce its real merge activation boundary."""
+    authorization = validate_historical_reanalysis_authorization(authorization_path)
+    activated_via = assert_authorization_merged_to_main()
+    return authorization, activated_via
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(
         description="Validate governance prerequisites before historical Study 0 score access."
     )
     parser.add_argument("--authorization", type=Path, default=AUTHORIZATION)
     args = parser.parse_args()
-    validate_historical_reanalysis_authorization(args.authorization)
+    _, activated_via = preflight_historical_reanalysis(args.authorization)
     print(
-        "PASS: historical Study 0 access is scoped to corrected_study_0_reanalysis; "
-        "this preflight did not open historical score payloads."
+        "PASS: historical Study 0 access is scoped to corrected_study_0_reanalysis and "
+        f"activated through {activated_via}; this preflight did not open historical score payloads."
     )
     return 0
 
