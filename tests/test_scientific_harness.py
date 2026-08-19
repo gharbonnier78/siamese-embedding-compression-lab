@@ -15,6 +15,7 @@ from siamese_compression_lab.scientific_harness import (
 ROOT = Path(__file__).resolve().parents[1]
 CHRONICLE = ROOT / "protocol/scientific_chronicle.yaml"
 GATE = ROOT / "gates/scientific_harness.yaml"
+COVERAGE_CONTRACT = ROOT / "protocol/coverage/study_0_subject_bootstrap_v0.2.2.yaml"
 
 
 class ScientificHarnessTests(unittest.TestCase):
@@ -79,6 +80,36 @@ class ScientificHarnessTests(unittest.TestCase):
         self.assertFalse(guard["outcome_evidence_seen"])
         self.assertEqual(guard["blocks"], ["production_coverage_gate"])
         self.assertTrue(guard["next_action"])
+
+    def test_reviewed_coverage_resolution_supersedes_pending_reanalysis_blocker(self) -> None:
+        doc = yaml.safe_load(CHRONICLE.read_text(encoding="utf-8"))
+        pending = next(
+            entry
+            for entry in doc["entries"]
+            if entry["id"] == "CHRON-20260818-007"
+        )
+        resolution = next(
+            entry
+            for entry in doc["entries"]
+            if entry["id"] == "CHRON-20260819-008"
+        )
+        self.assertEqual(pending["status"], "OPEN")
+        self.assertEqual(pending["blocks"], ["corrected_study_0_reanalysis"])
+        self.assertEqual(resolution["status"], "RESOLVED")
+        self.assertEqual(resolution["supersedes"], "CHRON-20260818-007")
+        self.assertTrue(resolution["outcome_evidence_seen"])
+        self.assertEqual(resolution["blocks"], [])
+
+    def test_corrected_reanalysis_is_unblocked_after_independent_coverage_approval(self) -> None:
+        assert_execution_unblocked(
+            CHRONICLE,
+            GATE,
+            "corrected_study_0_reanalysis",
+        )
+
+    def test_coverage_resolution_does_not_authorize_historical_score_access(self) -> None:
+        contract = yaml.safe_load(COVERAGE_CONTRACT.read_text(encoding="utf-8"))
+        self.assertFalse(contract["historical_study_0_scores_permitted"])
 
     def test_unknown_execution_step_cannot_bypass_the_gate_contract(self) -> None:
         with self.assertRaisesRegex(ScientificChronicleError, "unknown execution step"):
