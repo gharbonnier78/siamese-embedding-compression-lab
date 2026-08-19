@@ -287,3 +287,47 @@ entries:
       historiques Study 0 avant cette résolution.
     blocks:
       - corrected_study_0_reanalysis
+
+  - id: CHRON-20260819-008
+    recorded_at_utc: "2026-08-19T06:38:00Z"
+    scope: study_0_subject_bootstrap_v0_2_2
+    kind: known_truth_coverage_review_resolution
+    status: RESOLVED
+    outcome_evidence_seen: true
+    supersedes: CHRON-20260818-007
+    summary: >-
+      La revue indépendante round 2 confirme de bout en bout le PASS de known-truth
+      coverage du run 32157868533 et résout le blocker de revue de CHRON-20260818-007.
+      Le prérequis de validation de couverture pour corrected_study_0_reanalysis est donc
+      satisfait ; l'accès effectif aux scores historiques reste une décision de gouvernance
+      séparée et n'est pas autorisé par cette résolution.
+    rationale: >-
+      Après un round 1 REQUEST_CHANGES pour un miroir CSV non byte-exact et l'absence
+      d'accès reviewer aux outcomes bruts, les remédiations ont été conservées sans réduire
+      les exigences de revue. Au round 2, le reviewer a recalculé le SHA-256 du bundle brut
+      01fec05bb8f635dec1216ed244c677b9ff3059d83641d3c807b121a923f2f96a,
+      confirmé 13/13 ZIPs, tous les hashes internes des dix chunks scénario, les cinq
+      préfixes 2000 vers 4000 byte-for-byte, la réparation CRLF exacte du CSV, et les quinze
+      résultats directement depuis les 20 000 DatasetCoverageOutcome bruts. Les quinze
+      combinaisons passent séparément le gate gelé, zéro dataset dégénéré est observé et la
+      borne Clopper-Pearson minimale est 0.937743380785155 pour
+      subject_dependence_noninferior / operational_fnmr. Le stopping rule 2000 CONTINUE,
+      4000 STOP, 10000 skipped est confirmé, ainsi que 100/100 tests, l'absence de fuite
+      scientifique dans les progress logs et l'absence de lecture des scores historiques.
+      Aucun finding bloquant ou non bloquant ne subsiste. Cette résolution libère uniquement
+      le blocker de validation known-truth coverage ; elle ne démontre pas la non-infériorité
+      512D vers 128D, ne ferme pas E-STAT-001, ne passe pas G2, ne démarre pas Study 1 et ne
+      change pas le contrat qui interdit encore l'accès aux scores historiques.
+    evidence_refs:
+      - https://github.com/gharbonnier78/siamese-embedding-compression-lab/actions/runs/32157868533
+      - artifact_sha256:106d08bc771a66fccdcc5f925223e9d10f5be738619b80541a77cf0f207d6c3f
+      - bundle_sha256:01fec05bb8f635dec1216ed244c677b9ff3059d83641d3c807b121a923f2f96a
+      - evidence/study_0_subject_bootstrap_v0.2.2/coverage_validation_run_32157868533/review_round1_request_changes.fr.md
+      - evidence/study_0_subject_bootstrap_v0.2.2/coverage_validation_run_32157868533/review_round2_request.fr.md
+      - evidence/study_0_subject_bootstrap_v0.2.2/coverage_validation_run_32157868533/review_round2_approve.fr.md
+      - evidence/study_0_subject_bootstrap_v0.2.2/coverage_validation_run_32157868533/archive_manifest.json
+      - evidence/study_0_subject_bootstrap_v0.2.2/coverage_validation_run_32157868533/coverage_gate.json
+      - evidence/study_0_subject_bootstrap_v0.2.2/coverage_validation_run_32157868533/coverage_simulation.csv
+      - pedagogy/case-studies/coverage-validation-metrologie-statistique.fr.md
+      - pedagogy/case-studies/quand-un-pass-ne-suffit-pas-chaine-de-preuve.fr.md
+    blocks: []
