@@ -1,0 +1,64 @@
+schema_version: "1.0"
+status: MATERIALIZED_NOT_INTERPRETED
+recorded_at: "2026-08-19"
+
+runner:
+  git_head: "8a7f7deca349544667d9766b806dc5fa0d2701c5"
+  source: "exact checkout artifact exported from main and verified reachable from refs/remotes/origin/main"
+  preflight: PASS
+  focused_runner_tests: "7/7 PASS"
+
+historical_input:
+  run_id: "lfw_resnet18_siamese_projection_v0_1-89179914-911192ee-64559cbd"
+  recovered_replay_filename: "lfw-resnet18-siamese-projection-v0.1-mmals-replay.zip"
+  recovered_replay_bytes: 4158610
+  recovered_replay_sha256: "7429c75a7da827281ca172d7a4184c65fcc27dbfa845eb9ffd27e04d81331897"
+  test_pair_scores_bytes: 1821547
+  test_pair_scores_sha256: "f52ea23987a9d22647e0f63275a3d8a215b5fb0c588bac41723298537b383439"
+  thresholds_sha256: "e7d6bce43a8f9f3bba31ebf5b2d24927205d2e016c51303b908aafa13360df47"
+  paired_noninferiority_sha256: "d9c923bacf1ead7799ae51dabdc0627b91a4d8d21b4eb3cdb26378395316a09b"
+
+lfw_devtest_sources:
+  matched_sha256: "9428d939063ff006b72bc79f50b7305e7da51b46b52bf2c25ca14b3a29479fb6"
+  mismatched_sha256: "cf1a1326577bf33abc98d1bbc938d3c2ec00304d1ace9b4392f5b38b19e182d0"
+  subject_map_sha256: "112c0d06963170665cd73b220d33251aae34511a331261d143de4e6644f7feea"
+
+materialization:
+  run_manifest_sha256: "b5c81e8f27683d13fa64c2d4c541fd8952d00e74ba5f50be14af806eec820bdf"
+  manifest_artifact_count: 13
+  bundle_archive_filename: "study0-corrected-reanalysis-MATERIALIZED_NOT_INTERPRETED-20260819.tar.gz"
+  bundle_archive_bytes: 8557640
+  bundle_archive_sha256: "2da8dafff5e7904681ded054330cf58d9cd55ff8e1abed8576c7093b6c468c53"
+  scientific_claim_allowed: false
+  interpretation_status: PENDING
+  original_historical_artifacts_mutated: false
+
+executor_side_verification:
+  classification: "mechanical verification; explicitly not an independent review"
+  checks_passed: 30
+  checks_total: 30
+  manifest_artifacts_rehashed: 13
+  report_sha256: "411888d9f43257d7b0b415b3309dec062b09e2435463d9343b9b2444728ff6ea"
+  scientific_outcome_values_interpreted: false
+
+execution_incident:
+  occurred: true
+  classification: infrastructure_only
+  description: "A first foreground attempt was killed by the caller tool timeout after preflight and early non-outcome materialization. Its partial output was preserved separately and never reused. The successful run used a fresh output directory."
+  scientific_failure: false
+
+private_backup:
+  recovered_historical_binary: "Gmail draft archived with exact recovered replay attachment"
+  corrected_materialization_bundle: "Gmail draft archived with complete MATERIALIZED_NOT_INTERPRETED bundle plus handoff and executor verification"
+
+scientific_boundary:
+  independent_bundle_review: REQUIRED_NOT_YET_PERFORMED
+  result_interpretation_permitted: false
+  E_STAT_001: unchanged
+  G2: unchanged
+  C_NI_001: NOT_REASSESSED
+  C_SUP_001: NOT_REASSESSED
+  study_1_started: false
+  geometry_exploration_started: false
+
+next_admissible_action: "Independent review of the complete corrected materialization bundle. Only after APPROVE may C-NI-001, E-STAT-001 and G2 be interpreted/reassessed."
