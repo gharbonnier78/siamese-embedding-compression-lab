@@ -406,3 +406,41 @@ entries:
       revue indépendante de PR #32. Ne pas fusionner, ne pas lancer la réanalyse historique
       et ne pas ouvrir les scores historiques avant un APPROVE sur ce nouveau head.
     blocks: []
+
+  - id: CHRON-20260819-011
+    recorded_at_utc: "2026-08-19T21:01:00Z"
+    scope: study_0_subject_bootstrap_v0_2_2
+    kind: corrected_reanalysis_terminal_resolution
+    status: RESOLVED
+    outcome_evidence_seen: true
+    related_entries:
+      - CHRON-20260819-008
+      - CHRON-20260819-009
+      - CHRON-20260819-010
+    summary: >-
+      La chaîne de correction E-STAT-001 est terminée pour Study 0 après validation de
+      couverture, réanalyse historique corrigée, revue indépendante de la matérialisation,
+      interprétation bornée et revue indépendante finale de cette interprétation.
+    rationale: >-
+      Le reviewer final a recalculé les valeurs citées depuis les tables matérialisées,
+      confirmé 0/5 seeds passant la règle de non-infériorité pour random, PCA et Siamese,
+      vérifié les UCB 97,5 %, les largeurs d'intervalle pair-versus-subject, le transfert
+      opérationnel à seuils VALIDATION gelés, la cohérence UCB/borne haute et la convergence
+      2000→5000→10000. Son verdict est APPROVE sans finding bloquant, non bloquant ou
+      cosmétique. Le registre de décision scientifique séparé acte donc E-STAT-001 comme
+      REANALYZED et G2 comme PASS pour la réanalyse Study 0 corrigée, tandis que C-NI-001 et
+      C-SUP-001 restent NOT_DEMONSTRATED. Cette entrée Chronicle ne ferme pas elle-même G2 :
+      elle enregistre seulement la conséquence comportementale de la décision scientifique
+      conformément au harness.
+    evidence_refs:
+      - evidence/study_0_subject_bootstrap_v0.2.2/INTERPRETATION_DRAFT_2026-08-19.md
+      - evidence/study_0_subject_bootstrap_v0.2.2/INTERPRETATION_REVIEW_APPROVE_2026-08-19.fr.md
+      - evidence/study_0_subject_bootstrap_v0.2.2/STUDY0_CLOSURE_DECISION_2026-08-19.yaml
+      - ERRATA_STUDY_0.md
+      - claims/registry.yaml
+    next_action: >-
+      Treat Study 0 corrected reanalysis as closed. Do not automatically execute Study 1:
+      review and merge its separate preregistration/design amendment, then require a distinct
+      researcher authorization before any Study 1 screening or qualification execution.
+      Geometry remains out of scope.
+    blocks: []

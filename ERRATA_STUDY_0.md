@@ -62,3 +62,42 @@ never synthesizes a pair absent from LFW DevTest.
 This specification is not an implementation or result. G2 remains `FAIL`, this erratum
 remains open, and Study 1 remains blocked until the implementation, coverage validation,
 versioned reanalysis and independent review all pass.
+
+## Resolution record — 2026-08-19
+
+Current resolution state: **`REANALYZED`**.
+
+This record is append-only and does not alter the historical description above. The frozen
+v0.2.2 weighted subject-slot estimator was implemented and tested, its interval procedure
+passed the preregistered known-truth coverage gate, and the exact historical Study 0 score
+bundle was reanalysed without retraining or score recomputation. The complete materialized
+bundle received independent approval before interpretation. A second independent review
+then recalculated the numerical interpretation from the materialized result tables and
+returned `VERDICT: APPROVE` with no blocking, non-blocking or cosmetic findings.
+
+The corrected subject-level intervals are materially wider than the original pair-level
+intervals. The correction therefore confirms that the original analysis understated
+uncertainty. It does **not** reverse the bounded scientific outcome: non-inferiority remains
+`NOT_DEMONSTRATED`, and added value of Siamese over PCA/random controls remains
+`NOT_DEMONSTRATED`.
+
+The scientific closure decision is recorded in
+`evidence/study_0_subject_bootstrap_v0.2.2/STUDY0_CLOSURE_DECISION_2026-08-19.yaml`:
+
+- `E-STAT-001 = REANALYZED`;
+- `G2 estimator_and_statistical_validity = PASS` for the corrected Study 0 reanalysis;
+- `C-NI-001 = NOT_DEMONSTRATED`;
+- `C-SUP-001 = NOT_DEMONSTRATED`.
+
+Evidence:
+
+- `evidence/study_0_subject_bootstrap_v0.2.2/INTERPRETATION_DRAFT_2026-08-19.md`;
+- `evidence/study_0_subject_bootstrap_v0.2.2/INTERPRETATION_REVIEW_APPROVE_2026-08-19.fr.md`;
+- `evidence/study_0_subject_bootstrap_v0.2.2/STUDY0_CLOSURE_DECISION_2026-08-19.yaml`;
+- the independently approved known-truth coverage evidence and corrected materialization
+  already archived under `evidence/study_0_subject_bootstrap_v0.2.2/`.
+
+This resolution closes the statistical defect for Study 0 only. It does not establish
+industrial biometric validity, does not prove Siamese inferior, does not establish Siamese
+superiority, does not automatically authorize Study 1 execution, and does not authorize
+geometry work.
