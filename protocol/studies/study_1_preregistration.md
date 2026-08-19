@@ -64,12 +64,19 @@ The random control uses entries with variance `1/d` (standard deviation `1/sqrt(
 by L2 normalization. For `d=128`, `R_ij ~ Normal(0, 1/128)` where the second parameter denotes
 variance.
 
-## 4. Blocking statistical correction
+## 4. Study 0 statistical prerequisite — satisfied, not an execution authorization
 
-- [ ] Study 0 `E-STAT-001` final interpretation review accepted and append-only closure recorded.
-- [ ] G2 status updated from the reviewed corrected Study 0 evidence before Study 1 execution.
-- [ ] Subject-slot bootstrap implementation and coverage evidence remain versioned and replayable.
-- [ ] Pair-level versus subject-level sensitivity remains preserved without overwriting Study 0.
+- [x] Study 0 `E-STAT-001` final interpretation review accepted and append-only closure recorded.
+- [x] `G2 estimator_and_statistical_validity = PASS` recorded for the bounded corrected Study 0 reanalysis.
+- [x] Subject-slot bootstrap implementation and coverage evidence remain versioned and replayable.
+- [x] Pair-level versus subject-level sensitivity remains preserved without overwriting Study 0.
+
+Authoritative closure: `main@935b3dd02fd11d47b6b64a14d1cdef59eddecbb4` and
+`evidence/study_0_subject_bootstrap_v0.2.2/STUDY0_CLOSURE_DECISION_2026-08-19.yaml`.
+
+This prerequisite being satisfied does **not** authorize Study 1 screening or qualification.
+The design amendment still requires independent review and merge, all remaining inputs below
+must be frozen, and a separate researcher authorization is required before screening execution.
 
 ## 5. A-priori sample size
 
