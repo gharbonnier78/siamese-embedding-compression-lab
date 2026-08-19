@@ -1,0 +1,12 @@
+{
+  "artifact_type": "study0_decomposed_coverage_final",
+  "complete": true,
+  "contract_id": "study_0_subject_bootstrap_coverage_v0_2_2",
+  "contract_sha256": "0f8c8623f6dc46edd893a48dde3832b0bc08c7b6655f7ef623ba46364c760641",
+  "coverage_gate_sha256": "91b82f4584393256e86743be29c79af84bbbff9b89165735c2dd655b33edc0c5",
+  "coverage_simulation_sha256": "6904e58a407ee36625ae28242f28a9a12e623f5a5d53755a9dbdecf1d5a1d9a9",
+  "git_commit": "f542962a55a095193539a916705dba85d83f0af9",
+  "historical_study_0_scores_read": false,
+  "schema_version": "1.0.0",
+  "selected_dataset_checkpoint": 4000
+}

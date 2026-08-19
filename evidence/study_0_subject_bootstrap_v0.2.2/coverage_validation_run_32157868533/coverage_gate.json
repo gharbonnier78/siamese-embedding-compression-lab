@@ -1,0 +1,21 @@
+{
+  "arithmetic_seed_offsets_used": false,
+  "binomial_interval": "clopper_pearson_exact_two_sided_95",
+  "bootstrap_replicates_per_dataset": 10000,
+  "contract_id": "study_0_subject_bootstrap_coverage_v0_2_2",
+  "contract_sha256": "0f8c8623f6dc46edd893a48dde3832b0bc08c7b6655f7ef623ba46364c760641",
+  "degenerate_dataset_tolerance": 0,
+  "execution_engine": "vectorized",
+  "git_commit": "f542962a55a095193539a916705dba85d83f0af9",
+  "historical_study_0_scores_read": false,
+  "lower_bound_minimum": 0.93,
+  "maximum_monte_carlo_standard_error": 0.005,
+  "metric_gate_is_separate_by_scenario_and_metric": true,
+  "pooled_coverage_gate_used": false,
+  "production_coverage_gate_executed": true,
+  "reference_oracle_engine": "legacy",
+  "rng_derivation": "numpy_seedsequence_spawn",
+  "root_seed": 20260807,
+  "selected_dataset_checkpoint": 4000,
+  "status": "PASS"
+}

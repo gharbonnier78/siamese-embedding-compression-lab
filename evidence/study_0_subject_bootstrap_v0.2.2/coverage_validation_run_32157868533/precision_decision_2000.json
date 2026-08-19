@@ -1,0 +1,13 @@
+{
+  "aggregation_only": true,
+  "all_metric_mcse_lte_threshold": false,
+  "checkpoint": 2000,
+  "historical_study_0_scores_read": false,
+  "maximum_monte_carlo_standard_error": 0.005,
+  "metric_count": 15,
+  "next_checkpoint": 4000,
+  "production_coverage_gate_claimed": false,
+  "scenario_count": 5,
+  "selected_checkpoint": null,
+  "status": "CONTINUE_MCSE_NOT_SATISFIED"
+}
