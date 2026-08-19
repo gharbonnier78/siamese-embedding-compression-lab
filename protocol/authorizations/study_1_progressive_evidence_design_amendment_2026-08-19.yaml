@@ -1,0 +1,33 @@
+schema_version: "1.0"
+authorization_id: study_1_progressive_evidence_design_amendment_2026_08_19
+status: AUTHORIZED_FOR_DESIGN_AMENDMENT_ONLY
+recorded_at_local: "2026-08-19T22:51:00+02:00"
+researcher_go:
+  explicit: true
+  request: >-
+    Archive the Study 0 lesson learned in the reusable knowledge/harness layers and change
+    Study 1 accordingly.
+scope:
+  study_id: study_1_face_backbone
+  permitted:
+    - archive_process_lesson
+    - amend_draft_preregistration
+    - introduce_exploratory_screening_before_qualification
+    - define_future_promotion_and_stop_rule_requirements
+  prohibited:
+    - execute_study_1
+    - open_screening_outcomes_before_design_review_and_merge
+    - open_qualification_test
+    - change_study_0_results_or_claims
+    - promote_e_stat_001_or_g2
+    - start_geometry_exploration
+boundaries:
+  screening_is_claim_bearing: false
+  qualification_seed_set_may_be_reduced_after_screening: false
+  qualification_test_may_be_opened_during_screening: false
+  independent_review_required_before_merge: true
+  study_0_final_interpretation_gate_closure_required_before_study_1_execution: true
+next_admissible_action: >-
+  Independently review PR #42 as a Study 1 design amendment. Merge only if the reviewer
+  confirms that screening remains non-claim-bearing, TEST isolation is preserved, seed
+  selection cannot be biased by screening outcomes, and Study 1 execution remains blocked.
