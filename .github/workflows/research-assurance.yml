@@ -20,13 +20,16 @@ on:
       - "scripts/validate_research_program.py"
       - "scripts/validate_scientific_harness.py"
       - "scripts/run_subject_bootstrap_coverage.py"
+      - "scripts/run_study0_historical_reanalysis.py"
       - ".github/workflows/production-subject-bootstrap-coverage.yml"
       - "src/siamese_compression_lab/research_assurance.py"
       - "src/siamese_compression_lab/scientific_harness.py"
+      - "src/siamese_compression_lab/historical_reanalysis.py"
       - "tests/test_generated_figures.py"
       - "tests/test_harness_adoption.py"
       - "tests/test_research_assurance.py"
       - "tests/test_scientific_harness.py"
+      - "tests/test_historical_reanalysis_runner.py"
       - ".github/workflows/research-assurance.yml"
 
 permissions:
@@ -69,6 +72,7 @@ jobs:
           tests.test_coverage_contract_authorization
           tests.test_production_coverage_workflow
           tests.test_generated_figures
+          tests.test_historical_reanalysis_runner
           -v
 
   paper:
