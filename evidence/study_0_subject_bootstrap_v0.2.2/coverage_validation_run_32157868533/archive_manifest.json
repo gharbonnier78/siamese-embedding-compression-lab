@@ -1,5 +1,5 @@
 {
-  "schema_version": "1.0.1",
+  "schema_version": "1.0.2",
   "repository": "gharbonnier78/siamese-embedding-compression-lab",
   "workflow_run_id": 32157868533,
   "workflow_run_url": "https://github.com/gharbonnier78/siamese-embedding-compression-lab/actions/runs/32157868533",
@@ -29,7 +29,7 @@
     "tar_gz_size_in_bytes": 3754871,
     "tar_gz_sha256": "01fec05bb8f635dec1216ed244c677b9ff3059d83641d3c807b121a923f2f96a",
     "repo_mirror_status": "BINARY_BUNDLE_SEPARATE_REVIEWER_HANDOFF",
-    "note": "The repository retains exact artifact IDs/digests, authoritative small outputs, both 2000 and 4000 scenario manifests, review records and verification notes. The exact binary bundle must be handed directly to a reviewer whose GitHub Actions artifact access is unavailable."
+    "note": "The repository retains exact artifact IDs/digests, authoritative small outputs, both 2000 and 4000 scenario manifests, review records and verification notes. Round 2 independently inspected the separate exact bundle and confirmed all 13 ZIP digests and raw outcome checks."
   },
   "text_mirror_corrections": [
     {
@@ -38,6 +38,7 @@
       "initial_mirror_sha256": "816b2f2cd583ef6e982e33a9a799ca42f65832d785cb8b53ecec71251560db28",
       "authoritative_artifact_sha256": "6904e58a407ee36625ae28242f28a9a12e623f5a5d53755a9dbdecf1d5a1d9a9",
       "repair_commit": "48529a5d3de6c9e4ddb0a1009b1348a5292c083b",
+      "round2_independent_verification": "CONFIRMED",
       "repair_rule": "Preserve exact original CRLF bytes from the final Actions artifact; do not update the authoritative manifest digest."
     }
   ],
@@ -45,8 +46,10 @@
     "coverage_gate_observed": "PASS",
     "selected_checkpoint": 4000,
     "historical_study_0_scores_read": false,
-    "independent_review_status": "REQUEST_CHANGES_ROUND1",
-    "independent_review_record": "review_round1_request_changes.fr.md",
-    "historical_reanalysis_authorized": false
+    "independent_review_status": "APPROVE_ROUND2",
+    "independent_review_record": "review_round2_approve.fr.md",
+    "coverage_prerequisite_for_corrected_reanalysis_released": true,
+    "historical_reanalysis_authorized": false,
+    "historical_score_access_requires_separate_governance_decision": true
   }
 }
