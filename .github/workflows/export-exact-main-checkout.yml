@@ -1,0 +1,49 @@
+name: Export exact main checkout
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    env:
+      EXPECTED_HEAD: 8a7f7deca349544667d9766b806dc5fa0d2701c5
+    steps:
+      - name: Checkout exact reviewed main
+        uses: actions/checkout@v4
+        with:
+          ref: 8a7f7deca349544667d9766b806dc5fa0d2701c5
+          fetch-depth: 0
+          path: exact-main
+
+      - name: Verify exact checkout and main reachability
+        shell: bash
+        run: |
+          set -euo pipefail
+          actual="$(git -C exact-main rev-parse HEAD)"
+          test "$actual" = "$EXPECTED_HEAD"
+          git -C exact-main show-ref --verify refs/remotes/origin/main
+          git -C exact-main merge-base --is-ancestor "$EXPECTED_HEAD" refs/remotes/origin/main
+          echo "EXACT_MAIN_CHECKOUT_PASS=$actual"
+
+      - name: Package checkout including git metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          tar -C exact-main -czf "exact-main-checkout-${EXPECTED_HEAD}.tar.gz" .
+          sha256sum "exact-main-checkout-${EXPECTED_HEAD}.tar.gz" > "exact-main-checkout-${EXPECTED_HEAD}.tar.gz.sha256"
+
+      - name: Upload exact checkout artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: exact-main-checkout-8a7f7deca349544667d9766b806dc5fa0d2701c5
+          path: |
+            exact-main-checkout-8a7f7deca349544667d9766b806dc5fa0d2701c5.tar.gz
+            exact-main-checkout-8a7f7deca349544667d9766b806dc5fa0d2701c5.tar.gz.sha256
+          if-no-files-found: error
+          retention-days: 7
