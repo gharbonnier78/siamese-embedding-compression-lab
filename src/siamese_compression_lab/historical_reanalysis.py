@@ -1,22 +1,22 @@
 """Frozen Study 0 v0.2.2 historical reanalysis orchestration.
 
 This module binds the already-reviewed subject-bootstrap estimator to immutable Study 0
-artifacts.  It deliberately does not decide scientific claims.  Production callers MUST run
+artifacts. It deliberately does not decide scientific claims. Production callers MUST run
 the historical-access preflight before calling :func:`execute_historical_reanalysis`.
 """
 
 from __future__ import annotations
 
-import hashlib
 import json
 import platform
 import subprocess
 import sys
+from collections.abc import Iterable
 from dataclasses import asdict, dataclass
 from datetime import datetime, timezone
 from importlib import metadata
 from pathlib import Path
-from typing import Any, Iterable
+from typing import Any
 
 import numpy as np
 import pandas as pd
@@ -64,7 +64,6 @@ REFERENCE_METHOD = "raw"
 CANDIDATE_METHODS = ("random", "pca", "siamese")
 ALL_METHODS = (REFERENCE_METHOD, *CANDIDATE_METHODS)
 REQUIRED_HISTORICAL_FILES = (
-    "run_manifest.json",
     "test_pair_scores.csv",
     "thresholds.csv",
     "paired_noninferiority.csv",
@@ -75,6 +74,9 @@ REQUIRED_HISTORICAL_FILES = (
 class HistoricalSourceIdentity:
     score_bytes: int = STUDY0_TEST_PAIR_SCORES_BYTES
     score_sha256: str = STUDY0_TEST_PAIR_SCORES_SHA256
+
+
+DEFAULT_SOURCE_IDENTITY = HistoricalSourceIdentity()
 
 
 @dataclass(frozen=True)
@@ -169,7 +171,7 @@ def frozen_runner_config(
     study_protocol_path: str | Path,
     historical_manifest: dict[str, Any],
 ) -> FrozenRunnerConfig:
-    """Bind orchestration to the frozen protocol and the immutable original run config."""
+    """Bind orchestration to the frozen protocol and immutable original-run config."""
     study = _load_yaml(Path(study_protocol_path))
     historical = study.get("historical_inputs") or {}
     bootstrap = study.get("bootstrap") or {}
@@ -195,8 +197,8 @@ def frozen_runner_config(
         raise HistoricalInputError("Study 0 non-inferiority margin drifted")
     if (study.get("degenerate_replicates") or {}).get("default_action") != "FAIL_REANALYSIS":
         raise HistoricalInputError("Study 0 degeneracy action drifted")
-    target = float((study.get("estimands") or {}).get("representation", {}).get("target_fmr", np.nan))
-    if target != EXPECTED_TARGET_FMR:
+    representation = (study.get("estimands") or {}).get("representation") or {}
+    if float(representation.get("target_fmr", np.nan)) != EXPECTED_TARGET_FMR:
         raise HistoricalInputError("Study 0 representation target FMR drifted")
 
     manifest_config = historical_manifest.get("configuration") or {}
@@ -209,13 +211,18 @@ def frozen_runner_config(
     if target_fmrs != [EXPECTED_TARGET_FMR]:
         raise HistoricalInputError("historical run target FMR differs from frozen Study 0")
     if float(evaluation.get("noninferiority_delta_fnmr", np.nan)) != EXPECTED_NI_MARGIN:
-        raise HistoricalInputError("historical run non-inferiority margin differs from frozen Study 0")
+        raise HistoricalInputError(
+            "historical run non-inferiority margin differs from frozen Study 0"
+        )
     bootstrap_base_seed = int(evaluation.get("bootstrap_seed", -1))
     if bootstrap_base_seed != EXPECTED_BOOTSTRAP_BASE_SEED:
-        raise HistoricalInputError("historical run bootstrap base seed differs from frozen source config")
+        raise HistoricalInputError(
+            "historical run bootstrap base seed differs from frozen source config"
+        )
 
-    # Preserve the original Study 0 seed binding: each route seed uses bootstrap_seed + route seed.
-    # This is an orchestration binding, not a new statistical choice, and is reviewed before outcomes.
+    # Preserve the original Study 0 seed binding: each projection/model seed uses the
+    # historical bootstrap base seed plus that model seed. This is exposed for independent
+    # review before any historical outcome is opened.
     return FrozenRunnerConfig(
         run_id=EXPECTED_RUN_ID,
         model_seeds=seeds,
@@ -256,7 +263,9 @@ def _verify_manifest_bound_file(
     actual_bytes = path.stat().st_size
     actual_sha = sha256_file(path)
     if int(entry.get("bytes", -1)) != actual_bytes:
-        raise HistoricalInputError(f"historical manifest byte count mismatch for {relative_path}")
+        raise HistoricalInputError(
+            f"historical manifest byte count mismatch for {relative_path}"
+        )
     if entry.get("sha256") != actual_sha:
         raise HistoricalInputError(f"historical manifest SHA-256 mismatch for {relative_path}")
     return {"path": relative_path, "bytes": actual_bytes, "sha256": actual_sha}
@@ -274,12 +283,19 @@ def _validate_devtest_source_hashes(
     }
     if not all(isinstance(value, str) and value for value in expected.values()):
         raise HistoricalInputError("historical run manifest lacks DevTest pair-source hashes")
-    result = []
+    result: list[dict[str, int | str]] = []
     for label, path in (("matched", matched_path), ("mismatched", mismatched_path)):
         actual = sha256_file(path)
         if actual != expected[label]:
             raise HistoricalInputError(f"DevTest {label} pair source SHA-256 mismatch")
-        result.append({"source": label, "path": str(path), "bytes": path.stat().st_size, "sha256": actual})
+        result.append(
+            {
+                "source": label,
+                "path": str(path),
+                "bytes": path.stat().st_size,
+                "sha256": actual,
+            }
+        )
     return result
 
 
@@ -289,9 +305,11 @@ def validate_historical_sources(
     matched_path: str | Path,
     mismatched_path: str | Path,
     study_protocol_path: str | Path,
-    score_identity: HistoricalSourceIdentity = HistoricalSourceIdentity(),
+    score_identity: HistoricalSourceIdentity | None = None,
 ) -> tuple[dict[str, Any], FrozenRunnerConfig, list[SubjectPairRow], dict[str, Any]]:
     """Validate immutable provenance before parsing any score value."""
+    if score_identity is None:
+        score_identity = DEFAULT_SOURCE_IDENTITY
     run_dir = Path(historical_run_dir)
     manifest_path = run_dir / "run_manifest.json"
     if not manifest_path.is_file():
@@ -305,7 +323,6 @@ def validate_historical_sources(
     source_files = [
         _verify_manifest_bound_file(run_dir, artifact_map, name)
         for name in REQUIRED_HISTORICAL_FILES
-        if name != "run_manifest.json"
     ]
     score_path = run_dir / "test_pair_scores.csv"
     verify_historical_score_artifact(
@@ -348,18 +365,34 @@ def _expected_route_keys() -> set[tuple[str, int]]:
 def validate_score_routes(frame: pd.DataFrame) -> None:
     if set(frame["run_id"].astype(str)) != {EXPECTED_RUN_ID}:
         raise HistoricalInputError("historical score rows contain an unexpected run id")
-    keys = {(str(method), int(seed)) for method, seed in frame[["method", "seed"]].drop_duplicates().itertuples(index=False, name=None)}
+    route_rows = frame[["method", "seed"]].drop_duplicates()
+    keys = {
+        (str(method), int(seed))
+        for method, seed in route_rows.itertuples(index=False, name=None)
+    }
     if keys != _expected_route_keys():
-        raise HistoricalInputError(f"historical score route/seed set differs from frozen Study 0: {sorted(keys)}")
+        raise HistoricalInputError(
+            "historical score route/seed set differs from frozen Study 0: "
+            f"{sorted(keys)}"
+        )
 
 
 def load_validation_thresholds(path: str | Path) -> dict[tuple[str, int], float]:
     frame = pd.read_csv(path)
-    required = {"run_id", "method", "seed", "target_fmr", "threshold", "threshold_source"}
+    required = {
+        "run_id",
+        "method",
+        "seed",
+        "target_fmr",
+        "threshold",
+        "threshold_source",
+    }
     missing = required - set(frame.columns)
     if missing:
         raise HistoricalInputError(f"thresholds.csv missing columns: {sorted(missing)}")
-    frame = frame[np.isclose(frame["target_fmr"].astype(float), EXPECTED_TARGET_FMR)].copy()
+    frame = frame[
+        np.isclose(frame["target_fmr"].astype(float), EXPECTED_TARGET_FMR)
+    ].copy()
     if frame.empty:
         raise HistoricalInputError("thresholds.csv lacks target FMR 0.01")
     if set(frame["run_id"].astype(str)) != {EXPECTED_RUN_ID}:
@@ -375,7 +408,9 @@ def load_validation_thresholds(path: str | Path) -> dict[tuple[str, int], float]
         for row in frame.itertuples(index=False)
     }
     if set(thresholds) != _expected_route_keys():
-        raise HistoricalInputError("validation threshold route/seed set differs from frozen Study 0")
+        raise HistoricalInputError(
+            "validation threshold route/seed set differs from frozen Study 0"
+        )
     return thresholds
 
 
@@ -393,14 +428,24 @@ def load_historical_pair_level(path: str | Path) -> pd.DataFrame:
     }
     missing = required - set(frame.columns)
     if missing:
-        raise HistoricalInputError(f"paired_noninferiority.csv missing columns: {sorted(missing)}")
-    selected = frame[np.isclose(frame["target_fmr"].astype(float), EXPECTED_TARGET_FMR)].copy()
+        raise HistoricalInputError(
+            f"paired_noninferiority.csv missing columns: {sorted(missing)}"
+        )
+    selected = frame[
+        np.isclose(frame["target_fmr"].astype(float), EXPECTED_TARGET_FMR)
+    ].copy()
     if set(selected["run_id"].astype(str)) != {EXPECTED_RUN_ID}:
         raise HistoricalInputError("pair-level rows contain an unexpected run id")
     if set(selected["reference_method"].astype(str)) != {REFERENCE_METHOD}:
         raise HistoricalInputError("pair-level reference route must remain raw")
-    keys = {(str(method), int(seed)) for method, seed in selected[["candidate_method", "candidate_seed"]].itertuples(index=False, name=None)}
-    expected = {(method, seed) for method in CANDIDATE_METHODS for seed in EXPECTED_MODEL_SEEDS}
+    candidate_rows = selected[["candidate_method", "candidate_seed"]]
+    keys = {
+        (str(method), int(seed))
+        for method, seed in candidate_rows.itertuples(index=False, name=None)
+    }
+    expected = {
+        (method, seed) for method in CANDIDATE_METHODS for seed in EXPECTED_MODEL_SEEDS
+    }
     if keys != expected or len(selected) != len(expected):
         raise HistoricalInputError("pair-level route/seed set differs from frozen Study 0")
     for column in ("delta_fnmr_mean", "delta_fnmr_ci_low", "delta_fnmr_ci_high"):
@@ -415,7 +460,9 @@ def _route_distances(
     method: str,
     seed: int,
 ) -> np.ndarray:
-    group = frame[(frame["method"] == method) & (frame["seed"].astype(int) == seed)].copy()
+    group = frame[
+        (frame["method"] == method) & (frame["seed"].astype(int) == seed)
+    ].copy()
     order = {row.pair_id: index for index, row in enumerate(rows)}
     group["_order"] = group["pair_id"].astype(str).map(order)
     if group["_order"].isnull().any() or len(group) != len(rows):
@@ -424,7 +471,9 @@ def _route_distances(
     return group["distance"].to_numpy(dtype=np.float64)
 
 
-def _bootstrap_diagnostics(rows: list[SubjectPairRow], replicates: int, seed: int) -> list[dict[str, int]]:
+def _bootstrap_diagnostics(
+    rows: list[SubjectPairRow], replicates: int, seed: int
+) -> list[dict[str, int]]:
     same = np.asarray([row.same for row in rows], dtype=np.int8)
     subjects = subject_universe(rows)
     rng = np.random.Generator(np.random.PCG64(seed))
@@ -432,7 +481,9 @@ def _bootstrap_diagnostics(rows: list[SubjectPairRow], replicates: int, seed: in
     for replicate in range(replicates):
         multiplicities = draw_subject_multiplicities(subjects, rng)
         weights = edge_weights(rows, multiplicities)
-        output.append({"replicate": replicate, **bootstrap_weight_diagnostics(same, weights)})
+        output.append(
+            {"replicate": replicate, **bootstrap_weight_diagnostics(same, weights)}
+        )
     return output
 
 
@@ -444,10 +495,18 @@ def _point_estimate(
 ) -> dict[str, float]:
     same = np.asarray([row.same for row in rows], dtype=np.int8)
     weights = np.ones(len(rows), dtype=np.int64)
-    candidate_threshold = weighted_threshold_at_fmr(same, candidate, weights, target_fmr)
-    reference_threshold = weighted_threshold_at_fmr(same, reference, weights, target_fmr)
-    candidate_rates = weighted_rates_at_threshold(same, candidate, weights, candidate_threshold)
-    reference_rates = weighted_rates_at_threshold(same, reference, weights, reference_threshold)
+    candidate_threshold = weighted_threshold_at_fmr(
+        same, candidate, weights, target_fmr
+    )
+    reference_threshold = weighted_threshold_at_fmr(
+        same, reference, weights, target_fmr
+    )
+    candidate_rates = weighted_rates_at_threshold(
+        same, candidate, weights, candidate_threshold
+    )
+    reference_rates = weighted_rates_at_threshold(
+        same, reference, weights, reference_threshold
+    )
     return {
         "candidate_fnmr_point": candidate_rates.fnmr,
         "reference_fnmr_point": reference_rates.fnmr,
@@ -457,7 +516,9 @@ def _point_estimate(
     }
 
 
-def _convergence_summary(replicates: list[Any], checkpoints: tuple[int, ...]) -> dict[str, Any]:
+def _convergence_summary(
+    replicates: list[Any], checkpoints: tuple[int, ...]
+) -> list[dict[str, Any]]:
     summaries: list[dict[str, Any]] = []
     previous: dict[str, float | int] | None = None
     for checkpoint in checkpoints:
@@ -467,11 +528,15 @@ def _convergence_summary(replicates: list[Any], checkpoints: tuple[int, ...]) ->
             row["delta_ucb_from_previous"] = None
             row["delta_mean_from_previous"] = None
         else:
-            row["delta_ucb_from_previous"] = float(current["delta_fnmr_ucb_97_5"]) - float(previous["delta_fnmr_ucb_97_5"])
-            row["delta_mean_from_previous"] = float(current["delta_fnmr_mean"]) - float(previous["delta_fnmr_mean"])
+            row["delta_ucb_from_previous"] = float(
+                current["delta_fnmr_ucb_97_5"]
+            ) - float(previous["delta_fnmr_ucb_97_5"])
+            row["delta_mean_from_previous"] = float(current["delta_fnmr_mean"]) - float(
+                previous["delta_fnmr_mean"]
+            )
         summaries.append(row)
         previous = current
-    return {"checkpoints": summaries}
+    return summaries
 
 
 def _audit_event(events: list[dict[str, Any]], event_type: str, **payload: Any) -> None:
@@ -499,6 +564,58 @@ def _artifact_manifest(output_dir: Path) -> list[dict[str, int | str]]:
     return rows
 
 
+def _verify_reviewed_coverage(
+    coverage_simulation_path: str | Path,
+    coverage_gate_path: str | Path,
+) -> tuple[Path, Path]:
+    simulation = Path(coverage_simulation_path)
+    gate = Path(coverage_gate_path)
+    if not simulation.is_file() or not gate.is_file():
+        raise ReanalysisMaterializationError("reviewed coverage evidence is missing")
+    gate_value = _load_json(gate)
+    if gate_value.get("status") != "PASS":
+        raise ReanalysisMaterializationError("reviewed coverage gate is not PASS")
+    if int(gate_value.get("selected_dataset_checkpoint", -1)) != 4000:
+        raise ReanalysisMaterializationError("reviewed coverage checkpoint is not 4000")
+    if gate_value.get("historical_study_0_scores_read") is not False:
+        raise ReanalysisMaterializationError(
+            "coverage evidence does not preserve the historical-score boundary"
+        )
+    return simulation, gate
+
+
+def _assert_sources_unchanged(
+    run_dir: Path,
+    source_manifest: dict[str, Any],
+) -> None:
+    historical = source_manifest["historical_run"]
+    manifest_path = Path(str(historical["manifest_path"]))
+    if manifest_path.stat().st_size != int(historical["manifest_bytes"]):
+        raise ReanalysisMaterializationError("historical run manifest changed during execution")
+    if sha256_file(manifest_path) != historical["manifest_sha256"]:
+        raise ReanalysisMaterializationError("historical run manifest changed during execution")
+    for artifact in historical["artifacts"]:
+        path = run_dir / str(artifact["path"])
+        if path.stat().st_size != int(artifact["bytes"]):
+            raise ReanalysisMaterializationError(
+                f"historical artifact changed during execution: {artifact['path']}"
+            )
+        if sha256_file(path) != artifact["sha256"]:
+            raise ReanalysisMaterializationError(
+                f"historical artifact changed during execution: {artifact['path']}"
+            )
+    for source in source_manifest["lfw_devtest_pair_sources"]:
+        path = Path(str(source["path"]))
+        if path.stat().st_size != int(source["bytes"]):
+            raise ReanalysisMaterializationError(
+                f"DevTest pair source changed during execution: {source['source']}"
+            )
+        if sha256_file(path) != source["sha256"]:
+            raise ReanalysisMaterializationError(
+                f"DevTest pair source changed during execution: {source['source']}"
+            )
+
+
 def execute_historical_reanalysis(
     *,
     repo_root: str | Path,
@@ -509,27 +626,39 @@ def execute_historical_reanalysis(
     study_protocol_path: str | Path,
     coverage_simulation_path: str | Path,
     coverage_gate_path: str | Path,
-    score_identity: HistoricalSourceIdentity = HistoricalSourceIdentity(),
+    score_identity: HistoricalSourceIdentity | None = None,
 ) -> Path:
-    """Materialize the frozen corrected reanalysis without assigning scientific verdicts."""
+    """Materialize the frozen corrected reanalysis without assigning verdicts."""
+    if score_identity is None:
+        score_identity = DEFAULT_SOURCE_IDENTITY
     root = Path(repo_root)
     run_dir = Path(historical_run_dir)
     destination = Path(output_dir)
     if destination.exists():
-        raise FileExistsError(f"reanalysis output already exists and will not be overwritten: {destination}")
+        raise FileExistsError(
+            "reanalysis output already exists and will not be overwritten: "
+            f"{destination}"
+        )
     destination.mkdir(parents=True)
     events: list[dict[str, Any]] = []
 
     try:
         _audit_event(events, "materialization_started", historical_run_id=EXPECTED_RUN_ID)
-        manifest, config, rows, source_manifest = validate_historical_sources(
+        coverage_simulation, coverage_gate = _verify_reviewed_coverage(
+            coverage_simulation_path, coverage_gate_path
+        )
+        _audit_event(events, "reviewed_coverage_reverified", checkpoint=4000)
+
+        _manifest, config, rows, source_manifest = validate_historical_sources(
             historical_run_dir=run_dir,
             matched_path=matched_path,
             mismatched_path=mismatched_path,
             study_protocol_path=study_protocol_path,
             score_identity=score_identity,
         )
-        _audit_event(events, "historical_sources_validated", source_manifest=source_manifest)
+        _audit_event(
+            events, "historical_sources_validated", source_manifest=source_manifest
+        )
 
         write_subject_map(destination / "test_pair_subject_map_v0.2.2.csv", rows)
         (destination / "config.resolved.yaml").write_text(
@@ -537,8 +666,7 @@ def execute_historical_reanalysis(
         )
         _write_json(destination / "source_manifest.json", source_manifest)
 
-        score_path = run_dir / "test_pair_scores.csv"
-        scores = load_and_validate_score_join(score_path, rows)
+        scores = load_and_validate_score_join(run_dir / "test_pair_scores.csv", rows)
         validate_score_routes(scores)
         thresholds = load_validation_thresholds(run_dir / "thresholds.csv")
         pair_level = load_historical_pair_level(run_dir / "paired_noninferiority.csv")
@@ -570,11 +698,18 @@ def execute_historical_reanalysis(
                     seed=bootstrap_seed,
                 )
                 if len(replicates) != config.bootstrap_replicates:
-                    raise ReanalysisMaterializationError("representation bootstrap did not fully materialize")
+                    raise ReanalysisMaterializationError(
+                        "representation bootstrap did not fully materialize"
+                    )
                 diagnostics = diagnostics_by_seed[model_seed]
                 for replicate, diagnostic in zip(replicates, diagnostics):
-                    if replicate.genuine_weight != diagnostic["genuine_weight"] or replicate.impostor_weight != diagnostic["impostor_weight"]:
-                        raise AssertionError("bootstrap diagnostic replay diverged from representation estimator")
+                    if (
+                        replicate.genuine_weight != diagnostic["genuine_weight"]
+                        or replicate.impostor_weight != diagnostic["impostor_weight"]
+                    ):
+                        raise AssertionError(
+                            "bootstrap diagnostic replay diverged from representation estimator"
+                        )
                     replicate_rows.append(
                         {
                             "candidate_method": method,
@@ -583,12 +718,15 @@ def execute_historical_reanalysis(
                             "reference_seed": raw_seed,
                             "bootstrap_seed": bootstrap_seed,
                             **asdict(replicate),
-                            "effective_genuine_edges": diagnostic["effective_genuine_edges"],
-                            "effective_impostor_edges": diagnostic["effective_impostor_edges"],
+                            "effective_genuine_edges": diagnostic[
+                                "effective_genuine_edges"
+                            ],
+                            "effective_impostor_edges": diagnostic[
+                                "effective_impostor_edges"
+                            ],
                         }
                     )
                 summary = percentile_summary(replicates)
-                convergence = _convergence_summary(replicates, config.convergence_checkpoints)
                 seed_summary_rows.append(
                     {
                         "candidate_method": method,
@@ -603,7 +741,9 @@ def execute_historical_reanalysis(
                         "interpretation_status": "NOT_INTERPRETED",
                     }
                 )
-                for checkpoint in convergence["checkpoints"]:
+                for checkpoint in _convergence_summary(
+                    replicates, config.convergence_checkpoints
+                ):
                     convergence_rows.append(
                         {
                             "candidate_method": method,
@@ -612,7 +752,12 @@ def execute_historical_reanalysis(
                             **checkpoint,
                         }
                     )
-                _audit_event(events, "representation_seed_materialized", method=method, seed=model_seed)
+                _audit_event(
+                    events,
+                    "representation_seed_materialized",
+                    method=method,
+                    seed=model_seed,
+                )
 
         pd.DataFrame(replicate_rows).to_csv(
             destination / "subject_bootstrap_replicates.csv", index=False
@@ -629,7 +774,10 @@ def execute_historical_reanalysis(
         for historical_row in pair_level.itertuples(index=False):
             current = subject_summary[
                 (subject_summary["candidate_method"] == historical_row.candidate_method)
-                & (subject_summary["candidate_seed"] == int(historical_row.candidate_seed))
+                & (
+                    subject_summary["candidate_seed"]
+                    == int(historical_row.candidate_seed)
+                )
             ].iloc[0]
             sensitivity_rows.append(
                 {
@@ -643,8 +791,13 @@ def execute_historical_reanalysis(
                     "subject_bootstrap_delta_mean": float(current.delta_fnmr_mean),
                     "subject_bootstrap_ci_low": float(current.delta_fnmr_ci_low),
                     "subject_bootstrap_ci_high": float(current.delta_fnmr_ci_high),
-                    "pair_ci_width": float(historical_row.delta_fnmr_ci_high - historical_row.delta_fnmr_ci_low),
-                    "subject_ci_width": float(current.delta_fnmr_ci_high - current.delta_fnmr_ci_low),
+                    "pair_ci_width": float(
+                        historical_row.delta_fnmr_ci_high
+                        - historical_row.delta_fnmr_ci_low
+                    ),
+                    "subject_ci_width": float(
+                        current.delta_fnmr_ci_high - current.delta_fnmr_ci_low
+                    ),
                     "interpretation_status": "DESCRIPTIVE_ONLY_NOT_INTERPRETED",
                 }
             )
@@ -666,19 +819,30 @@ def execute_historical_reanalysis(
                 seed=bootstrap_seed,
             )
             if len(replicates) != config.bootstrap_replicates:
-                raise ReanalysisMaterializationError("operational bootstrap did not fully materialize")
+                raise ReanalysisMaterializationError(
+                    "operational bootstrap did not fully materialize"
+                )
             diagnostics = diagnostics_by_seed[model_seed]
             for replicate, diagnostic in zip(replicates, diagnostics):
-                if replicate.genuine_weight != diagnostic["genuine_weight"] or replicate.impostor_weight != diagnostic["impostor_weight"]:
-                    raise AssertionError("bootstrap diagnostic replay diverged from operational estimator")
+                if (
+                    replicate.genuine_weight != diagnostic["genuine_weight"]
+                    or replicate.impostor_weight != diagnostic["impostor_weight"]
+                ):
+                    raise AssertionError(
+                        "bootstrap diagnostic replay diverged from operational estimator"
+                    )
                 operational_replicate_rows.append(
                     {
                         "method": method,
                         "seed": model_seed,
                         "bootstrap_seed": bootstrap_seed,
                         **asdict(replicate),
-                        "effective_genuine_edges": diagnostic["effective_genuine_edges"],
-                        "effective_impostor_edges": diagnostic["effective_impostor_edges"],
+                        "effective_genuine_edges": diagnostic[
+                            "effective_genuine_edges"
+                        ],
+                        "effective_impostor_edges": diagnostic[
+                            "effective_impostor_edges"
+                        ],
                     }
                 )
             operational_rows.append(
@@ -692,7 +856,12 @@ def execute_historical_reanalysis(
                     "interpretation_status": "NOT_INTERPRETED",
                 }
             )
-            _audit_event(events, "operational_seed_materialized", method=method, seed=model_seed)
+            _audit_event(
+                events,
+                "operational_seed_materialized",
+                method=method,
+                seed=model_seed,
+            )
 
         pd.DataFrame(operational_replicate_rows).to_csv(
             destination / "operational_bootstrap_replicates.csv", index=False
@@ -701,14 +870,11 @@ def execute_historical_reanalysis(
             destination / "threshold_transfer_uncertainty.csv", index=False
         )
 
-        coverage_simulation = Path(coverage_simulation_path)
-        coverage_gate = Path(coverage_gate_path)
-        if not coverage_simulation.is_file() or not coverage_gate.is_file():
-            raise ReanalysisMaterializationError("reviewed coverage evidence is missing")
-        (destination / "coverage_simulation.csv").write_bytes(coverage_simulation.read_bytes())
+        (destination / "coverage_simulation.csv").write_bytes(
+            coverage_simulation.read_bytes()
+        )
         (destination / "coverage_gate.json").write_bytes(coverage_gate.read_bytes())
 
-        _write_jsonl(destination / "audit_trace.jsonl", events)
         replay_compact = {
             "schema_version": "1.0.0",
             "run_type": "study_0_subject_bootstrap_v0.2.2_historical_reanalysis",
@@ -721,6 +887,10 @@ def execute_historical_reanalysis(
             "bootstrap_replicates": EXPECTED_BOOTSTRAP_REPLICATES,
         }
         _write_json(destination / "replay.compact.json", replay_compact)
+
+        _assert_sources_unchanged(run_dir, source_manifest)
+        _audit_event(events, "source_immutability_reverified")
+        _audit_event(events, "materialization_complete_not_interpreted")
         _write_jsonl(destination / "audit_trace.jsonl", events)
 
         runner_head = _git_head(root)
@@ -732,7 +902,9 @@ def execute_historical_reanalysis(
             "created_at_utc": datetime.now(timezone.utc).isoformat(),
             "runner_git_head": runner_head,
             "configuration": config.as_dict(),
-            "source_manifest_sha256": sha256_file(destination / "source_manifest.json"),
+            "source_manifest_sha256": sha256_file(
+                destination / "source_manifest.json"
+            ),
             "historical_score_source_sha256": score_identity.score_sha256,
             "environment": {
                 "python": sys.version,
@@ -748,9 +920,18 @@ def execute_historical_reanalysis(
         return destination / "run_manifest.json"
     except Exception as exc:
         if isinstance(exc, DegenerateReplicateError):
-            _audit_event(events, "degenerate_replicate_fail_reanalysis", **exc.audit.as_dict())
+            _audit_event(
+                events,
+                "degenerate_replicate_fail_reanalysis",
+                **exc.audit.as_dict(),
+            )
         else:
-            _audit_event(events, "materialization_failed", error_type=type(exc).__name__, message=str(exc))
+            _audit_event(
+                events,
+                "materialization_failed",
+                error_type=type(exc).__name__,
+                message=str(exc),
+            )
         _write_jsonl(destination / "audit_trace.jsonl", events)
         _write_json(
             destination / "run_failure.json",
