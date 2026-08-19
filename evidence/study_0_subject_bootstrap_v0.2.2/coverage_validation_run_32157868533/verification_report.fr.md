@@ -1,6 +1,6 @@
 # Vérification préparatoire du run de couverture Study 0 — 32157868533
 
-**Statut :** vérification préparatoire à revue indépendante — ne vaut pas approbation indépendante.
+**Statut :** vérification préparatoire conservée pour provenance ; la revue indépendante finale round 2 est désormais `APPROVE` et se trouve dans `review_round2_approve.fr.md`. Cette note ne doit pas être confondue avec cette approbation indépendante.
 
 **Run GitHub Actions :** `32157868533`  
 **Commit exécuté :** `f542962a55a095193539a916705dba85d83f0af9`  
@@ -63,7 +63,7 @@ Chaque manifest de scénario déclare :
 - `historical_study_0_scores_permitted = false` ;
 - `progress_runtime_observability_only = true`.
 
-Les SHA-256 internes de `dataset_outcomes.jsonl`, `execution_metadata.json` et `progress.jsonl` ont été vérifiés contre les manifests lors de l'inspection préparatoire.
+Les SHA-256 internes de `dataset_outcomes.jsonl`, `execution_metadata.json` et `progress.jsonl` ont été vérifiés contre les manifests lors de l'inspection préparatoire. Le round 2 a ensuite refait ces contrôles indépendamment sur le bundle brut.
 
 ## 4. Propriété de préfixe 2 000 -> 4 000
 
@@ -75,7 +75,7 @@ Les 2 000 premiers outcomes du chunk 4 000 ont été comparés **octet pour octe
 - `subject_dependence_boundary` : PASS — `a79485cd92d0e7b0a1995b896a66f81e8cb14c778592859096793905746ea540`
 - `subject_dependence_inferior` : PASS — `29d083357771e06fc9d902c45c56fd04c5403f9c9a0e3924fb33c3b6b08a8da8`
 
-Cette vérification apporte une preuve de production supplémentaire que l'augmentation du checkpoint ne renumérote pas les datasets et conserve les lignées aléatoires gelées. Elle complète, sans remplacer, les tests d'équivalence antérieurs.
+Le round 2 a confirmé les cinq égalités directement sur les octets bruts, et pas uniquement par comparaison de hashes.
 
 ## 5. Intégrité de l'artefact final
 
@@ -84,13 +84,21 @@ Le manifest final lie :
 - `coverage_gate.json` à `91b82f4584393256e86743be29c79af84bbbff9b89165735c2dd655b33edc0c5` ;
 - `coverage_simulation.csv` à `6904e58a407ee36625ae28242f28a9a12e623f5a5d53755a9dbdecf1d5a1d9a9`.
 
+Le premier miroir Git du CSV avait accidentellement normalisé CRLF -> LF ; le round 1 l'a détecté. Les octets CRLF originaux ont été restaurés et le round 2 a recalculé le SHA attendu ci-dessus.
+
 Le ZIP final GitHub Actions est lui-même lié à :
 
 `106d08bc771a66fccdcc5f925223e9d10f5be738619b80541a77cf0f207d6c3f`
 
-## 6. Frontière scientifique
+## 6. Revue indépendante finale
 
-Le résultat validé par le run est borné à ceci : **la procédure d'intervalle subject-bootstrap satisfait le contrat de known-truth coverage sur les cinq scénarios et les trois métriques preregistrées, au checkpoint sélectionné 4 000**.
+Le round 2 a effectivement reçu le bundle brut de 13 ZIPs, confirmé son SHA-256 `01fec05bb8f635dec1216ed244c677b9ff3059d83641d3c807b121a923f2f96a`, confirmé 13/13 ZIPs, les hashes internes des dix chunks, les cinq préfixes, puis recompté les 20 000 outcomes bruts.
+
+Les 15 lignes ont été recomputées indépendamment depuis les outcomes et correspondent exactement à `coverage_simulation.csv`. Zéro dégénérescence a été retrouvée. Verdict : **APPROVE, aucun finding bloquant ou non bloquant**.
+
+## 7. Frontière scientifique
+
+Le résultat validé et désormais indépendamment revu est borné à ceci : **la procédure d'intervalle subject-bootstrap satisfait le contrat de known-truth coverage sur les cinq scénarios et les trois métriques preregistrées, au checkpoint sélectionné 4 000**.
 
 Ce résultat ne démontre pas encore :
 
@@ -101,4 +109,4 @@ Ce résultat ne démontre pas encore :
 - le passage de G2 ;
 - le démarrage de Study 1.
 
-La réanalyse historique reste interdite tant que ce paquet n'a pas reçu une revue indépendante explicite.
+`CHRON-20260819-008` résout le blocker de revue de coverage. La lecture effective des scores historiques reste une décision de gouvernance séparée et n'a pas eu lieu pendant cette validation ni pendant ses revues.
