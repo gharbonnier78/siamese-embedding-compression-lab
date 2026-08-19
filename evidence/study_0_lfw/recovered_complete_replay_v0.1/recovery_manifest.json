@@ -1,0 +1,33 @@
+{
+  "schema_version": "1.0",
+  "recovery_date": "2026-08-19",
+  "historical_run_id": "lfw_resnet18_siamese_projection_v0_1-89179914-911192ee-64559cbd",
+  "archive_filename": "lfw-resnet18-siamese-projection-v0.1-mmals-replay.zip",
+  "archive_bytes": 4158610,
+  "archive_sha256": "7429c75a7da827281ca172d7a4184c65fcc27dbfa845eb9ffd27e04d81331897",
+  "required_members_confirmed": [
+    "run_manifest.json",
+    "test_pair_scores.csv",
+    "thresholds.csv",
+    "paired_noninferiority.csv"
+  ],
+  "test_pair_scores_bytes": 1821547,
+  "archive_member_count": 40,
+  "recovery_source": "ChatGPT conversation attachment uploaded on 2026-08-19",
+  "durable_backup": {
+    "channel": "Gmail draft attachment",
+    "draft_id": "r-7850386726900187563",
+    "message_id": "1a01b86c9128408e",
+    "includes": [
+      "lfw-resnet18-siamese-projection-v0.1-mmals-replay.zip",
+      "STUDY0_REPLAY_RECOVERY_MANIFEST_2026-08-19.json"
+    ]
+  },
+  "scientific_boundary": {
+    "historical_score_values_read_during_recovery_verification": false,
+    "scientific_interpretation_performed": false,
+    "claim_or_gate_promoted": false,
+    "study_1_started": false
+  },
+  "note": "The recovered archive SHA-256 exactly matches the release checksum preserved previously. This record archives recovery identity and backup location only; it is not outcome evidence and does not authorize interpretation."
+}
