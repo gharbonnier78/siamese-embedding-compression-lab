@@ -1,0 +1,31 @@
+{
+  "schema_version": "1.0",
+  "recovery_date": "2026-08-19",
+  "historical_run_id": "lfw_resnet18_siamese_projection_v0_1-89179914-911192ee-64559cbd",
+  "archive_filename": "lfw-resnet18-siamese-projection-v0.1-mmals-replay.zip",
+  "archive_bytes": 4158610,
+  "archive_sha256": "7429c75a7da827281ca172d7a4184c65fcc27dbfa845eb9ffd27e04d81331897",
+  "required_members_confirmed": [
+    "run_manifest.json",
+    "test_pair_scores.csv",
+    "thresholds.csv",
+    "paired_noninferiority.csv"
+  ],
+  "test_pair_scores_bytes": 1821547,
+  "archive_member_count": 40,
+  "durable_backup": {
+    "mechanism": "Gmail draft attachment",
+    "draft_id": "r-1089532238451284432",
+    "message_id": "1a01b86937467536",
+    "attachments": [
+      "lfw-resnet18-siamese-projection-v0.1-mmals-replay.zip",
+      "STUDY0_REPLAY_RECOVERY_MANIFEST_2026-08-19.json"
+    ]
+  },
+  "scientific_boundary": {
+    "historical_score_values_read_during_recovery_verification": false,
+    "scientific_interpretation_performed": false,
+    "claim_or_gate_promoted": false
+  },
+  "note": "Recovered from a ChatGPT conversation attachment after prior temporary sandbox paths had become unavailable. Archive SHA-256 matches the previously recorded release checksum. This manifest records recovery and preservation only; it is not scientific outcome evidence."
+}
