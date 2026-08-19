@@ -178,10 +178,18 @@ class HistoricalRunnerContractTests(unittest.TestCase):
                 run_dir / "paired_noninferiority.csv", index=False
             )
             artifact_rows = []
-            for name in ("test_pair_scores.csv", "thresholds.csv", "paired_noninferiority.csv"):
+            for name in (
+                "test_pair_scores.csv",
+                "thresholds.csv",
+                "paired_noninferiority.csv",
+            ):
                 path = run_dir / name
                 artifact_rows.append(
-                    {"path": name, "bytes": path.stat().st_size, "sha256": sha256_file(path)}
+                    {
+                        "path": name,
+                        "bytes": path.stat().st_size,
+                        "sha256": sha256_file(path),
+                    }
                 )
             manifest = {
                 "run_id": EXPECTED_RUN_ID,
@@ -204,7 +212,12 @@ class HistoricalRunnerContractTests(unittest.TestCase):
                 return_value=rows,
             ), mock.patch(
                 "siamese_compression_lab.historical_reanalysis.validate_subject_map",
-                return_value={"pairs": 1000, "genuine": 500, "impostor": 500, "subjects": 963},
+                return_value={
+                    "pairs": 1000,
+                    "genuine": 500,
+                    "impostor": 500,
+                    "subjects": 963,
+                },
             ):
                 _, config, returned_rows, source_manifest = validate_historical_sources(
                     historical_run_dir=run_dir,
@@ -220,21 +233,25 @@ class HistoricalRunnerContractTests(unittest.TestCase):
                 sha256_file(score),
             )
             score.write_text("mutated\n", encoding="utf-8")
-            with self.assertRaises((HistoricalInputError, ValueError)):
-                with mock.patch(
-                    "siamese_compression_lab.historical_reanalysis.reconstruct_lfw_devtest_subject_map",
-                    return_value=rows,
-                ), mock.patch(
-                    "siamese_compression_lab.historical_reanalysis.validate_subject_map",
-                    return_value={"pairs": 1000, "genuine": 500, "impostor": 500, "subjects": 963},
-                ):
-                    validate_historical_sources(
-                        historical_run_dir=run_dir,
-                        matched_path=matched,
-                        mismatched_path=mismatched,
-                        study_protocol_path=STUDY_PROTOCOL,
-                        score_identity=identity,
-                    )
+            with self.assertRaises((HistoricalInputError, ValueError)), mock.patch(
+                "siamese_compression_lab.historical_reanalysis.reconstruct_lfw_devtest_subject_map",
+                return_value=rows,
+            ), mock.patch(
+                "siamese_compression_lab.historical_reanalysis.validate_subject_map",
+                return_value={
+                    "pairs": 1000,
+                    "genuine": 500,
+                    "impostor": 500,
+                    "subjects": 963,
+                },
+            ):
+                validate_historical_sources(
+                    historical_run_dir=run_dir,
+                    matched_path=matched,
+                    mismatched_path=mismatched,
+                    study_protocol_path=STUDY_PROTOCOL,
+                    score_identity=identity,
+                )
 
 
 class HistoricalRunnerMaterializationTests(unittest.TestCase):
@@ -247,7 +264,17 @@ class HistoricalRunnerMaterializationTests(unittest.TestCase):
         coverage_sim = root / "coverage_simulation.csv"
         coverage_gate = root / "coverage_gate.json"
         coverage_sim.write_text("scenario,coverage\nfixture,0.95\n", encoding="utf-8")
-        coverage_gate.write_text('{"status":"PASS"}\n', encoding="utf-8")
+        coverage_gate.write_text(
+            json.dumps(
+                {
+                    "status": "PASS",
+                    "selected_dataset_checkpoint": 4000,
+                    "historical_study_0_scores_read": False,
+                }
+            )
+            + "\n",
+            encoding="utf-8",
+        )
         matched = root / "matched.csv"
         mismatched = root / "mismatched.csv"
         matched.write_text("fixture\n", encoding="utf-8")
@@ -274,7 +301,9 @@ class HistoricalRunnerMaterializationTests(unittest.TestCase):
         rows = _small_rows()
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
-            run_dir, matched, mismatched, coverage_sim, coverage_gate = self._prepare_fixture(root)
+            run_dir, matched, mismatched, coverage_sim, coverage_gate = self._prepare_fixture(
+                root
+            )
             destination = root / "out"
             original_score_hash = sha256_file(run_dir / "test_pair_scores.csv")
             source_manifest = {"fixture": True}
@@ -307,6 +336,8 @@ class HistoricalRunnerMaterializationTests(unittest.TestCase):
                 "siamese_compression_lab.historical_reanalysis.subject_bootstrap_fixed_threshold",
                 side_effect=self._operational_replicates,
             ), mock.patch(
+                "siamese_compression_lab.historical_reanalysis._assert_sources_unchanged"
+            ), mock.patch(
                 "siamese_compression_lab.historical_reanalysis._git_head",
                 return_value="fixture-head",
             ):
@@ -330,8 +361,12 @@ class HistoricalRunnerMaterializationTests(unittest.TestCase):
             self.assertEqual(manifest["interpretation_status"], "PENDING")
             self.assertFalse(manifest["original_historical_artifacts_mutated"])
             self.assertEqual(sha256_file(run_dir / "test_pair_scores.csv"), original_score_hash)
-            self.assertEqual(len(pd.read_csv(destination / "subject_bootstrap_seed_summary.csv")), 15)
-            self.assertEqual(len(pd.read_csv(destination / "threshold_transfer_uncertainty.csv")), 16)
+            self.assertEqual(
+                len(pd.read_csv(destination / "subject_bootstrap_seed_summary.csv")), 15
+            )
+            self.assertEqual(
+                len(pd.read_csv(destination / "threshold_transfer_uncertainty.csv")), 16
+            )
             self.assertTrue((destination / "pair_vs_subject_sensitivity.csv").is_file())
             self.assertTrue((destination / "subject_bootstrap_replicates.csv").is_file())
             self.assertTrue((destination / "run_manifest.json").is_file())
@@ -351,7 +386,9 @@ class HistoricalRunnerMaterializationTests(unittest.TestCase):
         rows = _small_rows()
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
-            run_dir, matched, mismatched, coverage_sim, coverage_gate = self._prepare_fixture(root)
+            run_dir, matched, mismatched, coverage_sim, coverage_gate = self._prepare_fixture(
+                root
+            )
             destination = root / "failed"
             audit = DegenerateReplicateAudit(
                 replicate=1,
@@ -386,28 +423,33 @@ class HistoricalRunnerMaterializationTests(unittest.TestCase):
             ), mock.patch(
                 "siamese_compression_lab.historical_reanalysis.subject_bootstrap_delta_fnmr",
                 side_effect=DegenerateReplicateError(audit),
-            ):
-                with self.assertRaises(DegenerateReplicateError):
-                    execute_historical_reanalysis(
-                        repo_root=ROOT,
-                        historical_run_dir=run_dir,
-                        matched_path=matched,
-                        mismatched_path=mismatched,
-                        output_dir=destination,
-                        study_protocol_path=STUDY_PROTOCOL,
-                        coverage_simulation_path=coverage_sim,
-                        coverage_gate_path=coverage_gate,
-                    )
+            ), self.assertRaises(DegenerateReplicateError):
+                execute_historical_reanalysis(
+                    repo_root=ROOT,
+                    historical_run_dir=run_dir,
+                    matched_path=matched,
+                    mismatched_path=mismatched,
+                    output_dir=destination,
+                    study_protocol_path=STUDY_PROTOCOL,
+                    coverage_simulation_path=coverage_sim,
+                    coverage_gate_path=coverage_gate,
+                )
             self.assertFalse((destination / "run_manifest.json").exists())
             self.assertTrue((destination / "run_failure.json").is_file())
-            failure = json.loads((destination / "run_failure.json").read_text(encoding="utf-8"))
+            failure = json.loads(
+                (destination / "run_failure.json").read_text(encoding="utf-8")
+            )
             self.assertEqual(failure["status"], "FAILED_NOT_INTERPRETED")
             self.assertFalse(failure["scientific_claim_allowed"])
 
 
 class HistoricalRunnerCliBoundaryTests(unittest.TestCase):
     def test_preflight_completes_before_executor_is_called(self) -> None:
-        script_globals = runpy.run_path(str(ROOT / "scripts/run_study0_historical_reanalysis.py"))
+        scripts_dir = str(ROOT / "scripts")
+        with mock.patch.object(sys, "path", [scripts_dir, *sys.path]):
+            script_globals = runpy.run_path(
+                str(ROOT / "scripts/run_study0_historical_reanalysis.py")
+            )
         main = script_globals["main"]
         order: list[str] = []
 
