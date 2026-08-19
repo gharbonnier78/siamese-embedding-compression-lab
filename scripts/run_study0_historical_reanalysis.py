@@ -4,6 +4,7 @@ import argparse
 from pathlib import Path
 
 from preflight_study0_historical_reanalysis import preflight_historical_reanalysis
+
 from siamese_compression_lab.historical_reanalysis import execute_historical_reanalysis
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -44,9 +45,9 @@ def main() -> int:
     args = parse_args()
 
     # Deliberate hard boundary: this is the first operation that may authorize historical
-    # access.  Nothing under --historical-run-dir is inspected before this call returns.
+    # access. Nothing under --historical-run-dir is inspected before this call returns.
     _, activated_via = preflight_historical_reanalysis()
-    print(f"PRELIGHT PASS: historical access activated through {activated_via}", flush=True)
+    print(f"PREFLIGHT PASS: historical access activated through {activated_via}", flush=True)
 
     manifest = execute_historical_reanalysis(
         repo_root=ROOT,
