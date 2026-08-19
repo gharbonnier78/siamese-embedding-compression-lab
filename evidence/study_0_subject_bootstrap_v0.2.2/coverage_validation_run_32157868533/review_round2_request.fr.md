@@ -1,5 +1,7 @@
 # Demande de revue indépendante — round 2 après REQUEST_CHANGES
 
+**Statut historique : revue exécutée et conclue `APPROVE`.** Ce fichier conserve le contrat de revue qui a été effectivement suivi ; le verdict est archivé dans `review_round2_approve.fr.md`.
+
 Merci de reprendre la revue de PR #31 **depuis son head courant**, sans hériter automatiquement d'un verdict favorable ou défavorable du round 1.
 
 Le round 1 a rendu `REQUEST_CHANGES` pour deux raisons précises :
