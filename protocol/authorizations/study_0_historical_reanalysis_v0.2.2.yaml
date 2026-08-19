@@ -1,0 +1,59 @@
+schema_version: "1.0.0"
+authorization_id: study_0_historical_reanalysis_authorization_v0_2_2
+status: AUTHORIZED
+activation: merge_to_main_after_review
+historical_study_0_scores_permitted: true
+
+scope:
+  execution_step: corrected_study_0_reanalysis
+  study_id: study_0_subject_bootstrap_v0_2_2
+  normative_protocol: protocol/studies/study_0_subject_bootstrap_v0.2.2.yaml
+  normative_specification: protocol/studies/study_0_subject_bootstrap_spec.md
+  historical_run_id: lfw_resnet18_siamese_projection_v0_1-89179914-911192ee-64559cbd
+  purpose: frozen_historical_reanalysis_only
+
+prerequisites:
+  prerequisite_merge_sha: 91b5b84f1d83c15bd2e3fbfa589f809461a77c8b
+  coverage_gate:
+    path: evidence/study_0_subject_bootstrap_v0.2.2/coverage_validation_run_32157868533/coverage_gate.json
+    required_status: PASS
+    selected_dataset_checkpoint: 4000
+  independent_coverage_review:
+    path: evidence/study_0_subject_bootstrap_v0.2.2/coverage_validation_run_32157868533/review_round2_approve.fr.md
+    required_verdict: APPROVE
+  chronicle_resolution: CHRON-20260819-008
+
+researcher_go:
+  explicit: true
+  recorded_at_local: "2026-08-19T10:57:00+02:00"
+  source: explicit_researcher_go_in_project_chat
+  scope_change_requires_new_go: true
+
+restrictions:
+  original_scores_mutation_forbidden: true
+  original_outputs_mutation_forbidden: true
+  retraining_permitted: false
+  score_recomputation_permitted: false
+  all_pairs_generation_permitted: false
+  study_1_execution_permitted: false
+  geometry_exploration_permitted: false
+  post_access_method_change_permitted: false
+  scientific_gate_autopromotion_permitted: false
+  result_interpretation_before_complete_materialization_permitted: false
+
+execution_contract:
+  preflight: scripts/preflight_study0_historical_reanalysis.py
+  seeds: [11, 29, 47, 71, 101]
+  bootstrap_replicates: 10000
+  sampling_unit: subject_slot
+  paired_routes_same_draw: true
+  degenerate_replicate_action: FAIL_REANALYSIS
+  frozen_method_reference: protocol/studies/study_0_subject_bootstrap_v0.2.2.yaml
+
+boundary_note: >-
+  This authorization changes access governance only. It does not change the frozen
+  statistical method, read or interpret historical Study 0 scores in this authorization
+  change, demonstrate 512D-to-128D non-inferiority, close E-STAT-001, pass G2, start
+  Study 1, or authorize geometry experiments. It becomes operational only after this
+  authorization change is reviewed and merged to main. A material review-driven scope
+  change requires a new explicit researcher GO.
