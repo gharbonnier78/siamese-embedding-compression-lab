@@ -15,11 +15,18 @@ COVERAGE_GATE = (
     ROOT
     / "evidence/study_0_subject_bootstrap_v0.2.2/coverage_validation_run_32157868533/coverage_gate.json"
 )
+COVERAGE_REVIEW = (
+    ROOT
+    / "evidence/study_0_subject_bootstrap_v0.2.2/coverage_validation_run_32157868533/review_round2_approve.fr.md"
+)
 COVERAGE_CONTRACT = ROOT / "protocol/coverage/study_0_subject_bootstrap_v0.2.2.yaml"
 STUDY0 = ROOT / "protocol/studies/study_0_subject_bootstrap_v0.2.2.yaml"
 STUDY1 = ROOT / "protocol/studies/study_1_face_backbone.yaml"
 CHRONICLE = ROOT / "protocol/scientific_chronicle.yaml"
 HARNESS_GATE = ROOT / "gates/scientific_harness.yaml"
+PR31_MERGE_SHA = "91b5b84f1d83c15bd2e3fbfa589f809461a77c8b"
+COVERAGE_RESOLUTION_ID = "CHRON-20260819-008"
+ACCESS_AUTHORIZATION_ID = "CHRON-20260819-009"
 
 
 def _load_yaml(path: Path) -> dict[str, Any]:
@@ -36,6 +43,14 @@ def _load_json(path: Path) -> dict[str, Any]:
     return value
 
 
+def _chronicle_entry(chronicle: dict[str, Any], entry_id: str) -> dict[str, Any]:
+    entries = chronicle.get("entries") or []
+    for entry in entries:
+        if isinstance(entry, dict) and entry.get("id") == entry_id:
+            return entry
+    raise ValueError(f"required Chronicle entry {entry_id} is missing")
+
+
 def validate_historical_reanalysis_authorization(
     authorization_path: Path = AUTHORIZATION,
 ) -> dict[str, Any]:
@@ -48,6 +63,12 @@ def validate_historical_reanalysis_authorization(
         raise ValueError("authorization activation must remain merge_to_main_after_review")
     if authorization.get("historical_study_0_scores_permitted") is not True:
         raise ValueError("historical Study 0 score access is not explicitly permitted")
+
+    prerequisites = authorization.get("prerequisites") or {}
+    if prerequisites.get("prerequisite_merge_sha") != PR31_MERGE_SHA:
+        raise ValueError("authorization is not anchored to the reviewed PR #31 merge")
+    if prerequisites.get("chronicle_resolution") != COVERAGE_RESOLUTION_ID:
+        raise ValueError("authorization must depend on CHRON-20260819-008")
 
     scope = authorization.get("scope") or {}
     if scope.get("execution_step") != "corrected_study_0_reanalysis":
@@ -85,8 +106,25 @@ def validate_historical_reanalysis_authorization(
 
     assert_execution_unblocked(CHRONICLE, HARNESS_GATE, "corrected_study_0_reanalysis")
 
+    chronicle = _load_yaml(CHRONICLE)
+    coverage_resolution = _chronicle_entry(chronicle, COVERAGE_RESOLUTION_ID)
+    if coverage_resolution.get("status") != "RESOLVED":
+        raise ValueError("known-truth coverage review resolution is not RESOLVED")
+    if coverage_resolution.get("supersedes") != "CHRON-20260818-007":
+        raise ValueError("known-truth coverage review resolution has unexpected lineage")
+    if coverage_resolution.get("blocks") not in ([], None):
+        raise ValueError("known-truth coverage review resolution still declares blockers")
+
+    access_resolution = _chronicle_entry(chronicle, ACCESS_AUTHORIZATION_ID)
+    if access_resolution.get("status") != "RESOLVED":
+        raise ValueError("historical score access authorization Chronicle entry is not RESOLVED")
+    if access_resolution.get("blocks") not in ([], None):
+        raise ValueError("historical score access authorization still declares blockers")
+
     coverage_gate = _load_json(COVERAGE_GATE)
-    prerequisite_gate = (authorization.get("prerequisites") or {}).get("coverage_gate") or {}
+    prerequisite_gate = prerequisites.get("coverage_gate") or {}
+    if prerequisite_gate.get("path") != str(COVERAGE_GATE.relative_to(ROOT)):
+        raise ValueError("authorization coverage gate path is not the reviewed gate")
     if coverage_gate.get("status") != prerequisite_gate.get("required_status"):
         raise ValueError("known-truth coverage gate prerequisite is not satisfied")
     if coverage_gate.get("selected_dataset_checkpoint") != prerequisite_gate.get(
@@ -96,21 +134,52 @@ def validate_historical_reanalysis_authorization(
     if coverage_gate.get("historical_study_0_scores_read") is not False:
         raise ValueError("coverage evidence indicates historical scores were already read")
 
+    review_prerequisite = prerequisites.get("independent_coverage_review") or {}
+    if review_prerequisite.get("path") != str(COVERAGE_REVIEW.relative_to(ROOT)):
+        raise ValueError("authorization review path is not the archived independent review")
+    review_text = COVERAGE_REVIEW.read_text(encoding="utf-8")
+    required_verdict = review_prerequisite.get("required_verdict")
+    if required_verdict != "APPROVE" or "VERDICT: APPROVE" not in review_text:
+        raise ValueError("independent coverage review prerequisite is not APPROVE")
+
     frozen_coverage_contract = _load_yaml(COVERAGE_CONTRACT)
     if frozen_coverage_contract.get("historical_study_0_scores_permitted") is not False:
-        raise ValueError("frozen coverage contract must remain byte-semantically historical-read false")
+        raise ValueError(
+            "frozen coverage contract must remain historical-study-score-access false"
+        )
 
     study0 = _load_yaml(STUDY0)
     if study0.get("results") is not None:
         raise ValueError("preflight expects Study 0 corrected results to be unmaterialized")
     if study0.get("decision", {}).get("state") != "INDETERMINATE":
         raise ValueError("preflight must not inherit a pre-existing corrected Study 0 decision")
+    if scope.get("normative_protocol") != str(STUDY0.relative_to(ROOT)):
+        raise ValueError("authorization does not reference the frozen Study 0 protocol")
+    if scope.get("normative_specification") != study0.get("normative_specification"):
+        raise ValueError("authorization specification reference differs from Study 0")
+    if scope.get("historical_run_id") != study0.get("historical_inputs", {}).get("run_id"):
+        raise ValueError("authorization historical run differs from frozen Study 0")
+
+    if study0.get("historical_inputs", {}).get("original_scores_mutable") is not False:
+        raise ValueError("Study 0 no longer declares original scores immutable")
+    if study0.get("historical_inputs", {}).get("original_outputs_mutable") is not False:
+        raise ValueError("Study 0 no longer declares original outputs immutable")
+    if study0.get("scope", {}).get("retraining") is not False:
+        raise ValueError("Study 0 frozen scope unexpectedly permits retraining")
+    if study0.get("scope", {}).get("score_recomputation") is not False:
+        raise ValueError("Study 0 frozen scope unexpectedly permits score recomputation")
+    if study0.get("scope", {}).get("all_pairs_generation") is not False:
+        raise ValueError("Study 0 frozen scope unexpectedly permits all-pairs generation")
+    if study0.get("outputs", {}).get("overwrite_original_study_zero") is not False:
+        raise ValueError("Study 0 frozen scope unexpectedly permits original output overwrite")
 
     study1 = _load_yaml(STUDY1)
     if study1.get("status") != "DRAFT_PREREGISTRATION":
         raise ValueError("Study 1 must remain unstarted and draft-preregistered")
 
     execution = authorization.get("execution_contract") or {}
+    if execution.get("frozen_method_reference") != str(STUDY0.relative_to(ROOT)):
+        raise ValueError("authorization execution contract is not bound to frozen Study 0")
     frozen_seeds = study0.get("noninferiority", {}).get("seeds")
     if execution.get("seeds") != frozen_seeds:
         raise ValueError("authorization seeds differ from frozen Study 0 protocol")
@@ -122,6 +191,10 @@ def validate_historical_reanalysis_authorization(
         "paired_routes_same_draw"
     ):
         raise ValueError("authorization paired-draw rule differs from frozen Study 0 protocol")
+    if execution.get("degenerate_replicate_action") != study0.get(
+        "degenerate_replicates", {}
+    ).get("default_action"):
+        raise ValueError("authorization degeneracy action differs from frozen Study 0 protocol")
 
     return authorization
 
