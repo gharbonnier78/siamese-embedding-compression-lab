@@ -1,119 +1,166 @@
-# Research programme v0.2.2-spec
-
-Version 0.2.1 records the methodological erratum. Version 0.2.2-spec adds only the
-preregistered, implementation-independent correction contract and does not start Study 1.
-Executed studies, negative results and errors are append-only records governed by
-`docs/EXPERIMENT_HISTORY_AND_ERRATA.md` and `protocol/experiment_ledger.yaml`. Study 0
-remains reproducible from its frozen configuration while `E-STAT-001` records the G2
-bootstrap-unit defect and blocks Study 1 execution.
+# Research programme v0.2.3
 
 ## Purpose
 
-This repository is a falsifiable research and engineering programme, not a demonstration
-that Siamese metric learning is inherently useful. It asks whether a learned projection
-can reduce biometric template cost while preserving decision-relevant performance, and
-whether any measured gain survives stronger baselines, independent datasets, operating
-points, system constraints and distribution shift.
+This repository studies a bounded engineering-scientific question:
 
-The programme separates five objects that are often conflated:
+> Can a learned projection reduce biometric embedding cost while preserving decision-relevant verification or identification performance relative to the uncompressed representation and matched compression controls?
 
-1. **mechanism validity** - does pair supervision actually update a shared projection?
-2. **representation value** - is the learned representation better than matched controls?
-3. **decision validity** - do validation-calibrated thresholds transfer to untouched data?
-4. **engineering value** - does compression improve storage, memory, latency or throughput?
-5. **claim admissibility** - is the evidence sufficient for the exact statement proposed?
+The programme is falsifiable by design. It separates:
 
-## Single source of truth
+1. **mechanism validity** — does supervision actually update the projection?
+2. **representation value** — does a compressed representation preserve the relevant operating point?
+3. **supervision value** — does learned pair supervision outperform ordinary compression controls?
+4. **threshold-transfer validity** — do thresholds selected away from TEST transfer credibly?
+5. **engineering value** — do storage, memory, latency or throughput improve under measured workloads?
+6. **claim admissibility** — is the evidence strong enough for the exact statement being proposed?
 
-The paper, CI and replay bundles are clients of machine-readable specifications:
+A failed gate is a valid result. It reduces the permitted claim level and may stop or redirect later work.
 
-| Object | Source of truth |
-|---|---|
-| Programme scope | `protocol/research_program.yaml` |
-| Study protocols and status | `protocol/studies/*.yaml` |
-| Claims and permitted wording | `claims/registry.yaml` |
-| Dataset evidence | `datasets/*.yaml` |
-| Scientific qualification | `gates/gate_spec.yaml` |
-| CAL decision gate | `gates/cal_spec.yaml` |
-| Prior and belief revision | `beliefs/prior_posterior.yaml` |
-| Run evidence | immutable MMALS replay bundle |
-| Paper evidence views | `evidence/study_0_lfw/` + generated-figure manifest |
+## Current state
 
-`scripts/validate_research_program.py` checks cross-file consistency. It does not establish
-biometric validity; it establishes that the evidence contract is internally coherent.
+The initial experiment, called **Study 0** inside this repository, is closed after a corrected subject-level uncertainty reanalysis.
+
+Study 0 used frozen ImageNet ResNet-18 embeddings on LFW and compared raw 512D, random 128D, PCA 128D and Siamese 128D routes. The corrected analysis found that none of the 128D routes demonstrated non-inferiority to raw 512D under the frozen all-seeds rule at empirical `FMR = 0.01` with `delta_FNMR = 0.03`.
+
+The historical pair-level bootstrap was found to understate uncertainty because the declared identity-aware sampling unit had not been implemented. The correction used a preregistered weighted subject-slot bootstrap, passed a known-truth coverage study, was replayed on the immutable historical scores, and was independently checked at materialization and interpretation stages.
+
+Final bounded status:
+
+| Object | State |
+| --- | --- |
+| Study 0 corrected reanalysis | closed |
+| E-STAT-001 | `REANALYZED` |
+| G2 estimator/statistical validity | `PASS` for corrected Study 0 reanalysis |
+| C-NI-001 | `NOT_DEMONSTRATED` |
+| C-SUP-001 | `NOT_DEMONSTRATED` |
+| Study 1 | draft design, not executed |
+| Geometry exploration | outside current scope |
+
+The reader-oriented closure is `STUDY0_FINAL_REPORT.md`; the self-contained English paper is `paper/main.tex` version 0.2.3.
+
+## Evidence escalation model
+
+Study 0 exposed two distinct needs:
+
+- when a methodological defect affects evidence already used as a foundation, repair the full chain and replay it rigorously;
+- before a new direction has earned that cost, use explicitly exploratory evidence to decide whether full qualification is worth doing.
+
+Future work therefore uses **progressive evidence escalation**.
+
+### Stage A — exploratory screening
+
+Screening answers only whether a direction deserves further investment. It may use a dedicated SCREEN set, fewer predeclared screening seeds and a bounded compute budget. It must keep qualification TEST closed and must be marked non-claim-bearing.
+
+Allowed decisions are `CONTINUE`, `STOP` or `REDIRECT`.
+
+### Stage B — qualification
+
+Only a promoted direction enters claim-bearing qualification. Qualification freezes the complete estimand, margin, multiplicity policy, qualification seeds, data roles, uncertainty method, provenance, replay and independent review burden.
+
+Screening results can never be silently relabelled as qualification evidence.
 
 ## Study sequence
 
-| Study | Status | Purpose | Maximum permitted conclusion |
-|---|---|---|---|
-| Study 0 | completed | Audit the educational ImageNet ResNet-18/LFW setting | Limited LFW result |
-| Study 0 v0.2.2 reanalysis | preregistered | Correct uncertainty on the unchanged sparse LFW pair graph | None before implementation, coverage validation and review |
-| Study 1 | draft preregistration | Face-specific backbone, 1:1 non-inferiority | Exploratory external result |
-| Study 2 | planned | Dimensions, projection families and quantization | Compression ablation |
-| Study 3 | planned | External datasets and operational shifts | Bounded robustness claim |
-| Study 4 | planned | 1:N retrieval and edge/system cost | Bounded engineering claim |
-| Study 5 | planned | Independent replay and qualification | Reproduction claim |
+| Study | Current status | Purpose | Maximum present conclusion |
+| --- | --- | --- | --- |
+| Study 0 | completed and corrected | Audit 512→128 compression in the original ImageNet ResNet-18/LFW setting | Limited LFW result |
+| Study 1 | draft preregistration | Face-specific backbone, screening then 1:1 qualification | None until executed |
+| Study 2 | planned | Dimensions, projection families, supervision value and quantization | Compression ablation |
+| Study 3 | planned | External datasets and predeclared operational shifts | Bounded robustness |
+| Study 4 | planned | 1:N retrieval, indexing and engineering cost | Bounded engineering value |
+| Study 5 | planned | Independent replay and reproduction | Reproduction claim |
 
-Study 4 is preregistered in `protocol/studies/study_4_identification_engineering.yaml`.
-It separates the unchanged extractor, added projection, gallery storage and search stages;
-the current Study 0 supplies arithmetic bounds but no measured latency or 1:N benefit.
+Later studies never overwrite earlier evidence.
 
-No later study may overwrite Study 0. A failed gate lowers the permitted claim level; it
-does not authorize changing the endpoint, selecting a seed on TEST or silently replacing
-the hypothesis.
+## Study 1 — current design direction
 
-The normative preregistration for the bounded Study 0 correction is
-`protocol/studies/study_0_subject_bootstrap_spec.md`. It resamples subject slots, preserves
-their multiplicities on the 1,000 observed LFW DevTest edges, and never constructs missing
-all-pairs comparisons. It contains no corrected result; `E-STAT-001` and G2 remain open.
+Study 1 will replace the unsuitable ImageNet source extractor with a face-specific embedding. It is not yet authorized for execution.
 
-## Primary estimand
+The current draft introduces a dedicated non-claim-bearing screening stage before qualification:
 
-For candidate route `m`, raw reference `b`, and target false match rate `alpha`:
+- separate TRAIN / VALIDATION / SCREEN / untouched qualification TEST roles;
+- raw/random/PCA/Siamese matched routes at 128D;
+- screening seeds `[11,29]` fixed before outcomes;
+- full qualification seeds `[11,29,47,71,101]` preserved regardless of screening outcomes;
+- raw backbone viability checked at the decision-relevant low-FMR endpoint before compression qualification;
+- numerical promotion and stop criteria frozen before SCREEN is opened;
+- negative screening preserved and allowed to stop or redirect work;
+- qualification TEST never used to rescue a failed screen.
+
+Before screening can execute, the design still needs independently reviewed and frozen choices for the backbone/weights/licence, datasets and overlap audit, target population/capture regime, screening promotion rule, qualification FMR and margin, sample size, multiplicity policy and compute budget. A separate research authorization is required for Stage A execution.
+
+## Primary representation estimand
+
+For candidate route `m`, raw reference `b`, and target false-match rate `alpha`:
 
 ```text
 delta_fnmr(m, alpha) = fnmr_m(alpha) - fnmr_b(alpha)
 ```
 
-The primary non-inferiority claim requires the upper confidence bound of this paired
-difference to be at or below a predeclared margin. TEST equal-FMR thresholds are allowed
-only for representation comparison and remain non-deployable. Operational thresholds are
-selected on VALIDATION and frozen before TEST.
+A non-inferiority claim requires the predeclared upper confidence bound for this paired difference to be at or below the predeclared margin. TEST equal-FMR thresholds are non-deployable representation benchmarks. Operational thresholds are selected on VALIDATION and frozen before TEST.
 
-## Evidence discipline
+## Study 0 correction — frozen subject-level uncertainty
 
-- TRAIN fits parameters.
-- VALIDATION selects hyperparameters, early stopping and deployable-style thresholds.
-- TEST is opened once after freezing.
-- Qualification data are not used for method development.
-- Smoke data validate plumbing only.
-- Every stochastic route reports every declared seed.
-- Identity-level dependencies must be respected by the uncertainty estimator.
-- Dataset suitability is specific to a target population, capture regime and operating
-  point; public availability is not evidence of representativity.
+The corrected Study 0 analysis draws 963 subject slots with replacement on the observed LFW DevTest sparse graph:
 
-## CAL boundary
+- genuine edge weight `m_i`;
+- impostor edge weight `m_i*m_j`;
+- same draw for candidate and raw;
+- no synthesized unobserved pairs;
+- 10,000 bootstrap replicates per seed;
+- PCG64 with frozen seed binding;
+- fail on degeneracy rather than redraw;
+- immutable historical score source.
 
-MMALS-CAL is an internal calibration/action gate in the evidence chain. Its outcomes are
-`ADMISSIBLE`, `INADMISSIBLE` and `INDETERMINATE`. `INDETERMINATE` means that evidence is
-insufficient and can never be silently treated as permission. CAL metrics belong to the
-`decision_side_intervention` plane and must not be relabelled as matcher FMR/FNMR.
+Known-truth synthetic validation checked representation delta-FNMR, operational FNMR and operational FMR separately across five frozen dependence/effect regimes. The corrected historical result was then materialized and independently recalculated.
 
-CAL compliance in this repository means conformance with `gates/cal_spec.yaml`. It is not
-a regulatory certification, a biometric product approval or a complete safety proof.
+## Claim boundaries after Study 0
 
-## Build and validate
+Study 0 establishes the training mechanism and exact payload arithmetic, but it does not establish:
+
+- non-inferiority of any tested 128D route;
+- added Siamese supervision value over PCA/random;
+- industrial biometric validity;
+- very-low-FMR performance;
+- general failure of metric learning;
+- 1:N preservation or end-to-end latency benefit;
+- fairness, PAD, security or regulatory conformity.
+
+## Engineering decomposition
+
+The current post-extractor projection does not shrink or accelerate the frozen extractor. For workload `w`, future system studies should separate at least:
+
+```text
+C_total(w) = C_extract + C_project + C_store + C_index + C_search + C_postprocess + C_replicate
+```
+
+Study 0 establishes only route-specific template arithmetic. Study 4 is responsible for actual 1:N/index/latency measurements.
+
+## Evidence and sources of truth
+
+| Object | Source |
+| --- | --- |
+| Current reader-facing status | `README.md` |
+| Study 0 closure narrative | `STUDY0_FINAL_REPORT.md` |
+| Self-contained paper | `paper/main.tex` |
+| Claims and permitted wording | `claims/registry.yaml` |
+| Study protocols | `protocol/studies/*.yaml` |
+| Append-only execution decisions | `protocol/scientific_chronicle.yaml` |
+| Statistical erratum history | `ERRATA_STUDY_0.md` |
+| Corrected Study 0 evidence | `evidence/study_0_subject_bootstrap_v0.2.2/` |
+| Immutable historical replay | release-level MMALS replay bundle and recorded hashes |
+
+Machine checks establish internal consistency and replayability; they do not substitute for scientific validity or domain expertise.
+
+## Build and validation
 
 ```bash
 python scripts/validate_research_program.py --root .
-python -m pip install -r requirements-render.txt
+python scripts/validate_scientific_harness.py
 python scripts/generate_research_figures.py
 python -m unittest discover -s tests -v
 latexmk -pdf -interaction=nonstopmode -halt-on-error -cd paper/main.tex
 ```
 
-The figure step deterministically regenerates the paper's Study 0 protocol, benchmark,
-non-inferiority, threshold-transfer and payload-scaling views. CI rejects a commit when
-those views differ from the evidence-bound snapshots in `paper/figures-generated/`. Exact
-renderer dependencies are locked in `requirements-render.txt`; an intentional renderer
-upgrade is treated as a reviewed evidence-presentation migration.
+Historical PDFs and result artifacts remain versioned and are not overwritten by later papers or corrections.
