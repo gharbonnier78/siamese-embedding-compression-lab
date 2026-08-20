@@ -1,0 +1,38 @@
+name: Patch v0.2.3 backbone context
+
+on:
+  push:
+    branches:
+      - agent/study0-v0.2.3-paper-20260820
+    paths:
+      - "scripts/patch_v023_backbone_context.py"
+      - ".github/workflows/patch-v0.2.3-backbone-context.yml"
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: agent/study0-v0.2.3-paper-20260820
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Apply bounded documentation patch
+        run: python scripts/patch_v023_backbone_context.py
+      - name: Commit patched paper and report
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add paper/study0_v0.2.3.tex STUDY0_FINAL_REPORT.md
+          git diff --cached --check
+          if git diff --cached --quiet; then
+            echo "Patch already applied."
+          else
+            git commit -m "Explain ImageNet backbone limits and Study 1 data roles"
+            git push origin HEAD:agent/study0-v0.2.3-paper-20260820
+          fi
