@@ -4,14 +4,66 @@
 
 In this repository, **Study 0** is simply the name of the first controlled experiment in the Siamese Embedding Compression research programme. It is not an external benchmark category. The experiment takes a frozen 512-dimensional ImageNet ResNet-18 representation of LFW face images and asks whether post-extractor compression to 128 dimensions can preserve verification performance.
 
-Four matched routes are compared on the same source embeddings and pair splits:
+The experiment is intentionally exploratory. ImageNet ResNet-18 is not a face-recognition backbone, and LFW DevTest has only 500 impostor pairs, so it cannot establish industrial very-low-FMR claims.
+
+## Why dimensionality reduction is not one single technique
+
+“Feature reduction” can mean several different things. The Study 0 comparison focuses on **feature extraction**: creating a new lower-dimensional representation from the existing 512D embedding. This differs from feature selection, which would simply retain a subset of the original coordinates.
+
+The wider landscape includes:
+
+- **random projection**: a data-independent linear projection; useful as a dimension-only control and motivated by approximate distance-preservation results such as Johnson–Lindenstrauss;
+- **PCA**: an unsupervised data-adaptive linear projection that keeps directions of highest variance and minimizes linear reconstruction error for a fixed rank;
+- **LDA**: a supervised class-label method that searches for between-class separation relative to within-class variation;
+- **autoencoders**: nonlinear encoder/decoder models that learn a bottleneck, usually through reconstruction loss;
+- **metric-learning projections**: supervised transformations that optimize a task-relevant geometry from pairs, triplets or related constraints;
+- **hashing / binary embeddings**: representations designed for compact codes and Hamming-like comparisons;
+- **quantization**: fewer bits per coordinate, which is complementary to dimensionality reduction rather than the same operation;
+- **compact or distilled backbones**: change the extractor itself rather than adding a post-extractor projection.
+
+Study 0 deliberately keeps the comparison simpler and more controlled: every compressed route produces a 128D linear representation from the same frozen 512D source embedding.
+
+## The four matched routes
+
+The same source embeddings and the same pair splits are used for all routes:
 
 - **raw 512D**: no dimensionality reduction;
-- **random 128D**: seeded Gaussian projection;
-- **PCA 128D**: unsupervised PCA fitted on TRAIN endpoints only;
-- **Siamese 128D**: a learned shared linear 512→128 projection trained on pairs with contrastive loss.
+- **random 128D**: a seeded Gaussian matrix with entries distributed as `N(0, 1/128)`, followed by L2 normalization;
+- **PCA 128D**: unsupervised PCA fitted on TRAIN endpoints only, using the 128 leading principal directions, followed by L2 normalization;
+- **Siamese 128D**: a learned shared affine projection `512→128`, followed by L2 normalization, trained on genuine/impostor pairs with contrastive loss.
 
-The experiment is intentionally exploratory. ImageNet ResNet-18 is not a face-recognition backbone, and LFW DevTest has only 500 impostor pairs, so it cannot establish industrial very-low-FMR claims.
+These controls answer different questions. Raw asks whether compression is acceptable at all. Random asks whether lowering dimension alone already preserves enough geometry. PCA asks whether ordinary unsupervised, data-adaptive compression is sufficient. Siamese asks whether **pair supervision adds value beyond those baselines**.
+
+## What PCA does here
+
+Let the TRAIN embeddings be centered around mean `mu`. PCA estimates the covariance structure of those TRAIN endpoints and finds orthogonal directions ordered by decreasing variance. The 128D representation keeps the first 128 principal directions.
+
+PCA is a strong control because it adapts to the observed feature distribution without using genuine/impostor labels. But its objective is not biometric verification: preserving variance does not guarantee preserving the extreme impostor tail or the low-FMR operating region.
+
+That distinction is central to the experiment. If Siamese supervision is useful, it should provide something beyond what PCA already achieves at the same output dimension.
+
+## What “Siamese” means in this experiment
+
+A Siamese architecture does **not** mean two different models. It means two training branches that use the **same weights**.
+
+For each training pair, the two 512D source embeddings `z_i` and `z_j` are independently passed through the same trainable projection:
+
+`u = L2_normalize(z W + b)`
+
+with `W` of size `512×128` and `b` of size `128`. The two branches share exactly the same `W` and `b`, giving `65,664` trainable parameters.
+
+The distance is Euclidean distance between the L2-normalized outputs. For unit vectors this is monotonic with cosine similarity because:
+
+`||u_i-u_j||² = 2 - 2 cos(u_i,u_j)`.
+
+The contrastive loss uses the pair label:
+
+- for a **genuine pair**, squared distance is penalized, pulling the pair together;
+- for an **impostor pair**, only distances inside margin `m=1` are penalized, pushing close impostors apart.
+
+The important point is that pair labels modify the geometry of a single shared projection. They are not merely used to select a threshold.
+
+The two-branch construction is also mainly a **training mechanism**. After training, a single image or source embedding passes through one branch and yields a 128D template. Verification later compares two such templates; pair labels are not needed at inference. The route is therefore not a closed-set softmax classifier and does not require the deployed system to run two neural branches as a special runtime architecture.
 
 ## Scientific question
 
@@ -149,7 +201,7 @@ The next experiment will replace ImageNet ResNet-18 with a face-specific backbon
 
 ## Where to read next
 
-- arXiv-style paper source: `paper/main.tex` (v0.2.3)
+- arXiv-style paper source: `paper/study0_v0.2.3.tex` (`paper/main.tex` is the build entrypoint)
 - original historical result: `RESULTS_LFW_V0.1.md`
 - append-only statistical erratum: `ERRATA_STUDY_0.md`
 - frozen correction: `protocol/studies/study_0_subject_bootstrap_v0.2.2.yaml`
