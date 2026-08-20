@@ -32,7 +32,7 @@
   pdftitle={A Falsifiable Study of Siamese Embedding Compression for Face Verification},
   pdfauthor={Guillaume Harbonnier},
   pdfsubject={Corrected uncertainty analysis and closure of the initial 512D to 128D experiment},
-  pdfkeywords={metric learning, face verification, embedding compression, PCA, random projection, non-inferiority, bootstrap, reproducibility}
+  pdfkeywords={metric learning, face verification, face identification, embedding compression, PCA, random projection, non-inferiority, subject bootstrap, reproducibility}
 }
 \setlength{\parindent}{0pt}
 \setlength{\parskip}{5pt}
@@ -72,37 +72,44 @@ Labeled Faces in the Wild (LFW); both limit the inference domain.}}
 
 \begin{abstract}
 Reducing face-template dimension can lower storage and comparison cost, but a smaller vector
-is useful only if decision-relevant verification performance is retained. This paper turns a
+is useful only if decision-relevant biometric performance is retained. This paper turns a
 pedagogical Siamese-network idea into a falsifiable experiment comparing four routes applied
 to the same frozen 512-dimensional source embedding: no compression, random projection,
 principal-component analysis (PCA), and a learned 512-to-128 linear Siamese projection
 trained with contrastive loss. The repository calls this first controlled experiment
-\emph{Study 0}; here it is introduced simply as the initial experiment. Its primary question
-is whether a 128-dimensional route is non-inferior to the raw 512-dimensional
-representation at an empirical false-match rate of 0.01, using an absolute
-false-non-match-rate margin of 0.03 and requiring every predeclared seed to satisfy the rule.
+\emph{Study 0}; here it is introduced simply as the initial experiment.
+
+A biometric matcher produces a continuous distance or similarity score, and the decision
+threshold trades false matches against false non-matches. Study 0 freezes an empirical false
+match rate (FMR) target of 0.01 and asks whether compression increases the false non-match
+rate (FNMR) by no more than 0.03 absolute relative to raw 512D. On the 500-impostor DevTest
+set, FMR 0.01 is a nominal grid point of five false matches; it is an exploratory operating
+point, not an industrial security requirement. The 0.03 margin is likewise a frozen research
+tolerance, not a universal biometric constant. Each stochastic 128D route is evaluated under
+five pseudo-random seeds fixed before TEST outcomes are inspected, and every seed must satisfy
+the rule so that a favorable random run cannot be selected afterward.
 
 The initial execution used LFW DevTest and a frozen ImageNet ResNet-18 extractor. A later
-audit found that the reported uncertainty estimator resampled pairs although the research
-contract described identity-aware uncertainty. The historical scores were therefore kept
-immutable and reanalysed with a preregistered weighted subject-slot bootstrap over the
-observed sparse pair graph. The interval procedure was first validated in known-truth
-simulations, then applied to the exact historical score bundle with 10,000 replicates per
-seed. Independent reviewers verified the materialized replay and subsequently recalculated
-the reported interpretation from the result tables.
+audit found that the reported uncertainty estimator resampled pair records although the
+research contract described identity-aware uncertainty. Because the same person can occur in
+multiple pair comparisons, those rows are not independent person-level evidence. Historical
+scores were therefore kept immutable and reanalysed with a preregistered weighted
+subject-slot bootstrap over the observed sparse pair graph. The interval procedure was first
+validated in known-truth simulations and then applied to the exact historical score bundle
+with 10,000 replicates per seed. Independent reviewers verified the materialized replay and
+recalculated the reported interpretation from the result tables.
 
 The corrected result is negative but bounded: random projection, PCA and the Siamese route
 all pass the non-inferiority rule on 0 of 5 seeds. The 97.5\% upper bounds for
 $\DeltaFNMR$ range from 0.112649--0.151768 for random projection,
 0.125556--0.133606 for PCA, and 0.176584--0.189156 for the Siamese route, all above the
 0.03 margin. Subject-level intervals are roughly 1.5 times wider than the original
-pair-level intervals, showing that the original analysis understated uncertainty even
-though the bounded scientific conclusion does not change. The result does not prove that
-128-dimensional compression is intrinsically inferior, nor that metric learning is
-ineffective. It establishes only that preservation and added supervision value were not
-demonstrated in this frozen experiment. A practical lesson follows: use low-cost,
-non-claim-bearing screening to decide whether a direction merits full qualification, then
-escalate the evidence burden only when a result is promoted toward a scientific claim.
+pair-level intervals. The result does not prove that 128-dimensional compression is
+intrinsically inferior, nor that metric learning is ineffective. It establishes only that
+preservation and added supervision value were not demonstrated in this frozen experiment.
+A practical lesson follows: use low-cost, non-claim-bearing screening to decide whether a
+direction merits full qualification, then escalate the evidence burden only when a result is
+promoted toward a scientific claim.
 \end{abstract}
 
 \section{Introduction}
@@ -127,11 +134,147 @@ repository labels that audit \emph{Study 0} because it is the first study in a l
 research programme. The term does not refer to an external standard or public challenge; it
 is simply the immutable identifier for the initial experiment described below.
 
-Version 0.2.3 closes that experiment in a self-contained form. It explains the dimensionality
-reduction alternatives, the exact Siamese mechanism, the original design, the statistical
-defect discovered afterward, the frozen correction, the corrected numerical result, the
-independent verification chain, the engineering limits, and the resulting design change for
-the next experiment.
+Version 0.2.3 closes that experiment in a self-contained form. It explains the biometric
+matching context, dimensionality-reduction alternatives, the exact Siamese mechanism, the
+original design, the statistical defect discovered afterward, the frozen correction, the
+corrected numerical result, the independent verification chain, the engineering limits, and
+the resulting design change for the next experiment.
+
+\section{Biometric matching in one page}\label{sec:biometric-primer}
+
+This section supplies the minimum biometric vocabulary needed for the rest of the paper.
+The terminology follows the performance-testing distinction between mated/genuine and
+non-mated/impostor comparisons used in biometric evaluation \cite{iso19795}. NIST's current
+face-recognition evaluations likewise separate 1:1 verification from 1:N identification
+\cite{nistfrte11,nistfrte1n}.
+
+\subsection{Training, enrollment, inference, and decision}
+
+Four operations that are often conflated are different:
+
+\begin{description}
+\item[Training.] Learn model parameters from development data. In the present Siamese route,
+training changes only a small 512-to-128 projection; the ResNet-18 extractor is frozen.
+\item[Enrollment.] Process a known person's face and store one or more biometric templates
+for later comparison. Enrollment does not normally update the network weights.
+\item[Inference.] Process a new probe image through the already-trained extractor and
+projection to obtain an embedding. No training label or optimizer is involved.
+\item[Decision.] Compare probe and reference embeddings, obtain a continuous distance or
+similarity score, and apply an operating rule such as a threshold.
+\end{description}
+
+Figure~\ref{fig:biometric-pipeline} shows the two matching modes most relevant to this work.
+
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[
+node distance=6mm and 8mm,
+box/.style={draw=navy,rounded corners,fill=soft,align=center,minimum width=25mm,minimum height=9mm,font=\small},
+smallbox/.style={draw=teal,rounded corners,align=center,minimum width=22mm,minimum height=9mm,font=\small},
+arr/.style={-{Latex[length=2mm]},thick,color=teal}
+]
+\node[box] (probe) {probe face\\image};
+\node[box,right=of probe] (extract) {frozen feature\\extractor};
+\node[box,right=of extract] (emb) {probe\\embedding};
+\draw[arr] (probe)--(extract);\draw[arr] (extract)--(emb);
+
+\node[smallbox,below left=12mm and -4mm of emb] (ref) {one enrolled\\reference};
+\node[smallbox,right=of ref] (cmp11) {1:1 compare\\score};
+\node[smallbox,right=of cmp11] (dec11) {threshold\\match / non-match};
+\draw[arr] (emb.south)--++(0,-5mm)-|(cmp11.north);
+\draw[arr] (ref)--(cmp11);\draw[arr] (cmp11)--(dec11);
+\node[font=\scriptsize,text=warn,above=1mm of cmp11] {verification / authentication};
+
+\node[smallbox,below=27mm of ref] (gallery) {gallery of many\\enrolled templates};
+\node[smallbox,right=of gallery] (cmp1n) {1:N search\\scores / ranking};
+\node[smallbox,right=of cmp1n] (dec1n) {candidate(s)\\and decision rule};
+\draw[arr] (emb.south)--++(0,-31mm)-|(cmp1n.north);
+\draw[arr] (gallery)--(cmp1n);\draw[arr] (cmp1n)--(dec1n);
+\node[font=\scriptsize,text=warn,above=1mm of cmp1n] {identification / watchlist search};
+\end{tikzpicture}
+\caption{A trained face model produces embeddings; matching happens afterward. Verification
+compares a probe with one claimed reference (1:1). Identification searches a probe against a
+gallery (1:N). Study 0 evaluates the 1:1 representation question; 1:N system performance is
+an engineering motivation, not a measured endpoint here.}
+\label{fig:biometric-pipeline}
+\end{figure}
+
+\subsection{Verification, authentication, and identification}
+
+\textbf{Verification} asks whether a probe and a specific reference belong to the same
+person: one comparison, often called 1:1. \textbf{Authentication} is a use of verification
+in which the person presents or implies an identity claim, for example through an account,
+credential, or identity document. \textbf{Identification} asks whether the probe matches
+anyone in a gallery: 1:N. A watchlist search is therefore not merely a larger 1:1 test; its
+gallery size, candidate ranking, search strategy, and false-candidate behavior require
+separate 1:N evaluation \cite{nistfrte1n}.
+
+\subsection{Scores, thresholds, FMR, FNMR, ROC AUC, and EER}
+
+The implemented matcher uses a \emph{distance}: smaller means more similar. A threshold $t$
+turns the continuous distance into a binary decision,
+\[
+\text{match if } d\le t,\qquad \text{non-match if } d>t.
+\]
+A larger distance threshold accepts more comparisons. It therefore tends to \emph{increase}
+the false match rate while \emph{decreasing} the false non-match rate. A smaller threshold
+does the opposite. This trade-off is why a biometric result is incomplete unless the
+operating point is specified.
+
+\begin{description}
+\item[FMR -- false match rate.] Among impostor/non-mated comparison attempts, the fraction
+that produce a match decision at the chosen threshold. It is a comparison-level matcher
+metric; it should not automatically be equated with an end-to-end transaction-level false
+acceptance rate, especially when a system adds acquisition, quality, retry, liveness, or
+1:N decision logic.
+\item[FNMR -- false non-match rate.] Among genuine/mated comparisons, the fraction incorrectly
+rejected as non-matches. It measures one form of false rejection.
+\item[ROC curve.] The receiver operating characteristic traces performance as the threshold
+moves, usually plotting true-match/true-positive rate against false-match/false-positive
+rate. It shows the trade-off across many operating points.
+\item[ROC AUC.] The area under the ROC curve summarizes global ranking/separation over the
+whole threshold range. A higher AUC can coexist with worse behavior at one particular low-FMR
+operating point.
+\item[EER -- equal error rate.] The operating point at which FMR and FNMR are equal (or their
+closest empirical crossing). It is a convenient scalar summary, but it need not correspond
+to the threshold a real application would choose.
+\end{description}
+
+The distinction is operationally important. NIST reports face-verification FNMR at explicitly
+specified FMR operating points, including values far below 0.01 for some datasets and use
+cases \cite{nistfrte11}. Study 0's FMR 0.01 must therefore be read as a bounded research
+choice, not as a recommendation for border control, a national watchlist, or any other
+production deployment.
+
+\subsection{Why operating points and decision rules must be frozen}
+
+Suppose two methods are compared and one researcher is allowed to move the threshold after
+seeing TEST outcomes. A method can then be made to look safer by accepting more false
+non-matches, or more convenient by accepting more false matches. If the target FMR, margin,
+seed rule, or threshold-selection procedure is changed after seeing TEST, the scientific
+question itself has moved.
+
+This paper therefore separates exploratory design choices from post-test conclusions. The
+operating target, non-inferiority tolerance, random seeds, tie policy, and TEST access rule
+are fixed before the claim-bearing result is interpreted. Later sections explain the exact
+values and their limitations.
+
+\subsection{A running engineering vignette}
+
+For a concrete motivation, imagine a hypothetical product team developing a compact edge
+watchlist device. An edge/biometric engineer asks whether a local gallery can be made smaller
+and faster; a biometric-performance statistician -- call him Maurice -- asks whether that
+engineering gain changes the probability of a false match or false non-match beyond an
+acceptable tolerance. Those are different questions and both must be answered.
+
+The memory pressure can be real without proving that compression is safe. One million
+identities with five float32 templates each require 5 million templates. The raw payload
+alone is 10.24 GB at 512 dimensions and 2.56 GB at 128 dimensions, before indexing, models,
+OS memory, camera buffers, encryption, or engineering headroom. That fourfold arithmetic
+saving gives the engineer a reason to investigate compression. Maurice's role is to prevent
+the product team from turning that attractive saving into a biometric claim without a
+frozen operating point, adequate data, uncertainty analysis, and independent review. Study 0
+is the first controlled experiment in that chain, not a product qualification.
 
 \section{From high-dimensional features to smaller representations}\label{sec:reduction}
 
@@ -176,6 +319,12 @@ scikit-learn's randomized SVD solver and a fixed seed. The projected outputs are
 L2-normalized before distances are evaluated. PCA is therefore the central unsupervised
 control: if Siamese training adds value, it should do more than this ordinary data-adaptive
 linear compressor at the same output dimension.
+
+For readers who want a less formal refresher before the eigendecomposition, Andrew Ng's
+Machine Learning Specialization includes a short PCA treatment in Course 3, Week 2
+(``Unsupervised Learning, Recommenders, Reinforcement Learning'') \cite{ngmls}. It is cited
+here as a pedagogical companion; the scientific definition and implementation in this paper
+do not depend on the course.
 
 \subsection{Random projection}
 
@@ -249,12 +398,31 @@ Quantization & none or learned & fewer bits per coordinate/codebook approximatio
 
 \section{What the Siamese route actually is}\label{sec:siamese}
 
+\subsection{Pairs first: what is being contrasted?}
+
+The motivating public implementation is Antonio Diaz-Cano's educational
+\code{siamese-network} repository, pinned here to commit
+\code{6ff8abb6890dca880f8b8d2a7a90a94124b91698} \cite{diazcano2026}. The present repository
+independently reproduces the experimental idea rather than copying that source code.
+
+Siamese training starts from \emph{pairs}. A \textbf{genuine pair} contains two face samples
+of the same identity, for example two photographs of person A. An \textbf{impostor pair}
+contains samples from different identities, for example person A and person B. The label does
+not say ``this is Alice'' or ``this is Bob''; it says only ``same identity'' or ``different
+identity''. The learning problem is therefore about geometry and similarity, not closed-set
+identity classification.
+
 \subsection{Why it is called Siamese}
 
-A Siamese architecture processes two samples through \emph{the same} transformation. The
-word ``Siamese'' refers to the weight sharing between the twin branches, not to two different
-models. In the present experiment, each branch receives a frozen 512D source embedding and
-applies the same trainable affine projection followed by L2 normalization:
+A Siamese architecture processes the two members of a pair through \emph{the same}
+transformation. The word ``Siamese'' refers to weight sharing between twin training branches,
+not to two different models. In the present experiment, each branch receives a frozen 512D
+source embedding and applies the same trainable affine projection.
+
+After that projection, the code performs \textbf{L2 normalization}. This is not a learned
+neural layer in the present implementation: it has no trainable parameters. It simply rescales
+a vector to length one while preserving its direction. If $x=(3,4)$, for example,
+$\|x\|_2=5$ and its L2-normalized version is $(0.6,0.8)$. Formally,
 \begin{equation}
 \tilde u = zW+b,\qquad u=\frac{\tilde u}{\|\tilde u\|_2},
 \end{equation}
@@ -267,6 +435,7 @@ trainable parameters.
 
 \begin{figure}[ht]
 \centering
+\resizebox{\linewidth}{!}{%
 \begin{tikzpicture}[
 node distance=7mm and 11mm,
 box/.style={draw=navy,rounded corners,fill=soft,align=center,minimum width=30mm,minimum height=10mm,font=\small},
@@ -285,21 +454,44 @@ arr/.style={-{Latex[length=2mm]},thick,color=teal}
 \draw[arr] (g1)--(u1);\draw[arr] (g2)--(u2);
 \draw[arr] (u1)--(dist);\draw[arr] (u2)--(dist);\draw[arr] (dist)--(loss);
 \node[draw=warn,dashed,rounded corners,fit=(g1)(g2),inner sep=3mm,label={[font=\scriptsize,text=warn]above:identical trainable parameters}] {};
-\end{tikzpicture}
-\caption{Training view of the implemented Siamese projection. Pair labels affect the loss,
-but both branches use exactly the same projection parameters.}
+\end{tikzpicture}%
+}
+\caption{Training view of the implemented Siamese projection. The two pair members use the
+same trainable projection. The pair label influences the loss, and the loss updates those
+shared parameters.}
 \label{fig:siamese}
 \end{figure}
 
-Because $u_i$ and $u_j$ are unit vectors, Euclidean distance and cosine similarity carry the
-same ranking information:
+\subsection{Euclidean distance versus cosine similarity after L2 normalization}
+
+L2 normalization puts every output vector on the unit sphere. For unit vectors $u_i$ and
+$u_j$, their dot product is their cosine similarity, and Euclidean distance is linked to it
+exactly:
 \begin{equation}
 \|u_i-u_j\|_2^2 = 2-2\,u_i^T u_j = 2\bigl(1-\cos(u_i,u_j)\bigr).
 \end{equation}
-The implementation thresholds Euclidean distance on normalized outputs; describing the
-matcher as cosine-based is therefore equivalent only up to this monotonic transformation.
+This means the two measures contain the same ordering information after normalization, but
+their numeric scales and directions differ. A large cosine similarity means a small
+Euclidean distance. For example, cosine similarity $0.8$ corresponds to Euclidean distance
+$\sqrt{2-2(0.8)}\approx0.632$. A cosine rule ``match if similarity is at least 0.8'' therefore
+corresponds exactly to the Euclidean rule ``match if distance is at most 0.632'' for unit
+vectors.
+
+The implementation in this repository computes and thresholds \emph{Euclidean distance}.
+Calling the matcher ``cosine-based'' would be acceptable only as shorthand for this
+one-to-one monotonic relation on normalized vectors; it would be misleading if it suggested
+that the code actually thresholds a cosine value. The paper therefore reports the implemented
+Euclidean distance explicitly.
 
 \subsection{Contrastive training objective}
+
+Here \emph{contrastive} means that learning is driven by contrasting two kinds of pairs:
+genuine pairs should become close, while impostor pairs that are too close should be pushed
+apart. The broader Siamese idea goes back at least to shared-weight signature verification
+\cite{bromley1993}; discriminative similarity learning was later applied directly to face
+verification \cite{chopra2005}, and the margin-based contrastive formulation used here is
+closely associated with invariant mapping work by Hadsell, Chopra, and LeCun
+\cite{hadsell2006}.
 
 For pair label $y_{ij}=1$ when the two samples share an identity and $y_{ij}=0$ otherwise,
 the implemented loss is
@@ -309,39 +501,62 @@ the implemented loss is
 \end{equation}
 with margin $m=1$. Genuine pairs are penalized in proportion to squared distance, so the
 optimizer pulls them together. Impostor pairs are penalized only when they lie inside the
-margin, so sufficiently separated impostors contribute no contrastive term. This is the
-classic geometry-changing idea behind contrastive Siamese learning \cite{chopra2005,hadsell2006}.
+margin; once they are at least $m$ apart, this loss applies no further pressure to separate
+them.
 
 Training uses mini-batches of pairs, Adam-style moment updates, weight decay, and early
-stopping on the validation contrastive loss. The LFW configuration allows up to 60 epochs,
-batch size 128, learning rate $10^{-3}$, weight decay $10^{-4}$, patience 8 and minimum
-validation improvement $10^{-4}$. All of these choices are frozen before TEST evaluation.
+stopping on validation contrastive loss. The LFW configuration allows up to 60 epochs, batch
+size 128, learning rate $10^{-3}$, weight decay $10^{-4}$, patience 8 and minimum validation
+improvement $10^{-4}$. These choices are frozen before TEST evaluation.
 
-\subsection{Training versus inference}
+\subsection{Training versus inference -- the shortest operational distinction}
 
-A common source of confusion is to think that a deployed Siamese system must always process
-two images simultaneously. That is not true here. The two-branch view is a \emph{training}
-construction used to provide pairwise supervision. Once $W$ and $b$ are learned, each image
-or stored source embedding is passed through a single branch independently:
+The easiest way to separate the two phases is to ask whether model parameters are still
+being changed. During \textbf{training}, labelled pairs create a loss and the optimizer
+updates $W,b$. During \textbf{inference}, the parameters are fixed: a face produces one
+embedding, and matching compares fixed embeddings. There is no pair label, no loss, and no
+optimizer.
+
+\begin{table}[ht]
+\centering
+\caption{Training and inference are different operations even though they use the same
+learned projection.}
+\label{tab:train-infer}
+\small
+\begin{tabularx}{\linewidth}{@{}p{0.20\linewidth}XX@{}}
+\toprule
+ & Training & Inference / deployment\\
+\midrule
+Input & labelled genuine/impostor pairs & one probe face at a time, plus stored reference/gallery templates\\
+Shared projection & used in two branches & used once per face/template\\
+Pair label & required & absent\\
+Contrastive loss & computed & absent\\
+Optimizer / weight update & yes & no\\
+Output of the phase & learned parameters $W,b$ & fixed 128D template and later a match/search score\\
+Decision threshold & not the learning target itself & applied to scores according to the operating policy\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+After training, a single source embedding follows
 \begin{equation}
 z\longmapsto u=\operatorname{normalize}(zW+b).
 \end{equation}
-The resulting 128D template can be stored. Verification later compares two stored/probe
-embeddings, and identification could search a gallery of them. Pair labels are not needed at
-inference.
+The resulting 128D template can be stored. Verification later compares a probe with one
+reference; identification could search a gallery. The two-branch training construction does
+not mean that deployment requires a special two-network runtime.
 
 The experiment is also not closed-set identity classification. No softmax head predicts one
-of the training identities. The supervision says only whether two training samples belong
-to the same identity. This distinction is central to why Siamese learning is relevant to
-verification and open-set matching \cite{bromley1993,koch2015}.
+of the training identities. Pair supervision says only whether two training samples share an
+identity. This is why Siamese learning naturally supports verification and open-set matching
+\cite{bromley1993,koch2015}.
 
 \subsection{What the Siamese route is meant to prove -- and what it cannot prove by itself}
 
 The Siamese route tests whether pairwise supervision can learn a better 128D linear geometry
 than unsupervised or data-independent reduction. It does \emph{not} prove useful compression
-merely because the contrastive loss decreases. It must still satisfy the downstream
-verification endpoint and must be compared with raw, random and PCA controls at the same
-output dimension.
+merely because contrastive loss decreases. It must still satisfy the downstream verification
+endpoint and must be compared with raw, random and PCA controls at the same output dimension.
 
 This is why the baseline hierarchy matters:
 \begin{itemize}
@@ -370,105 +585,221 @@ quantized representation would perform better.
 
 \subsection{Why the ImageNet ResNet-18 starting point is pedagogical, not a face-recognition baseline}\label{sec:backbone-provenance}
 
-The starting architecture was inherited deliberately from the public educational implementation
-that motivated this work. In that implementation, a torchvision ResNet-18 initialized with
-ImageNet classification weights is used as the shared backbone; every ResNet parameter is
-frozen, and only the final 512-to-128 embedding head is trainable. The present repository
-independently reproduces that experimental idea rather than copying its source code. Thus it
-would be inaccurate to say that the face-recognition model itself was ``trained with ResNet''
-on LFW. The ResNet-18 had already been trained for ImageNet object classification; LFW pair
-supervision trained only the small projection placed on top of its 512D penultimate features.
+The starting architecture was inherited deliberately from the public educational
+implementation that motivated this work \cite{diazcano2026}. In that implementation, a
+torchvision ResNet-18 initialized with ImageNet classification weights is used as the shared
+backbone; every ResNet parameter is frozen, and only the final 512-to-128 embedding head is
+trainable. The present repository independently reproduces that experimental idea. Thus it
+would be inaccurate to say that a ResNet-18 face recognizer was ``trained on LFW''. The
+ResNet-18 had already been trained for ImageNet object classification; LFW pair supervision
+trained only the small projection placed on top of its 512D penultimate features.
 
 This is a useful pedagogical construction because it isolates metric learning: the source
 representation is fixed, so any difference among raw, random, PCA and Siamese routes is due
 to the post-extractor transformation. It is not, however, a strong way to establish face
-verification performance. ImageNet supervision rewards separation of object categories, not
-identity discrimination among faces under changes of age, pose, illumination, expression,
-occlusion and capture quality. A frozen linear head can reweight and rotate information that
-already exists in the 512D source vector, but it cannot recover identity information that the
-ImageNet extractor never encoded reliably. The preprocessing is likewise generic ImageNet
-resize/normalization applied to LFW-deepfunneled imagery; the experiment does not evaluate a
-modern face-detection/alignment/quality pipeline as part of the source representation.
+verification performance. ImageNet supervision rewards separation of generic object
+categories, not identity discrimination among faces under changes of age, pose,
+illumination, expression, occlusion and capture quality. A frozen linear head can reweight
+and rotate information already present in the 512D vector, but it cannot recover identity
+information that the ImageNet extractor never encoded reliably. The preprocessing is
+likewise generic ImageNet resize/normalization applied to LFW-deepfunneled imagery; the
+experiment does not evaluate a modern face-detection/alignment/quality pipeline as part of
+the source representation.
 
-The roughly ``70 percent accuracy'' recollection is therefore directionally consistent with
-the replay, but it should not be used as the scientific endpoint. If a decision threshold is
-chosen directly on TEST to maximize classification accuracy, the immutable Study 0 scores give
-71.5\% for raw 512D and 73.0--74.7\% across the five Siamese seeds (PCA is 74.1--74.3\%). These
-are descriptive, TEST-tuned values. They are optimistic for deployment because the threshold
-was selected with TEST labels, and they do not replace the predeclared low-FMR non-inferiority
-endpoint used in this paper. Their main value here is diagnostic: absolute face-verification
-performance is weak enough that the suitability of the source backbone must be questioned
-before attributing a failure to compression itself.
+The remembered ``about 70 percent accuracy'' is directionally consistent with the immutable
+replay, but accuracy optimized on TEST is not the scientific endpoint. If a decision
+threshold is chosen directly on TEST to maximize pair classification accuracy, the Study 0
+scores give 71.5\% for raw 512D, 73.0--74.7\% across the five Siamese seeds, and
+74.1--74.3\% for PCA. These are descriptive, TEST-tuned values and therefore optimistic for
+deployment. Their value here is diagnostic: absolute face-verification performance is weak
+enough that the source backbone should be questioned before a compression failure is
+attributed to the 128D projection itself.
 
 Modern face-recognition systems instead learn identity-discriminative embeddings with
 face-specific objectives and data. Representative families include FaceNet-style metric
-learning~\cite{facenet2015} and angular-margin classification such as ArcFace~\cite{arcface2019};
-quality-aware variants such as AdaFace~\cite{adaface2022} further adapt the learning objective
-to image quality. The next experiment therefore changes the source representation before
-asking the compression question again.
+learning \cite{facenet2015} and angular-margin classification such as ArcFace
+\cite{arcface2019}; quality-aware variants such as AdaFace \cite{adaface2022} adapt the
+learning objective to image quality. The next experiment therefore changes the source
+representation before asking the compression question again.
 
 \section{The initial experiment}\label{sec:initial}
 
 \subsection{Data and splits}
 
-The benchmark follows the LFW development protocol. The executed split contains 842
-training pairs, 795 validation pairs, and 1,000 untouched DevTest pairs. DevTest contains
-500 genuine and 500 impostor pairs and 963 distinct endpoint identities. Development and
-test identities are kept separate according to the frozen protocol.
+The benchmark follows the LFW development protocol \cite{lfw2007}. The executed split
+contains 842 training pairs, 795 validation pairs, and 1,000 untouched DevTest pairs.
+DevTest contains 500 genuine and 500 impostor pairs and 963 distinct endpoint identities.
+Development and test identities are kept separate according to the frozen protocol.
 
 This setup is deliberately limited. With 500 impostor pairs, empirical FMR changes in steps
 of $1/500=0.002$. It cannot establish claims at $10^{-4}$, $10^{-5}$, or national-scale
 operating points. ImageNet ResNet-18 is also not a biometric-grade face extractor. The
 experiment is therefore a controlled representation study, not a production benchmark.
 
-\subsection{Two threshold questions}
+\subsection{Why there are two threshold questions}
 
-Two analyses are intentionally separated.
+A matcher does not directly output ``same person'' or ``different person''; it outputs a
+score. In this implementation, smaller Euclidean distance means greater similarity. Choosing
+a threshold is therefore part of the question being asked. If the threshold is loosened,
+more genuine pairs pass but more impostor pairs can also pass. If it is tightened, false
+matches tend to fall while false non-matches tend to rise.
 
-\textbf{Equal-FMR representation benchmark.} On TEST, a route-specific threshold is located
-only to compare discrimination at the same empirical FMR. These thresholds are explicitly
-non-deployable because TEST labels are used to locate them.
+That creates two scientifically different questions:
 
-\textbf{Validation-frozen threshold transfer.} A threshold is selected on VALIDATION,
-frozen, and then applied once to TEST. These values describe calibration and threshold
-transfer. They must not be ranked as if all routes operated at the same TEST FMR.
+\textbf{1. Equal-FMR representation benchmark.} If raw 512D and a compressed route are each
+allowed their own TEST threshold so that both operate at the same empirical FMR target, which
+representation has the lower FNMR? This isolates discrimination at a common error budget.
+The threshold is intentionally located on TEST, so this analysis is a \emph{representation
+benchmark}, not a deployable threshold-setting procedure.
 
-\subsection{Primary non-inferiority rule}
+\textbf{2. Validation-frozen threshold transfer.} If a threshold is selected using
+VALIDATION only, frozen, and then applied unchanged to TEST, what FMR and FNMR result? This
+asks whether calibration transfers to new data. Because each route can land at a different
+TEST FMR, these rows must not be ranked as if they were equal-FMR comparisons.
 
-At target $\alpha=0.01$, define for candidate route $m$ and raw reference $b$
+Both questions are useful. The first compares representations at a matched operating point;
+the second is closer to how a real threshold would have to be chosen before production data
+are observed.
+
+\subsection{From an engineering tolerance to a non-inferiority rule}
+
+The primary Study 0 question is not ``is 128D better than 512D?'' It is ``is the loss, if
+any, small enough to be tolerated?'' We call that a \textbf{non-inferiority} question in the
+rest of the paper. A non-inferiority design declares a maximum acceptable degradation
+$\delta$ before looking at the claim-bearing result and asks whether the data support keeping
+the degradation below that margin \cite{wellek2010}.
+
+Study 0 first fixes the false-match operating point at
+\[
+\alpha=0.01.
+\]
+Here $\alpha$ is simply notation for the target FMR; it is \emph{not} a hypothesis-test
+significance level. FMR 0.01 means 1\% of impostor comparisons. On 500 DevTest impostor
+pairs, the empirical grid moves in increments of 0.002, so 0.01 corresponds nominally to
+five false matches out of 500. The frozen tie policy keeps equal-distance blocks together,
+so the selected empirical FMR can be below 0.01 if a tied block cannot be included without
+exceeding the target.
+
+Why 0.01? It is low enough to focus the experiment away from a purely global AUC/EER summary
+while still being resolvable on only 500 impostor pairs. It is \emph{not} claimed to be an
+appropriate production threshold. Current large-scale face evaluations commonly report
+performance at much lower FMR values for security-sensitive use cases \cite{nistfrte11}.
+Study 0 simply cannot resolve those regimes with its sample size.
+
+At that same empirical FMR, define for candidate route $m$ and raw reference $b$
 \begin{equation}
 \DeltaFNMR(m,\alpha)=\fnmr_m(\alpha)-\fnmr_b(\alpha).
 \end{equation}
-The frozen non-inferiority margin is $\delta=0.03$ absolute FNMR. The candidate satisfies
-the rule only if
-\begin{equation}
-\operatorname{UCB}_{0.975}\left[\DeltaFNMR(m,0.01)\right]\le 0.03
-\end{equation}
-for \emph{every} predeclared seed. The stochastic 128D routes use seeds
-$\{11,29,47,71,101\}$.
+A positive value means the compressed route rejects more genuine comparisons than raw. The
+frozen non-inferiority margin is
+\[
+\delta=0.03,
+\]
+meaning an additional \textbf{three absolute percentage points of FNMR}. The repository does
+not contain a product- or regulation-derived argument that 3 percentage points is universally
+acceptable; it is a preregistered exploratory tolerance for this study. A future operational
+study must justify its margin from the real use case, costs of errors, population, sensors,
+and decision policy rather than inheriting 0.03 by habit.
 
-The all-seeds rule prevents a method from being declared successful because one favorable
-random initialization was selected after TEST was observed.
+The corrected bootstrap produces a two-sided 95\% percentile interval for $\DeltaFNMR$; the
+97.5th percentile is its upper endpoint. A candidate seed passes only if even that upper
+bound is no larger than the allowed degradation:
+\begin{equation}
+\operatorname{UCB}_{0.975}\left[\DeltaFNMR(m,0.01)\right]\le 0.03.
+\end{equation}
+In plain language: the point estimate is not enough. The uncertainty must also fit below the
+engineering tolerance.
+
+\subsection{What ``predeclared seed'' means}
+
+Machine-learning experiments often contain pseudo-random operations: initialization of a
+learned projection, generation of a random-projection matrix, randomized numerical solvers,
+or the ordering/sampling used during training. A \textbf{random seed} is the integer that
+initializes the pseudo-random number generator. Fixing it makes a stochastic run replayable;
+changing it gives another legitimate realization of the same algorithm.
+
+The stochastic 128D routes use seeds $\{11,29,47,71,101\}$. \textbf{Predeclared} means these
+values and the rule for using them were fixed before TEST outcomes were inspected. Study 0
+requires \emph{every} declared seed to pass. This deliberately prevents ``seed shopping'':
+running many variants and reporting only the random realization that happened to look best
+on TEST. Reproducibility guidance in machine learning similarly treats random-state reporting
+as part of the experiment rather than an incidental implementation detail \cite{pineau2021}.
 
 \section{Why the original uncertainty analysis was not sufficient}\label{sec:defect}
 
+\subsection{The intuition: pair rows can share the same person}
+
+A bootstrap approximates sampling variability by repeatedly constructing resampled versions
+of the observed data and recomputing the statistic \cite{efron1993}. The crucial question is
+\emph{what unit should be resampled?} If observations are independent people, resampling
+people is natural. If several table rows are linked through the same person, resampling rows
+as if they were independent can misrepresent uncertainty.
+
+In face verification, one identity can appear in several pair comparisons. Figure
+\ref{fig:pair-dependence} gives a toy example. Two images of identity A form a genuine pair;
+images of A also participate in impostor pairs with identities B and C. If identity A is
+unusually easy or hard for the matcher, several pair scores can move together. Three pair
+rows therefore do not automatically represent three independent person-level observations.
+
+\begin{figure}[ht]
+\centering
+\begin{tikzpicture}[
+img/.style={draw=navy,circle,fill=soft,minimum size=11mm,align=center,font=\scriptsize},
+arrg/.style={thick,color=teal},
+arri/.style={thick,dashed,color=warn}
+]
+\node[img] (a1) at (0,0) {A1};
+\node[img] (a2) at (2.2,0) {A2};
+\node[img] (b1) at (0,-1.6) {B1};
+\node[img] (c1) at (2.2,-1.6) {C1};
+\draw[arrg] (a1)--node[above,font=\scriptsize]{genuine: same identity A}(a2);
+\draw[arri] (a1)--node[left,font=\scriptsize]{impostor}(b1);
+\draw[arri] (a2)--node[right,font=\scriptsize]{impostor}(c1);
+\node[align=left,font=\small] at (6.0,-0.8) {Three pair records,\\but identity A participates\\in all three relationships.};
+\end{tikzpicture}
+\caption{Toy dependence structure. Resampling pair rows independently can ignore repeated
+identity involvement. The corrected Study 0 procedure resamples subject slots and then
+reweights only the pair edges that were actually observed.}
+\label{fig:pair-dependence}
+\end{figure}
+
+\subsection{What the historical analysis did}
+
 The historical execution resampled genuine-pair indices and impostor-pair indices with
 replacement. Candidate and raw routes used the same sampled indices, so the comparison was
-paired across matchers and stratified by label. However, pairs that share an identity are
-independent only in the code representation, not in the data-generating structure. Reusing
-the same person in multiple trials creates dependence that pair resampling does not capture.
-
-The research contract had described the uncertainty as identity-aware. The executed
-estimator therefore did not match the declared sampling unit. This discrepancy was recorded
-as E-STAT-001. The original scores, tables, paper, and negative decision were retained
-rather than overwritten.
+paired across matchers and stratified by label. However, the estimator treated pair records
+as the resampling unit even when multiple records shared an identity. The research contract
+had described the uncertainty as identity-aware. The executed estimator therefore did not
+match the declared sampling unit. This discrepancy was recorded as E-STAT-001. The original
+scores, tables, paper, and negative decision were retained rather than overwritten.
 
 This distinction matters even if a corrected analysis later reaches the same qualitative
-conclusion. A method can have the right sign and still report confidence intervals that are
-too narrow. The correction question was therefore not ``can the old answer be reproduced?''
-but ``does a subject-level estimator with demonstrated coverage change the decision?''
+conclusion. In the present one-sided non-inferiority decision, an interval that is too narrow
+creates a particular risk of \emph{false confidence}: near the 0.03 boundary it could make
+an upper confidence bound appear to fit below the margin when a correctly calibrated
+subject-level interval would not. More generally, a wrong dependence model can distort
+coverage in either direction. In this dataset the corrected intervals became wider and the
+high-level decision remained negative, so no positive claim was rescued or created by the
+correction.
+
+The correction question was therefore not ``can the old answer be reproduced?'' but ``does
+a subject-level estimator with demonstrated coverage change the decision?''
 
 \section{Frozen correction}\label{sec:correction}
+
+\subsection{Subject bootstrap before the implementation details}
+
+A \textbf{subject bootstrap} resamples identities rather than pretending every pair row is an
+independent experimental unit. ``With replacement'' means that, in one bootstrap replicate,
+an identity can be drawn zero times, once, or several times. Repeating this many times creates
+a distribution of the statistic that reflects which people happened to be represented in
+the sample. No new face images are synthesized and no model is retrained.
+
+Study 0 needs one extra device because its TEST data are a sparse graph of observed pairs,
+not a complete all-pairs matrix. The frozen solution is a \textbf{weighted subject-slot
+bootstrap}: draw subject slots with replacement, then use the draw multiplicities to weight
+only the genuine and impostor edges that actually existed in DevTest. This preserves the
+historical comparison graph rather than inventing unobserved impostor pairs.
 
 \subsection{Weighted subject-slot bootstrap}
 
@@ -481,11 +812,16 @@ multiplicity of subject $i$ in that draw. The frozen weighting rule is:
   w_{ij}^{\mathrm{genuine}} &= m_i,\\
   w_{ij}^{\mathrm{impostor}} &= m_i m_j.
 \end{align}
+For a genuine edge, repeated sampling of its identity contributes proportionally to that
+identity's multiplicity. For an observed impostor edge between subjects $i$ and $j$, the
+weight is the product of their multiplicities because each resampled copy of $i$ can pair
+with each resampled copy of $j$ along that already-observed edge.
+
 Only observed DevTest edges are weighted; no missing all-pairs comparison is synthesized.
-Candidate and raw routes use the same subject draw, preserving pairing between methods.
-The implementation uses PCG64 and 10,000 bootstrap replicates per seed, with convergence
-checkpoints at 2,000, 5,000 and 10,000 replicates. Degenerate replicates fail the
-reanalysis rather than being silently redrawn.
+Candidate and raw routes use the same subject draw, preserving pairing between methods. The
+implementation uses PCG64 and 10,000 bootstrap replicates per seed, with convergence
+checkpoints at 2,000, 5,000 and 10,000 replicates. Degenerate replicates fail the reanalysis
+rather than being silently redrawn.
 
 The representation endpoint recalibrates each route within each replicate to the frozen
 equal-FMR benchmark rule. A separate operational bootstrap keeps the VALIDATION-selected
@@ -493,17 +829,21 @@ threshold fixed while estimating TEST FNMR and FMR uncertainty.
 
 \subsection{Known-truth coverage validation}
 
-Before the corrected historical scores were interpreted, the interval procedure was tested
-on synthetic sparse pair graphs that preserve the 963-subject, 500-genuine, 500-impostor
-structure. Five predeclared regimes included independent-pair and subject-dependent nulls,
-non-inferior, boundary, and inferior cases. Coverage was assessed separately for the
-representation delta-FNMR and for operational FNMR and FMR.
+A 95\% interval procedure is useful only if it actually covers the true value with roughly
+the advertised frequency under relevant repeated-sampling regimes. Real biometric data do
+not reveal the true population parameter, so the corrected procedure was first tested on
+synthetic sparse pair graphs where the truth is known by construction.
+
+The simulations preserve the 963-subject, 500-genuine, 500-impostor structure. Five
+predeclared regimes included independent-pair and subject-dependent nulls, non-inferior,
+boundary, and inferior cases. Coverage was assessed separately for the representation
+delta-FNMR and for operational FNMR and FMR.
 
 The simulation stopped at 4,000 independently generated datasets per scenario once the
-Monte Carlo standard-error rule was satisfied. All 15 scenario-by-metric coverage checks
-met the frozen criterion. The weakest exact 95\% Clopper-Pearson lower bound was
-0.937743, above the required 0.93. This validation supports the interval procedure under the
-specified synthetic regimes; it does not by itself establish anything about the value of
+Monte Carlo standard-error rule was satisfied. All 15 scenario-by-metric coverage checks met
+the frozen criterion. The weakest exact 95\% Clopper--Pearson lower bound was 0.937743,
+above the required 0.93. This validation supports the interval procedure under the specified
+synthetic regimes; it does not by itself establish anything about the value of
 128-dimensional compression.
 
 \section{Replay, provenance, and independent verification}\label{sec:verification}
@@ -694,10 +1034,41 @@ C_{\mathrm{proj}}(N) &= 512N + 262656.
 The two are equal at $N=171$ templates, and the projected route is smaller above that count
 under these narrow assumptions.
 
-This is arithmetic, not a system benchmark. The experiment measures neither feature
-extraction time, projection latency, index behavior, memory hierarchy effects, nor 1:N
-throughput. A useful work proxy for exact distance search decreases from $512N$ to $128N$
-vector components, but no end-to-end latency claim follows without measurement.
+For the edge-watchlist vignette introduced earlier, larger galleries make the arithmetic
+more tangible. Table~\ref{tab:gallery-payload} gives payload only; it deliberately excludes
+index structures, identity metadata, models, runtime buffers, operating system memory,
+security overhead and engineering headroom.
+
+\begin{table}[ht]
+\centering
+\caption{Exact float32 template payload under several illustrative gallery sizes. These are
+engineering calculations, not measurements from Study 0.}
+\label{tab:gallery-payload}
+\begin{tabular}{@{}lrr@{}}
+\toprule
+Gallery & 512D FP32 & 128D FP32\\
+\midrule
+100k identities $\times$ 1 template & 204.8 MB & 51.2 MB\\
+500k identities $\times$ 3 templates & 3.072 GB & 0.768 GB\\
+1M identities $\times$ 5 templates & 10.24 GB & 2.56 GB\\
+\bottomrule
+\end{tabular}
+\end{table}
+
+If the largest illustrative gallery were scanned exhaustively for every probe, those same
+10.24 GB or 2.56 GB of vector payload would have to be read per query. At 1,000 probes per
+hour (about 0.278 queries/s on average), payload traffic alone would be about 2.84 GB/s for
+512D and 0.71 GB/s for 128D before any indexing or implementation overhead. This calculation
+is intentionally naive: a real 1:N system may use approximate-nearest-neighbor indexing,
+quantization, batching, accelerators, caches, or multi-stage search. Those mechanisms can
+change both resource cost and recognition behavior and therefore require separate
+measurement.
+
+Study 0 measures neither feature-extraction time, projection latency, index behavior,
+memory hierarchy effects, energy, nor 1:N throughput. A work proxy for exact distance search
+decreases from $512N$ to $128N$ vector components, but no fourfold end-to-end speed-up follows
+from dimension alone. The hardware/device concept is therefore an engineering motivation for
+the research programme, not evidence contained in this experiment.
 
 \section{Methodological lesson: screen before full qualification}\label{sec:lesson}
 
@@ -747,51 +1118,55 @@ justify qualification.
 
 \subsection{Backbone and dataset roles for the next experiment}
 
-The preferred design is to use a \emph{pretrained, frozen face-specific extractor} rather
-than to make backbone training part of the primary compression experiment. The exact model
-must be frozen before screening with architecture, preprocessing, weight digest, training
-corpus, licence and training provenance recorded. An ArcFace-family iResNet is a natural
-primary candidate because its objective is explicitly identity-discriminative; AdaFace is a
-reasonable secondary candidate if the programme later asks whether quality-aware source
-features change the compression result. The study should not compare many backbones at once
-unless that comparison is itself preregistered, because otherwise backbone choice becomes a
-new post-hoc degree of freedom.
+The preferred design is a \emph{pretrained, frozen face-specific extractor} rather than
+making backbone training part of the primary compression experiment. The exact model must be
+frozen before screening with architecture, preprocessing, detector/alignment pipeline,
+weight digest, training corpus, licence and training provenance recorded. An ArcFace-family
+iResNet is a natural candidate because its objective is explicitly identity-discriminative
+\cite{arcface2019}; AdaFace is a reasonable secondary candidate if quality-aware source
+features become a separately preregistered question \cite{adaface2022}. Trying many
+backbones and retaining whichever looks best after SCREEN would simply move seed/model
+selection bias one level upward, so any multi-backbone comparison must itself be frozen in
+advance.
 
-Dataset roles must also be separated. A practical public-data hierarchy is:
+The data roles must also remain distinct:
 \begin{itemize}
-\item \textbf{Projection development (TRAIN/VALIDATION):} a sufficiently large, authorized
-      face-development corpus with many identities and captures, disjoint from qualification
-      identities. VGGFace2~\cite{vggface2_2018} is scientifically attractive because it was
-      constructed with substantial pose and age variation and has identity-separated train/test
-      partitions, but its original Oxford download is no longer available; therefore it cannot
-      be assumed as an automatically reproducible dependency. If it is not legitimately
-      available, an alternative authorized development corpus must satisfy the same role and
-      provenance requirements.
-\item \textbf{Exploratory SCREEN:} conventional face-verification benchmarks such as LFW,
-      CFP-FP, AgeDB-30, CALFW and CPLFW are useful as fast sanity and stress checks for
-      frontal/profile, age and pose behavior. They are screening evidence only. Published
-      work has documented identity overlap between common web-scale face-training corpora and
-      LFW-family benchmarks~\cite{overlap2024}, so overlap must be audited rather than assumed absent.
-\item \textbf{Qualification TEST:} IJB-C~\cite{ijbc2018} 1:1 template verification is a
-      stronger public candidate because it contains substantially more unconstrained imagery
-      and millions of impostor template comparisons, allowing evaluation at lower false-accept
-      regions than LFW. It still requires an identity-overlap audit against the frozen
-      backbone's training data. If disjointness or lawful access cannot be established, the
-      result must be downgraded to an external benchmark rather than called qualification evidence.
-\item \textbf{Operational/external validity:} no public celebrity benchmark establishes
-      representativity for a passport, border, mobile or national-gallery deployment. A later
-      study must therefore use authorized, population- and capture-relevant data if an
-      operational claim is sought. Demographic and capture-regime stress datasets belong to
-      that later external-validity stage rather than being silently folded into Study 1.
+\item \textbf{Backbone-training provenance:} the corpus used to train the frozen face
+      extractor is not Study 1 projection data, but it must be documented sufficiently to
+      audit identity overlap with later benchmarks.
+\item \textbf{Projection development (TRAIN/VALIDATION):} use a sufficiently large,
+      authorized face-development corpus with many identities and captures, identity-disjoint
+      from qualification. VGGFace2 is scientifically attractive for pose and age variation
+      \cite{vggface2_2018}; however, the official Oxford site now states that its download
+      links are no longer available \cite{vggface2site}. Study 1 must therefore not assume
+      VGGFace2 is a reproducible dependency unless lawful access is actually established.
+\item \textbf{Exploratory SCREEN:} benchmarks such as LFW, CFP-FP, AgeDB-30, CALFW and CPLFW
+      can provide fast sanity/stress checks for frontal/profile, age and pose behavior. They
+      remain non-claim-bearing. Published work documents identity overlap between common
+      web-scale face-training corpora and LFW-family benchmarks \cite{overlap2024}, so
+      overlap must be audited rather than assumed absent.
+\item \textbf{Claim-bearing research TEST:} IJB-C 1:1 template verification is an
+      established benchmark with substantially richer unconstrained imagery than LFW
+      \cite{ijbc2018}, but it is no longer a generally downloadable ``public candidate''.
+      NIST discontinued distribution of IJB-A/B/C on 14 March 2023 \cite{nistijb}. It can be
+      considered only if lawful access already exists and the overlap/protocol contract can
+      be frozen. Otherwise another preregistered corpus must meet the identity/capture count,
+      low-FMR precision, provenance and disjointness requirements rather than weakening the
+      gate.
+\item \textbf{Operational/external validity:} no celebrity or web-photo benchmark by itself
+      establishes representativity for a passport, border, mobile, event-watchlist or
+      national-gallery deployment. A later study requires authorized data that match the
+      intended population, sensor, capture process and decision workflow.
 \end{itemize}
 
-A particularly important guard follows from this hierarchy: the data used to train the face
-backbone, the data used to fit the 512-to-128 projection, the exploratory screening benchmarks
-and the claim-bearing qualification set are four different roles. Sharing identities across
-those roles can create optimistic evidence even when file-level train/test splits are technically different.
+The important guard is therefore conceptual as well as procedural: the data used to train
+the face backbone, the data used to fit the 512-to-128 projection, exploratory screening
+benchmarks, and the claim-bearing TEST set are four different roles. Sharing identities
+across them can create optimistic evidence even when file-level train/test splits look
+technically separate.
 
-If screening promotes the direction, full qualification still uses the complete planned
-seed set $\{11,29,47,71,101\}$ and an untouched TEST set. If screening is negative, the
+If screening promotes the direction, full qualification still uses all five planned
+seeds (11, 29, 47, 71, and 101) and an untouched TEST set. If screening is negative, the
 result is preserved and the programme stops or redirects without opening qualification
 TEST. Exploration of representation geometry is intentionally deferred until the empirical
 compression problem warrants it.
@@ -826,6 +1201,11 @@ latexmk -pdf -interaction=nonstopmode -halt-on-error -cd paper/main.tex
 The research-assurance workflow also rebuilds the paper twice and checks bitwise equality for
 a fixed TeX environment.
 
+Interactive teaching companions may later visualize L2 normalization, Euclidean/cosine
+threshold equivalence, or pair-versus-subject resampling. If added, they are explanatory
+artifacts only: they should link back to immutable replay/evidence objects and must not be
+used to release a scientific gate or replace the frozen analysis.
+
 \section{Threats to validity}\label{sec:limits}
 
 \textbf{Backbone validity.} ImageNet ResNet-18 is trained for generic object
@@ -834,8 +1214,10 @@ experiment. Only the 512-to-128 projection learns from face pairs. Poor absolute
 are therefore unsurprising and limit transfer to real face systems; a linear projection
 cannot manufacture identity information absent from the frozen source embedding.
 
-\textbf{Operating-point resolution.} LFW DevTest has only 500 impostor pairs. The empirical
-FMR grid is too coarse for industrial low-FMR claims.
+\textbf{Operating-point resolution and margin meaning.} LFW DevTest has only 500
+impostor pairs. The empirical FMR grid is too coarse for industrial low-FMR claims. The
+chosen FMR 0.01 and non-inferiority margin 0.03 are frozen exploratory study values, not
+application-derived biometric requirements.
 
 \textbf{Dataset representativity.} LFW is a public web-photo benchmark. It does not
 represent a specific enrollment device, border kiosk, identity-document flow, national
@@ -968,6 +1350,50 @@ and framework. International Organization for Standardization, 2021.
 J. Pineau et al.
 Improving Reproducibility in Machine Learning Research.
 \emph{Journal of Machine Learning Research}, 22(164):1--20, 2021.
+
+\bibitem{diazcano2026}
+A. Diaz-Cano.
+\emph{Siamese Network for Face Verification}, public GitHub repository, commit
+\code{6ff8abb6890dca880f8b8d2a7a90a94124b91698}, 2026.
+\url{https://github.com/antodiazcano/siamese-network/tree/6ff8abb6890dca880f8b8d2a7a90a94124b91698}.
+
+\bibitem{ngmls}
+A. Ng et al.
+\emph{Machine Learning Specialization}, Course 3: Unsupervised Learning, Recommenders,
+Reinforcement Learning, Week 2: Principal Component Analysis. DeepLearning.AI and Stanford
+Online, accessed August 2026.
+\url{https://www.deeplearning.ai/specializations/machine-learning/}.
+
+\bibitem{nistfrte11}
+National Institute of Standards and Technology.
+\emph{Face Recognition Technology Evaluation (FRTE) 1:1 Verification}, accessed August 2026.
+\url{https://pages.nist.gov/frvt/html/frvt11.html}.
+
+\bibitem{nistfrte1n}
+National Institute of Standards and Technology.
+\emph{Face Recognition Technology Evaluation (FRTE) 1:N Identification}, accessed August 2026.
+\url{https://pages.nist.gov/frvt/html/frvt1N.html}.
+
+\bibitem{vggface2site}
+Visual Geometry Group, University of Oxford.
+\emph{VGGFace2 dataset website}, accessed August 2026. The site states that dataset download
+links are no longer available.
+\url{https://www.robots.ox.ac.uk/~vgg/data/vgg_face2/}.
+
+\bibitem{nistijb}
+National Institute of Standards and Technology.
+\emph{Face Challenges: IARPA Janus Benchmarks}, accessed August 2026. NIST states that
+IJB-A, IJB-B and IJB-C distribution was discontinued on 14 March 2023.
+\url{https://www.nist.gov/programs-projects/face-challenges}.
+
+\bibitem{efron1993}
+B. Efron and R. J. Tibshirani.
+\emph{An Introduction to the Bootstrap}. Chapman \& Hall/CRC, 1993.
+
+\bibitem{wellek2010}
+S. Wellek.
+\emph{Testing Statistical Hypotheses of Equivalence and Noninferiority}, 2nd ed.
+Chapman \& Hall/CRC, 2010.
 
 \end{thebibliography}
 
