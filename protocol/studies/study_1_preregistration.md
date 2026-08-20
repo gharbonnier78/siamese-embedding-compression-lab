@@ -37,16 +37,98 @@ qualification evidence.
 
 ## 1. Backbone and provenance
 
-- [ ] Architecture, weights, source, checksum and licence pinned.
-- [ ] Training corpus documented and overlap with qualification data audited.
-- [ ] Selection rule evaluated only on development/screening data.
-- [ ] Raw performance checked at the target low-FMR operating point, not only by global AUC.
+Study 0 intentionally reproduced a pedagogical architecture: a torchvision ResNet-18
+pretrained for ImageNet object classification was **fully frozen**, and only the 512→128
+linear embedding head learned from LFW pairs. That is useful for isolating the projection
+mechanism, but it is not a strong face-recognition source representation. A linear head can
+reorganize information already present in the 512D vector; it cannot reconstruct identity
+information that the generic ImageNet representation did not encode reliably.
 
-Study 0 showed why this matters: a representation can retain broad discrimination while
-remaining weak at the primary operating point. Study 1 therefore screens backbone viability
-before qualification.
+Study 1 therefore changes the source representation before it changes the compression claim.
+The preferred primary design is a **pretrained, frozen face-specific extractor**, not a new
+backbone trained as part of this compression experiment.
+
+- [ ] Architecture, weights, source, checksum and licence pinned.
+- [ ] Face-specific training objective documented (for example an ArcFace-family angular-margin model).
+- [ ] Training corpus and training provenance documented well enough to audit evaluation overlap.
+- [ ] Face detection/alignment/normalization pipeline pinned together with the embedding weights.
+- [ ] Selection rule evaluated only on development/screening data.
+- [ ] Raw performance checked at the target low-FMR operating point, not only by global AUC or accuracy.
+- [ ] No alternate backbone may be substituted after SCREEN outcomes are read unless a new design is preregistered.
+
+An ArcFace-family iResNet is the current **candidate class**, not yet a frozen implementation.
+AdaFace is a plausible secondary candidate if a later, separately registered question asks
+whether quality-aware source embeddings change the compression outcome. Study 1 should avoid
+trying many backbones and keeping whichever looks best on screening data.
+
+The remembered “~70% accuracy” from the first experiment is consistent with the immutable
+replay only as a descriptive sanity check: a TEST-optimized threshold yields 71.5% for raw
+512D and 73.0–74.7% across the Siamese seeds (PCA 74.1–74.3%). Those values are TEST-tuned,
+non-deployable and not the claim-bearing endpoint. Their importance is that they make the
+weakness of the source backbone visible before compression is blamed.
 
 ## 2. Population and datasets
+
+The four data roles below must remain distinct: **backbone training**, **projection
+TRAIN/VALIDATION**, **exploratory SCREEN**, and **qualification TEST**. Identity overlap
+across roles can create optimistic evidence even when file-level splits are different.
+
+### 2.1 Projection development — TRAIN / VALIDATION
+
+Use a sufficiently large, authorized face-development corpus with many identities and
+multiple captures per identity. Projection-development identities must be disjoint from the
+qualification identities.
+
+- **VGGFace2 is a scientifically attractive candidate** because it was designed with
+  substantial pose and age variation and identity-separated train/test partitions.
+- Its original Oxford download is no longer available, so it must not be treated as an
+  automatically available dependency. Use it only if access is legitimate and its terms are
+  compatible with this work.
+- If VGGFace2 is unavailable, select another authorized development corpus that meets the
+  same identity-count, capture-diversity, provenance and disjointness requirements.
+
+### 2.2 Exploratory SCREEN
+
+A standard public screening suite may include:
+
+- **LFW** — continuity with Study 0 and basic sanity checking;
+- **CFP-FP** — frontal/profile stress;
+- **AgeDB-30** — age variation;
+- **CALFW** — cross-age LFW-family stress;
+- **CPLFW** — cross-pose LFW-family stress.
+
+These datasets are **screening evidence only**. Common web-scale face-training corpora can
+share identities with LFW-family benchmarks, so training/evaluation overlap must be audited
+rather than assumed absent. A screening benchmark with unresolved overlap may still be useful
+for engineering triage, but it cannot be silently promoted to independent qualification evidence.
+
+### 2.3 Qualification TEST
+
+**IJB-C 1:1 template verification is the preferred public qualification candidate** because
+it contains substantially richer unconstrained still/video material and many more impostor
+template comparisons than LFW, making lower false-accept regions measurable.
+
+Before it can be called qualification evidence:
+
+- [ ] lawful/authorized access is confirmed;
+- [ ] identity overlap against the frozen backbone's training corpus is audited;
+- [ ] identity overlap against projection TRAIN/VALIDATION is zero by construction;
+- [ ] the chosen IJB-C protocol, template aggregation and preprocessing are frozen;
+- [ ] the target FAR/FMR and sample-size/precision analysis are compatible with the protocol.
+
+If training/test identity disjointness cannot be established, the IJB-C result is still a
+useful external benchmark but must be labelled accordingly rather than used as a strong
+independent qualification claim.
+
+### 2.4 Operational / external validity
+
+No public celebrity benchmark establishes representativity for a passport, border kiosk,
+mobile-device enrollment, national gallery or any specific production population. A later
+external-validity study must use authorized population- and capture-relevant data before such
+claims are made. Demographic/capture stress testing remains a later study rather than being
+silently folded into Study 1.
+
+Common checklist:
 
 - [ ] Target population, capture process and exclusions declared.
 - [ ] TRAIN, VALIDATION, SCREEN and untouched qualification TEST roles separated.
