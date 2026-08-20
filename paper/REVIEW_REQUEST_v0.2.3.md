@@ -2,9 +2,9 @@
 
 ## Review objective
 
-Review the English, scientific reasoning, numerical transcription, and self-contained readability of the proposed v0.2.3 paper that closes the repository's initial embedding-compression experiment.
-
-Primary manuscript: `paper/study0_v0.2.3.tex` (`paper/main.tex` is the build entrypoint).
+Review the English, scientific reasoning, numerical transcription, implementation fidelity,
+and self-contained readability of the proposed v0.2.3 paper that closes the repository's
+initial embedding-compression experiment.
 
 This is a **paper review**, not a new experiment and not authorization to execute the next study.
 
@@ -13,25 +13,22 @@ This is a **paper review**, not a new experiment and not authorization to execut
 1. **Self-contained narrative**
    - A reader must understand the research object before the internal label “Study 0” is used as shorthand.
    - Internal process identifiers may be cited for traceability but must not be required to understand the paper.
-   - The paper must explain the data, threshold distinction, estimand, non-inferiority margin, and all-seeds rule before presenting results.
+   - The paper must explain the four routes, data, threshold distinction, estimand, non-inferiority margin, and all-seeds rule before presenting results.
 
-2. **Dimensionality-reduction background**
-   - Confirm that feature selection and feature extraction are distinguished correctly.
-   - Check the PCA explanation mathematically and conceptually: TRAIN-only fitting, centering/covariance/principal directions, variance/reconstruction objective, and the fact that PCA does not optimize low-FMR verification.
-   - Check the random-projection explanation, including the implemented `N(0,1/d)` scaling and the bounded Johnson–Lindenstrauss intuition without turning it into a biometric guarantee.
-   - Check the discussion of LDA, autoencoders, metric-learning projections, hashing/binary embeddings, quantization, and compact backbones. The paper should explain why these are relevant alternatives without implying that Study 0 tested them.
-   - Confirm that dimensionality reduction and quantization are not conflated.
+2. **Dimensionality reduction and Siamese mechanism**
+   - Verify the distinction between feature selection and feature extraction.
+   - Verify the PCA explanation: centering/covariance, principal directions, variance/reconstruction objective, TRAIN-only fitting, and why variance retention does not imply low-FMR biometric preservation.
+   - Verify the random-projection explanation and that Johnson–Lindenstrauss is presented only as geometric motivation, not a biometric guarantee.
+   - Verify that LDA, autoencoders, metric learning, hashing/quantization and compact-backbone approaches are clearly marked as context rather than tested routes.
+   - Verify the exact implemented Siamese route against `src/siamese_compression_lab/models.py` and `configs/lfw_resnet18.yaml`: shared `W,b`, 512→128 affine projection, L2 normalization, Euclidean distance on the unit sphere, contrastive loss, training/validation behavior and inference semantics.
+   - Verify that the paper does not conflate Siamese metric learning with closed-set softmax identity classification.
 
-3. **Siamese explanation**
-   - Verify against `src/siamese_compression_lab/models.py` and `configs/lfw_resnet18.yaml` that the manuscript accurately explains the implemented Siamese route.
-   - The two training branches must be described as sharing the same affine projection `W,b`, not as two independently trained models.
-   - Confirm the 512→128 shape and `65,664` trainable-parameter count.
-   - Confirm L2 normalization and Euclidean distance on normalized outputs; check the stated monotonic equivalence with cosine similarity.
-   - Confirm the exact contrastive-loss semantics: genuine pairs are pulled together; impostor pairs inside margin `m=1` are pushed apart.
-   - Confirm the stated training configuration: up to 60 epochs, batch size 128, learning rate `1e-3`, weight decay `1e-4`, patience 8, minimum improvement `1e-4`.
-   - Confirm the distinction between the two-branch training construction and one-branch-per-template inference.
-   - Confirm that the route is not presented as closed-set softmax identity classification and that decreasing contrastive loss is not treated as sufficient evidence of useful compression.
-   - Confirm that raw/random/PCA/Siamese form a meaningful baseline hierarchy for isolating compression and pair-supervision value.
+3. **ImageNet ResNet-18 provenance and limitation**
+   - Verify against the motivating public implementation and this repository that the starting ResNet-18 is ImageNet-pretrained and fully frozen; only the 512→128 embedding head learns from LFW pairs.
+   - Verify that the text does **not** incorrectly say that a face-recognition ResNet was trained on LFW.
+   - Verify the scientific rationale for replacing it: ImageNet object-category supervision is not a face-identity objective, and a linear head cannot recover identity information absent from the frozen representation.
+   - Recalculate the descriptive TEST-optimized accuracy context from the immutable Study 0 scores: raw 71.5%; Siamese 73.0–74.7%; PCA 74.1–74.3%.
+   - Confirm these accuracy values are explicitly labelled TEST-tuned/non-deployable and do not replace the low-FMR non-inferiority endpoint.
 
 4. **Scientific fidelity**
    - Verify all corrected numerical values against the already-reviewed materialized result tables.
@@ -40,18 +37,28 @@ This is a **paper review**, not a new experiment and not authorization to execut
    - Verify that the operational threshold-transfer table is not presented as an equal-FMR ranking.
    - Verify that storage arithmetic is separated from unmeasured end-to-end latency or 1:N claims.
 
-5. **Correction narrative**
+5. **Next-study backbone and dataset logic**
+   - Verify that the preferred design is a pretrained, frozen face-specific extractor with pinned architecture, preprocessing, weights, training corpus, provenance and licence.
+   - Verify that ArcFace-family / AdaFace wording is presented as candidate families, not as already frozen experimental choices.
+   - Verify the separation of four data roles: backbone training provenance; projection TRAIN/VALIDATION; exploratory SCREEN; qualification TEST.
+   - Verify the proposed screening suite (LFW, CFP-FP, AgeDB-30, CALFW, CPLFW) is non-claim-bearing.
+   - Verify VGGFace2 is presented as scientifically attractive but not automatically available because the original Oxford download is no longer provided.
+   - Verify IJB-C 1:1 template verification is presented as a preferred public qualification candidate only after lawful-access and identity-overlap checks.
+   - Verify identity-overlap risk between common training corpora and LFW-family benchmarks is explicitly treated as a validity threat.
+   - Verify public celebrity benchmarks are not presented as operationally representative of a specific production population/capture process.
+
+6. **Correction narrative**
    - Confirm that the pair-level bootstrap defect and the weighted subject-slot correction are explained accurately.
    - Confirm that known-truth coverage validation is described as validation of the interval procedure under the frozen synthetic regimes, not as evidence for the compression claim.
    - Confirm that provenance and independent recalculation are described in ordinary scientific prose rather than as a status badge.
 
-6. **English and arXiv-style readability**
+7. **English and arXiv-style readability**
    - Review grammar, idiom, article usage, punctuation, technical vocabulary, and unnecessary French-influenced constructions.
    - Flag sentences that are correct but sound unnatural in research English.
-   - Check title, abstract, introduction, the dimensionality-reduction section, the full Siamese section, section transitions, table/figure captions, results, and conclusion for clarity and concision.
+   - Check abstract, introduction, section transitions, table captions, conclusion, and title for clarity and concision.
    - Prefer precise scientific prose over governance jargon.
 
-7. **Claim boundaries**
+8. **Claim boundaries**
    - No industrial biometric validation claim.
    - No general claim that Siamese learning fails.
    - No claim that 128D is intrinsically inferior.
@@ -65,11 +72,10 @@ Return:
 - `VERDICT: ACCEPT` or `VERDICT: REVISE`;
 - **SCIENTIFIC** findings;
 - **NUMERICAL** findings;
-- **METHODS / PCA / REDUCTION** findings;
-- **SIAMESE** findings;
+- **BACKBONE / DATASET** findings;
 - **ENGLISH** findings;
 - **READABILITY / SELF-CONTAINMENT** findings;
 - **COSMETIC** findings;
-- an explicit statement that the PDF/LaTeX title, abstract, dimensionality-reduction section, Siamese section, tables, figure, results and conclusion were reviewed.
+- an explicit statement that the PDF/LaTeX title, abstract, PCA/reduction section, Siamese section, ImageNet-backbone rationale, dataset plan, tables and conclusion were reviewed.
 
 If proposing English edits, quote only the sentence to change and provide a replacement.
