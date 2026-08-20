@@ -12,6 +12,8 @@ The lesson is therefore **not** “use less rigor”. It is:
 
 > Use the minimum sufficient rigor for the decision currently being made, and escalate the evidence burden explicitly when a result is promoted toward a claim.
 
+A second lesson is specific to representation studies: **check the source representation before blaming the compression method**. Study 0 intentionally inherited a pedagogical setup in which an ImageNet-pretrained ResNet-18 was completely frozen and only a 512→128 linear head learned from face pairs. That isolates the projection mechanism, but it also means weak identity information in the generic source embedding cannot be recovered by the compression head. The next study must therefore establish raw face-backbone viability before paying for compression qualification.
+
 ## Two-stage operating model
 
 ### Stage A — exploratory screening
@@ -46,13 +48,17 @@ A corrected conclusion that remains directionally unchanged does not imply that 
 
 Study 1 is amended in draft form to use progressive evidence escalation:
 
-1. **Screen the face-specific backbone and compression routes first** on a dedicated non-qualification SCREEN set.
-2. Verify that the raw face-specific embedding itself is credible at the decision-relevant low-FMR operating point before spending qualification budget on compression.
-3. Use matched raw/random/PCA/Siamese controls during screening so that an apparent Siamese signal is not interpreted without compression baselines.
-4. Freeze a screening promotion/stop rule before reading screening outcomes.
-5. If screening shows no credible low-FMR or compression-retention signal, stop or redirect without opening qualification TEST.
-6. Only a promoted candidate enters the full Study 1 qualification design with all predeclared qualification seeds and the complete uncertainty/review burden.
-7. Screening seeds or outcomes must never be used to drop unfavorable qualification seeds after the fact.
+1. **Replace the generic ImageNet source with a pinned face-specific backbone** before re-testing compression.
+2. **Keep backbone training provenance, projection-development data, SCREEN data and qualification TEST as separate data roles**, with explicit identity-overlap checks.
+3. **Screen the face-specific backbone and compression routes first** on dedicated non-qualification data.
+4. Verify that the raw face-specific embedding itself is credible at the decision-relevant low-FMR operating point before spending qualification budget on compression.
+5. Use matched raw/random/PCA/Siamese controls during screening so that an apparent Siamese signal is not interpreted without compression baselines.
+6. Freeze a screening promotion/stop rule before reading screening outcomes.
+7. If screening shows no credible low-FMR or compression-retention signal, stop or redirect without opening qualification TEST.
+8. Only a promoted candidate enters the full Study 1 qualification design with all predeclared qualification seeds and the complete uncertainty/review burden.
+9. Screening seeds or outcomes must never be used to drop unfavorable qualification seeds after the fact.
+
+The current public-data plan treats LFW/CFP-FP/AgeDB-30/CALFW/CPLFW as non-claim-bearing screening candidates and IJB-C 1:1 template verification as a preferred public qualification candidate, subject to lawful access, provenance and training/test identity-overlap checks. VGGFace2 is a scientifically attractive projection-development candidate if it is legitimately available, but its original Oxford download is no longer provided and must not be assumed accessible.
 
 This amendment changes Study 1 planning only. It does not execute Study 1, does not reopen Study 0, and does not authorize geometry exploration.
 
