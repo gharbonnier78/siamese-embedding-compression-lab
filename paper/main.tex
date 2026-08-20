@@ -1,6 +1,6 @@
 \documentclass[10pt,a4paper]{article}
 
-% Make the generated paper bitwise reproducible for a fixed TeX toolchain.
+% Reproducible PDF metadata for a fixed TeX toolchain.
 \pdfinfoomitdate=1
 \pdftrailerid{}
 \pdfsuppressptexinfo=15
@@ -9,779 +9,614 @@
 \usepackage[utf8]{inputenc}
 \usepackage{lmodern}
 \usepackage{microtype}
-\usepackage[a4paper,margin=24mm]{geometry}
+\usepackage[a4paper,margin=23mm]{geometry}
 \usepackage{amsmath,amssymb}
-\usepackage{booktabs,longtable,tabularx,array}
-\usepackage{graphicx}
-\usepackage{placeins}
-\usepackage{xcolor}
+\usepackage{booktabs,tabularx,array,longtable}
+\usepackage{seqsplit}
 \usepackage{enumitem}
+\usepackage{xcolor}
 \usepackage{hyperref}
 \usepackage{fancyhdr}
 \usepackage{tikz}
 \usetikzlibrary{arrows.meta,positioning,shapes.geometric}
 
-\definecolor{navy}{HTML}{183B56}
-\definecolor{teal}{HTML}{147D92}
-\definecolor{soft}{HTML}{EEF5F7}
+\definecolor{navy}{HTML}{17324D}
+\definecolor{teal}{HTML}{1B728C}
+\definecolor{soft}{HTML}{F1F5F7}
 \definecolor{warn}{HTML}{8A4B08}
 \hypersetup{
   colorlinks=true,
   linkcolor=navy,
   citecolor=teal,
   urlcolor=teal,
-  pdftitle={From Pedagogical Siamese Metric Learning to Falsifiable Biometric Embedding Compression},
+  pdftitle={A Falsifiable Study of Siamese Embedding Compression for Face Verification},
   pdfauthor={Guillaume Harbonnier},
-  pdfsubject={Replayable research protocol and Study 0 report},
-  pdfkeywords={metric learning, biometric evaluation, embedding compression, reproducibility}
+  pdfsubject={Corrected uncertainty analysis and closure of the initial 512D to 128D experiment},
+  pdfkeywords={metric learning, face verification, embedding compression, non-inferiority, bootstrap, reproducibility}
 }
-\setlist[itemize,enumerate]{nosep,leftmargin=*}
-\setlist[description]{nosep,leftmargin=0pt,labelindent=0pt}
 \setlength{\parindent}{0pt}
 \setlength{\parskip}{5pt}
+\setlength{\emergencystretch}{1.5em}
+\setlist[itemize,enumerate]{nosep,leftmargin=*}
 \pagestyle{fancy}
 \fancyhf{}
-\fancyhead[L]{Siamese Embedding Compression Research Programme v0.2.1}
-\fancyhead[R]{Research protocol and Study 0 report}
+\fancyhead[L]{Siamese Embedding Compression v0.2.3}
+\fancyhead[R]{Corrected initial experiment report}
 \fancyfoot[C]{\thepage}
 \renewcommand{\headrulewidth}{0.4pt}
-\fancypagestyle{plain}{
-  \fancyhf{}
-  \fancyhead[L]{Siamese Embedding Compression Research Programme v0.2.1}
-  \fancyhead[R]{Research protocol and Study 0 report}
-  \fancyfoot[C]{\thepage}
-  \renewcommand{\headrulewidth}{0.4pt}
-}
+\fancypagestyle{plain}{\fancyhf{}\fancyfoot[C]{\thepage}\renewcommand{\headrulewidth}{0pt}}
 
-\newcommand{\claim}[1]{\texttt{#1}}
-\newcommand{\status}[1]{\textsc{#1}}
 \newcommand{\fnmr}{\mathrm{FNMR}}
 \newcommand{\fmr}{\mathrm{FMR}}
-\newcommand{\calgate}{\textsc{CAL}}
-\newcommand{\mmals}{\textsc{MMALS}}
+\newcommand{\DeltaFNMR}{\Delta_{\fnmr}}
+\newcommand{\code}[1]{\texttt{#1}}
 
-\title{\textbf{From Pedagogical Siamese Metric Learning to Falsifiable Biometric
-Embedding Compression}\\[4pt]
-\large A Replayable Research and Engineering Programme}
+\title{\textbf{A Falsifiable Study of Siamese Embedding Compression for Face Verification}\\[5pt]
+\large Corrected uncertainty, negative evidence, and a progressive research design}
 \author{Guillaume Harbonnier\\
 \small Independent exploratory research\\
 \small \url{https://github.com/gharbonnier78/siamese-embedding-compression-lab}}
-\date{Version 0.2.1-draft --- August 2026}
+\date{Version 0.2.3 --- August 2026}
 
 \begin{document}
 \maketitle
 \thispagestyle{empty}
 
 \begin{center}
-\fcolorbox{warn}{soft}{\parbox{0.91\linewidth}{\textbf{Scientific status.}
-This manuscript is a research protocol and an honest report of a completed preliminary
-study. It is not peer reviewed, not an industrial biometric evaluation, and not evidence
-of regulatory conformity. Erratum E-STAT-001 records a Study 0 uncertainty-contract
-failure; planned studies contain no experimental results.}}
+\fcolorbox{warn}{soft}{\parbox{0.92\linewidth}{\textbf{Scope.}
+This manuscript reports a bounded research experiment on embedding compression. It is not
+an industrial biometric validation, not a product qualification, and not evidence of
+regulatory conformity. The source extractor is ImageNet ResNet-18 and the benchmark is
+Labeled Faces in the Wild (LFW); both limit the inference domain.}}
 \end{center}
 
 \begin{abstract}
-Dimensionality reduction is attractive for large biometric galleries because template
-payload affects storage, memory traffic, cache behaviour and search cost. Yet the ability
-to compute a cosine distance after projection is not evidence that the projected template
-preserves decision-relevant performance, nor that supervised metric learning adds value
-over ordinary compression. This work converts an educational Siamese-network exercise
-into a falsifiable, replayable research and engineering programme. The programme separates
-mechanism validity, representation quality, threshold transfer, operational value and
-claim admissibility. It predeclares a non-inferiority estimand at a target false match
-rate; requires raw, random and principal-component controls; enforces identity-disjoint
-development, validation-frozen thresholds and a once-opened test set; and attaches every
-claim to automated evidence gates. A completed preliminary study uses frozen ImageNet
-ResNet-18 features on the Labeled Faces in the Wild development protocol. The contrastive
-training mechanism is real, but non-inferiority of the 128-dimensional Siamese projection
-to the raw 512-dimensional representation is not demonstrated by the original pair-level
-analysis. Its interval was incorrectly described as identity-aware, so G2 is failed pending
-a separately versioned reanalysis. The original result and error are intentionally retained.
-The post-extractor projection does not shrink or accelerate
-the common frozen extractor; it adds 65,664 parameters. It reduces each float32 template
-payload fourfold, while 1:N latency remains unmeasured. Future registered studies replace the unsuitable extractor,
-strengthen dataset representativity, add external and shifted evaluation, and measure 1:N
-retrieval and end-to-end engineering cost. Immutable MMALS replay bundles preserve the
-execution history. MMALS-CAL provides a three-state internal claim gate---admissible,
-inadmissible or indeterminate---without being presented as a complete safety proof.
+Reducing face-template dimension can lower storage and comparison cost, but a smaller vector
+is useful only if decision-relevant verification performance is retained. This paper turns a
+pedagogical Siamese-network idea into a falsifiable experiment comparing four routes applied
+to the same frozen 512-dimensional source embedding: no compression, random projection,
+principal-component analysis, and a learned 512-to-128 linear Siamese projection trained
+with contrastive loss. The repository calls this first controlled experiment \emph{Study 0};
+here it is introduced simply as the initial experiment. Its primary question is whether a
+128-dimensional route is non-inferior to the raw 512-dimensional representation at an
+empirical false-match rate of 0.01, using an absolute false-non-match-rate margin of 0.03
+and requiring every predeclared seed to satisfy the rule.
+
+The initial execution used LFW DevTest and a frozen ImageNet ResNet-18 extractor. A later
+audit found that the reported uncertainty estimator resampled pairs although the research
+contract described identity-aware uncertainty. The historical scores were therefore kept
+immutable and reanalysed with a preregistered weighted subject-slot bootstrap over the
+observed sparse pair graph. The interval procedure was first validated in known-truth
+simulations, then applied to the exact historical score bundle with 10,000 replicates per
+seed. Independent reviewers verified the materialized replay and subsequently recalculated
+the reported interpretation from the result tables.
+
+The corrected result is negative but bounded: random projection, PCA and the Siamese route
+all pass the non-inferiority rule on 0 of 5 seeds. The 97.5\% upper bounds for
+$\DeltaFNMR$ range from 0.112649--0.151768 for random projection,
+0.125556--0.133606 for PCA, and 0.176584--0.189156 for the Siamese route, all above the
+0.03 margin. Subject-level intervals are roughly 1.5 times wider than the original
+pair-level intervals, showing that the original analysis understated uncertainty even
+though the bounded scientific conclusion does not change. The result does not prove that
+128-dimensional compression is intrinsically inferior, nor that metric learning is
+ineffective. It establishes only that preservation and added supervision value were not
+demonstrated in this frozen experiment. A practical lesson follows: use low-cost,
+non-claim-bearing screening to decide whether a direction merits full qualification, then
+escalate the evidence burden only when a result is promoted toward a scientific claim.
 \end{abstract}
 
-\section{Research position}
+\section{Introduction}
 
-The object under study is not ``face recognition by Siamese networks'' in the broad sense.
-It is a bounded intervention applied to an already trained extractor. A frozen extractor
-$f$ maps an image $x$ to a source embedding $z=f(x)\in\mathbb{R}^{D}$. A projection
-$g_\theta$ maps $z$ to $u=g_\theta(z)\in\mathbb{R}^{d}$, where $d<D$. The matcher compares
-two projected templates or searches a gallery built from them. Training and inference are
-therefore distinct:
+Face-recognition systems commonly compare or search embeddings rather than classify an
+image directly into one of the identities seen during training. If a source extractor
+produces $D$-dimensional vectors, a post-extractor projection to $d<D$ can reduce template
+payload and comparison work. The engineering attraction is immediate; the scientific
+question is not.
 
-\begin{align}
-\text{training:}&& \theta^* &= \arg\min_\theta
-  \sum_{(i,j)} \mathcal{L}\bigl(g_\theta(z_i),g_\theta(z_j),y_{ij}\bigr),\\
-\text{inference:}&& s(x_i,x_j) &= \operatorname{sim}
-  \bigl(g_{\theta^*}(f(x_i)),g_{\theta^*}(f(x_j))\bigr).
-\end{align}
+A projected vector can still support cosine similarity even when the projection has damaged
+the low-false-match operating region. Likewise, a learned projection can look attractive on
+ROC AUC or equal-error rate while failing the endpoint that actually governs a proposed
+non-inferiority claim. Finally, supervised metric learning may add little beyond ordinary
+PCA or even a seeded random projection at the same output dimension. These distinctions
+motivate explicit controls, a predeclared decision rule, threshold provenance, and
+uncertainty that respects repeated identities.
 
-For a contrastive objective and distance $d_{ij}$, a representative loss is
+The present work began as a controlled audit of a pedagogical Siamese projection. The
+repository labels that audit \emph{Study 0} because it is the first study in a larger
+research programme. The term does not imply a standardized external benchmark; it is simply
+an internal, immutable identifier for the initial experiment described in Sections
+\ref{sec:object}--\ref{sec:initial}.
 
+The contribution of version 0.2.3 is to close that initial experiment in a self-contained
+form. It reports the original design, the statistical defect discovered afterward, the
+frozen correction, the corrected numerical result, the independent verification chain, the
+engineering limits, and the resulting design change for the next experiment.
+
+\section{Experimental object and controls}\label{sec:object}
+
+Let a frozen extractor $f$ map an image $x$ to a normalized source embedding
+$z=f(x)\in\mathbb{R}^{512}$. A route $g$ maps $z$ either to itself or to a
+128-dimensional representation. Verification uses cosine similarity between two route
+outputs.
+
+Four routes are compared on the same source embeddings and pair splits:
+
+\begin{enumerate}
+\item \textbf{Raw 512D}: no compression beyond normalization.
+\item \textbf{Random 128D}: seeded Gaussian projection followed by normalization.
+\item \textbf{PCA 128D}: principal-component projection fitted on training endpoints only.
+\item \textbf{Siamese 128D}: a shared trainable linear $512\times128$ projection optimized
+      on training pairs with contrastive loss.
+\end{enumerate}
+
+For a pair $(i,j)$ with same-identity indicator $y_{ij}\in\{0,1\}$ and projected distance
+$d_{ij}$, a representative contrastive objective is
 \begin{equation}
-\mathcal{L}_{ij}=y_{ij}d_{ij}^{2}+(1-y_{ij})
-\max(0,m-d_{ij})^{2},
+\mathcal{L}_{ij}=y_{ij}d_{ij}^{2}+(1-y_{ij})\max(0,m-d_{ij})^{2},
 \end{equation}
+where $m$ is a margin. Both branches share projection weights. This establishes the
+mechanism being tested: pair supervision changes a common projection, and inference later
+uses the resulting embeddings without pair labels.
 
-where $y_{ij}=1$ denotes the same identity and $m$ is a margin. The two branches share
-weights. Pair labels do not merely calibrate a threshold: their gradient changes the
-projection and therefore the geometry of the embedding space.
+The raw route asks whether compression is acceptable at all. Random projection asks whether
+most of the apparent benefit follows simply from lowering dimension. PCA asks whether an
+ordinary unsupervised linear compressor is sufficient. Only after those controls are
+present can the Siamese route support a claim about added value from pair supervision.
 
-The programme asks whether this learned geometry is useful after controlling for dimension,
-data, extractor, operating point and system implementation. A positive answer must survive
-comparisons against the uncompressed representation and matched compression controls. A
-negative answer is a valid result.
+\section{The initial experiment}\label{sec:initial}
 
-\subsection{Why this is not closed-set identity classification}
+\subsection{Data and splits}
 
-A classifier head can be used while training a face extractor, with training identities
-acting as classes. Production recognition is normally open set: enrolled identities can be
-different from training identities, and decisions are produced from similarities, thresholds
-or ranked candidates. Modern margin-based classification objectives such as ArcFace learn a
-discriminative representation during training, while verification and identification consume
-embeddings at inference~\cite{arcface}. Siamese pair training is another supervision route;
-it is not required for every deployed facial matcher and is not synonymous with one-shot
-operation.
+The source representation is produced by an ImageNet-pretrained ResNet-18 rather than a
+face-specific recognition backbone. The benchmark follows the LFW development protocol.
+The executed split contains 842 training pairs, 795 validation pairs, and 1,000 untouched
+DevTest pairs. DevTest contains 500 genuine and 500 impostor pairs and 963 distinct endpoint
+identities. Development and test identities are kept separate according to the frozen
+protocol.
 
-\section{Research questions and falsifiable claims}
+This setup is deliberately limited. With 500 impostor pairs, empirical FMR changes in steps
+of $1/500=0.002$. It cannot establish claims at $10^{-4}$, $10^{-5}$, or national-scale
+operating points. ImageNet ResNet-18 is also not a biometric-grade face extractor. The
+experiment is therefore a controlled representation study, not a production benchmark.
 
-The umbrella question is:
+\subsection{Two threshold questions}
 
+Two analyses are intentionally separated.
+
+\textbf{Equal-FMR representation benchmark.} On TEST, a route-specific threshold is located
+only to compare discrimination at the same empirical FMR. These thresholds are explicitly
+non-deployable because TEST labels are used to locate them.
+
+\textbf{Validation-frozen threshold transfer.} A threshold is selected on VALIDATION,
+frozen, and then applied once to TEST. These values describe calibration and threshold
+transfer. They must not be ranked as if all routes operated at the same TEST FMR.
+
+\subsection{Primary non-inferiority rule}
+
+At target $\alpha=0.01$, define for candidate route $m$ and raw reference $b$
+\begin{equation}
+\DeltaFNMR(m,\alpha)=\fnmr_m(\alpha)-\fnmr_b(\alpha).
+\end{equation}
+The frozen non-inferiority margin is $\delta=0.03$ absolute FNMR. The candidate satisfies
+the rule only if
+\begin{equation}
+\operatorname{UCB}_{0.975}\left[\DeltaFNMR(m,0.01)\right]\le 0.03
+\end{equation}
+for \emph{every} predeclared seed. The stochastic 128D routes use seeds
+$\{11,29,47,71,101\}$.
+
+The all-seeds rule prevents a method from being declared successful because one favorable
+random initialization was selected after TEST was observed.
+
+\section{Why the original uncertainty analysis was not sufficient}\label{sec:defect}
+
+The historical execution resampled genuine-pair indices and impostor-pair indices with
+replacement. Candidate and raw routes used the same sampled indices, so the comparison was
+paired across matchers and stratified by label. However, pairs that share an identity are
+independent only in the code representation, not in the data-generating structure. Reusing
+the same person in multiple trials creates dependence that pair resampling does not capture.
+
+The research contract had described the uncertainty as identity-aware. The executed
+estimator therefore did not match the declared sampling unit. This discrepancy was recorded
+as E-STAT-001. The original scores, tables, paper, and negative decision were retained
+rather than overwritten.
+
+This distinction matters even if a corrected analysis later reaches the same qualitative
+conclusion. A method can have the right sign and still report confidence intervals that are
+too narrow. The correction question was therefore not ``can the old answer be reproduced?''
+but ``does a subject-level estimator with demonstrated coverage change the decision?''
+
+\section{Frozen correction}\label{sec:correction}
+
+\subsection{Weighted subject-slot bootstrap}
+
+The correction operates on the exact historical score table and the observed LFW DevTest
+pair graph. No model is retrained and no historical score is recomputed.
+
+For each replicate, 963 subject slots are drawn with replacement. Let $m_i$ be the
+multiplicity of subject $i$ in that draw. The frozen weighting rule is:
+\begin{align}
+  w_{ij}^{\mathrm{genuine}} &= m_i,\\
+  w_{ij}^{\mathrm{impostor}} &= m_i m_j.
+\end{align}
+Only observed DevTest edges are weighted; no missing all-pairs comparison is synthesized.
+Candidate and raw routes use the same subject draw, preserving pairing between methods.
+The implementation uses PCG64 and 10,000 bootstrap replicates per seed, with convergence
+checkpoints at 2,000, 5,000 and 10,000 replicates. Degenerate replicates fail the
+reanalysis rather than being silently redrawn.
+
+The representation endpoint recalibrates each route within each replicate to the frozen
+equal-FMR benchmark rule. A separate operational bootstrap keeps the VALIDATION-selected
+threshold fixed while estimating TEST FNMR and FMR uncertainty.
+
+\subsection{Known-truth coverage validation}
+
+Before the corrected historical scores were interpreted, the interval procedure was tested
+on synthetic sparse pair graphs that preserve the 963-subject, 500-genuine, 500-impostor
+structure. Five predeclared regimes included independent-pair and subject-dependent nulls,
+non-inferior, boundary, and inferior cases. Coverage was assessed separately for the
+representation delta-FNMR and for operational FNMR and FMR.
+
+The simulation stopped at 4,000 independently generated datasets per scenario once the
+Monte Carlo standard-error rule was satisfied. All 15 scenario-by-metric coverage checks
+met the frozen criterion. The weakest exact 95\% Clopper-Pearson lower bound was
+0.937743, above the required 0.93. This validation supports the interval procedure under the
+specified synthetic regimes; it does not by itself establish anything about the value of
+128-dimensional compression.
+
+\section{Replay, provenance, and independent verification}\label{sec:verification}
+
+The corrected analysis was bound to the immutable historical run
 \begin{quote}
-Can supervised metric projection reduce biometric template and system cost while preserving
-decision-relevant verification and identification performance relative to the uncompressed
-embedding and matched compression controls?
+\code{lfw\_resnet18\_siamese\_projection\_v0\_1-89179914-911192ee-64559cbd}.
 \end{quote}
+The recovered historical replay archive is 4,158,610 bytes with SHA-256
+\texttt{\seqsplit{7429c75a7da827281ca172d7a4184c65fcc27dbfa845eb9ffd27e04d81331897}}.
+Its preserved \code{test\_pair\_scores.csv} is 1,821,547 bytes and has SHA-256
+\texttt{\seqsplit{f52ea23987a9d22647e0f63275a3d8a215b5fb0c588bac41723298537b383439}}.
 
-The claim registry is machine-readable in \texttt{claims/registry.yaml}. Table~\ref{tab:claims}
-summarises the current state. ``Open'' is not weak positive evidence; it means that the
-claim has not been tested by an admissible study.
+The corrected materialization records the runner commit, frozen configuration, source
+hashes, output hashes, and the fact that the historical inputs were not mutated. An
+independent reviewer recalculated all declared artifact hashes, verified the original
+archive identity and the copied known-truth coverage evidence, and confirmed that the
+successful materialization came from a fresh run rather than from a previously interrupted
+partial directory.
+
+Only after those provenance checks were complete were numerical result tables opened for
+interpretation. A second independent review recalculated the numerical claims reported in
+this paper directly from the materialized result files, checked the decision rule, verified
+that validation thresholds remained validation-derived, and examined convergence from
+2,000 to 10,000 bootstrap replicates. No discrepancies requiring a change to the
+interpretation were found.
+
+This verification chain is intentionally described in prose rather than as a process badge:
+the scientific value comes from what was independently recalculated and checked, not from a
+status label.
+
+\section{Corrected results}\label{sec:results}
+
+\subsection{Primary non-inferiority endpoint}
+
+Table~\ref{tab:ni} gives the corrected all-seeds result. No 128D route satisfies the frozen
+non-inferiority criterion on any of its five predeclared seeds.
 
 \begin{table}[ht]
 \centering
-\caption{Claim register at programme version 0.2.1.}
-\label{tab:claims}
-\small
-\begin{tabularx}{\linewidth}{@{}lXl@{}}
+\caption{Corrected subject-bootstrap non-inferiority result at empirical FMR 0.01. A seed
+passes only if its 97.5\% upper bound for $\DeltaFNMR$ is at most 0.03.}
+\label{tab:ni}
+\begin{tabular}{@{}lcc@{}}
 \toprule
-ID & Bounded claim & Current status\\
+Route & Seeds passing & Range of 97.5\% UCBs\\
 \midrule
-\claim{C-MECHANISM-001} & Pair supervision updates the shared projection & Established, limited\\
-\claim{C-STORAGE-001} & Float32 payload falls from 512D to 128D by factor four & Arithmetic only\\
-\claim{C-FE-001} & The current route does not shrink or accelerate the extractor & Architectural\\
-\claim{C-NI-001} & Siamese-128 is non-inferior to raw-512 in Study 0 & Not demonstrated; G2 fail\\
-\claim{C-SUP-001} & Pair supervision adds value over PCA/random & Not demonstrated\\
-\claim{C-FACE-001} & Result transfers to face-specific backbones/external data & Open\\
-\claim{C-1N-001} & Compression preserves 1:N and improves system cost & Open\\
-\claim{C-CAL-001} & CAL rejects or abstains on unsupported claims & Specified, not qualified\\
-\bottomrule
-\end{tabularx}
-\end{table}
-
-\subsection{Primary representation hypothesis}
-
-Let $b$ be the raw representation, $m$ a candidate route, and $\alpha$ the target FMR. At
-separately located equal-FMR benchmark points,
-
-\begin{equation}
-\Delta_{\fnmr}(m,\alpha)=\fnmr_m(\alpha)-\fnmr_b(\alpha).
-\end{equation}
-
-Given a predeclared non-inferiority margin $\delta$, the candidate is non-inferior only if
-
-\begin{equation}
-\operatorname{UCB}_{1-\gamma}
-\left[\Delta_{\fnmr}(m,\alpha)\right]\leq \delta,
-\end{equation}
-
-for every predeclared seed under the Study 0 robustness rule. The benchmark threshold may
-use test labels solely to compare discrimination at the same empirical FMR; it is marked
-non-deployable. A separate operational analysis selects the threshold on VALIDATION, freezes
-it, and applies it once to TEST.
-
-\subsection{Supervision-value hypothesis}
-
-Non-inferiority to raw does not establish value added by pair supervision. At equal output
-dimension and matched inputs, the Siamese route must also be compared with random projection
-and train-only PCA. Study 2 will predeclare either a superiority margin or a Pareto rule. It
-will not select the metric after seeing test results.
-
-\subsection{Engineering hypothesis}
-
-The arithmetic reduction from $D$ to $d$ is not the engineering estimand. Let total system
-cost under workload $w$ be
-
-\begin{equation}
-C_m(w)=C_{\mathrm{extract}}+C_{\mathrm{project}}+C_{\mathrm{store}}+
-C_{\mathrm{index}}+C_{\mathrm{search}}+C_{\mathrm{replicate}}.
-\end{equation}
-
-An engineering claim requires a predeclared reduction in one or more resources while all
-mandatory accuracy, latency and reliability constraints remain satisfied. Extractor weights,
-projection weights, metadata, encryption, index overhead and replicas must not be hidden.
-
-\section{Programme architecture}
-
-The programme is incremental. Each study has a maximum permitted conclusion and later
-studies do not rewrite earlier evidence.
-
-\begin{figure}[ht]
-\centering
-\begin{tikzpicture}[
-  node distance=5mm and 7mm,
-  box/.style={draw=navy,rounded corners,fill=soft,align=center,minimum width=27mm,minimum height=10mm,font=\small},
-  arr/.style={-{Latex[length=2mm]},thick,color=teal}
-]
-\node[box] (s0) {Study 0\\mechanism audit};
-\node[box,right=of s0] (s1) {Study 1\\face backbone};
-\node[box,right=of s1] (s2) {Study 2\\compression};
-\node[box,below=of s1] (s3) {Study 3\\external shift};
-\node[box,left=of s3] (s4) {Study 4\\1:N engineering};
-\node[box,right=of s3] (s5) {Study 5\\independent replay};
-\draw[arr] (s0)--(s1);
-\draw[arr] (s1)--(s2);
-\draw[arr] (s2)--(s3);
-\draw[arr] (s3)--(s4);
-\draw[arr] (s3)--(s5);
-\end{tikzpicture}
-\caption{Bounded studies. A gate failure lowers the claim level and can stop expansion.}
-\label{fig:programme}
-\end{figure}
-
-\begin{description}
-\item[Study 0 --- mechanism audit.] Completed frozen ImageNet ResNet-18/LFW experiment.
-Its maximum conclusion is limited to the mechanism and declared protocol.
-\item[Study 1 --- face-specific representation.] Replace the unsuitable source extractor,
-pin weights and provenance, and test the primary 1:1 non-inferiority claim.
-\item[Study 2 --- compression ablation.] Compare dimensions, projection families and
-quantisation under matched budgets and a multiplicity policy.
-\item[Study 3 --- external validity.] Evaluate untouched datasets and predeclared capture
-regimes, including shifts in quality, pose, time interval and sensor where authorised.
-\item[Study 4 --- 1:N engineering.] Separate representation error from exact or approximate
-index behaviour, and measure accuracy, RAM, storage, latency and throughput jointly.
-\item[Study 5 --- independent reproduction.] Replay an immutable bundle in a distinct
-environment or by a distinct team and report discrepancies rather than hiding them.
-\end{description}
-
-\section{Dataset requirements and representativity}
-
-ISO/IEC 19795-1:2021 frames biometric performance testing in terms of specified metrics,
-test protocols, data records, bias reduction and explicit limits of applicability~\cite{iso19795}.
-This programme pins that published edition as its normative snapshot; an edition under
-development is not treated as an adopted requirement.
-
-Every qualification dataset requires a versioned datasheet. The datasheet must state:
-
-\begin{itemize}
-\item provenance, licence, acquisition mechanism and cryptographic digests;
-\item target use case, target population and populations not covered;
-\item identities, captures per identity, sensors and known capture conditions;
-\item inclusion, exclusion, missingness and quality rules;
-\item distributions of pose, occlusion, age interval and relevant regimes when authorised;
-\item split unit, duplicate audit, cross-dataset overlap and contamination controls;
-\item construction of genuine/impostor comparisons or mated/non-mated searches;
-\item effective statistical resolution at the target operating point;
-\item privacy, security, retention and redistribution constraints;
-\item allowed and forbidden conclusions.
-\end{itemize}
-
-Public availability is not representativity. A web-photo benchmark, a controlled identity
-document capture and a border kiosk can induce different quality and error distributions.
-The study must define the intended inference domain before using the word representative.
-
-\subsection{Splits and dependence}
-
-Identity is the default split unit. No identity may cross development and qualification.
-Near duplicates and derived images require explicit audit. Because comparisons reuse
-identities and images, pair observations are not automatically independent. Uncertainty
-must be resampled at an identity or justified cluster level. A naive pair-level confidence
-interval may be reported only as a diagnostic alongside the dependency-aware estimator.
-
-\subsection{Operating-point resolution}
-
-An empirical set with $N_I$ impostor comparisons has step size $1/N_I$. With zero observed
-errors, the approximate rule-of-three upper 95\% bound $3/N_I$ is a sanity check, not a
-complete power analysis and not a correction for dependence. Before qualification, the
-protocol must predeclare either desired precision for FMR/FNMR or power for the paired
-non-inferiority estimand, then demonstrate that the effective sample supports it.
-
-\section{Experimental protocol}
-
-\subsection{Common input and controlled routes}
-
-Every route receives exactly the same frozen source embeddings and split assignments.
-The mandatory routes are:
-
-\begin{enumerate}
-\item raw L2-normalised $D$-dimensional embedding;
-\item seeded Gaussian projection with $R_{ij}\sim\mathcal{N}(0,1/d)$, where $1/d$ is
-the variance, followed by L2 normalisation and no learning;
-\item PCA fitted only on TRAIN endpoints and projected to $d$ dimensions;
-\item shared learned projection trained from labelled TRAIN pairs.
-\end{enumerate}
-
-Study 2 may add nonlinear heads, autoencoders or quantised routes, but never remove the
-mandatory controls. Output dimension and representation normalisation must be matched.
-
-\subsection{Execution order}
-
-The enforced logical order is:
-
-\begin{enumerate}
-\item freeze configuration, implementation, data manifests, claims and seeds;
-\item validate identity-disjoint TRAIN, VALIDATION and TEST;
-\item fit projections on TRAIN only;
-\item early-stop and select hyperparameters on VALIDATION only;
-\item select each operational threshold on VALIDATION only;
-\item freeze every route and operational threshold;
-\item open TEST exactly once;
-\item report validation-frozen operating metrics;
-\item compute non-deployable equal-FMR benchmark points for representation comparison;
-\item report all declared seeds and all mandatory controls;
-\item evaluate gates and generate the bounded claim statement.
-\end{enumerate}
-
-Any violation is preserved in the audit trace. Re-running after test inspection creates a
-new exploratory study identifier; it cannot retain confirmatory status.
-
-Figure~\ref{fig:study0-protocol} is generated from the registered Study 0 YAML and the
-versioned replay tables. It is therefore an evidence view, not an independently edited
-diagram.
-
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=\linewidth]{figures-generated/study0_protocol.pdf}
-\caption{Study 0 evidence flow. Counts, target and decision are regenerated by the pipeline.}
-\label{fig:study0-protocol}
-\end{figure}
-
-\subsection{Statistical analysis}
-
-The primary analysis is paired because candidate and reference are evaluated on the same
-identities. Bootstrap replicates preserve the label and identity structure. Confidence
-level, number of replicates, random seed, margin and operating point are configuration
-fields. Secondary EER and ROC AUC estimates are descriptive unless separately registered.
-
-For multiple dimensions, losses or backbones, the study must predeclare a family of tests
-and either control family-wise error, control false discovery rate, or label the analysis
-exploratory with simultaneous intervals where suitable. Reporting only the best seed or
-best dimension on TEST is prohibited.
-
-\section{Engineering evaluation}
-
-Verification and identification are separate studies. NIST FRTE reports 1:1 FNMR at
-specified FMRs and evaluates 1:N using FNIR/FPIR, gallery size and ranked candidates; it
-also reports template generation, search duration and resource measures~\cite{nist11,nist1n}.
-This programme adopts the distinction and terminology, not NIST's sequestered datasets or
-the authority of an FRTE result.
-
-Study 4 will report at least:
-
-\begin{itemize}
-\item 1:1 FNMR/FMR with validation-frozen and descriptive equal-FMR views separated;
-\item 1:N FNIR/FPIR and Recall@$K$ for mated and non-mated searches;
-\item gallery size, templates per identity and probe regime;
-\item exact search and each approximate-nearest-neighbour configuration separately;
-\item template payload, metadata, index RAM, persistent storage and replication;
-\item extractor, projection, index build and search durations;
-\item cold/warm cache, concurrency, throughput and tail latency;
-\item hardware, software, thread count and energy method when energy is claimed.
-\end{itemize}
-
-The expected scientific product is a Pareto frontier, not necessarily one universal winner.
-A 128D representation may be useful for a large in-memory watchlist and irrelevant for a
-phone holding one or two enrolled templates.
-
-\subsection{What this intervention can and cannot reduce}
-
-The current intervention is post-extractor dimensionality reduction, not input-image
-resizing and not backbone compression. Both routes execute the same frozen ResNet-18 to
-produce $z\in\mathbb{R}^{512}$. The learned route then executes an affine $512\times128$
-projection and normalisation. Consequently, extractor parameters and extractor time are
-unchanged by construction; projection parameters and projection time are added.
-
-Let $N$ be the number of stored float32 templates. Excluding the common extractor and all
-database/index overhead, the route-specific storage bounds are
-\begin{align}
-M_{\mathrm{raw}}(N) &= 2048N,\\
-M_{\mathrm{proj}}(N) &= 512N + 4(512\times128+128)=512N+262656.
-\end{align}
-They are equal at $N=171$ and the learned route is strictly smaller for $N>171$. Thus a
-one- or two-template phone does not obtain a storage benefit under this implementation,
-whereas a large edge watchlist can. The unchanged extractor binary cancels only in this
-incremental comparison; it still contributes to absolute deployment size.
-
-For brute-force exact cosine search, the component-count proxy changes from $512N$ to
-$128N$ per probe. It is reasonable to hypothesise less comparison work and memory traffic,
-but it is scientifically invalid to translate that ratio directly into milliseconds. The
-end-to-end decomposition is
-\begin{equation}
-T_{\mathrm{total}}=T_{\mathrm{extract}}+T_{\mathrm{project}}+
-T_{\mathrm{search}}+T_{\mathrm{post}}.
-\end{equation}
-Cache state, SIMD/GPU kernels, index construction, batch size and candidate post-processing
-can dominate. Study 0 measured none of these durations. Shrinking the extractor itself
-would require another intervention such as a smaller backbone, pruning, quantisation,
-distillation or direct low-dimensional end-to-end training.
-
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=\linewidth]{figures-generated/study0_engineering_bounds.pdf}
-\caption{Analytical engineering bounds regenerated from the Study 0 route table. The left
-panel includes the learned projection but excludes common and system overhead. The right
-panel is a work proxy, not an observed speed-up.}
-\label{fig:engineering-bounds}
-\end{figure}
-
-\begin{figure}[htbp]
-\centering
-\includegraphics[width=0.90\linewidth]{figures-generated/study0_storage.pdf}
-\caption{Study 0 float32 template-payload arithmetic. The fourfold reduction excludes all
-system overhead and is not evidence of an end-to-end speed-up.}
-\label{fig:study0-storage}
-\end{figure}
-
-\section{Scientific gates and continuous integration}
-
-Continuous integration verifies evidence contracts; it does not convert code quality into
-biometric validity. Gates have four states: \status{pass}, \status{fail},
-\status{indeterminate} and \status{not run}.
-
-\begin{longtable}{@{}p{0.08\linewidth}p{0.25\linewidth}p{0.59\linewidth}@{}}
-\caption{Research qualification gates.}\label{tab:gates}\\
-\toprule
-Gate & Purpose & Examples of required evidence\\
-\midrule
-\endfirsthead
-\toprule
-Gate & Purpose & Examples of required evidence\\
-\midrule
-\endhead
-G0 & Software and contract integrity & Schemas, gradients, deterministic smoke replay,
-hash verification\\
-G1 & Experimental design & Identity separation, train-only fitting, freeze-before-test,
-all seeds\\
-G2 & Statistical validity & Predeclared endpoint/margin, valid sampling unit, sufficient
-resolution, multiplicity policy\\
-G3 & Baselines and ablations & Same inputs, dimensions, splits and evaluation budgets\\
-G4 & External and shift validity & Untouched data, complete datasheet, overlap audit,
-regime reporting\\
-G5 & Operational value & End-to-end cost, index type, accuracy/resource joint analysis\\
-G6 & CAL admissibility & Explicit outcome, metric-plane boundary, claim wording match\\
-G7 & Independent reproduction & Distinct environment/team, replay, discrepancy and review\\
-\bottomrule
-\end{longtable}
-
-Per-commit CI runs unit tests, numerical-gradient validation, contract cross-references,
-leakage guards and synthetic replay. Pull requests affecting the paper rebuild the PDF.
-Full datasets are not silently downloaded on every pull request. Qualification is a manual
-or protected workflow with pinned data, weights, environment and evidence destination.
-
-\section{MMALS replay and CAL}
-
-\subsection{Immutable MMALS replay}
-
-The notebook is a client of the experiment specification, not the source of truth. Each run
-records resolved configuration, environment, dataset digests, implementation digest, events,
-audit decisions, route metrics, pair or search scores, thresholds, figures and artifact
-checksums. A compact projection supports activity replay while the full domain pack preserves
-scientific evidence.
-
-Observed, derived and declared evidence are distinguished. Test opening, route freezing and
-gate evaluation are logical events. Replaying a bundle verifies its identity and decision
-history; it does not independently prove that the original population was representative.
-
-\subsection{CAL as a bounded claim gate}
-
-The internal \mmals--\calgate{} contract has exactly three outcomes:
-
-\begin{description}
-\item[\status{admissible}] all mandatory gates pass for the exact bounded statement;
-\item[\status{inadmissible}] mandatory evidence contradicts the proposed statement;
-\item[\status{indeterminate}] evidence is missing, incomplete, underpowered or out of scope.
-\end{description}
-
-The default is \status{indeterminate} (machine token \texttt{INDETERMINATE}). It never
-silently becomes permission. Qualification
-reports coverage error, set size, calibration inflation, prediction bias, action and
-abstention rates, severity-weighted violations, false admissibility and GateRegret when those
-quantities are defined. They belong to the \texttt{decision\_side\_intervention} metric
-plane and cannot be relabelled as matcher FMR or FNMR. CAL conformance is an internal
-assurance property, not regulatory certification and not a complete safety proof.
-
-\section{Study 0: completed LFW audit}
-
-\subsection{Purpose and data}
-
-Study 0 preserves the original educational setting to answer a narrow question: is the
-pair-supervised projection genuinely trained, and does it demonstrate non-inferiority under
-a stronger protocol? Frozen ImageNet ResNet-18 embeddings are extracted from the LFW
-development protocol. TRAIN contains 842 pairs, VALIDATION 795 pairs and untouched DevTest
-1,000 pairs: 500 genuine and 500 impostor. Its empirical FMR and FNMR steps are therefore
-0.002 before accounting for dependence. Five seeds were declared for every stochastic
-128D route.
-
-The extractor is not face-specific and the dataset cannot support industrial low-FMR claims.
-Those are limitations of the inference domain, not excuses to discard the observed result.
-
-\subsection{Predeclared decision}
-
-At target FMR $\alpha=0.01$, the non-inferiority margin was $\delta=0.03$ absolute FNMR.
-The method-level rule required every declared seed to have an upper paired-bootstrap bound
-at or below the margin. Validation-frozen thresholds were analysed separately.
-
-\subsection{Retained statistical erratum E-STAT-001}
-
-The original programme described the uncertainty estimator as identity-aware. Inspection
-of the executed code established that it separately resampled genuine-pair and
-impostor-pair indices. The same indices were applied to candidate and raw scores, so the
-analysis was paired across matchers and stratified by label, but trials sharing an identity
-were not cluster-resampled. The coverage guarantee of an identity-aware interval is
-therefore unsupported and Study 0 G2 is \status{fail} for inferential qualification.
-
-This erratum does not erase or rewrite the historical analysis. The original
-\texttt{paired\_noninferiority.csv}, its worst upper bound 0.156, the negative decision and
-the v0.2 PDF remain addressable. A later sensitivity analysis will create new files and a
-new analysis identifier. It will compare pair-level and dependence-aware intervals from
-the same preserved scores, and will validate coverage by simulation before its variance is
-used for Study 1 sample-size planning. Until then, non-inferiority remains
-\status{not demonstrated}; the defect cannot support a positive claim.
-
-\subsection{Results}
-
-\begin{table}[ht]
-\centering
-\caption{Study 0 descriptive TEST equal-FMR benchmark at FMR 0.01.}
-\label{tab:study0}
-\begin{tabular}{@{}lrrrr@{}}
-\toprule
-Route & Dim. & FNMR mean & ROC AUC mean & EER mean\\
-\midrule
-Raw & 512 & 0.8060 & 0.7931 & 0.2890\\
-PCA & 128 & 0.8216 & 0.8058 & 0.2704\\
-Random & 128 & 0.8416 & 0.7726 & 0.3104\\
-Siamese & 128 & 0.8288 & 0.8167 & 0.2662\\
+Random 128D & 0/5 & 0.112649--0.151768\\
+PCA 128D & 0/5 & 0.125556--0.133606\\
+Siamese 128D & 0/5 & 0.176584--0.189156\\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\begin{figure}[htbp]
+For the Siamese route, the observed equal-FMR point deltas across the five seeds are
+\[
++0.034,\quad +0.064,\quad -0.006,\quad +0.050,\quad +0.010,
+\]
+and the corresponding subject-bootstrap means are
+\[
++0.0392,\quad +0.0438,\quad +0.0024,\quad +0.0372,\quad +0.0113.
+\]
+One point estimate is slightly favorable to the candidate, but the decision rule is based on
+uncertainty and all predeclared seeds. Every upper bound is well above 0.03. The admissible
+conclusion is therefore \emph{failure to demonstrate non-inferiority}, not proof of
+inferiority.
+
+\subsection{What changed after correcting the sampling unit}
+
+Table~\ref{tab:widths} compares average 95\% interval widths from the historical pair
+bootstrap and the corrected subject bootstrap.
+
+\begin{table}[ht]
 \centering
-\includegraphics[width=\linewidth]{figures-generated/study0_benchmark_metrics.pdf}
-\caption{Descriptive Study 0 benchmark metrics generated from
-\texttt{method\_summary.csv}. EER and AUC are secondary descriptions; they do not override
-the predeclared FNMR non-inferiority decision.}
-\label{fig:study0-benchmark}
-\end{figure}
+\caption{Average 95\% interval width for $\DeltaFNMR$.}
+\label{tab:widths}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Route & Pair bootstrap & Subject bootstrap & Width ratio\\
+\midrule
+Random 128D & 0.1304 & 0.2042 & $\approx1.57\times$\\
+PCA 128D & 0.1749 & 0.2664 & $\approx1.52\times$\\
+Siamese 128D & 0.1944 & 0.2991 & $\approx1.54\times$\\
+\bottomrule
+\end{tabular}
+\end{table}
 
-Under the retained pair-level diagnostic, the Siamese route has mean
-$\Delta_{\fnmr}=0.0228$ relative to raw, but the worst upper
-confidence bound across seeds is 0.156, above the declared margin. Neither Siamese, PCA nor
-random projection passes the method-level non-inferiority rule. Claim \claim{C-NI-001} is
-therefore \status{not demonstrated}. The higher mean AUC and lower mean EER of the Siamese
-route do not rescue the failed primary claim.
+The original pair-level analysis materially understated uncertainty for this sample. The
+correction does not reverse the negative decision, but it changes how confident one should
+be about seed-level differences. This is a substantive statistical result even though the
+high-level claim status is unchanged.
 
-\begin{figure}[htbp]
+\subsection{Validation-frozen threshold transfer}
+
+At thresholds selected on VALIDATION and then transferred unchanged to TEST, the bootstrap
+means averaged across available seeds are approximately:
+
+\begin{table}[ht]
 \centering
-\includegraphics[width=0.90\linewidth]{figures-generated/study0_noninferiority.pdf}
-\caption{Seed-level paired non-inferiority analysis generated from
-\texttt{paired\_noninferiority.csv}. A method passes only if the upper confidence bound is
-at or below $\delta=0.03$ for every predeclared seed; none passes.}
-\label{fig:study0-ni}
-\end{figure}
+\caption{Validation-frozen operational threshold transfer. Different TEST FMR values mean
+these rows are not an equal-FMR ranking.}
+\label{tab:operational}
+\begin{tabular}{@{}lcc@{}}
+\toprule
+Route & FNMR & FMR\\
+\midrule
+Raw 512D & 0.8939 & 0.00201\\
+PCA 128D & 0.8468 & 0.00201\\
+Random 128D & 0.8940 & 0.00241\\
+Siamese 128D & 0.9311 & 0.00158\\
+\bottomrule
+\end{tabular}
+\end{table}
 
-With thresholds selected on VALIDATION and frozen before TEST, mean $(\fnmr,\fmr)$ is
-$(0.8940,0.0020)$ for raw, $(0.8468,0.0020)$ for PCA, $(0.8940,0.0024)$ for random and
-$(0.9312,0.0016)$ for Siamese. These values expose threshold-transfer behaviour; they are
-not an equal-FMR ranking.
+For the Siamese route, the transferred threshold produces a lower observed FMR together
+with a higher FNMR than raw. That is a stricter operating trade-off, not evidence that the
+primary equal-FMR non-inferiority claim was recovered.
 
-\begin{figure}[htbp]
+\subsection{Secondary descriptive metrics from the historical execution}
+
+For completeness, the original equal-FMR TEST summaries are shown in
+Table~\ref{tab:secondary}. These are descriptive and do not override the primary corrected
+non-inferiority decision.
+
+\begin{table}[ht]
 \centering
-\includegraphics[width=\linewidth]{figures-generated/study0_threshold_transfer.pdf}
-\caption{Threshold-transfer diagnostic generated from \texttt{method\_summary.csv}. The
-equal-FMR TEST view compares discrimination but is non-deployable; the validation-frozen
-view measures transfer to TEST.}
-\label{fig:study0-threshold-transfer}
-\end{figure}
+\caption{Historical descriptive TEST equal-FMR metrics at FMR 0.01.}
+\label{tab:secondary}
+\begin{tabular}{@{}lccc@{}}
+\toprule
+Route & FNMR mean & ROC AUC mean & EER mean\\
+\midrule
+Raw 512D & 0.8060 & 0.7931 & 0.2890\\
+PCA 128D & 0.8216 & 0.8058 & 0.2704\\
+Random 128D & 0.8416 & 0.7726 & 0.3104\\
+Siamese 128D & 0.8288 & 0.8167 & 0.2662\\
+\bottomrule
+\end{tabular}
+\end{table}
 
-\FloatBarrier
-\subsection{Falsification outcome}
+The Siamese route has the highest mean AUC and lowest mean EER in this historical table, but
+that pattern is not sufficient to establish preservation at the low-FMR endpoint. Nor does
+this experiment contain a preregistered superiority margin or Pareto rule by which Siamese
+could be declared superior to PCA or random projection.
 
-Study 0 supports the mechanism claim: pair labels update a shared projection and produce
-consumable 128D templates. It does not support preservation, superiority or industrial
-value. Its original inferential interval also fails G2 under E-STAT-001. The scientifically
-correct conclusion is ``not demonstrated by the retained pair-level analysis, with
-identity-aware coverage unresolved'', not ``Siamese networks do not work'' and not
-``compression works''.
+\section{Scientific interpretation}\label{sec:interpretation}
 
-\section{Revised priors and beliefs}
-
-Belief revision is recorded append-only in \texttt{beliefs/prior\_posterior.yaml}. The
-current updates are:
+The corrected experiment supports four bounded conclusions.
 
 \begin{enumerate}
-\item belief that contrastive pair training updates the implemented projection increases;
-\item belief that a simple linear 512-to-128 head naturally preserves low-FMR performance
-decreases for the Study 0 scope;
-\item belief in metric learning in general remains unchanged because Study 0 cannot test
-that universal proposition;
-\item belief in end-to-end engineering value remains unresolved because only payload
-arithmetic, not index or workload cost, has been measured.
+\item The implemented pair-supervised objective genuinely updates a shared linear
+      projection; the mechanism is real.
+\item The tested 128D routes do not demonstrate non-inferiority to raw 512D under the frozen
+      all-seeds rule at empirical FMR 0.01.
+\item Pair supervision does not demonstrate added compression value over matched PCA and
+      random controls in this experiment.
+\item The original pair bootstrap understated uncertainty relative to the corrected
+      subject-level analysis, while the qualitative negative decision remained unchanged.
 \end{enumerate}
 
-Qualitative priors are acceptable during this exploratory phase. A confirmatory Bayesian
-claim would require quantitative priors and sensitivity analysis registered before data are
-opened.
+The statistical defect is therefore resolved for the corrected reanalysis: the estimator
+matches the declared subject-level sampling unit, its coverage was validated under frozen
+known-truth scenarios, the exact historical scores were reanalysed without recomputation,
+and the result was independently recalculated. This validates the corrected inference
+procedure for the bounded experiment; it does not turn a negative claim into a positive one.
 
-\section{Next registered gates}
+The following statements are not supported:
+\begin{itemize}
+\item ``128D embeddings are intrinsically worse than 512D embeddings.''
+\item ``Siamese metric learning does not work.''
+\item ``PCA is superior to Siamese compression in general.''
+\item ``The compression is biometric-grade or suitable for industrial low-FMR use.''
+\item ``A fourfold reduction in vector dimension produces a fourfold end-to-end speed-up.''
+\end{itemize}
 
-Study 1 remains \status{draft preregistration}, not ``ready to run'', and this v0.2.1
-correction does not start it. E-STAT-001 must first be resolved with a specified
-dependence-aware estimator and simulation coverage study. Before execution it must pin the
-face-specific backbone and weights, licensing and provenance, target population,
-development and qualification data, overlap audit, primary FMR, non-inferiority margin,
-sample-size calculation, multiplicity policy, seeds and compute budget. Until then, CAL for
-\claim{C-FACE-001} is \status{indeterminate}.
+\section{Engineering value and what was actually measured}\label{sec:engineering}
 
-The immediate engineering order is:
+For float32 templates, a 512D vector occupies 2,048 bytes and a 128D vector 512 bytes. The
+payload-only template size is therefore reduced by a factor of four. The learned projection
+contains $512\times128+128=65{,}664$ float32 parameters, or 262,656 bytes.
 
-\begin{enumerate}
-\item complete Study 1 preregistration without looking at its qualification results;
-\item validate dataset acquisition and overlap tooling on non-qualification data;
-\item execute the frozen 1:1 study and publish all routes and seeds;
-\item decide from the registered gates whether compression ablation is justified;
-\item only then add 1:N indexes and constrained-device benchmarks;
-\item reproduce the strongest bounded result independently before any broad claim.
-\end{enumerate}
+If the common extractor is excluded because it is identical for both routes, route-specific
+storage is
+\begin{align}
+C_{\mathrm{raw}}(N) &= 2048N,\\
+C_{\mathrm{proj}}(N) &= 512N + 262656.
+\end{align}
+The two are equal at $N=171$ templates, and the projected route is smaller above that count
+under these narrow assumptions.
 
-\section{Threats, ethics and limits}
+This is arithmetic, not a system benchmark. The experiment measures neither feature
+extraction time, projection latency, index behavior, memory hierarchy effects, nor 1:N
+throughput. A useful work proxy for exact cosine search decreases from $512N$ to $128N$
+vector components, but no end-to-end latency claim follows without measurement.
 
-Face embeddings are biometric data. Dataset access, processing, retention and publication
-must follow applicable authorisation and licences. Raw images and recoverable templates are
-not redistributed by this repository. Hashes, schemas and derived aggregate evidence are
-not a substitute for privacy and security review.
+\section{Methodological lesson: screen before full qualification}\label{sec:lesson}
 
-Performance differences can arise from image quality, capture conditions and population
-composition. Aggregate performance can hide regime-specific failure. When authorised data
-support it, Study 3 reports predeclared regime results and uncertainty. Absence of such data
-is reported as a limitation, not interpreted as parity.
+The long corrective chain was justified because E-STAT-001 affected evidence already being
+used as a foundation for the next study. Once a foundational uncertainty contract is found
+to be wrong, the correct response is to repair and replay the evidence chain rather than
+quietly move on.
 
-Presentation-attack detection, adversarial robustness, template protection and regulatory
-certification are outside the current claim scope. A smaller unprotected embedding is not
-automatically a safer template.
+The same episode also exposes a cost-design lesson. Many research directions do not need
+publication-grade qualification before one knows whether they contain a useful signal. A
+more efficient programme separates two evidence modes:
 
-\section{Reproducibility statement}
+\begin{description}
+\item[Exploratory screening.] Use a dedicated screening set, matched controls, fewer
+predeclared screening seeds and a bounded compute budget to answer only whether further
+investment is justified. Screening evidence is explicitly not claim-bearing and never
+opens the qualification TEST set.
+\item[Qualification.] Only a promoted direction incurs the full burden of frozen estimands,
+all qualification seeds, validated uncertainty, untouched TEST, immutable provenance,
+replay, gates and independent review.
+\end{description}
 
-The repository contains source code, configurations, notebooks, tests, machine-readable
-claims, dataset requirements, gates and Study 0 results. The run identifier, configuration
-digest, implementation digest and artifact hashes are recorded. LFW images and cached face
-features are excluded. A smoke run checks numerical and evidence plumbing but is explicitly
-forbidden from supporting a biometric claim.
+The principle is not ``use less rigor''. It is:
+\begin{quote}
+Use the minimum sufficient rigor for the decision currently being made, and escalate the
+evidence burden explicitly when a result is promoted toward a scientific claim.
+\end{quote}
 
-Executed studies are append-only records governed by
-\texttt{docs/EXPERIMENT\_HISTORY\_AND\_ERRATA.md} and
-\texttt{protocol/experiment\_ledger.yaml}. Later studies may supersede claim admissibility
-but may not overwrite earlier configurations, scores, reports, negative results or known
-errors. The v0.2 PDF is retained at its versioned path while this v0.2.1 paper adds the
-erratum. Licence-restricted data may be external to Git, but acquisition instructions,
-hashes and release-bundle requirements remain public.
+A negative screening result is valuable if it prevents an unjustified qualification
+campaign. A negative qualified result is valuable if it closes a claim under a defensible
+procedure.
 
-The paper is rebuilt from versioned source. CI checks required traceability tokens and
-cross-file references. Study 0 figures are regenerated from a small versioned projection
-of the immutable replay evidence. CI compares regenerated outputs with the committed PDF
-snapshot and a manifest binds each output to its source hashes. Future work should extend
-the same mechanism to result tables, eliminating the remaining manual numerical duplication.
+\section{Implications for the next experiment}\label{sec:next}
+
+The next planned experiment replaces the ImageNet source representation with a recognized
+face-specific embedding. It remains unexecuted. Its design is being amended to use the
+progressive evidence model described above.
+
+The screening stage will use a dedicated SCREEN dataset that is separate from the untouched
+qualification TEST set. Raw, random, PCA and Siamese routes remain matched. Screening seeds
+are fixed as $\{11,29\}$ only to control exploratory cost; they cannot be used later to drop
+unfavorable qualification seeds. Before screening outcomes are opened, a numerical
+promotion/stop rule must be frozen. The first question is whether the raw face-specific
+backbone itself is credible at the target low-FMR operating region. The second is whether at
+least one 128D route shows enough retention signal relative to raw and matched controls to
+justify qualification.
+
+If screening promotes the direction, full qualification still uses the complete planned
+seed set $\{11,29,47,71,101\}$ and an untouched TEST set. If screening is negative, the
+result is preserved and the programme stops or redirects without opening qualification
+TEST. Exploration of representation geometry is intentionally deferred until the empirical
+compression problem warrants it.
+
+\section{Reproducibility and evidence map}\label{sec:repro}
+
+The repository keeps executed evidence, protocol changes and interpretation separate.
+Relevant objects include:
+
+\begin{longtable}{@{}p{0.36\linewidth}p{0.58\linewidth}@{}}
+\toprule
+Object & Role\\
+\midrule
+\endhead
+\code{RESULTS\_LFW\_V0.1.md} & Human-readable historical result from the original execution.\\
+\code{ERRATA\_STUDY\_0.md} & Append-only record of the pair-versus-subject bootstrap defect and its resolution.\\
+\path{protocol/studies/study_0_subject_bootstrap_v0.2.2.yaml} & Frozen corrected uncertainty contract.\\
+\path{evidence/study_0_subject_bootstrap_v0.2.2/} & Known-truth coverage evidence, materialization review, corrected interpretation and closure decision.\\
+\code{claims/registry.yaml} & Current claim status and permitted wording.\\
+\path{protocol/scientific_chronicle.yaml} & Append-only decisions that change what execution may happen next.\\
+\path{STUDY0_FINAL_REPORT.md} & Concise reader-oriented closure report accompanying this manuscript.\\
+\bottomrule
+\end{longtable}
+
+The current repository validation commands include
+\begin{verbatim}
+python scripts/validate_research_program.py --root .
+python scripts/validate_scientific_harness.py
+python -m unittest discover -s tests -v
+latexmk -pdf -interaction=nonstopmode -halt-on-error -cd paper/main.tex
+\end{verbatim}
+The research-assurance workflow also rebuilds the paper twice and checks bitwise equality for
+a fixed TeX environment.
+
+\section{Threats to validity}\label{sec:limits}
+
+\textbf{Backbone validity.} ImageNet ResNet-18 is not designed as a face-recognition
+embedding. Poor absolute error rates are therefore unsurprising and limit transfer to real
+face systems.
+
+\textbf{Operating-point resolution.} LFW DevTest has only 500 impostor pairs. The empirical
+FMR grid is too coarse for industrial low-FMR claims.
+
+\textbf{Dataset representativity.} LFW is a public web-photo benchmark. It does not
+represent a specific enrollment device, border kiosk, identity-document flow, national
+gallery, or demographic/capture distribution unless separately justified.
+
+\textbf{Projection family.} The learned route is a single linear 512-to-128 head. The result
+cannot be generalized to nonlinear heads, end-to-end embedding training, margin-based face
+losses, quantization-aware learning, or other compression families.
+
+\textbf{Claim multiplicity.} Study 0 did not preregister a superiority margin for Siamese
+versus PCA/random. Secondary descriptive differences therefore remain descriptive.
+
+\textbf{System value.} Storage arithmetic is exact under its assumptions, but latency,
+energy, memory bandwidth, indexing and 1:N recall/throughput were not measured.
+
+\textbf{Statistical model.} Known-truth coverage validation supports the corrected interval
+procedure under the frozen synthetic regimes. It is not a proof of universal coverage under
+all possible real biometric dependence structures.
 
 \section{Conclusion}
 
-Siamese metric learning is neither accepted nor rejected as a slogan. The research object is
-a versioned compression intervention evaluated against explicit alternatives at decision-
-relevant operating points and under measurable system constraints. Study 0 confirms that the
-training mechanism is real; its original pair-level analysis does not demonstrate the
-proposed non-inferiority claim, and E-STAT-001 blocks an identity-aware inference. The
-programme now makes the harder questions executable: whether a face-specific
-source representation changes that outcome, whether supervision beats ordinary compression,
-whether thresholds transfer, whether 1:N search benefits, and whether the resulting claim is
-admissible under replayable evidence. The value of the programme is not that every gate will
-pass; it is that failures remain visible, bounded and informative.
+The initial experiment asked a narrow but useful question: can a supervised linear
+512-to-128 projection preserve low-FMR verification performance relative to a frozen raw
+representation, and does pair supervision add value beyond matched compression controls?
+After correcting the uncertainty unit, the answer remains negative in the precise sense
+required by the protocol: preservation is not demonstrated, and added Siamese value is not
+demonstrated. The correction nevertheless matters because subject-level intervals are about
+1.5 times wider than the original pair-level intervals.
 
-\appendix
-\section{Machine-readable evidence map}
+The strongest outcome of the exercise is therefore twofold. Scientifically, it is a bounded
+negative result with a corrected and replayable uncertainty analysis. Methodologically, it
+shows how to separate exploratory screening from claim-bearing qualification so that rigor
+is preserved without spending maximum evidence cost before a direction has earned it. The
+next experiment will apply that lesson to a face-specific backbone before any deeper claim
+about compression geometry or system value is entertained.
 
-\begin{tabularx}{\linewidth}{@{}lX@{}}
-\toprule
-Path & Role\\
-\midrule
-\texttt{protocol/research\_program.yaml} & Umbrella scientific object and estimand\\
-\texttt{protocol/experiment\_ledger.yaml} & Append-only study, artifact and erratum history\\
-\texttt{protocol/studies/*.yaml} & Study status, preregistration, run and decision\\
-\texttt{ERRATA\_STUDY\_0.md} & Full retained description of E-STAT-001\\
-\texttt{CHANGELOG.md} & Versioned corrections without historical rewriting\\
-\texttt{claims/registry.yaml} & Claim wording, status, evidence and required gates\\
-\texttt{datasets/*.yaml} & Dataset evidence and qualification requirements\\
-\texttt{gates/gate\_spec.yaml} & G0--G7 qualification contract\\
-\texttt{gates/cal\_spec.yaml} & Three-state internal admissibility contract\\
-\texttt{beliefs/prior\_posterior.yaml} & Append-only belief updates\\
-\texttt{evidence/study\_0\_lfw/*} & Versioned replay tables required by paper figures\\
-\texttt{paper/figures-generated/*} & Deterministic evidence views and source-hash manifest\\
-\texttt{run\_manifest.json} & Immutable run identity, environment and checksums\\
-\texttt{data/events.jsonl} & Logical execution history\\
-\texttt{audit\_trace.jsonl} & Observed, derived and declared decisions\\
-\bottomrule
-\end{tabularx}
-
-\section{References}
+\section*{References}
 \begin{thebibliography}{9}
 
-\bibitem{contrastive}
+\bibitem{hadsell2006}
 R. Hadsell, S. Chopra, and Y. LeCun.
 Dimensionality Reduction by Learning an Invariant Mapping.
-\emph{IEEE Conference on Computer Vision and Pattern Recognition}, 2006.
+\emph{Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition}, 2006.
 
-\bibitem{siamese}
+\bibitem{koch2015}
 G. Koch, R. Zemel, and R. Salakhutdinov.
 Siamese Neural Networks for One-shot Image Recognition.
 \emph{ICML Deep Learning Workshop}, 2015.
 
-\bibitem{facenet}
+\bibitem{facenet2015}
 F. Schroff, D. Kalenichenko, and J. Philbin.
 FaceNet: A Unified Embedding for Face Recognition and Clustering.
-\emph{IEEE Conference on Computer Vision and Pattern Recognition}, 2015.
+\emph{Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition}, 2015.
 
-\bibitem{arcface}
+\bibitem{arcface2019}
 J. Deng, J. Guo, N. Xue, and S. Zafeiriou.
 ArcFace: Additive Angular Margin Loss for Deep Face Recognition.
-\emph{IEEE Conference on Computer Vision and Pattern Recognition}, 2019.
-\url{https://arxiv.org/abs/1801.07698}.
+\emph{Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition}, 2019.
 
-\bibitem{lfw}
+\bibitem{lfw2007}
 G. B. Huang, M. Ramesh, T. Berg, and E. Learned-Miller.
 Labeled Faces in the Wild: A Database for Studying Face Recognition in Unconstrained
 Environments. University of Massachusetts Amherst, Technical Report 07-49, 2007.
 
 \bibitem{iso19795}
 ISO/IEC 19795-1:2021.
-Information technology---Biometric performance testing and reporting---Part 1:
-Principles and framework. International Organization for Standardization, 2021.
-\url{https://www.iso.org/standard/73515.html}.
+Information technology---Biometric performance testing and reporting---Part 1: Principles
+and framework. International Organization for Standardization, 2021.
 
-\bibitem{nist11}
-National Institute of Standards and Technology.
-Face Recognition Technology Evaluation 1:1 Verification.
-\url{https://pages.nist.gov/frvt/html/frvt11.html}.
-
-\bibitem{nist1n}
-National Institute of Standards and Technology.
-Face Recognition Technology Evaluation 1:N Identification.
-\url{https://pages.nist.gov/frvt/html/frvt1N.html}.
-
-\bibitem{reproducibility}
+\bibitem{pineau2021}
 J. Pineau et al.
 Improving Reproducibility in Machine Learning Research.
 \emph{Journal of Machine Learning Research}, 22(164):1--20, 2021.
