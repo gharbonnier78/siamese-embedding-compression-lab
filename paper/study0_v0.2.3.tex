@@ -368,6 +368,45 @@ This design isolates the post-extractor compression intervention. It deliberatel
 ask whether a different face backbone, end-to-end compact network, nonlinear head or
 quantized representation would perform better.
 
+\subsection{Why the ImageNet ResNet-18 starting point is pedagogical, not a face-recognition baseline}\label{sec:backbone-provenance}
+
+The starting architecture was inherited deliberately from the public educational implementation
+that motivated this work. In that implementation, a torchvision ResNet-18 initialized with
+ImageNet classification weights is used as the shared backbone; every ResNet parameter is
+frozen, and only the final 512-to-128 embedding head is trainable. The present repository
+independently reproduces that experimental idea rather than copying its source code. Thus it
+would be inaccurate to say that the face-recognition model itself was ``trained with ResNet''
+on LFW. The ResNet-18 had already been trained for ImageNet object classification; LFW pair
+supervision trained only the small projection placed on top of its 512D penultimate features.
+
+This is a useful pedagogical construction because it isolates metric learning: the source
+representation is fixed, so any difference among raw, random, PCA and Siamese routes is due
+to the post-extractor transformation. It is not, however, a strong way to establish face
+verification performance. ImageNet supervision rewards separation of object categories, not
+identity discrimination among faces under changes of age, pose, illumination, expression,
+occlusion and capture quality. A frozen linear head can reweight and rotate information that
+already exists in the 512D source vector, but it cannot recover identity information that the
+ImageNet extractor never encoded reliably. The preprocessing is likewise generic ImageNet
+resize/normalization applied to LFW-deepfunneled imagery; the experiment does not evaluate a
+modern face-detection/alignment/quality pipeline as part of the source representation.
+
+The roughly ``70 percent accuracy'' recollection is therefore directionally consistent with
+the replay, but it should not be used as the scientific endpoint. If a decision threshold is
+chosen directly on TEST to maximize classification accuracy, the immutable Study 0 scores give
+71.5\% for raw 512D and 73.0--74.7\% across the five Siamese seeds (PCA is 74.1--74.3\%). These
+are descriptive, TEST-tuned values. They are optimistic for deployment because the threshold
+was selected with TEST labels, and they do not replace the predeclared low-FMR non-inferiority
+endpoint used in this paper. Their main value here is diagnostic: absolute face-verification
+performance is weak enough that the suitability of the source backbone must be questioned
+before attributing a failure to compression itself.
+
+Modern face-recognition systems instead learn identity-discriminative embeddings with
+face-specific objectives and data. Representative families include FaceNet-style metric
+learning~\cite{facenet2015} and angular-margin classification such as ArcFace~\cite{arcface2019};
+quality-aware variants such as AdaFace~\cite{adaface2022} further adapt the learning objective
+to image quality. The next experiment therefore changes the source representation before
+asking the compression question again.
+
 \section{The initial experiment}\label{sec:initial}
 
 \subsection{Data and splits}
@@ -706,6 +745,51 @@ backbone itself is credible at the target low-FMR operating region. The second i
 least one 128D route shows enough retention signal relative to raw and matched controls to
 justify qualification.
 
+\subsection{Backbone and dataset roles for the next experiment}
+
+The preferred design is to use a \emph{pretrained, frozen face-specific extractor} rather
+than to make backbone training part of the primary compression experiment. The exact model
+must be frozen before screening with architecture, preprocessing, weight digest, training
+corpus, licence and training provenance recorded. An ArcFace-family iResNet is a natural
+primary candidate because its objective is explicitly identity-discriminative; AdaFace is a
+reasonable secondary candidate if the programme later asks whether quality-aware source
+features change the compression result. The study should not compare many backbones at once
+unless that comparison is itself preregistered, because otherwise backbone choice becomes a
+new post-hoc degree of freedom.
+
+Dataset roles must also be separated. A practical public-data hierarchy is:
+\begin{itemize}
+\item \textbf{Projection development (TRAIN/VALIDATION):} a sufficiently large, authorized
+      face-development corpus with many identities and captures, disjoint from qualification
+      identities. VGGFace2~\cite{vggface2_2018} is scientifically attractive because it was
+      constructed with substantial pose and age variation and has identity-separated train/test
+      partitions, but its original Oxford download is no longer available; therefore it cannot
+      be assumed as an automatically reproducible dependency. If it is not legitimately
+      available, an alternative authorized development corpus must satisfy the same role and
+      provenance requirements.
+\item \textbf{Exploratory SCREEN:} conventional face-verification benchmarks such as LFW,
+      CFP-FP, AgeDB-30, CALFW and CPLFW are useful as fast sanity and stress checks for
+      frontal/profile, age and pose behavior. They are screening evidence only. Published
+      work has documented identity overlap between common web-scale face-training corpora and
+      LFW-family benchmarks~\cite{overlap2024}, so overlap must be audited rather than assumed absent.
+\item \textbf{Qualification TEST:} IJB-C~\cite{ijbc2018} 1:1 template verification is a
+      stronger public candidate because it contains substantially more unconstrained imagery
+      and millions of impostor template comparisons, allowing evaluation at lower false-accept
+      regions than LFW. It still requires an identity-overlap audit against the frozen
+      backbone's training data. If disjointness or lawful access cannot be established, the
+      result must be downgraded to an external benchmark rather than called qualification evidence.
+\item \textbf{Operational/external validity:} no public celebrity benchmark establishes
+      representativity for a passport, border, mobile or national-gallery deployment. A later
+      study must therefore use authorized, population- and capture-relevant data if an
+      operational claim is sought. Demographic and capture-regime stress datasets belong to
+      that later external-validity stage rather than being silently folded into Study 1.
+\end{itemize}
+
+A particularly important guard follows from this hierarchy: the data used to train the face
+backbone, the data used to fit the 512-to-128 projection, the exploratory screening benchmarks
+and the claim-bearing qualification set are four different roles. Sharing identities across
+those roles can create optimistic evidence even when file-level train/test splits are technically different.
+
 If screening promotes the direction, full qualification still uses the complete planned
 seed set $\{11,29,47,71,101\}$ and an untouched TEST set. If screening is negative, the
 result is preserved and the programme stops or redirects without opening qualification
@@ -744,9 +828,11 @@ a fixed TeX environment.
 
 \section{Threats to validity}\label{sec:limits}
 
-\textbf{Backbone validity.} ImageNet ResNet-18 is not designed as a face-recognition
-embedding. Poor absolute error rates are therefore unsurprising and limit transfer to real
-face systems.
+\textbf{Backbone validity.} ImageNet ResNet-18 is trained for generic object
+classification, not face identity discrimination, and it is completely frozen in this
+experiment. Only the 512-to-128 projection learns from face pairs. Poor absolute error rates
+are therefore unsurprising and limit transfer to real face systems; a linear projection
+cannot manufacture identity information absent from the frozen source embedding.
 
 \textbf{Operating-point resolution.} LFW DevTest has only 500 impostor pairs. The empirical
 FMR grid is too coarse for industrial low-FMR claims.
@@ -847,6 +933,26 @@ FaceNet: A Unified Embedding for Face Recognition and Clustering.
 J. Deng, J. Guo, N. Xue, and S. Zafeiriou.
 ArcFace: Additive Angular Margin Loss for Deep Face Recognition.
 \emph{Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition}, 2019.
+
+\bibitem{adaface2022}
+M. Kim, A. K. Jain, and X. Liu.
+AdaFace: Quality Adaptive Margin for Face Recognition.
+\emph{Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition}, 2022.
+
+\bibitem{vggface2_2018}
+Q. Cao, L. Shen, W. Xie, O. M. Parkhi, and A. Zisserman.
+VGGFace2: A Dataset for Recognising Faces across Pose and Age.
+\emph{IEEE International Conference on Automatic Face \& Gesture Recognition}, 2018.
+
+\bibitem{ijbc2018}
+B. Maze et al.
+IARPA Janus Benchmark--C: Face Dataset and Protocol.
+\emph{International Conference on Biometrics}, 2018.
+
+\bibitem{overlap2024}
+H. Wu, S. Tian, J. Gutierrez, A. Bhatta, K. Ozturk, and K. W. Bowyer.
+Identity Overlap Between Face Recognition Train/Test Data: Causing Optimistic Bias in Accuracy Measurement.
+\emph{arXiv:2405.09403}, 2024.
 
 \bibitem{lfw2007}
 G. B. Huang, M. Ramesh, T. Berg, and E. Learned-Miller.

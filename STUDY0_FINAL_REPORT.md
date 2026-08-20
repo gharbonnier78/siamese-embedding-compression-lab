@@ -6,6 +6,16 @@ In this repository, **Study 0** is simply the name of the first controlled exper
 
 The experiment is intentionally exploratory. ImageNet ResNet-18 is not a face-recognition backbone, and LFW DevTest has only 500 impostor pairs, so it cannot establish industrial very-low-FMR claims.
 
+### Why the ResNet-18 starting point matters
+
+The original public implementation that motivated this work used a **torchvision ResNet-18 pretrained on ImageNet and then fully frozen**. Only the final 512→128 linear embedding head was trained from LFW pairs. So it is more precise to say that Study 0 trained a **small Siamese projection on top of generic ImageNet features**, not that a ResNet-18 face recognizer was trained on LFW.
+
+That distinction explains much of the weak absolute performance. ImageNet training optimizes generic object-category discrimination, not identity separation between faces under age, pose, illumination, expression, occlusion and capture-quality changes. A linear head can reorganize information already present in the 512D vector, but it cannot recreate identity information that the frozen source representation did not preserve.
+
+The remembered “~70% accuracy” is consistent with the immutable replay, but it is not the scientific endpoint. If a threshold is optimized directly on TEST, descriptive accuracy is **71.5% for raw 512D** and **73.0–74.7% across Siamese seeds** (PCA: **74.1–74.3%**). These values are TEST-tuned and therefore non-deployable. They are useful mainly as a sanity check showing that the source representation itself is weak for face verification.
+
+A stronger continuation should therefore start from a **pretrained face-specific embedding** (for example an ArcFace-family model with pinned weights and training provenance), keep that backbone frozen, and then ask the compression question again.
+
 ## Why dimensionality reduction is not one single technique
 
 “Feature reduction” can mean several different things. The Study 0 comparison focuses on **feature extraction**: creating a new lower-dimensional representation from the existing 512D embedding. This differs from feature selection, which would simply retain a subset of the original coordinates.
@@ -189,7 +199,14 @@ This is not a reduction in scientific standards. It aligns the evidence burden w
 
 ## Consequence for the next study
 
-The next experiment will replace ImageNet ResNet-18 with a face-specific backbone. Its current design uses a non-claim-bearing screening stage before qualification:
+The next experiment will replace ImageNet ResNet-18 with a face-specific backbone. Dataset roles should be explicit:
+
+- **TRAIN / VALIDATION for the projection:** a sufficiently large authorized face-development corpus, identity-disjoint from qualification data. VGGFace2 is scientifically attractive for pose/age diversity, but its original Oxford download is no longer available, so access and licence cannot be assumed.
+- **SCREEN:** LFW, CFP-FP, AgeDB-30, CALFW and CPLFW can provide fast, non-claim-bearing sanity/stress checks; identity overlap with the backbone's training corpus must be audited.
+- **Qualification TEST:** IJB-C 1:1 template verification is the preferred public candidate because it supports a substantially richer unconstrained protocol and far more impostor comparisons than LFW. It still requires training/test identity-overlap and lawful-access checks.
+- **Operational validity:** a later study needs authorized data representative of the actual population, sensor and capture process; public celebrity benchmarks do not establish that claim.
+
+Its current design uses a non-claim-bearing screening stage before qualification:
 
 - SCREEN is distinct from qualification TEST;
 - raw/random/PCA/Siamese remain matched;
