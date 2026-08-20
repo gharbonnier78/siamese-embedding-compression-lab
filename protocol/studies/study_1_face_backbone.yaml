@@ -1,4 +1,4 @@
-schema_version: "1.1.1"
+schema_version: "1.1.2"
 study_id: study_1_face_backbone
 title: Face-specific backbone 1:1 compression study
 status: DRAFT_PREREGISTRATION
@@ -17,6 +17,40 @@ strategy:
   qualification_test_open_during_screening: false
   screening_outcomes_may_drop_unfavorable_qualification_seeds: false
   geometry_exploration_permitted: false
+study_0_backbone_lesson:
+  source_backbone: torchvision_resnet18_imagenet
+  source_backbone_frozen: true
+  face_pair_trained_component: linear_512_to_128_head_only
+  descriptive_test_optimized_accuracy_context:
+    raw_512d: 0.715
+    siamese_128d_min: 0.730
+    siamese_128d_max: 0.747
+    pca_128d_min: 0.741
+    pca_128d_max: 0.743
+    claim_status: DESCRIPTIVE_TEST_TUNED_NOT_DEPLOYABLE
+  consequence: >-
+    The Study 0 source representation was trained for ImageNet object classification, not
+    face identity discrimination. A linear projection can reorganize retained information
+    but cannot reconstruct identity information absent from the frozen source embedding.
+    Study 1 therefore changes the source backbone before re-testing compression.
+backbone_policy:
+  primary_design: pretrained_frozen_face_specific_extractor
+  backbone_training_is_part_of_primary_study: false
+  candidate_family: arcface_iresnet
+  secondary_candidate_family: adaface_if_separately_preregistered
+  must_pin_before_screening:
+    - architecture
+    - preprocessing
+    - weights_sha256
+    - source_url_or_artifact_identity
+    - licence
+    - face_training_objective
+    - training_corpus
+    - training_provenance
+    - detector_alignment_normalization_pipeline
+  anti_selection_guard: >-
+    Do not screen many face backbones and retain whichever looks best. Any multi-backbone
+    comparison must itself be preregistered before SCREEN outcomes are opened.
 prerequisites:
   study_0_corrected_reanalysis_closure:
     status: SATISFIED
@@ -33,14 +67,74 @@ prerequisites:
 blocking_items:
   - independently review and merge this Study 1 design amendment
   - obtain a separate researcher authorization before any Study 1 screening execution
-  - pin backbone architecture, weights, training provenance and licence
-  - pin development, screening and untouched qualification datasets
+  - pin face-specific backbone architecture, weights, training provenance and licence
+  - pin projection-development, screening and untouched qualification datasets
   - declare target population and capture regimes
-  - run identity-overlap and near-duplicate audit
+  - run training/evaluation identity-overlap and near-duplicate audits
   - freeze the screening promotion and stop rule before opening screening outcomes
   - calculate identity-and-capture sample size for the selected target FMR and uncertainty requirement
   - freeze primary FMR, non-inferiority margin and multiplicity policy
   - freeze compute budget and all qualification seeds
+data_roles:
+  backbone_training:
+    role: provenance_only_for_primary_study
+    requirement: >-
+      The frozen face backbone's training corpus must be documented sufficiently to audit
+      identity overlap with SCREEN and qualification benchmarks. Backbone training is not
+      itself executed as part of the primary Study 1 compression experiment.
+  projection_development:
+    role: TRAIN_VALIDATION
+    requirements:
+      - sufficiently_many_identities_and_captures
+      - authorized_access_and_licence
+      - identity_disjoint_from_qualification
+      - provenance_and_hashes_recorded
+    candidate: VGGFace2_if_legitimately_available
+    candidate_note: >-
+      VGGFace2 is scientifically attractive for pose and age diversity, but the original
+      Oxford download is no longer available. It must not be assumed as an automatically
+      reproducible dependency; an alternative authorized corpus may be selected if it meets
+      the same role and disjointness requirements.
+  screening:
+    role: EXPLORATORY_SCREENING_NOT_FOR_CLAIM
+    candidate_suite:
+      - LFW
+      - CFP_FP
+      - AgeDB_30
+      - CALFW
+      - CPLFW
+    intended_stress_axes:
+      LFW: continuity_and_basic_sanity
+      CFP_FP: frontal_profile
+      AgeDB_30: age_variation
+      CALFW: cross_age
+      CPLFW: cross_pose
+    overlap_guard: >-
+      Common web-scale face-training corpora may overlap identities with LFW-family
+      benchmarks. Unresolved overlap does not make screening useless for triage, but such
+      evidence cannot be promoted to independent qualification evidence.
+  qualification:
+    role: untouched_TEST
+    preferred_public_candidate: IJB_C_1_to_1_template_verification
+    rationale: >-
+      IJB-C contains substantially richer unconstrained still/video material and many more
+      impostor template comparisons than LFW, making lower false-accept regions measurable.
+    prerequisites:
+      - lawful_authorized_access_confirmed
+      - backbone_training_identity_overlap_audited
+      - projection_train_validation_identity_overlap_zero
+      - protocol_and_template_aggregation_frozen
+      - preprocessing_frozen
+      - target_fmr_far_and_precision_supported
+    downgrade_rule: >-
+      If training/test identity disjointness or lawful access cannot be established, retain
+      the result only as an external benchmark rather than strong independent qualification.
+  operational_external_validity:
+    role: later_study_not_study1_primary
+    requirement: >-
+      Public celebrity benchmarks do not establish representativity for a specific passport,
+      border, mobile, national-gallery or other production population/capture process. Such
+      claims require authorized population- and capture-relevant data in a later study.
 screening:
   status: DRAFT_NOT_AUTHORIZED_FOR_EXECUTION
   evidence_mode: EXPLORATORY_SCREENING_NOT_FOR_CLAIM
