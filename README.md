@@ -23,6 +23,11 @@ The primary question was whether each 128D route was non-inferior to raw 512D at
 
 This is not evidence that metric learning fails in general, that 128D compression is intrinsically inferior, or that the experiment establishes industrial biometric validity.
 
+## Quick links
+
+[![Study 0 PDF](https://img.shields.io/badge/Study%200-v0.2.3%20PDF-b31b1b?logo=adobeacrobatreader&logoColor=white)](siamese_embedding_compression_study0_v0.2.3.pdf)
+[![Study 0 Final Report](https://img.shields.io/badge/Study%200-Final%20Report-2ea44f?logo=markdown&logoColor=white)](STUDY0_FINAL_REPORT.md)
+
 ## Start here
 
 1. **[Study 0 final report](STUDY0_FINAL_REPORT.md)** — 5–10 minute reader-oriented account of the question, correction, result, and next decision.
