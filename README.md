@@ -25,8 +25,9 @@ This is not evidence that metric learning fails in general, that 128D compressio
 
 ## Quick links
 
-[![Study 0 PDF](https://img.shields.io/badge/Study%200-v0.2.3%20PDF-b31b1b?logo=adobeacrobatreader&logoColor=white)](siamese_embedding_compression_study0_v0.2.3.pdf)
+[![Study 0 PDF](https://img.shields.io/badge/Study%200-v0.2.3%20PDF-b31b1b?logo=adobeacrobatreader&logoColor=white)](paper/siamese_embedding_compression_study0_v0.2.3.pdf)
 [![Study 0 Final Report](https://img.shields.io/badge/Study%200-Final%20Report-2ea44f?logo=markdown&logoColor=white)](STUDY0_FINAL_REPORT.md)
+[![LinkedIn Carousel](https://img.shields.io/badge/LinkedIn-Carousel%20Images-0a66c2?logo=linkedin&logoColor=white)](publication/linkedin/study0-carousel/images/)
 
 ## Start here
 
@@ -43,7 +44,7 @@ Archived historical papers remain available at:
 - [v0.2.1 PDF](output/pdf/siamese_embedding_compression_research_program_v0.2.1.pdf)
 - [v0.2 PDF](output/pdf/siamese_embedding_compression_research_program_v0.2.pdf)
 
-The v0.2.3 PDF is rebuilt from `paper/main.tex`; historical PDFs are never overwritten.
+The reviewed v0.2.3 PDF is stored next to its LaTeX source under `paper/`; historical PDFs are never overwritten.
 
 ## What Study 0 established
 
