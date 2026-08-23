@@ -6,7 +6,12 @@ This document is design-only. It does not authorize access to qualification outc
 outcome-bearing Study 1 run. Study 0 remains closed and is not overwritten by Study 1.
 
 Pinned methodological dependency: `scientific-research-harness` commit
-`1cead5808c126fd38e7505c27502fb3e7671c69a` through `harness-adoption.yaml`.
+`422e08f3d6483ca11fa5a4767cffa99ce386bde5` through `harness-adoption.yaml`.
+
+The Study 1 implementation is assigned the harness **POC engineering-care profile**. That
+requires proportional architecture/code documentation, focused tests, code/static checks,
+dependency and secret review, relevant security assumptions and explicit residual risks before
+outcome-bearing execution. The POC label is not a waiver for basic engineering care.
 
 ## Research sequence
 
@@ -32,8 +37,7 @@ running compression anyway.
 - [ ] Pin architecture, weights, source, checksum and licence.
 - [ ] Record the face-recognition training objective and source training corpus where known.
 - [ ] Audit known training/evaluation overlap and document what cannot be established.
-- [ ] Freeze face detection, alignment, crop, colour order, normalization and embedding L2
-      normalization.
+- [ ] Freeze face detection, alignment, crop, colour order, normalization and embedding L2 normalization.
 - [ ] Freeze treatment of detection/alignment failures and exclusions.
 
 Backbone selection is a protocol decision, not a result-dependent tuning loop. If several
@@ -46,8 +50,7 @@ The current proposed hierarchy is:
 
 - **LFW** — sanity/reproduction benchmark, not sufficient by itself to release the backbone gate;
 - **CFP-FP, AgeDB-30, CALFW, CPLFW** — harder screening/diagnostic benchmarks;
-- **IJB-C** — preferred primary qualification benchmark, conditional on lawful access, licence
-  compliance and reproducible use of its official protocol.
+- **IJB-C** — preferred primary qualification benchmark, conditional on lawful access, licence compliance and reproducible use of its official protocol.
 
 Before execution:
 
@@ -61,8 +64,7 @@ Before execution:
 
 ## 3. Study 1A — raw 512D viability gate
 
-The raw backbone must reproduce a credible reference performance before compression can be
-studied.
+The raw backbone must reproduce a credible reference performance before compression can be studied.
 
 - [ ] Freeze at least one decision-relevant low-FMR/FAR endpoint.
 - [ ] Freeze the reference result(s) for the exact backbone and exact benchmark protocol.
@@ -75,8 +77,7 @@ predeclared reproduction criterion tied to the exact model/protocol being reprod
 
 **Gate A result semantics**
 
-- `PASS` — raw 512D foundation is credible; Study 1B may be prepared, but still requires its
-  own authorization.
+- `PASS` — raw 512D foundation is credible; Study 1B may be prepared, but still requires its own authorization.
 - `FAIL` — stop and diagnose model/preprocessing/data/protocol mismatch.
 - `INDETERMINATE` — evidence is insufficient; do not proceed to compression qualification.
 
@@ -99,8 +100,7 @@ Controls must receive the same input embeddings and data roles.
 
 ## 5. Estimand, operating point and claims
 
-Primary representation estimand for candidate `m`, raw reference `b`, and target false-match
-rate `alpha`:
+Primary representation estimand for candidate `m`, raw reference `b`, and target false-match rate `alpha`:
 
 `delta_fnmr(m, alpha) = FNMR_m(alpha) - FNMR_b(alpha)`
 
@@ -114,16 +114,13 @@ Before execution:
 - [ ] Separate equal-FMR representation benchmarking from operational threshold-transfer claims.
 - [ ] Mark AUC/EER/ROC/DET as descriptive unless explicitly promoted in the preregistration.
 
-A failure to demonstrate non-inferiority means `NOT_DEMONSTRATED`, not general inferiority of
-128D compression or of metric learning.
+A failure to demonstrate non-inferiority means `NOT_DEMONSTRATED`, not general inferiority of 128D compression or of metric learning.
 
 ## 6. Identity dependence and uncertainty
 
-Study 0 established that naive pair-row independence is not acceptable when trials share
-identities.
+Study 0 established that naive pair-row independence is not acceptable when trials share identities.
 
-- [ ] Preserve an identity-dependence-aware uncertainty estimator appropriate to the Study 1
-      trial graph/protocol.
+- [ ] Preserve an identity-dependence-aware uncertainty estimator appropriate to the Study 1 trial graph/protocol.
 - [ ] Revalidate estimator behaviour if the new benchmark graph differs materially from Study 0.
 - [ ] Same bootstrap/resampling draw must be used for paired raw-candidate differences.
 - [ ] More bootstrap replicates must not be treated as a substitute for more independent subjects.
@@ -177,7 +174,24 @@ Use plausible alternatives such as `Delta_expected = 0` and `0.01`, then design 
 - [ ] Freeze epochs, early stopping, learning rate, batch size and training budget where relevant.
 - [ ] Capture environment and exact replay commands.
 
-## 10. Required double review before any tests
+## 10. POC engineering assurance before outcome execution
+
+The pinned harness now makes code quality and security explicit obligations when executable code is produced.
+
+- [ ] Document the Study 1 system context, pipeline decomposition and code structure/change boundaries.
+- [ ] Add focused unit tests for critical pure logic and frozen scientific transformations.
+- [ ] Add syntax/type/lint or equivalent automated code checks.
+- [ ] Add secret scanning; no dataset credentials, tokens or private keys may be committed.
+- [ ] Review Python dependencies and downloaded model artifacts for provenance and supply-chain risk.
+- [ ] Use static security analysis where supported.
+- [ ] Record relevant security assumptions and residual risks.
+- [ ] Provide a deterministic smoke/health path for the frozen Study 1 pipeline.
+- [ ] Treat every security finding as fixed, not applicable, or explicitly accepted with bounded rationale.
+- [ ] Never report a missing quality/security check as a passing check.
+
+Runtime telemetry is not scientific evidence. If later used as engineering/test evidence, it must be governed by a predeclared expected-signal contract and a pinned applicable OpenTelemetry specification/semantic-convention version.
+
+## 11. Required double review before any tests
 
 Two independent reviews are mandatory.
 
@@ -193,9 +207,10 @@ Reviewer must explicitly accept or reject:
 - seed and multiplicity rules;
 - prohibited inferences;
 - distinction between evidence, Chronicle and pedagogy;
-- human-understanding obligation.
+- human-understanding obligation;
+- compatibility of the harness upgrade with preservation of historical Study 0 provenance.
 
-### Review 2 — technical / reproducibility
+### Review 2 — technical / reproducibility / engineering assurance
 
 Reviewer must explicitly accept or reject:
 
@@ -206,15 +221,17 @@ Reviewer must explicitly accept or reject:
 - threshold selection and freeze logic;
 - randomness lineage;
 - matched route semantics;
-- environment capture and replay commands.
+- environment capture and replay commands;
+- architecture/code documentation;
+- focused tests and static code checks;
+- dependency, secret and static-security checks;
+- security assumptions and residual risks.
 
-**Release condition:** both reviews return `ACCEPT`, CI/Research Assurance are green, and the
-protocol is frozen. Only then may an explicit GO for Study 1A be requested.
+**Release condition:** both reviews return `ACCEPT`, CI/Research Assurance and applicable POC engineering-assurance checks are green, and the protocol is frozen. Only then may an explicit GO for Study 1A be requested.
 
-## 11. Pedagogical / human-understanding gate
+## 12. Pedagogical / human-understanding gate
 
-Before execution, at least one accountable human should be able to explain without relying on
-a green CI badge:
+Before execution, at least one accountable human should be able to explain without relying on a green CI badge:
 
 1. why a face-specific 512D backbone is being qualified before compression;
 2. why LFW alone is insufficient as the release gate;
@@ -225,11 +242,12 @@ a green CI badge:
 7. why PCA and random projection remain necessary controls;
 8. why Stage A screening is not final evidence;
 9. what a non-inferiority margin means;
-10. why `NOT_DEMONSTRATED` is not the same as "the method is worse".
+10. why `NOT_DEMONSTRATED` is not the same as "the method is worse";
+11. why a POC still needs basic code-quality/security assurance.
 
 This is an understanding gate only. It cannot release a scientific gate.
 
-## 12. Explicitly prohibited next actions
+## 13. Explicitly prohibited next actions
 
 Until the preregistration is frozen, double-reviewed and explicitly authorized, do not:
 
