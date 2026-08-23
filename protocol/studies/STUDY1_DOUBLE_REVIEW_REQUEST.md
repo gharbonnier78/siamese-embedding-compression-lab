@@ -14,7 +14,12 @@ Authoritative draft artifacts:
 - `RESEARCH_PROGRAM.md` for programme context
 - `harness-adoption.yaml`
 - pinned `scientific-research-harness/HARNESS.md` at
-  `1cead5808c126fd38e7505c27502fb3e7671c69a`
+  `422e08f3d6483ca11fa5a4767cffa99ce386bde5`
+
+The selected engineering-care profile for Study 1 is **POC**. Under the pinned harness this is
+not a waiver for code quality or security: the implementation must remain understandable,
+reviewable and reproducible, with focused tests, code/static checks, dependency/secret review,
+relevant security assumptions and explicit residual risks before outcome-bearing execution.
 
 Study 0 remains closed with `C-NI-001 = NOT_DEMONSTRATED` and
 `C-SUP-001 = NOT_DEMONSTRATED`. The proposed Study 1 sequence is:
@@ -45,10 +50,11 @@ and explicitly address:
 9. Are prohibited inferences sufficiently explicit?
 10. Does the pedagogical layer explain rather than authorize scientific claims?
 11. Is any scientific choice still underspecified enough to block execution?
+12. Is the harness upgrade itself correctly bounded so that historical Study 0 evidence is not retrospectively reinterpreted?
 
 The reviewer should list every blocking item that must be frozen before `VERDICT_A: ACCEPT`.
 
-## Review B — technical / reproducibility
+## Review B — technical / reproducibility / engineering assurance
 
 This review must be independent of Review A in role and reasoning, even if performed by
 another LLM or reviewer using the same repository.
@@ -72,7 +78,15 @@ and explicitly address:
 9. Can the exact environment and replay commands be captured?
 10. Are failure modes such as unavailable IJB-C data, failed face detection, missing images
     and degenerate bootstrap draws specified before execution?
-11. Is any implementation detail underspecified enough to block execution?
+11. Is the Study 1 system/decomposition and code structure documented sufficiently for a competent human reviewer?
+12. Are critical pure-logic paths covered by focused automated tests?
+13. Are syntax/type/lint or equivalent code checks defined and visible in CI?
+14. Is secret scanning present, and are dataset credentials/tokens prohibited from the repository?
+15. Is dependency/supply-chain review present for Python packages, model weights and downloaded artifacts?
+16. Is static security analysis used where supported, with findings fixed, shown not applicable, or explicitly accepted with bounded rationale?
+17. Are security assumptions and residual risks explicit rather than implied by the label `POC`?
+18. If any runtime telemetry is used as engineering/test evidence, is there a predeclared expected-signal contract and pinned applicable OpenTelemetry specification/semantic-convention version?
+19. Is any implementation or engineering-assurance detail underspecified enough to block execution?
 
 The reviewer should list every blocking item that must be frozen before `VERDICT_B: ACCEPT`.
 
@@ -83,9 +97,11 @@ No Study 1 test may start until all of the following are true:
 1. Review A returns `ACCEPT`.
 2. Review B returns `ACCEPT`.
 3. All blocking protocol placeholders are resolved and frozen.
-4. CI and Research Assurance are green for the frozen protocol commit.
-5. The Chronicle records the reviewed freeze and exact next admissible action.
-6. A separate explicit human `GO` authorizes Study 1A execution.
+4. The POC engineering-care obligations applicable to the implemented Study 1 pipeline are present and reviewable.
+5. CI and Research Assurance are green for the frozen protocol/implementation commit.
+6. Missing quality/security checks are not misreported as passing checks.
+7. The Chronicle records the reviewed freeze and exact next admissible action.
+8. A separate explicit human `GO` authorizes Study 1A execution.
 
 A review acceptance is not itself execution authorization.
 
@@ -94,4 +110,5 @@ A review acceptance is not itself execution authorization.
 If either review requests changes: amend the draft only; do not execute.
 
 If both reviews accept: freeze/hash the complete preregistration, run the non-outcome-bearing
-validation/CI checks, record the Chronicle entry, and request explicit `GO` for Study 1A.
+validation/CI/engineering-assurance checks, record the Chronicle entry, and request explicit
+`GO` for Study 1A.
