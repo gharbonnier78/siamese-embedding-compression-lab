@@ -107,6 +107,6 @@ the original run, artifact and claim state.
 
 - Executed the frozen ImageNet ResNet-18/LFW mechanism audit.
 - Stored immutable run ID
-  `lfw-resnet18-siamese-projection-v0_1-89179914-911192ee-64559cbd`.
+  `lfw_resnet18_siamese_projection_v0_1-89179914-911192ee-64559cbd`.
 - Reported that the contrastive mechanism trained successfully while non-inferiority and
   added value over matched controls were not demonstrated.
