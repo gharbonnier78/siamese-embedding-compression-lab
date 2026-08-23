@@ -8,8 +8,10 @@ review_request: protocol/studies/STUDY1_DOUBLE_REVIEW_REQUEST.md
 
 harness:
   adoption_manifest: harness-adoption.yaml
-  pinned_ref: "1cead5808c126fd38e7505c27502fb3e7671c69a"
+  pinned_ref: "422e08f3d6483ca11fa5a4767cffa99ce386bde5"
   lifecycle: [Bind, Frame, Execute, Verify, Explain, Chronicle_and_handoff]
+  engineering_care_profile: POC
+  telemetry_evidence: NOT_APPLICABLE_UNLESS_PREDECLARED_BY_CONTRACT
 
 purpose: >-
   First qualify a frozen face-specific 512D embedding backbone on declared face-verification
@@ -141,6 +143,27 @@ sample_size:
     - inter_seed_variation
     - all_declared_seeds_rule
 
+engineering_assurance:
+  profile: POC
+  required_before_outcome_execution:
+    - architecture_or_decomposition_note_for_the_Study_1_pipeline
+    - focused_unit_tests_for_critical_logic
+    - syntax_type_lint_or_equivalent_static_code_checks
+    - dependency_and_supply_chain_review
+    - secret_scanning
+    - static_security_analysis_where_supported
+    - explicit_security_assumptions_and_residual_risks
+    - deterministic_smoke_or_health_path_for_the_frozen_pipeline
+  security_boundary:
+    - no_secrets_or_dataset_credentials_committed
+    - downloaded_weights_and_dependencies_must_have_reviewable_provenance
+    - security_findings_must_be_fixed_not_applicable_or_explicitly_accepted
+    - missing_security_check_must_not_be_reported_as_passing
+  telemetry_rule: >-
+    Runtime telemetry is not scientific evidence. If it is later used as engineering/test
+    evidence, an expected-signal contract and applicable OpenTelemetry specification/semantic
+    convention version must be frozen before execution.
+
 pre_execution_double_review:
   scientific_harness_review:
     required: true
@@ -164,6 +187,10 @@ pre_execution_double_review:
       - random_state_lineage
       - raw_random_pca_siamese_route_equivalence
       - replay_commands_and_environment_capture
+      - proportional_architecture_and_code_documentation
+      - focused_tests_and_static_code_checks
+      - dependency_secret_and_security_review
+      - explicit_residual_risks
   release_condition: BOTH_REVIEWS_ACCEPT_AND_CI_RESEARCH_ASSURANCE_GREEN
 
 blocking_items:
@@ -176,6 +203,7 @@ blocking_items:
   - freeze Stage A promotion and stop rules
   - calculate identity-and-capture sample size
   - freeze compute budget and software/hardware environment
+  - implement the POC engineering-assurance checks before outcome-bearing execution
   - obtain two independent review acceptances
   - obtain explicit GO before Study 1A execution
 
