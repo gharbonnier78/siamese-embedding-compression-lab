@@ -1,0 +1,59 @@
+name: Study 1 Engineering Assurance
+
+on:
+  pull_request:
+    paths:
+      - 'src/siamese_compression_lab/study1_execution.py'
+      - 'tests/test_study1_execution.py'
+      - 'scripts/study1_generate_sbom.py'
+      - 'protocol/studies/STUDY1_*'
+      - '.github/workflows/study1-engineering-assurance.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  engineering-assurance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install bounded CI dependencies
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install numpy pyyaml pip-audit ruff bandit
+
+      - name: Syntax and focused lint
+        run: |
+          python -m compileall -q src tests scripts
+          ruff check src/siamese_compression_lab/study1_execution.py tests/test_study1_execution.py scripts/study1_generate_sbom.py
+
+      - name: Focused Study 1 contract tests
+        env:
+          PYTHONPATH: src
+        run: python -m unittest tests.test_study1_execution -v
+
+      - name: Static security scan
+        run: bandit -q -r src/siamese_compression_lab/study1_execution.py scripts/study1_generate_sbom.py
+
+      - name: Dependency vulnerability review
+        run: pip-audit
+
+      - name: Generate CycloneDX-shaped environment inventory
+        run: python scripts/study1_generate_sbom.py artifacts/study1/sbom.cdx.json
+
+      - name: Upload assurance artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: study1-engineering-assurance
+          path: |
+            artifacts/study1/sbom.cdx.json
+            artifacts/study1/sbom.cdx.json.sha256
+          if-no-files-found: error
