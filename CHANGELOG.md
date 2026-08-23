@@ -4,6 +4,31 @@ This changelog is append-only. Published studies, negative results and known def
 never rewritten as if they had not occurred. Corrections add a new entry and point back to
 the original run, artifact and claim state.
 
+## [0.2.4-draft] - 2026-08-23
+
+### Clarified
+
+- Clarifies the route-specific meaning of the five preregistered seeds
+  `{11, 29, 47, 71, 101}` used by the 128D candidate routes.
+- PCA is not a single unseeded deterministic fit: it is refitted for each preregistered
+  model/projection seed because scikit-learn PCA uses `svd_solver="randomized"` with
+  `random_state=seed`.
+- The TRAIN/VALIDATION split remains fixed independently by `split_seed = 20260806`; the
+  five candidate seeds do not resample or redefine the data split.
+- Random projection uses the candidate seed to generate its Gaussian matrix; PCA uses it
+  for randomized SVD; Siamese uses it for initialization and training order. Raw 512D has
+  no projection randomness and is represented once.
+- Distinguishes model/projection seed semantics from the bootstrap Monte-Carlo random
+  stream used to estimate uncertainty from already frozen historical scores.
+
+### Scientific status
+
+- No score, threshold, table, confidence interval, claim, gate, dataset split or scientific
+  conclusion changes relative to the independently reviewed v0.2.3 manuscript.
+- `C-NI-001 = NOT_DEMONSTRATED` and `C-SUP-001 = NOT_DEMONSTRATED` remain unchanged.
+- This is a reproducibility/pedagogy clarification triggered by an independent reader
+  finding; it does not reopen Study 0 or authorize Study 1 or representation-geometry work.
+
 ## [0.2.2-harness-draft] - 2026-08-08
 
 ### Added
@@ -82,6 +107,6 @@ the original run, artifact and claim state.
 
 - Executed the frozen ImageNet ResNet-18/LFW mechanism audit.
 - Stored immutable run ID
-  `lfw_resnet18_siamese_projection_v0_1-89179914-911192ee-64559cbd`.
+  `lfw-resnet18-siamese_projection_v0_1-89179914-911192ee-64559cbd`.
 - Reported that the contrastive mechanism trained successfully while non-inferiority and
   added value over matched controls were not demonstrated.
