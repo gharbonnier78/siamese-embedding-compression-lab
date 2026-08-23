@@ -1,36 +1,133 @@
-schema_version: "1.0.0"
+schema_version: "1.1.0"
 study_id: study_1_face_backbone
-title: Face-specific backbone 1:1 compression study
-status: DRAFT_PREREGISTRATION
+title: Face-specific 512D backbone qualification before 1:1 compression
+status: DRAFT_PREREGISTRATION_REVIEW_REQUIRED
 claim_level: NONE_UNTIL_EXECUTED
 human_readable_checklist: protocol/studies/study_1_preregistration.md
+review_request: protocol/studies/STUDY1_DOUBLE_REVIEW_REQUEST.md
+
+harness:
+  adoption_manifest: harness-adoption.yaml
+  pinned_ref: "1cead5808c126fd38e7505c27502fb3e7671c69a"
+  lifecycle: [Bind, Frame, Execute, Verify, Explain, Chronicle_and_handoff]
+
 purpose: >-
-  Test whether pair supervision adds compression value when the frozen source embedding
-  is produced by a face-specific extractor rather than an ImageNet classifier.
-blocking_items:
-  - implement the v0.2.2 weighted subject-slot bootstrap specification
-  - resolve E-STAT-001 after identity-dependence-aware interval coverage validation
-  - pin backbone architecture, weights, training provenance and licence
-  - pin development and untouched qualification datasets
-  - declare target population and capture regimes
-  - run identity-overlap and near-duplicate audit
-  - calculate identity-and-capture sample size for the selected target FMR and uncertainty requirement
-  - freeze primary FMR, non-inferiority margin and multiplicity policy
-  - freeze compute budget and all seeds
-design:
-  routes: [raw, random, pca, siamese]
-  dimensions: [128]
-  planned_seeds: [11, 29, 47, 71, 101]
+  First qualify a frozen face-specific 512D embedding backbone on declared face-verification
+  benchmarks and decision-relevant operating points. Only if that raw 512D foundation passes
+  a preregistered viability gate may Study 1 proceed to matched 512D-to-128D compression
+  comparison using raw, random, PCA and Siamese routes.
+
+scientific_boundary:
+  - Study 0 remains closed and is not overwritten.
+  - Study 1A backbone qualification is logically prior to Study 1B compression.
+  - No outcome-bearing execution is authorized by this draft.
+  - No geometry, manifold, fairness, PAD, 1:N, production-validity or regulatory claim is authorized.
+  - The Siamese route is a candidate, not the hypothesis that must win.
+
+current_known_state:
+  study_0_result: C_NI_001_NOT_DEMONSTRATED
+  study_0_margin_delta_fnmr: 0.03
+  study_0_target_fmr: 0.01
+  estimator_correction: SUBJECT_LEVEL_IDENTITY_DEPENDENCE_AWARE
+  estimator_validity_gate: PASS_FOR_CORRECTED_STUDY_0_SCOPE
+
+study_1a_backbone_qualification:
+  objective: >-
+    Demonstrate that the raw 512D face-specific representation is a credible modern face
+    verification substrate before attributing any later degradation to compression.
+  source_embedding_dimension: 512
+  backbone:
+    status: TO_BE_FROZEN_BEFORE_EXECUTION
+    requirements:
+      - face-specific identity-recognition training objective
+      - exact architecture and weights pinned
+      - source URL or repository pinned
+      - checksum recorded
+      - licence and permitted research use reviewed
+      - training-corpus provenance documented
+      - overlap with evaluation identities/images audited where information permits
+      - preprocessing and alignment fully specified
+  benchmark_roles:
+    sanity_reproduction:
+      - LFW
+    screening_diagnostics:
+      - CFP-FP
+      - AgeDB-30
+      - CALFW
+      - CPLFW
+    qualification_primary:
+      - IJB-C
+  dataset_access_note: >-
+    IJB-C is the preferred qualification benchmark but remains conditional on lawful access,
+    licence/usage compliance and reproducible protocol availability. If unavailable, the
+    replacement must be selected and frozen before any qualification outcomes are inspected.
+  protocol_rules:
+    - use official folds/protocols when provided by the benchmark
+    - do not invent cross-validation folds to improve reported performance
+    - keep model/backbone selection separate from untouched qualification evidence
+    - record all image failures, alignment failures and exclusions
+  primary_metrics:
+    - FNMR_at_declared_FMR
+    - TAR_at_declared_FAR_where_benchmark_defines_that_semantics
+  secondary_metrics:
+    - ROC
+    - DET
+    - EER_descriptive
+    - AUC_descriptive
+  viability_gate:
+    status: TO_BE_NUMERICALLY_FROZEN_BEFORE_EXECUTION
+    rule: >-
+      Raw 512D must reproduce the expected published/reference performance of the exact frozen
+      backbone within a preregistered tolerance on declared benchmarks, including at least one
+      difficult benchmark and a decision-relevant low-FMR/FAR endpoint. Failure implies STOP
+      and pipeline/backbone diagnosis; Study 1B must not start.
+    prohibited_shortcut: >-
+      High LFW accuracy alone cannot release the gate.
+
+study_1b_compression:
+  authorization: BLOCKED_UNTIL_STUDY_1A_GATE_PASS_AND_SEPARATE_GO
+  objective: >-
+    Estimate the decision-relevant loss, if any, caused by 512D-to-128D compression of a
+    qualified face-specific representation.
+  routes: [raw_512d, random_128d, pca_128d, siamese_128d]
+  dimensions: [512, 128]
+  screening_seeds: [11, 29]
+  qualification_seeds: [11, 29, 47, 71, 101]
   split_unit: identity
   threshold_policy: validation_then_freeze
-  test_open_policy: once_after_all_routes_frozen
+  test_open_policy: once_after_all_routes_and_rules_frozen
   representation_endpoint: delta_fnmr_equal_fmr_non_deployable
-  operational_endpoint: validation_frozen_fnmr_with_test_fmr_constraint
+  operational_endpoint: validation_frozen_threshold_with_test_fmr_constraint
   secondary_endpoints: [eer_descriptive, roc_auc_descriptive, threshold_transfer]
-  uncertainty: SPECIFIED_BUT_BLOCKED_PENDING_IMPLEMENTATION_COVERAGE_AND_E_STAT_001
+  uncertainty: SUBJECT_LEVEL_IDENTITY_DEPENDENCE_AWARE
   random_control: gaussian_variance_1_over_d_then_l2_normalize
+  pca_control: fit_on_authorized_training_data_only
+  siamese_control: pair_supervised_projection_with_identical_input_embeddings
+
+progressive_evidence:
+  stage_a_screening:
+    claim_bearing: false
+    allowed_decisions: [CONTINUE, STOP, REDIRECT]
+    promotion_rule: TO_BE_FROZEN_BEFORE_SCREEN_OPEN
+    maximum_budget: TO_BE_FROZEN_BEFORE_SCREEN_OPEN
+    qualification_test_access: PROHIBITED
+  stage_b_qualification:
+    claim_bearing: true
+    authorization: SEPARATE_EXPLICIT_GO_REQUIRED
+    full_seed_set_required: true
+    independent_review_required: true
+
+primary_estimand:
+  name: delta_fnmr
+  definition: FNMR_candidate_at_alpha_minus_FNMR_raw_at_alpha
+  target_fmr_alpha: TO_BE_FROZEN
+  non_inferiority_margin_delta: TO_BE_FROZEN
+  note: >-
+    Study 0 used alpha=0.01 and delta=0.03. Study 1 must justify whether those values remain
+    scientifically appropriate rather than inheriting them automatically.
+
 sample_size:
-  status: BLOCKED
+  status: TO_BE_FROZEN
   target_power: 0.90
   criterion: probability_upper_confidence_bound_below_delta
   effect_scenarios: [0.0, 0.01]
@@ -43,7 +140,48 @@ sample_size:
     - raw_candidate_correlation
     - inter_seed_variation
     - all_declared_seeds_rule
+
+pre_execution_double_review:
+  scientific_harness_review:
+    required: true
+    must_accept:
+      - falsifiable_question_and_claims
+      - data_role_and_leakage_controls
+      - official_protocol_semantics
+      - viability_and_promotion_gates_frozen_before_outcomes
+      - estimator_and_sampling_unit_correctness
+      - multiplicity_and_seed_policy
+      - prohibited_inferences
+      - pedagogy_and_human_understanding_obligation
+  technical_reproducibility_review:
+    required: true
+    must_accept:
+      - exact_weights_checksum_and_licence
+      - preprocessing_alignment_and_normalization
+      - benchmark_split_fold_implementation
+      - identity_and_near_duplicate_overlap_audit
+      - threshold_selection_implementation
+      - random_state_lineage
+      - raw_random_pca_siamese_route_equivalence
+      - replay_commands_and_environment_capture
+  release_condition: BOTH_REVIEWS_ACCEPT_AND_CI_RESEARCH_ASSURANCE_GREEN
+
+blocking_items:
+  - freeze exact backbone architecture, weights, checksum, training provenance and licence
+  - confirm legal and reproducible access to each benchmark, especially IJB-C
+  - freeze preprocessing, detection/alignment and failure-handling rules
+  - perform overlap and near-duplicate audit design before data opening
+  - freeze Study 1A numeric reproduction tolerance and low-FMR/FAR endpoint
+  - freeze Study 1B target FMR, non-inferiority margin and multiplicity policy
+  - freeze Stage A promotion and stop rules
+  - calculate identity-and-capture sample size
+  - freeze compute budget and software/hardware environment
+  - obtain two independent review acceptances
+  - obtain explicit GO before Study 1A execution
+
 results: null
 decision:
   state: INDETERMINATE
-  rationale: Study is not yet fully preregistered or executed.
+  rationale: >-
+    Study 1 is design-only. No outcome-bearing run is authorized until the complete protocol
+    is frozen, double-reviewed and explicitly approved.
