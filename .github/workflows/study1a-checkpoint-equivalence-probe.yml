@@ -1,0 +1,183 @@
+name: Study 1A Checkpoint E2 Equivalence Probe
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/study1a-checkpoint-equivalence-probe.yml'
+      - 'protocol/studies/STUDY1_CHECKPOINT_SOURCE_AND_EQUIVALENCE.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  HISTORICAL_MIRROR_REPO: VishalMishraTss/AdaFace
+  HISTORICAL_MIRROR_FILE: adaface_ir101_webface12m.ckpt
+  HISTORICAL_MIRROR_EXPECTED_SHA256: 0e7a3238d2a50f3fe3860782534928ac7cb2598977cf897f6869fd5ac2493fd0
+  AUTHOR_HF_REPO: minchul/cvlface_adaface_ir101_webface12m
+  AUTHOR_HF_FILE: model.safetensors
+  AUTHOR_HF_EXPECTED_SHA256: 2ea535a43877bd3de8091903935c783ce335be66a9f8917fae9a7a18ae4bbf56
+
+jobs:
+  tensor-equivalence-probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Install bounded equivalence tooling
+        run: |
+          python -m pip install --disable-pip-version-check \
+            'huggingface_hub==0.34.4' \
+            'safetensors==0.6.2' \
+            'torch==2.8.0'
+
+      - name: Download hash-pinned candidate artifacts
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          import os
+          from pathlib import Path
+          from huggingface_hub import hf_hub_download
+
+          root = Path('preexecution/e2')
+          root.mkdir(parents=True, exist_ok=True)
+
+          specs = [
+              ('historical_mirror', os.environ['HISTORICAL_MIRROR_REPO'], os.environ['HISTORICAL_MIRROR_FILE'], os.environ['HISTORICAL_MIRROR_EXPECTED_SHA256']),
+              ('author_hf', os.environ['AUTHOR_HF_REPO'], os.environ['AUTHOR_HF_FILE'], os.environ['AUTHOR_HF_EXPECTED_SHA256']),
+          ]
+          records = []
+          for role, repo, filename, expected in specs:
+              local_dir = root / role
+              local_dir.mkdir(parents=True, exist_ok=True)
+              path = Path(hf_hub_download(repo_id=repo, filename=filename, local_dir=local_dir))
+              h = hashlib.sha256()
+              with path.open('rb') as stream:
+                  for chunk in iter(lambda: stream.read(1024 * 1024), b''):
+                      h.update(chunk)
+              observed = h.hexdigest()
+              if observed != expected:
+                  raise SystemExit(f'{role} SHA mismatch: {observed} != {expected}')
+              records.append({
+                  'role': role,
+                  'repo': repo,
+                  'filename': filename,
+                  'size_bytes': path.stat().st_size,
+                  'sha256': observed,
+              })
+          (root / 'artifact_identities.json').write_text(
+              json.dumps(records, indent=2, sort_keys=True) + '\n', encoding='utf-8'
+          )
+          print(json.dumps(records, sort_keys=True))
+          PY
+
+      - name: Safe-load historical checkpoint and compare exact tensor fingerprints
+        run: |
+          python - <<'PY'
+          import collections
+          import hashlib
+          import json
+          from pathlib import Path
+
+          import torch
+          from safetensors.torch import load_file
+
+          root = Path('preexecution/e2')
+          ckpt_path = root / 'historical_mirror' / 'adaface_ir101_webface12m.ckpt'
+          safe_path = root / 'author_hf' / 'model.safetensors'
+
+          # Security boundary: never fall back to weights_only=False for a third-party pickle-like checkpoint.
+          obj = torch.load(ckpt_path, map_location='cpu', weights_only=True)
+
+          def tensor_dict_from_checkpoint(value):
+              if isinstance(value, dict):
+                  for preferred in ('state_dict', 'model_state_dict', 'model'):
+                      child = value.get(preferred)
+                      if isinstance(child, dict) and child and all(torch.is_tensor(v) for v in child.values()):
+                          return child, preferred
+                  if value and all(torch.is_tensor(v) for v in value.values()):
+                      return value, '<top-level>'
+              raise SystemExit('Could not safely isolate a tensor-only state dict from the historical mirror checkpoint')
+
+          ckpt_state, ckpt_container = tensor_dict_from_checkpoint(obj)
+          safe_state = load_file(str(safe_path), device='cpu')
+
+          def tensor_fingerprint(t):
+              t = t.detach().cpu().contiguous()
+              raw = t.numpy().tobytes(order='C')
+              return {
+                  'shape': list(t.shape),
+                  'dtype': str(t.dtype),
+                  'sha256': hashlib.sha256(raw).hexdigest(),
+                  'numel': int(t.numel()),
+              }
+
+          ckpt_fps = {k: tensor_fingerprint(v) for k, v in ckpt_state.items()}
+          safe_fps = {k: tensor_fingerprint(v) for k, v in safe_state.items()}
+
+          ckpt_multiset = collections.Counter((tuple(v['shape']), v['dtype'], v['sha256']) for v in ckpt_fps.values())
+          safe_multiset = collections.Counter((tuple(v['shape']), v['dtype'], v['sha256']) for v in safe_fps.values())
+
+          missing_from_ckpt = safe_multiset - ckpt_multiset
+          exact_tensor_coverage = 1.0 - (sum(missing_from_ckpt.values()) / max(1, sum(safe_multiset.values())))
+
+          ckpt_shape_multiset = collections.Counter((tuple(v['shape']), v['dtype']) for v in ckpt_fps.values())
+          safe_shape_multiset = collections.Counter((tuple(v['shape']), v['dtype']) for v in safe_fps.values())
+          missing_shapes_from_ckpt = safe_shape_multiset - ckpt_shape_multiset
+          shape_dtype_coverage = 1.0 - (sum(missing_shapes_from_ckpt.values()) / max(1, sum(safe_shape_multiset.values())))
+
+          exact_name_matches = 0
+          exact_name_value_matches = 0
+          for key, fp in safe_fps.items():
+              if key in ckpt_fps:
+                  exact_name_matches += 1
+                  if ckpt_fps[key] == fp:
+                      exact_name_value_matches += 1
+
+          report = {
+              'artifact_role': 'non-outcome-bearing checkpoint equivalence probe',
+              'historical_checkpoint_container': ckpt_container,
+              'historical_tensor_count': len(ckpt_fps),
+              'author_hf_tensor_count': len(safe_fps),
+              'author_hf_exact_tensor_coverage_in_historical_checkpoint': exact_tensor_coverage,
+              'author_hf_shape_dtype_coverage_in_historical_checkpoint': shape_dtype_coverage,
+              'exact_name_matches': exact_name_matches,
+              'exact_name_and_value_matches': exact_name_value_matches,
+              'scientific_outcomes_opened': False,
+              'unsafe_pickle_fallback_used': False,
+              'e2_status': 'PROVEN' if exact_tensor_coverage == 1.0 else 'NOT_PROVEN',
+              'interpretation': (
+                  'Every author-HF safetensor has an exact shape/dtype/value fingerprint match in the safely extracted historical checkpoint state.'
+                  if exact_tensor_coverage == 1.0 else
+                  'Exact tensor identity is incomplete; do not substitute the author-HF artifact for the preregistered checkpoint.'
+              ),
+          }
+
+          (root / 'tensor_equivalence_report.json').write_text(
+              json.dumps(report, indent=2, sort_keys=True) + '\n', encoding='utf-8'
+          )
+          (root / 'historical_tensor_manifest.json').write_text(
+              json.dumps(ckpt_fps, indent=2, sort_keys=True) + '\n', encoding='utf-8'
+          )
+          (root / 'author_hf_tensor_manifest.json').write_text(
+              json.dumps(safe_fps, indent=2, sort_keys=True) + '\n', encoding='utf-8'
+          )
+          print(json.dumps(report, sort_keys=True))
+          PY
+
+      - name: Upload metadata and equivalence manifests only
+        uses: actions/upload-artifact@v4
+        with:
+          name: study1a-checkpoint-e2-probe
+          path: |
+            preexecution/e2/artifact_identities.json
+            preexecution/e2/tensor_equivalence_report.json
+            preexecution/e2/historical_tensor_manifest.json
+            preexecution/e2/author_hf_tensor_manifest.json
+          if-no-files-found: error
+          retention-days: 30
