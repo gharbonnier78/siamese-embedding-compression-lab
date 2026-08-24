@@ -1,0 +1,74 @@
+schema_version: "1.0"
+chronicle_fragment_id: study1a_channel_permutation_result_2026_08_24
+canonical_chronicle: protocol/scientific_chronicle.yaml
+related_fragment: protocol/chronicle/STUDY1A_PREEXECUTION_2026-08-24.yaml
+append_only: true
+scope: study_1a_backbone_qualification_preexecution
+outcome_evidence_seen: false
+scientific_outcomes_opened: false
+harness_ref: "3b109adcdd9a8cba4df029d3803ee0e5cb5bdf98"
+entries:
+  - id: CHRON-20260824-S1A-008
+    recorded_at_utc: "2026-08-24T17:26:08Z"
+    kind: deterministic_preprocessing_conversion_result
+    status: RESOLVED_EXACT_RGB_BGR_TRANSFORMATION_PENDING_TECHNICAL_REVIEW
+    summary: >-
+      The bounded six-permutation input-channel probe resolved the sole differing inference-
+      backbone tensor between the author-maintained Hugging Face safetensors artifact and
+      the historical mirror: reversing input channels [2,1,0] (RGB<->BGR) makes the first
+      convolution exactly byte-value equivalent. No other channel permutation matches.
+    artifacts_compared:
+      historical_mirror:
+        repository: VishalMishraTss/AdaFace
+        filename: adaface_ir101_webface12m.ckpt
+        sha256: 0e7a3238d2a50f3fe3860782534928ac7cb2598977cf897f6869fd5ac2493fd0
+        provenance_status: third_party_mirror_candidate
+      author_hf:
+        repository: minchul/cvlface_adaface_ir101_webface12m
+        filename: model.safetensors
+        sha256: 2ea535a43877bd3de8091903935c783ce335be66a9f8917fae9a7a18ae4bbf56
+    measured_engineering_result:
+      permutations_tested: 6
+      exact_match_count: 1
+      exact_matching_permutation: [2, 1, 0]
+      bgr_rgb_swap_exact: true
+      first_conv_shape: [64, 3, 3, 3]
+      transformed_author_hf_tensor_sha256: 02d7ce728ea1e7debc5d669a4df81a2874f0e711e8f378993e68cfdd727611ee
+      historical_first_conv_tensor_sha256: 02d7ce728ea1e7debc5d669a4df81a2874f0e711e8f378993e68cfdd727611ee
+      max_abs_error: 0.0
+      mean_abs_error: 0.0
+      remaining_backbone_tensor_relation: >-
+        The previous E2 probe had already found exact value fingerprints for 916 of the 917
+        author-HF inference-backbone tensors in the historical mirror. With the deterministic
+        [2,1,0] input-channel reversal, the final differing backbone tensor is also exact.
+      historical_extra_tensors: [head.batch_mean, head.batch_std, head.kernel, head.t]
+      historical_extra_tensor_role: training_classification_head_not_frozen_inference_backbone
+    interpretation: >-
+      The observed checkpoint difference is fully explained at inference-backbone level by
+      the documented RGB-versus-BGR preprocessing convention. This is strong direct evidence
+      of a lossless deterministic representation conversion, not merely functional similarity.
+      It supports an E2-equivalence claim for the frozen inference backbone subject to explicit
+      technical review of key mapping, exclusion of the four training-head tensors, and the
+      exact preprocessing contract. It does not by itself establish provenance of the third-
+      party historical mirror as the original Google Drive bytes, nor does it waive rights or
+      low-FMR benchmark blockers.
+    evidence_refs:
+      - workflow:32756328678:Study-1A-Checkpoint-E2-Equivalence-Probe:success
+      - artifact:9531066384
+      - artifact_sha256:ffb3d41867fb19e1c0383cb863531058e1a8d3e73f7b2d2ccfd14ad9dc989956
+      - .github/workflows/study1a-checkpoint-equivalence-probe.yml
+      - protocol/studies/STUDY1_CHECKPOINT_SOURCE_AND_EQUIVALENCE.md
+      - protocol/chronicle/STUDY1A_PREEXECUTION_2026-08-24.yaml
+      - https://github.com/mk-minchul/AdaFace
+      - https://huggingface.co/minchul/cvlface_adaface_ir101_webface12m/blob/main/config.json
+    decision: >-
+      Treat the RGB<->BGR transformation as the exact explanation of the remaining backbone
+      tensor mismatch. Do not yet mark the checkpoint blocker fully closed: request a bounded
+      technical review confirming E2 equivalence for the inference backbone and preserving the
+      exact artifact/preprocessing identity in Study 1A.
+    next_action: >-
+      Freeze an explicit inference-artifact identity record (artifact SHA, IR101/R100 49-block
+      fingerprint, input color convention, normalization, deterministic channel transform and
+      training-head exclusions) and obtain technical review. Continue to keep Study 1A outcome-
+      bearing Gate A blocked until checkpoint rights, low-FMR benchmark path, replay/environment
+      blockers and the reviewed checkpoint-equivalence disposition are closed.
