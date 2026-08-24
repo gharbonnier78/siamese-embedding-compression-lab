@@ -3,67 +3,34 @@ from __future__ import annotations
 import argparse
 import hashlib
 import importlib.util
-import io
 import json
-import math
 import os
 import pickle
-import sys
 import time
 from pathlib import Path
+from typing import ClassVar
 
 import cv2
 import numpy as np
 import torch
-
 
 EXPECTED_CHECKPOINT_SHA256 = "0e7a3238d2a50f3fe3860782534928ac7cb2598977cf897f6869fd5ac2493fd0"
 ADAFACE_COMMIT = "c60eaa786a42c03444f3df7096dbaf9d57ae010d"
 THRESHOLDS = np.arange(0, 4, 0.01)
 
 BENCHMARKS = {
-    "lfw": {
-        "gate": "A1",
-        "published_reference": 0.9982,
-        "minimum": 0.9962,
-        "description": "LFW basic reproduction sanity",
-    },
-    "cfp_fp": {
-        "gate": "A2",
-        "published_reference": 0.9926,
-        "minimum": 0.9896,
-        "description": "CFP-FP frontal/profile variation",
-    },
-    "cplfw": {
-        "gate": "A2",
-        "published_reference": 0.9457,
-        "minimum": 0.9427,
-        "description": "CPLFW cross-pose variation",
-    },
-    "calfw": {
-        "gate": "A2",
-        "published_reference": 0.9612,
-        "minimum": 0.9582,
-        "description": "CALFW cross-age variation",
-    },
-    "agedb_30": {
-        "gate": "A2",
-        "published_reference": 0.9800,
-        "minimum": 0.9770,
-        "description": "AgeDB-30 large age-gap variation",
-    },
+    "lfw": {"gate": "A1", "published_reference": 0.9982, "minimum": 0.9962, "description": "LFW basic reproduction sanity"},
+    "cfp_fp": {"gate": "A2", "published_reference": 0.9926, "minimum": 0.9896, "description": "CFP-FP frontal/profile variation"},
+    "cplfw": {"gate": "A2", "published_reference": 0.9457, "minimum": 0.9427, "description": "CPLFW cross-pose variation"},
+    "calfw": {"gate": "A2", "published_reference": 0.9612, "minimum": 0.9582, "description": "CALFW cross-age variation"},
+    "agedb_30": {"gate": "A2", "published_reference": 0.9800, "minimum": 0.9770, "description": "AgeDB-30 large age-gap variation"},
 }
 
 
 class RestrictedValidationUnpickler(pickle.Unpickler):
-    """Restricted loader for standard InsightFace verification .bin containers.
+    """Restricted loader for standard InsightFace verification .bin containers."""
 
-    The expected payload is a pair `(image_bytes, issame_labels)`. Some mirrors encode the
-    labels through NumPy objects, so only the minimum NumPy reconstruction globals are admitted.
-    Arbitrary classes/functions are rejected.
-    """
-
-    _ALLOWED_BUILTINS = {
+    _ALLOWED_BUILTINS: ClassVar[dict[str, object]] = {
         "bytearray": bytearray,
         "bytes": bytes,
         "frozenset": frozenset,
@@ -126,18 +93,14 @@ def load_model(checkpoint: Path, adaface_src: Path, device: torch.device):
 
     obj = torch.load(checkpoint, map_location="cpu", weights_only=True)
     if not isinstance(obj, dict):
-        raise RuntimeError("checkpoint container is not a mapping")
+        raise TypeError("checkpoint container is not a mapping")
     raw_state = obj.get("state_dict", obj)
     if not isinstance(raw_state, dict) or not raw_state:
-        raise RuntimeError("checkpoint contains no state_dict")
+        raise TypeError("checkpoint contains no state_dict mapping")
     if not all(torch.is_tensor(v) for v in raw_state.values()):
-        raise RuntimeError("checkpoint state_dict contains non-tensor values")
+        raise TypeError("checkpoint state_dict contains non-tensor values")
 
-    backbone = {
-        key[len("model.") :]: value
-        for key, value in raw_state.items()
-        if key.startswith("model.")
-    }
+    backbone = {key[len("model.") :]: value for key, value in raw_state.items() if key.startswith("model.")}
     net = load_upstream_net(adaface_src)
     model = net.build_model("ir_101")
     expected = set(model.state_dict())
@@ -154,9 +117,22 @@ def load_model(checkpoint: Path, adaface_src: Path, device: torch.device):
     return model, observed_sha
 
 
+def canonical_encoded_blob(item, index: int) -> tuple[bytes, str]:
+    if isinstance(item, bytes):
+        return item, "bytes"
+    if isinstance(item, bytearray):
+        return bytes(item), "bytearray"
+    if isinstance(item, np.ndarray):
+        if item.dtype != np.uint8 or item.ndim != 1:
+            raise TypeError(
+                f"image payload {index} is ndarray but not encoded uint8 vector: "
+                f"dtype={item.dtype} shape={item.shape}"
+            )
+        return item.tobytes(order="C"), "ndarray_uint8_encoded_bytes"
+    raise TypeError(f"unsupported validation image payload at {index}: {type(item).__name__}")
+
+
 def decode_bgr_normalized(blob: bytes) -> np.ndarray:
-    # Pinned AdaFace convert.py decodes validation bytes and converts RGB -> BGR before
-    # ToTensor()/Normalize(0.5,0.5). OpenCV imdecode directly returns BGR.
     encoded = np.frombuffer(blob, dtype=np.uint8)
     image = cv2.imdecode(encoded, cv2.IMREAD_COLOR)
     if image is None:
@@ -171,55 +147,37 @@ def decode_bgr_normalized(blob: bytes) -> np.ndarray:
 def fuse_original_and_flip(model, batch: torch.Tensor) -> torch.Tensor:
     with torch.inference_mode():
         emb, norm = model(batch)
-        flipped = torch.flip(batch, dims=[3])
-        emb_flip, norm_flip = model(flipped)
+        emb_flip, norm_flip = model(torch.flip(batch, dims=[3]))
         fused_pre_norm = emb * norm + emb_flip * norm_flip
-        fused = torch.nn.functional.normalize(fused_pre_norm, p=2, dim=1)
-    return fused
+        return torch.nn.functional.normalize(fused_pre_norm, p=2, dim=1)
 
 
-def infer_all(
-    model,
-    blobs: list[bytes],
-    *,
-    device: torch.device,
-    batch_size: int,
-    progress_every: int,
-) -> tuple[np.ndarray, dict]:
+def infer_all(model, blobs: list[bytes], *, device: torch.device, batch_size: int, progress_every: int) -> tuple[np.ndarray, dict]:
     embeddings = np.empty((len(blobs), 512), dtype=np.float32)
     decode_failures: list[dict] = []
     started = time.monotonic()
-
     for start in range(0, len(blobs), batch_size):
         stop = min(start + batch_size, len(blobs))
         tensors = []
         for index in range(start, stop):
             try:
                 tensors.append(decode_bgr_normalized(blobs[index]))
-            except Exception as exc:  # retained with exact index; no silent exclusion
+            except Exception as exc:
                 decode_failures.append({"image_index": index, "error": repr(exc)})
                 raise RuntimeError(f"decode failed at image index {index}: {exc}") from exc
-
-        batch_np = np.stack(tensors, axis=0)
-        batch = torch.from_numpy(batch_np).to(device)
+        batch = torch.from_numpy(np.stack(tensors, axis=0)).to(device)
         fused = fuse_original_and_flip(model, batch)
         if tuple(fused.shape) != (stop - start, 512):
             raise RuntimeError(f"unexpected embedding shape {tuple(fused.shape)}")
         if not torch.isfinite(fused).all():
             raise RuntimeError("non-finite embedding detected")
         embeddings[start:stop] = fused.detach().cpu().to(torch.float32).numpy()
-
         done = stop
         if done == len(blobs) or done % progress_every < batch_size:
             elapsed = max(time.monotonic() - started, 1e-9)
             rate = done / elapsed
             remain = (len(blobs) - done) / max(rate, 1e-9)
-            print(
-                f"progress {done}/{len(blobs)} ({100.0 * done / len(blobs):.1f}%) "
-                f"{rate:.2f} images/s ETA {remain / 60.0:.1f} min",
-                flush=True,
-            )
-
+            print(f"progress {done}/{len(blobs)} ({100.0 * done / len(blobs):.1f}%) {rate:.2f} images/s ETA {remain / 60.0:.1f} min", flush=True)
     return embeddings, {"decode_failure_count": len(decode_failures), "decode_failures": decode_failures}
 
 
@@ -252,39 +210,27 @@ def evaluate_adaface_protocol(embeddings: np.ndarray, issame: np.ndarray) -> dic
         raise ValueError("embedding count must be even")
     if embeddings.shape[0] // 2 != len(issame):
         raise ValueError("pair labels do not match embedding count")
-
-    emb1 = embeddings[0::2]
-    emb2 = embeddings[1::2]
-    diff = np.subtract(emb1, emb2)
-    dist = np.sum(np.square(diff), axis=1)
+    dist = np.sum(np.square(np.subtract(embeddings[0::2], embeddings[1::2])), axis=1)
     labels = np.asarray(issame, dtype=bool)
-
     fold_accuracies = []
     best_thresholds = []
     fold_sizes = []
     for fold_index, (train, test) in enumerate(contiguous_kfold_indices(len(labels), 10)):
-        train_acc = np.array(
-            [calculate_accuracy(float(th), dist[train], labels[train]) for th in THRESHOLDS],
-            dtype=np.float64,
-        )
+        train_acc = np.array([calculate_accuracy(float(th), dist[train], labels[train]) for th in THRESHOLDS], dtype=np.float64)
         best_index = int(np.argmax(train_acc))
         threshold = float(THRESHOLDS[best_index])
         test_acc = calculate_accuracy(threshold, dist[test], labels[test])
         fold_accuracies.append(test_acc)
         best_thresholds.append(threshold)
-        fold_sizes.append(int(len(test)))
-        print(
-            f"fold {fold_index}: test_n={len(test)} threshold={threshold:.2f} accuracy={test_acc:.6f}",
-            flush=True,
-        )
-
-    fold_accuracies_np = np.asarray(fold_accuracies, dtype=np.float64)
+        fold_sizes.append(len(test))
+        print(f"fold {fold_index}: test_n={len(test)} threshold={threshold:.2f} accuracy={test_acc:.6f}", flush=True)
+    values = np.asarray(fold_accuracies, dtype=np.float64)
     return {
-        "fold_accuracies": [float(v) for v in fold_accuracies_np],
+        "fold_accuracies": [float(v) for v in values],
         "best_thresholds": best_thresholds,
         "fold_sizes": fold_sizes,
-        "accuracy_mean": float(fold_accuracies_np.mean()),
-        "accuracy_std": float(fold_accuracies_np.std()),
+        "accuracy_mean": float(values.mean()),
+        "accuracy_std": float(values.std()),
         "mean_selected_threshold": float(np.mean(best_thresholds)),
     }
 
@@ -292,52 +238,51 @@ def evaluate_adaface_protocol(embeddings: np.ndarray, issame: np.ndarray) -> dic
 def inspect_validation_container(path: Path) -> tuple[list[bytes], np.ndarray, dict]:
     loaded = restricted_pickle_load(path)
     if not isinstance(loaded, (tuple, list)) or len(loaded) != 2:
-        raise RuntimeError("validation .bin must contain (image_blobs, issame_labels)")
+        raise TypeError("validation .bin must contain (image_payloads, issame_labels)")
     blobs_raw, labels_raw = loaded
-    blobs = list(blobs_raw)
-    if not blobs or not all(isinstance(item, (bytes, bytearray)) for item in blobs):
-        raise RuntimeError("validation image payload is not a non-empty bytes sequence")
-    blobs = [bytes(item) for item in blobs]
+    raw_items = list(blobs_raw)
+    if not raw_items:
+        raise ValueError("validation image payload is empty")
+    blobs = []
+    representations: dict[str, int] = {}
+    for index, item in enumerate(raw_items):
+        blob, representation = canonical_encoded_blob(item, index)
+        blobs.append(blob)
+        representations[representation] = representations.get(representation, 0) + 1
     labels = np.asarray(labels_raw, dtype=bool).reshape(-1)
     if len(blobs) != 2 * len(labels):
         raise RuntimeError(f"expected 2 images per pair: images={len(blobs)} labels={len(labels)}")
-
     image_hashes = [sha256_bytes(blob) for blob in blobs]
     unique_count = len(set(image_hashes))
-    duplicate_occurrences = len(image_hashes) - unique_count
-    info = {
+    return blobs, labels, {
         "image_blob_count": len(blobs),
-        "pair_count": int(len(labels)),
+        "pair_count": len(labels),
         "genuine_pair_count": int(labels.sum()),
         "impostor_pair_count": int((~labels).sum()),
+        "payload_representation_counts": representations,
         "unique_image_byte_digest_count": unique_count,
-        "exact_duplicate_image_occurrence_count": duplicate_occurrences,
+        "exact_duplicate_image_occurrence_count": len(image_hashes) - unique_count,
         "identity_overlap_status": "NOT_AVAILABLE_FROM_SERIALIZED_BIN_WITHOUT_STABLE_SUBJECT_IDS",
         "exclusion_count": 0,
     }
-    return blobs, labels, info
 
 
 def run(args: argparse.Namespace) -> dict:
     benchmark = args.benchmark
-    if benchmark not in BENCHMARKS:
-        raise ValueError(f"unsupported benchmark {benchmark}")
     spec = BENCHMARKS[benchmark]
     checkpoint = Path(args.checkpoint).resolve()
     dataset_file = Path(args.dataset_file).resolve()
     adaface_src = Path(args.adaface_src).resolve()
     output_dir = Path(args.output_dir).resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
-
-    torch.set_num_threads(max(1, int(args.torch_threads)))
+    torch.set_num_threads(max(1, args.torch_threads))
     torch.set_num_interop_threads(1)
     torch.use_deterministic_algorithms(True)
     device = torch.device(args.device)
-
     report_path = output_dir / f"{benchmark}_result.json"
     started_utc = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
     base_report = {
-        "schema_version": "1.0",
+        "schema_version": "1.1",
         "kind": "study1a_a1_a2_outcome",
         "benchmark": benchmark,
         "gate": spec["gate"],
@@ -353,67 +298,26 @@ def run(args: argparse.Namespace) -> dict:
         "scientific_decision": "INDETERMINATE",
     }
     atomic_json(report_path, base_report)
-
     try:
         dataset_sha = sha256_file(dataset_file)
         dataset_size = dataset_file.stat().st_size
         blobs, labels, dataset_info = inspect_validation_container(dataset_file)
-        print(
-            f"dataset {benchmark}: sha256={dataset_sha} bytes={dataset_size} "
-            f"pairs={len(labels)} images={len(blobs)}",
-            flush=True,
-        )
+        print(f"dataset {benchmark}: sha256={dataset_sha} bytes={dataset_size} pairs={len(labels)} images={len(blobs)}", flush=True)
         model, checkpoint_sha = load_model(checkpoint, adaface_src, device)
-        embeddings, execution_diagnostics = infer_all(
-            model,
-            blobs,
-            device=device,
-            batch_size=args.batch_size,
-            progress_every=args.progress_every,
-        )
+        embeddings, execution_diagnostics = infer_all(model, blobs, device=device, batch_size=args.batch_size, progress_every=args.progress_every)
         metrics = evaluate_adaface_protocol(embeddings, labels)
         accuracy = float(metrics["accuracy_mean"])
         gate_pass = accuracy >= float(spec["minimum"])
-
         report = {
             **base_report,
             "execution_status": "VALID_OUTCOME",
             "scientific_decision": "PASS" if gate_pass else "FAIL",
-            "checkpoint": {
-                "source_locator": args.checkpoint_locator,
-                "sha256": checkpoint_sha,
-                "architecture": "AdaFace IR101/R100",
-                "embedding_dimension": 512,
-                "loader": "torch.load(weights_only=True); strict model.* backbone",
-            },
-            "dataset": {
-                "source_locator": args.dataset_locator,
-                "sha256": dataset_sha,
-                "size_bytes": dataset_size,
-                **dataset_info,
-            },
-            "preprocessing": {
-                "benchmark_input": "pre-aligned 112x112 standard InsightFace validation-bin crop",
-                "decode": "cv2.imdecode(IMREAD_COLOR) -> BGR",
-                "normalization": "(pixel/255 - 0.5)/0.5",
-                "realignment_performed": False,
-                "horizontal_flip_tta": True,
-                "feature_fusion": "AdaFace norm-aware fusion of original and horizontal flip",
-            },
-            "verification_protocol": {
-                "distance": "squared_l2_on_l2_normalized_512d_embeddings",
-                "folds": 10,
-                "shuffle": False,
-                "threshold_grid": "np.arange(0,4,0.01)",
-                "threshold_selection": "maximize train-fold accuracy; evaluate held-out fold",
-            },
+            "checkpoint": {"source_locator": args.checkpoint_locator, "sha256": checkpoint_sha, "architecture": "AdaFace IR101/R100", "embedding_dimension": 512, "loader": "torch.load(weights_only=True); strict model.* backbone"},
+            "dataset": {"source_locator": args.dataset_locator, "sha256": dataset_sha, "size_bytes": dataset_size, **dataset_info},
+            "preprocessing": {"benchmark_input": "pre-aligned 112x112 standard InsightFace validation-bin crop", "decode": "cv2.imdecode(IMREAD_COLOR) -> BGR", "normalization": "(pixel/255 - 0.5)/0.5", "realignment_performed": False, "horizontal_flip_tta": True, "feature_fusion": "AdaFace norm-aware fusion of original and horizontal flip"},
+            "verification_protocol": {"distance": "squared_l2_on_l2_normalized_512d_embeddings", "folds": 10, "shuffle": False, "threshold_grid": "np.arange(0,4,0.01)", "threshold_selection": "maximize train-fold accuracy; evaluate held-out fold"},
             "metrics": metrics,
-            "gate_evaluation": {
-                "observed_accuracy": accuracy,
-                "frozen_minimum": spec["minimum"],
-                "published_reference": spec["published_reference"],
-                "pass": gate_pass,
-            },
+            "gate_evaluation": {"observed_accuracy": accuracy, "frozen_minimum": spec["minimum"], "published_reference": spec["published_reference"], "pass": gate_pass},
             "diagnostics": execution_diagnostics,
             "finished_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         }
@@ -421,13 +325,7 @@ def run(args: argparse.Namespace) -> dict:
         print(json.dumps(report, indent=2, sort_keys=True), flush=True)
         return report
     except Exception as exc:
-        failure = {
-            **base_report,
-            "execution_status": "INFRASTRUCTURE_OR_PROVENANCE_FAILURE",
-            "scientific_decision": "INDETERMINATE",
-            "error": repr(exc),
-            "finished_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
-        }
+        failure = {**base_report, "execution_status": "INFRASTRUCTURE_OR_PROVENANCE_FAILURE", "scientific_decision": "INDETERMINATE", "error": repr(exc), "finished_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())}
         atomic_json(report_path, failure)
         print(json.dumps(failure, indent=2, sort_keys=True), flush=True)
         raise
