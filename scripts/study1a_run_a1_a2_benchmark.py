@@ -123,12 +123,13 @@ def canonical_encoded_blob(item, index: int) -> tuple[bytes, str]:
     if isinstance(item, bytearray):
         return bytes(item), "bytearray"
     if isinstance(item, np.ndarray):
-        if item.dtype != np.uint8 or item.ndim != 1:
+        is_encoded_vector = item.ndim == 1 or (item.ndim == 2 and 1 in item.shape)
+        if item.dtype != np.uint8 or not is_encoded_vector:
             raise TypeError(
-                f"image payload {index} is ndarray but not encoded uint8 vector: "
+                f"image payload {index} is ndarray but not an encoded uint8 vector: "
                 f"dtype={item.dtype} shape={item.shape}"
             )
-        return item.tobytes(order="C"), "ndarray_uint8_encoded_bytes"
+        return item.reshape(-1).tobytes(order="C"), "ndarray_uint8_encoded_bytes"
     raise TypeError(f"unsupported validation image payload at {index}: {type(item).__name__}")
 
 
