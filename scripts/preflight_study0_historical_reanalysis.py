@@ -29,6 +29,10 @@ PR31_MERGE_SHA = "91b5b84f1d83c15bd2e3fbfa589f809461a77c8b"
 COVERAGE_RESOLUTION_ID = "CHRON-20260819-008"
 ACCESS_AUTHORIZATION_ID = "CHRON-20260819-009"
 MAIN_REFS = ("refs/remotes/origin/main", "refs/heads/main")
+NON_EXECUTING_STUDY1_STATUSES = {
+    "DRAFT_PREREGISTRATION",
+    "DRAFT_PREREGISTRATION_REVIEW_REQUIRED",
+}
 
 
 def _load_yaml(path: Path) -> dict[str, Any]:
@@ -240,7 +244,7 @@ def validate_historical_reanalysis_authorization(
         raise ValueError("Study 0 frozen scope unexpectedly permits original output overwrite")
 
     study1 = _load_yaml(STUDY1)
-    if study1.get("status") != "DRAFT_PREREGISTRATION":
+    if study1.get("status") not in NON_EXECUTING_STUDY1_STATUSES:
         raise ValueError("Study 1 must remain unstarted and draft-preregistered")
 
     execution = authorization.get("execution_contract") or {}
