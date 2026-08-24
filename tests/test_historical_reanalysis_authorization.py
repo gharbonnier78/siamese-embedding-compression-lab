@@ -16,6 +16,7 @@ STUDY1 = ROOT / "protocol/studies/study_1_face_backbone.yaml"
 PREFLIGHT = runpy.run_path(str(ROOT / "scripts/preflight_study0_historical_reanalysis.py"))
 VALIDATE = PREFLIGHT["validate_historical_reanalysis_authorization"]
 ASSERT_MERGED = PREFLIGHT["assert_authorization_merged_to_main"]
+NON_EXECUTING_STUDY1_STATUSES = PREFLIGHT["NON_EXECUTING_STUDY1_STATUSES"]
 
 
 class HistoricalReanalysisAuthorizationTests(unittest.TestCase):
@@ -45,7 +46,7 @@ class HistoricalReanalysisAuthorizationTests(unittest.TestCase):
     def test_authorization_does_not_start_study_1(self) -> None:
         study1 = yaml.safe_load(STUDY1.read_text(encoding="utf-8"))
         authorization = yaml.safe_load(AUTHORIZATION.read_text(encoding="utf-8"))
-        self.assertEqual(study1["status"], "DRAFT_PREREGISTRATION")
+        self.assertIn(study1["status"], NON_EXECUTING_STUDY1_STATUSES)
         self.assertFalse(authorization["restrictions"]["study_1_execution_permitted"])
         self.assertFalse(authorization["restrictions"]["geometry_exploration_permitted"])
 

@@ -2,7 +2,7 @@ schema_version: "0.1"
 
 harness:
   repository: gharbonnier78/scientific-research-harness
-  ref: "1cead5808c126fd38e7505c27502fb3e7671c69a"
+  ref: "3b109adcdd9a8cba4df029d3803ee0e5cb5bdf98"
   entrypoint: HARNESS.md
 
 consumer:
@@ -43,6 +43,14 @@ execution:
   environment_lock: null
   replay_commands:
     - "PYTHONPATH=src python -m unittest tests.test_harness_adoption tests.test_scientific_harness tests.test_coverage_execution tests.test_coverage_execution_vectorized -v"
+  engineering_care:
+    profile: POC
+    rationale: >-
+      Study 1 is a research pipeline intended to produce reviewable scientific evidence, not a
+      deployed production service. POC care therefore applies: architecture/decomposition note,
+      focused tests, code/static checks, dependency and secret review, explicit security
+      assumptions, and visible residual risks before outcome-bearing execution.
+    telemetry_evidence: not_applicable_unless_later_declared_by_contract
   randomness:
     status: declared
     root_entropy_policy: "Frozen protocol seed with task-bound SeedSequence lineage"
@@ -60,6 +68,12 @@ local_extensions:
 deviations: []
 
 adoption:
-  adopted_at: "2026-08-17"
-  adopted_by: "clean post-PR #25 integration change"
-  notes: "Pinned to the merged immutable harness commit from PR #5; no stable tag exists yet."
+  adopted_at: "2026-08-24"
+  adopted_by: "Study 1 protocol refresh in PR #45"
+  notes: >-
+    Repinned from 422e08f3d6483ca11fa5a4767cffa99ce386bde5 to
+    3b109adcdd9a8cba4df029d3803ee0e5cb5bdf98 to adopt the delegated-review navigation
+    contract requiring direct repository, pull-request, immutable harness and relevant artifact
+    URLs. This upgrade changes review/navigation method only; it does not change Study 1
+    scientific meaning or Gate A thresholds. Historical Study 0 artifacts remain bound to the
+    harness refs under which they were produced.

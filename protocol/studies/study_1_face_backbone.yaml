@@ -1,36 +1,175 @@
-schema_version: "1.0.0"
+schema_version: "1.2.0"
 study_id: study_1_face_backbone
-title: Face-specific backbone 1:1 compression study
-status: DRAFT_PREREGISTRATION
+title: Face-specific 512D backbone qualification before 1:1 compression
+status: DRAFT_PREREGISTRATION_REVIEW_REQUIRED
 claim_level: NONE_UNTIL_EXECUTED
 human_readable_checklist: protocol/studies/study_1_preregistration.md
+review_request: protocol/studies/STUDY1_DOUBLE_REVIEW_REQUEST.md
+acceptance_gate_contract: protocol/studies/STUDY1_BACKBONE_ACCEPTANCE_GATE.md
+execution_contract: protocol/studies/STUDY1_EXECUTION_ARCHITECTURE_AND_SBOM.md
+
+harness:
+  adoption_manifest: harness-adoption.yaml
+  pinned_ref: "3b109adcdd9a8cba4df029d3803ee0e5cb5bdf98"
+  lifecycle: [Bind, Frame, Execute, Verify, Explain, Chronicle_and_handoff]
+  engineering_care_profile: POC
+  telemetry_evidence: NOT_APPLICABLE_UNLESS_PREDECLARED_BY_CONTRACT
+
 purpose: >-
-  Test whether pair supervision adds compression value when the frozen source embedding
-  is produced by a face-specific extractor rather than an ImageNet classifier.
-blocking_items:
-  - implement the v0.2.2 weighted subject-slot bootstrap specification
-  - resolve E-STAT-001 after identity-dependence-aware interval coverage validation
-  - pin backbone architecture, weights, training provenance and licence
-  - pin development and untouched qualification datasets
-  - declare target population and capture regimes
-  - run identity-overlap and near-duplicate audit
-  - calculate identity-and-capture sample size for the selected target FMR and uncertainty requirement
-  - freeze primary FMR, non-inferiority margin and multiplicity policy
-  - freeze compute budget and all seeds
-design:
-  routes: [raw, random, pca, siamese]
-  dimensions: [128]
-  planned_seeds: [11, 29, 47, 71, 101]
+  First qualify a frozen face-specific 512D embedding backbone on declared face-verification
+  benchmarks and decision-relevant operating points. Only if that raw 512D foundation passes
+  a preregistered viability gate may Study 1 proceed to matched 512D-to-128D compression
+  comparison using raw, random, PCA and Siamese routes.
+
+scientific_boundary:
+  - Study 0 remains closed and is not overwritten.
+  - Study 1A backbone qualification is logically prior to Study 1B compression.
+  - No outcome-bearing execution is authorized by this draft.
+  - No geometry, manifold, fairness, PAD, 1:N, production-validity or regulatory claim is authorized.
+  - The Siamese route is a candidate, not the hypothesis that must win.
+
+current_known_state:
+  study_0_result: C_NI_001_NOT_DEMONSTRATED
+  study_0_margin_delta_fnmr: 0.03
+  study_0_target_fmr: 0.01
+  estimator_correction: SUBJECT_LEVEL_IDENTITY_DEPENDENCE_AWARE
+  estimator_validity_gate: PASS_FOR_CORRECTED_STUDY_0_SCOPE
+
+study_1a_backbone_qualification:
+  objective: >-
+    Demonstrate that the raw 512D face-specific representation is a credible modern face
+    verification substrate before attributing any later degradation to compression.
+  source_embedding_dimension: 512
+  backbone:
+    status: MODEL_IDENTITY_FROZEN_BYTES_HASH_PENDING_PREEXECUTION
+    method: AdaFace
+    architecture: ir_101_R100
+    embedding_dimension: 512
+    released_training_corpus: WebFace12M
+    upstream_repository: mk-minchul/AdaFace
+    upstream_commit: c60eaa786a42c03444f3df7096dbaf9d57ae010d
+    checkpoint_identity: R100_WebFace12M
+    checkpoint_source_google_drive_file_id: 1dswnavflETcnAuplZj1IOKKP0eM8ITgT
+    checkpoint_sha256: TO_BE_MATERIALIZED_AND_FROZEN_BEFORE_EXECUTION
+    repository_code_licence: MIT
+    checkpoint_and_training_data_rights: INDETERMINATE_UNTIL_SEPARATELY_REVIEWED
+    training_from_scratch: PROHIBITED_IN_STUDY_1A
+    preprocessing:
+      alignment_entrypoint: face_alignment/align.py
+      detector_path: face_alignment/mtcnn_pytorch/
+      reference_transform: face_alignment/mtcnn_pytorch/src/align_trans.py
+      upstream_commit: c60eaa786a42c03444f3df7096dbaf9d57ae010d
+      landmarks: five_point
+      crop_shape: [112, 112, 3]
+      channel_order: BGR
+      normalization: "(pixel / 255 - 0.5) / 0.5"
+      inference_mode: eval_only
+      output_normalization: L2
+      silent_failure_drop: false
+  benchmark_roles:
+    sanity_reproduction:
+      - LFW
+    difficult_reproduction:
+      - CFP-FP
+      - AgeDB-30
+      - CALFW
+      - CPLFW
+    low_fmr_primary_if_lawfully_replayable:
+      - IJB-C
+    external_validity_reference_not_local_gate_evidence:
+      - NIST_FRTE_1_1
+  dataset_access_note: >-
+    NIST discontinued distribution of IJB-A/B/C on 2023-03-14. IJB-C may be used only if
+    an already lawful and replayable copy plus official protocol metadata can be demonstrated.
+    Otherwise A3 remains INDETERMINATE. NIST FRTE 1:1 is the current external methodological
+    reference for robust 1:1 comparison and FNMR-at-fixed-FMR reporting, but its sequestered
+    datasets are not a downloadable replacement for local replay. Any public replacement must
+    be selected, numerically frozen and independently reviewed before replacement outcomes are
+    inspected; the IJB-C numeric threshold may not be transplanted to another dataset.
+  nist_references:
+    - https://www.nist.gov/programs-projects/face-challenges
+    - https://pages.nist.gov/frvt/html/frvt11.html
+  protocol_rules:
+    - use official folds/protocols when provided by the benchmark
+    - do not invent cross-validation folds to improve reported performance
+    - keep model/backbone selection separate from untouched qualification evidence
+    - record all image failures, alignment failures and exclusions
+    - do not equate FRTE sequestered results with local public-dataset results
+  primary_metrics:
+    - FNMR_at_declared_FMR
+    - TAR_at_declared_FAR_where_benchmark_defines_that_semantics
+  secondary_metrics:
+    - ROC
+    - DET
+    - EER_descriptive
+    - AUC_descriptive
+  viability_gate:
+    status: NUMERICALLY_FROZEN_PENDING_PREEXECUTION_BLOCKERS
+    conjunctive: true
+    a0_provenance_pipeline_integrity: REQUIRED
+    a1_lfw_min_accuracy_percent: 99.62
+    a2_min_accuracy_percent:
+      CFP-FP: 98.96
+      CPLFW: 94.27
+      CALFW: 95.82
+      AgeDB-30: 97.70
+    a3_if_ijbc_lawfully_replayable:
+      benchmark: IJB-C
+      protocol: official_1_to_1_verification
+      far_fmr: 0.0001
+      min_tar_percent: 97.16
+      max_fnmr_percent: 2.84
+    ijbc_unavailable_semantics: INDETERMINATE_PENDING_PRE_REVIEWED_REPLACEMENT_AMENDMENT
+    prohibited_shortcuts:
+      - high_LFW_accuracy_alone_cannot_release_gate
+      - uncertainty_interval_cannot_rescue_failed_point_threshold_post_hoc
+      - IJB_C_threshold_cannot_be_transplanted_to_another_dataset
+      - FRTE_external_reference_is_not_local_gate_evidence
+
+study_1b_compression:
+  authorization: BLOCKED_UNTIL_STUDY_1A_GATE_PASS_AND_SEPARATE_GO
+  objective: >-
+    Estimate the decision-relevant loss, if any, caused by 512D-to-128D compression of a
+    qualified face-specific representation.
+  routes: [raw_512d, random_128d, pca_128d, siamese_128d]
+  dimensions: [512, 128]
+  screening_seeds: [11, 29]
+  qualification_seeds: [11, 29, 47, 71, 101]
   split_unit: identity
   threshold_policy: validation_then_freeze
-  test_open_policy: once_after_all_routes_frozen
+  test_open_policy: once_after_all_routes_and_rules_frozen
   representation_endpoint: delta_fnmr_equal_fmr_non_deployable
-  operational_endpoint: validation_frozen_fnmr_with_test_fmr_constraint
+  operational_endpoint: validation_frozen_threshold_with_test_fmr_constraint
   secondary_endpoints: [eer_descriptive, roc_auc_descriptive, threshold_transfer]
-  uncertainty: SPECIFIED_BUT_BLOCKED_PENDING_IMPLEMENTATION_COVERAGE_AND_E_STAT_001
+  uncertainty: SUBJECT_LEVEL_IDENTITY_DEPENDENCE_AWARE
   random_control: gaussian_variance_1_over_d_then_l2_normalize
+  pca_control: fit_on_authorized_training_data_only
+  siamese_control: pair_supervised_projection_with_identical_input_embeddings
+
+progressive_evidence:
+  stage_a_screening:
+    claim_bearing: false
+    allowed_decisions: [CONTINUE, STOP, REDIRECT]
+    promotion_rule: TO_BE_FROZEN_BEFORE_SCREEN_OPEN
+    maximum_budget: TO_BE_FROZEN_BEFORE_SCREEN_OPEN
+    qualification_test_access: PROHIBITED
+  stage_b_qualification:
+    claim_bearing: true
+    authorization: SEPARATE_EXPLICIT_GO_REQUIRED
+    full_seed_set_required: true
+    independent_review_required: true
+
+primary_estimand:
+  name: delta_fnmr
+  definition: FNMR_candidate_at_alpha_minus_FNMR_raw_at_alpha
+  target_fmr_alpha: TO_BE_FROZEN
+  non_inferiority_margin_delta: TO_BE_FROZEN
+  note: >-
+    Study 0 used alpha=0.01 and delta=0.03. Study 1 must justify whether those values remain
+    scientifically appropriate rather than inheriting them automatically.
+
 sample_size:
-  status: BLOCKED
+  status: TO_BE_FROZEN
   target_power: 0.90
   criterion: probability_upper_confidence_bound_below_delta
   effect_scenarios: [0.0, 0.01]
@@ -43,7 +182,59 @@ sample_size:
     - raw_candidate_correlation
     - inter_seed_variation
     - all_declared_seeds_rule
+
+engineering_assurance:
+  profile: POC
+  required_before_outcome_execution:
+    - architecture_or_decomposition_note_for_the_Study_1_pipeline
+    - focused_unit_tests_for_critical_logic
+    - syntax_type_lint_or_equivalent_static_code_checks
+    - dependency_and_supply_chain_review
+    - secret_scanning
+    - static_security_analysis_where_supported
+    - explicit_security_assumptions_and_residual_risks
+    - deterministic_smoke_or_health_path_for_the_frozen_pipeline
+    - parent_process_progress_logging_with_progress_jsonl
+    - worker_count_equivalence
+    - interruption_resume_equivalence
+  security_boundary:
+    - no_secrets_or_dataset_credentials_committed
+    - downloaded_weights_and_dependencies_must_have_reviewable_provenance
+    - security_findings_must_be_fixed_not_applicable_or_explicitly_accepted
+    - missing_security_check_must_not_be_reported_as_passing
+  telemetry_rule: >-
+    Runtime telemetry is not scientific evidence. If it is later used as engineering/test
+    evidence, an expected-signal contract and applicable OpenTelemetry specification/semantic
+    convention version must be frozen before execution.
+
+pre_execution_double_review:
+  scientific_harness_review:
+    required: true
+    current_verdict: ACCEPT
+    source: independent_PR_45_review
+  technical_reproducibility_review:
+    required: true
+    current_verdict: HUMAN_ACCEPT_RECORDED_SUBJECT_TO_CURRENT_HEAD_GREEN_AND_PREEXECUTION_BLOCKERS
+    source: explicit_human_reviewer_B_approval_2026_08_24
+  release_condition: BOTH_REVIEWS_ACCEPT_AND_CI_RESEARCH_ASSURANCE_GREEN_AND_PREEXECUTION_BLOCKERS_CLOSED
+
+blocking_items:
+  - materialize and freeze exact checkpoint SHA256
+  - resolve checkpoint and training-data usage terms separately from code licence
+  - demonstrate lawful and reproducible IJB-C access OR freeze an independently reviewed public low-FMR replacement before outcomes
+  - perform overlap and near-duplicate audit design before data opening
+  - freeze Study 1B target FMR, non-inferiority margin and multiplicity policy
+  - freeze Stage A promotion and stop rules
+  - calculate identity-and-capture sample size
+  - freeze compute budget and software/hardware environment
+  - obtain green CI and Research Assurance on the reviewed head
+  - obtain explicit GO before Study 1A execution
+
 results: null
 decision:
   state: INDETERMINATE
-  rationale: Study is not yet fully preregistered or executed.
+  rationale: >-
+    Study 1 remains design-only. Review acceptances do not authorize outcome-bearing execution.
+    Checkpoint bytes/rights, lawful/replayable low-FMR benchmark access or a pre-reviewed
+    replacement, green assurance on the final head, and a separate explicit human GO remain
+    mandatory before Study 1A can execute.
