@@ -1,0 +1,59 @@
+name: Study 1 Progress Observability
+
+on:
+  pull_request:
+    paths:
+      - 'src/siamese_compression_lab/study1_progress.py'
+      - 'tests/test_study1_progress.py'
+      - 'scripts/study1_progress_smoke.py'
+      - 'protocol/studies/STUDY1_PROGRESS_OBSERVABILITY.md'
+      - '.github/workflows/study1-progress-observability.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  progress-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      PYTHONPATH: src
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Run focused progress contract tests
+        run: python -m unittest tests.test_study1_progress -v
+
+      - name: Emit GitHub-visible parent progress
+        run: |
+          rm -rf artifacts/study1-progress-smoke
+          python scripts/study1_progress_smoke.py --workers 4
+          echo '--- persisted progress.jsonl ---'
+          cat artifacts/study1-progress-smoke/progress.jsonl
+
+      - name: Simulate resume without resetting canonical progress
+        run: |
+          python scripts/study1_progress_smoke.py --workers 4
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          path = Path('artifacts/study1-progress-smoke/progress.jsonl')
+          events = [json.loads(line) for line in path.read_text().splitlines() if line.strip()]
+          assert any(e.get('resumed_completed') == 100 for e in events), events[-3:]
+          assert events[-1]['block_progress_percent'] == 100.0
+          print('[study1-progress-check] resume preserved 100% canonical completion', flush=True)
+          PY
+
+      - name: Upload progress observability artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: study1-progress-observability
+          path: artifacts/study1-progress-smoke/progress.jsonl
+          if-no-files-found: error
+          retention-days: 30
