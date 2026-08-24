@@ -1,0 +1,58 @@
+schema_version: "1.0"
+date: "2026-08-24"
+entries:
+  - id: CHRON-20260824-S1A-012
+    kind: outcome_execution_opened
+    scope: study_1a_a1_a2_only
+    status: OPENED
+    human_authority: explicit_user_instruction_open_study1a_a1_a2
+    active_gate:
+      a1:
+        benchmark: LFW
+        published_reference_accuracy: 0.9982
+        frozen_minimum_accuracy: 0.9962
+      a2:
+        conjunctive: true
+        benchmarks:
+          CFP-FP: {published_reference_accuracy: 0.9926, frozen_minimum_accuracy: 0.9896}
+          CPLFW: {published_reference_accuracy: 0.9457, frozen_minimum_accuracy: 0.9427}
+          CALFW: {published_reference_accuracy: 0.9612, frozen_minimum_accuracy: 0.9582}
+          AgeDB-30: {published_reference_accuracy: 0.9800, frozen_minimum_accuracy: 0.9770}
+    study1b_authorized: false
+    representation_geometry_authorized: false
+
+  - id: CHRON-20260824-S1A-013
+    kind: infrastructure_failure
+    status: INDETERMINATE_NO_SCIENTIFIC_VERDICT
+    run_id: 32772398139
+    affected_benchmarks:
+      - CFP-FP
+      - CPLFW
+      - CALFW
+      - AgeDB-30
+    cause: >-
+      Public validation mirror serializes encoded image byte vectors as NumPy uint8 arrays
+      for several .bin files, while the first runner admitted only bytes/bytearray containers.
+      Failure occurred before embedding inference and before benchmark accuracy was computed.
+    scientific_outcome_observed: false
+    threshold_or_gate_changed: false
+    next_action: >-
+      Apply a representation-preserving transport adapter accepting only one-dimensional uint8
+      arrays and converting them to the identical encoded byte stream; retain all scientific
+      thresholds, preprocessing, model identity and verification semantics unchanged.
+
+  - id: CHRON-20260824-S1A-014
+    kind: semantics_preserving_execution_fix
+    status: RERUN_IN_PROGRESS
+    fix_commit: abb97d5ee97bdf0192ae3c05b50b3ab59998d6db
+    engineering_green_commit: 2576e79d6bab963d5e422d9379aea5ab90c10e82
+    canonical_rerun_id: 32773090830
+    change: >-
+      Validation transport normalization now accepts bytes, bytearray, or one-dimensional
+      NumPy uint8 vectors; the latter are converted with ndarray.tobytes(order='C') before the
+      same deterministic OpenCV decode. Other ndarray shapes/dtypes fail closed.
+    scientific_semantics_changed: false
+    thresholds_changed: false
+    protected_outcome_interpretation: >-
+      The earlier infrastructure failures are not scientific FAIL results. Canonical A1/A2
+      evidence will come from the green-head rerun and will be retained durably after completion.
