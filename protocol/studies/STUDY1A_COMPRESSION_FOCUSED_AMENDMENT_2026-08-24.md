@@ -1,8 +1,10 @@
 # Study 1A — Compression-focused preregistration amendment
 
-Status: `PROPOSED_PREOUTCOME_AMENDMENT_REVIEW_REQUIRED`
+Status: `ACTIVE_AFTER_INDEPENDENT_PREOUTCOME_REVIEW`
 
 Date: 2026-08-24
+
+Independent review record: `protocol/reviews/STUDY1A_COMPRESSION_FOCUSED_AMENDMENT_REVIEW_ACCEPTED_2026-08-24.md`
 
 ## 1. Reason for the amendment
 
@@ -14,7 +16,7 @@ Study 0 used an ImageNet ResNet representation that was not sufficiently face-sp
 
 The previous Gate A made lawful local low-FMR IJB-C replay a mandatory prerequisite. That requirement is scientifically valuable for a biometric qualification programme, but disproportionate to the bounded compression question because IJB-C distribution is discontinued and FRTE uses sequestered NIST data rather than a locally replayable benchmark.
 
-No Study 1A scientific benchmark outcome has been opened when this amendment is proposed.
+No Study 1A scientific benchmark outcome had been opened when this amendment was proposed and independently reviewed.
 
 ## 2. What remains frozen
 
@@ -34,7 +36,7 @@ This amendment does **not** change:
 
 ## 3. Revised bounded role of Study 1A
 
-Study 1A becomes a **substrate sanity qualification**, not a production biometric qualification.
+Study 1A is a **substrate sanity qualification**, not a production biometric qualification.
 
 Its only decision is:
 
@@ -59,7 +61,7 @@ These are pre-execution qualification controls. They are engineering/provenance 
 
 ## 5. Revised Study 1A scientific sanity gate
 
-Subject to independent review of this amendment, the active numeric sanity gate becomes:
+The active numeric sanity gate is:
 
 ### A0 — pipeline integrity
 
@@ -99,8 +101,6 @@ Low-FMR evidence may enrich external validity later; absence of such evidence do
 
 ## 6. Revised Study 1A decision semantics
 
-If this amendment receives the required independent pre-outcome review:
-
 - `PASS`: A0 + A1 + all A2 thresholds pass and mandatory pre-outcome controls are satisfied. The exact AdaFace raw512 representation is accepted **only as the substrate for the planned compression comparison**.
 - `FAIL`: A0 is valid but one or more A1/A2 frozen thresholds fail. Stop and diagnose; do not run compression to rescue the substrate.
 - `INDETERMINATE`: artifact/pipeline/protocol/replay evidence required by this bounded qualification is incomplete or invalid.
@@ -113,14 +113,10 @@ The study must record the exact model-card/repository licence metadata and upstr
 
 Uncertainty about the upstream training dataset's broader commercial/redistribution terms remains a documented legal/provenance limitation and must not be silently generalized into a claim of unrestricted commercial rights. It does not by itself answer the scientific compression question. Any production/commercial reuse requires a separate rights review.
 
-## 8. Activation rule
+## 8. Activation record
 
-This amendment is proposed before Study 1A benchmark outcomes are opened. It becomes active only after independent review confirms that:
+This amendment was proposed and reviewed before Study 1A benchmark outcomes were opened.
 
-- the compression-focused question is represented faithfully;
-- the reduced scope does not create outcome-driven threshold changes;
-- A1/A2 thresholds remain exactly frozen;
-- mandatory preprocessing/replay/overlap controls remain fail-closed;
-- low-FMR evidence is correctly demoted to external-validity/extension status rather than silently discarded.
+The independent review at head `2110c32b071fa9a836d5dc2d55716d448bc8a10f` returned `ACCEPT` and explicitly authorized activation of this compression-focused amendment subject only to the already-declared pre-execution controls. The review does **not** authorize Study 1B.
 
-Until that review is recorded, the existing Gate A remains the formal active gate.
+The former broader Gate A remains part of the historical record; this amendment supersedes its mandatory low-FMR release condition for the bounded compression-focused Study 1A decision only.
