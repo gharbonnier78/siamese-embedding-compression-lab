@@ -114,6 +114,21 @@ The maximum accepted reproduction deficit is `0.50` percentage point TAR, equiva
 
 **Access status for review:** NIST states that distribution of IJB-A, IJB-B and IJB-C was discontinued on **2023-03-14**. Therefore this repository must not assume that a fresh lawful download can be obtained from NIST. Study 1A may use IJB-C only if the investigator can demonstrate an already lawful/reproducible copy and the official protocol metadata needed for replay. At the present preregistration state, that evidence has not been recorded; A3 access therefore remains `INDETERMINATE`.
 
+NIST's current robust-comparison path is **Face Recognition Technology Evaluation (FRTE)**, especially **FRTE 1:1 Verification** for this study's verification focus. FRTE evaluates submitted algorithms on large **sequestered NIST datasets** and reports **FNMR at fixed FMR operating points**. It is therefore the current NIST external reference for methodology and operational comparison, but it is **not** a downloadable replacement dataset for local GitHub replay.
+
+Study 1 therefore uses the following boundary:
+
+- FRTE 1:1 is an **external-validity / methodological reference**, not local Gate A evidence;
+- no FRTE score may be compared numerically to a local public-dataset score as if the datasets were interchangeable;
+- the frozen IJB-C threshold above remains valid only if a lawful, replayable IJB-C copy is demonstrated;
+- if IJB-C cannot be lawfully/reproducibly used, A3 remains `INDETERMINATE` until a **separate protocol amendment** selects a public/replayable low-FMR benchmark, freezes its own reference and numeric acceptance criterion, and receives independent review **before** any replacement outcome is inspected;
+- no IJB-C numeric threshold may be transplanted onto another dataset merely because the same FMR value is used.
+
+Authoritative NIST references:
+
+- `https://www.nist.gov/programs-projects/face-challenges`
+- `https://pages.nist.gov/frvt/html/frvt11.html`
+
 If lawful/reproducible IJB-C access is unavailable, Gate A is `INDETERMINATE`. Any replacement must be amended, independently reviewed and frozen before replacement outcomes are inspected.
 
 ## 6. Gate A decision semantics
