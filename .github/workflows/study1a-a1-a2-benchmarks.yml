@@ -1,0 +1,215 @@
+name: Study 1A A1 A2 Benchmarks
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/study1a-a1-a2-benchmarks.yml'
+      - 'scripts/study1a_run_a1_a2_benchmark.py'
+      - 'protocol/studies/STUDY1A_A1_A2_EXECUTION_PLAN_2026-08-24.md'
+      - 'protocol/studies/STUDY1A_COMPRESSION_FOCUSED_AMENDMENT_2026-08-24.md'
+      - 'protocol/studies/STUDY1A_FROZEN_INPUT_IMAGE_CONTRACT.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  benchmark:
+    name: ${{ matrix.benchmark }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    strategy:
+      fail-fast: false
+      matrix:
+        benchmark: [lfw, cfp_fp, cplfw, calfw, agedb_30]
+    env:
+      CHECKPOINT_REPO: VishalMishraTss/AdaFace
+      CHECKPOINT_FILE: adaface_ir101_webface12m.ckpt
+      CHECKPOINT_SHA256: 0e7a3238d2a50f3fe3860782534928ac7cb2598977cf897f6869fd5ac2493fd0
+      VALIDATION_REPO: Icar/val_sets
+      ADAFACE_COMMIT: c60eaa786a42c03444f3df7096dbaf9d57ae010d
+      OMP_NUM_THREADS: '4'
+      MKL_NUM_THREADS: '4'
+      OPENBLAS_NUM_THREADS: '4'
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.10'
+
+      - name: Install bounded benchmark dependencies
+        run: |
+          python -m pip install --disable-pip-version-check \
+            'numpy==1.26.4' \
+            'torch==2.8.0' \
+            'opencv-python-headless==4.10.0.84' \
+            'huggingface_hub==0.34.4'
+
+      - name: Materialize hash-pinned AdaFace checkpoint
+        run: |
+          python - <<'PY'
+          import hashlib
+          import os
+          from pathlib import Path
+          from huggingface_hub import hf_hub_download
+
+          root = Path('study1a/a1a2/model')
+          root.mkdir(parents=True, exist_ok=True)
+          path = Path(hf_hub_download(
+              repo_id=os.environ['CHECKPOINT_REPO'],
+              filename=os.environ['CHECKPOINT_FILE'],
+              local_dir=root,
+          ))
+          h = hashlib.sha256()
+          with path.open('rb') as stream:
+              for chunk in iter(lambda: stream.read(1024 * 1024), b''):
+                  h.update(chunk)
+          observed = h.hexdigest()
+          expected = os.environ['CHECKPOINT_SHA256']
+          if observed != expected:
+              raise SystemExit(f'checkpoint SHA mismatch: {observed} != {expected}')
+          Path('study1a/a1a2/checkpoint_path.txt').write_text(str(path) + '\n', encoding='utf-8')
+          print(f'checkpoint verified: {observed}')
+          PY
+
+      - name: Materialize standard validation bin
+        env:
+          BENCHMARK: ${{ matrix.benchmark }}
+        run: |
+          python - <<'PY'
+          import os
+          from pathlib import Path
+          from huggingface_hub import hf_hub_download
+
+          benchmark = os.environ['BENCHMARK']
+          root = Path('study1a/a1a2/data')
+          root.mkdir(parents=True, exist_ok=True)
+          path = Path(hf_hub_download(
+              repo_id=os.environ['VALIDATION_REPO'],
+              filename=f'{benchmark}.bin',
+              repo_type='dataset',
+              local_dir=root,
+          ))
+          Path('study1a/a1a2/dataset_path.txt').write_text(str(path) + '\n', encoding='utf-8')
+          print(f'validation artifact materialized: {path}')
+          PY
+
+      - name: Materialize pinned AdaFace inference code
+        run: |
+          git clone --filter=blob:none --no-checkout https://github.com/mk-minchul/AdaFace.git study1a/a1a2/AdaFace
+          git -C study1a/a1a2/AdaFace checkout "$ADAFACE_COMMIT" -- net.py convert.py evaluate_utils.py utils.py train_val.py
+          test "$(git -C study1a/a1a2/AdaFace rev-parse HEAD)" = "$ADAFACE_COMMIT"
+
+      - name: Execute outcome-bearing A1/A2 benchmark
+        env:
+          BENCHMARK: ${{ matrix.benchmark }}
+        run: |
+          CHECKPOINT_PATH="$(cat study1a/a1a2/checkpoint_path.txt)"
+          DATASET_PATH="$(cat study1a/a1a2/dataset_path.txt)"
+          python scripts/study1a_run_a1_a2_benchmark.py \
+            --benchmark "$BENCHMARK" \
+            --checkpoint "$CHECKPOINT_PATH" \
+            --checkpoint-locator "hf://VishalMishraTss/AdaFace/adaface_ir101_webface12m.ckpt#sha256=0e7a3238d2a50f3fe3860782534928ac7cb2598977cf897f6869fd5ac2493fd0" \
+            --dataset-file "$DATASET_PATH" \
+            --dataset-locator "hf-dataset://Icar/val_sets/${BENCHMARK}.bin" \
+            --adaface-src study1a/a1a2/AdaFace \
+            --output-dir "study1a/a1a2/report/${BENCHMARK}" \
+            --batch-size 32 \
+            --torch-threads 4 \
+            --progress-every 512
+
+      - name: Upload compact benchmark evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: study1a-a1a2-${{ matrix.benchmark }}
+          path: study1a/a1a2/report/${{ matrix.benchmark }}/*.json
+          if-no-files-found: warn
+          retention-days: 30
+
+  summarize:
+    name: summarize-a1-a2
+    needs: benchmark
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Download benchmark evidence
+        uses: actions/download-artifact@v5
+        with:
+          pattern: study1a-a1a2-*
+          path: study1a/a1a2/collected
+          merge-multiple: true
+
+      - name: Build bounded Gate A1/A2 summary
+        run: |
+          python - <<'PY'
+          import hashlib
+          import json
+          from pathlib import Path
+
+          root = Path('study1a/a1a2/collected')
+          reports = {}
+          for p in sorted(root.glob('*_result.json')):
+              data = json.loads(p.read_text(encoding='utf-8'))
+              reports[data['benchmark']] = data
+
+          expected = ['lfw', 'cfp_fp', 'cplfw', 'calfw', 'agedb_30']
+          missing = [name for name in expected if name not in reports]
+          invalid = [
+              name for name, r in reports.items()
+              if r.get('execution_status') != 'VALID_OUTCOME'
+          ]
+
+          if missing or invalid:
+              overall = 'INDETERMINATE'
+              a1 = 'INDETERMINATE'
+              a2 = 'INDETERMINATE'
+          else:
+              a1 = reports['lfw']['scientific_decision']
+              a2_pass = all(reports[name]['scientific_decision'] == 'PASS'
+                            for name in ['cfp_fp', 'cplfw', 'calfw', 'agedb_30'])
+              a2 = 'PASS' if a2_pass else 'FAIL'
+              overall = 'PASS' if a1 == 'PASS' and a2 == 'PASS' else 'FAIL'
+
+          manifest = {}
+          for p in sorted(root.glob('*.json')):
+              manifest[p.name] = hashlib.sha256(p.read_bytes()).hexdigest()
+
+          summary = {
+              'schema_version': '1.0',
+              'kind': 'study1a_a1_a2_gate_summary',
+              'outcome_bearing': True,
+              'study1b_authorized': False,
+              'a1_lfw': a1,
+              'a2_difficult_public_verification': a2,
+              'bounded_study1a_decision': overall,
+              'missing_reports': missing,
+              'invalid_reports': invalid,
+              'reports': reports,
+              'collected_report_sha256': manifest,
+              'interpretation_boundary': (
+                  'PASS accepts the raw512 AdaFace representation only as the substrate for the '
+                  'planned compression comparison; it is not a production, fairness, PAD, 1:N, '
+                  'low-FMR or SOTA claim.'
+              ),
+          }
+          out = Path('study1a/a1a2/summary')
+          out.mkdir(parents=True, exist_ok=True)
+          (out / 'gate_a1_a2_summary.json').write_text(
+              json.dumps(summary, indent=2, sort_keys=True) + '\n', encoding='utf-8'
+          )
+          print(json.dumps(summary, indent=2, sort_keys=True))
+          PY
+
+      - name: Upload combined A1/A2 evidence bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: study1a-a1-a2-evidence-bundle
+          path: |
+            study1a/a1a2/collected/*.json
+            study1a/a1a2/summary/gate_a1_a2_summary.json
+          retention-days: 30
