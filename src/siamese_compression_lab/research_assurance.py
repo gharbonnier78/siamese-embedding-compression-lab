@@ -98,10 +98,17 @@ def validate_research_program(root: str | Path) -> AssuranceReport:
     allowed_study_states = {
         "COMPLETED",
         "DRAFT_PREREGISTRATION",
+        "DRAFT_PREREGISTRATION_REVIEW_REQUIRED",
         "PREREGISTERED",
         "RUNNING",
         "PLANNED",
         "FAILED",
+    }
+    unexecuted_states = {
+        "PLANNED",
+        "DRAFT_PREREGISTRATION",
+        "DRAFT_PREREGISTRATION_REVIEW_REQUIRED",
+        "PREREGISTERED",
     }
     for study in studies:
         state = study.get("status")
@@ -110,7 +117,7 @@ def validate_research_program(root: str | Path) -> AssuranceReport:
             run = study.get("run") or {}
             _require(bool(run.get("run_id")), f"{study.get('study_id')}: completed without run_id", errors)
             _require(isinstance(study.get("results"), dict), f"{study.get('study_id')}: completed without results", errors)
-        if state in {"PLANNED", "DRAFT_PREREGISTRATION", "PREREGISTERED"}:
+        if state in unexecuted_states:
             _require(study.get("results") in (None, {}), f"{study.get('study_id')}: unexecuted study has results", errors)
     checks.append("study_status_guards_passed")
 
