@@ -22,6 +22,8 @@ Frozen model identity:
 - repository code licence: MIT;
 - checkpoint/training-data usage: research POC only until checkpoint and dataset terms are explicitly reviewed.
 
+The official AdaFace README lists the R100/WebFace12M checkpoint at the frozen Google Drive locator and explicitly documents BGR input for the released pretrained models. The MIT licence applies to the repository code; it is **not** treated here as evidence that the checkpoint bytes or WebFace12M training data inherit the same usage rights. Until authoritative terms for those artifacts are established, rights status remains a hard `INDETERMINATE` blocker for execution.
+
 The model choice is frozen. The exact checkpoint bytes remain a technical release blocker: the first authorized acquisition step must hash the downloaded artifact and record that SHA-256 before outcome-bearing execution. A different checkpoint requires a protocol amendment before any outcomes are inspected.
 
 ## 2. Frozen preprocessing contract
@@ -109,6 +111,8 @@ Frozen criterion:
 - **FNMR <= 2.84% @ FMR/FAR = 1e-4**.
 
 The maximum accepted reproduction deficit is `0.50` percentage point TAR, equivalently `+0.50` point FNMR. Subject/template-aware uncertainty must be reported diagnostically and may not be used post hoc to rescue a failed point criterion.
+
+**Access status for review:** NIST states that distribution of IJB-A, IJB-B and IJB-C was discontinued on **2023-03-14**. Therefore this repository must not assume that a fresh lawful download can be obtained from NIST. Study 1A may use IJB-C only if the investigator can demonstrate an already lawful/reproducible copy and the official protocol metadata needed for replay. At the present preregistration state, that evidence has not been recorded; A3 access therefore remains `INDETERMINATE`.
 
 If lawful/reproducible IJB-C access is unavailable, Gate A is `INDETERMINATE`. Any replacement must be amended, independently reviewed and frozen before replacement outcomes are inspected.
 
