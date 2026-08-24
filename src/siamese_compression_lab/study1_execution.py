@@ -4,9 +4,9 @@ import hashlib
 import json
 import os
 import tempfile
+from collections.abc import Iterable
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Iterable
 
 
 @dataclass(frozen=True)
@@ -36,7 +36,7 @@ def sha256_file(path: str | Path, chunk_size: int = 1024 * 1024) -> str:
 def stable_shard_id(dataset_manifest_sha256: str, start: int, stop: int) -> str:
     if start < 0 or stop <= start:
         raise ValueError("invalid shard bounds")
-    material = f"{dataset_manifest_sha256}:{start}:{stop}".encode("utf-8")
+    material = f"{dataset_manifest_sha256}:{start}:{stop}".encode()
     return hashlib.sha256(material).hexdigest()[:24]
 
 
