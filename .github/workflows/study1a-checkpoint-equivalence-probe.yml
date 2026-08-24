@@ -170,6 +170,73 @@ jobs:
           print(json.dumps(report, sort_keys=True))
           PY
 
+      - name: Probe all RGB/BGR input-channel permutations for the sole differing convolution tensor
+        run: |
+          python - <<'PY'
+          import hashlib
+          import itertools
+          import json
+          from pathlib import Path
+
+          import torch
+          from safetensors.torch import load_file
+
+          root = Path('preexecution/e2')
+          ckpt_path = root / 'historical_mirror' / 'adaface_ir101_webface12m.ckpt'
+          safe_path = root / 'author_hf' / 'model.safetensors'
+
+          obj = torch.load(ckpt_path, map_location='cpu', weights_only=True)
+          if not isinstance(obj, dict) or 'state_dict' not in obj or not isinstance(obj['state_dict'], dict):
+              raise SystemExit('Historical checkpoint does not expose the expected tensor state_dict')
+          ckpt_state = obj['state_dict']
+          safe_state = load_file(str(safe_path), device='cpu')
+
+          historical_key = 'model.input_layer.0.weight'
+          author_key = 'model.net.input_layer.0.weight'
+          if historical_key not in ckpt_state or author_key not in safe_state:
+              raise SystemExit('Expected first-convolution tensor key not found')
+
+          historical = ckpt_state[historical_key].detach().cpu().contiguous()
+          author = safe_state[author_key].detach().cpu().contiguous()
+          if tuple(historical.shape) != (64, 3, 3, 3) or historical.shape != author.shape:
+              raise SystemExit(f'Unexpected first-convolution shape: historical={tuple(historical.shape)} author={tuple(author.shape)}')
+
+          def sha256_tensor(t):
+              return hashlib.sha256(t.contiguous().numpy().tobytes(order='C')).hexdigest()
+
+          rows = []
+          for perm in itertools.permutations(range(3)):
+              candidate = author[:, list(perm), :, :].contiguous()
+              delta = candidate - historical
+              rows.append({
+                  'channel_permutation': list(perm),
+                  'exact_equal': bool(torch.equal(candidate, historical)),
+                  'candidate_sha256': sha256_tensor(candidate),
+                  'historical_sha256': sha256_tensor(historical),
+                  'max_abs_error': float(delta.abs().max().item()),
+                  'mean_abs_error': float(delta.abs().mean().item()),
+              })
+
+          exact = [r for r in rows if r['exact_equal']]
+          report = {
+              'artifact_role': 'non-outcome-bearing input-channel permutation probe',
+              'scientific_outcomes_opened': False,
+              'historical_key': historical_key,
+              'author_hf_key': author_key,
+              'shape': list(historical.shape),
+              'permutations_tested': 6,
+              'exact_match_count': len(exact),
+              'exact_matches': exact,
+              'bgr_rgb_swap_2_1_0_exact': any(r['channel_permutation'] == [2, 1, 0] and r['exact_equal'] for r in rows),
+              'status': 'CHANNEL_PERMUTATION_EXPLAINS_DIFFERENCE' if len(exact) == 1 else ('AMBIGUOUS_MULTIPLE_EXACT_PERMUTATIONS' if len(exact) > 1 else 'NO_EXACT_CHANNEL_PERMUTATION_MATCH'),
+              'results': rows,
+          }
+          (root / 'channel_permutation_report.json').write_text(
+              json.dumps(report, indent=2, sort_keys=True) + '\n', encoding='utf-8'
+          )
+          print(json.dumps(report, sort_keys=True))
+          PY
+
       - name: Upload metadata and equivalence manifests only
         uses: actions/upload-artifact@v4
         with:
@@ -177,6 +244,7 @@ jobs:
           path: |
             preexecution/e2/artifact_identities.json
             preexecution/e2/tensor_equivalence_report.json
+            preexecution/e2/channel_permutation_report.json
             preexecution/e2/historical_tensor_manifest.json
             preexecution/e2/author_hf_tensor_manifest.json
           if-no-files-found: error
