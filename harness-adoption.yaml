@@ -2,7 +2,7 @@ schema_version: "0.1"
 
 harness:
   repository: gharbonnier78/scientific-research-harness
-  ref: "422e08f3d6483ca11fa5a4767cffa99ce386bde5"
+  ref: "3b109adcdd9a8cba4df029d3803ee0e5cb5bdf98"
   entrypoint: HARNESS.md
 
 consumer:
@@ -68,10 +68,12 @@ local_extensions:
 deviations: []
 
 adoption:
-  adopted_at: "2026-08-23"
+  adopted_at: "2026-08-24"
   adopted_by: "Study 1 protocol refresh in PR #45"
   notes: >-
-    Repinned from 1cead5808c126fd38e7505c27502fb3e7671c69a to
-    422e08f3d6483ca11fa5a4767cffa99ce386bde5 after reviewing the harness additions for
-    proportional engineering care, code quality/security assurance, and telemetry evidence.
-    Historical Study 0 artifacts remain bound to the harness refs under which they were produced.
+    Repinned from 422e08f3d6483ca11fa5a4767cffa99ce386bde5 to
+    3b109adcdd9a8cba4df029d3803ee0e5cb5bdf98 to adopt the delegated-review navigation
+    contract requiring direct repository, pull-request, immutable harness and relevant artifact
+    URLs. This upgrade changes review/navigation method only; it does not change Study 1
+    scientific meaning or Gate A thresholds. Historical Study 0 artifacts remain bound to the
+    harness refs under which they were produced.
