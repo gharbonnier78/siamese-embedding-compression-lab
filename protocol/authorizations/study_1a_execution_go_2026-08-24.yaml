@@ -1,0 +1,54 @@
+schema_version: "1.0"
+authorization_id: STUDY1A-GO-20260824-001
+study_id: study_1_face_backbone
+execution_step: study_1a_backbone_qualification
+status: AUTHORIZED_PENDING_PREEXECUTION_BLOCKERS
+
+human_go:
+  explicit: true
+  recorded_at: "2026-08-24"
+  source: "ChatGPT project conversation: explicit user message 'GO'"
+  scope: "Study 1A raw 512D face-specific backbone qualification only"
+  study_1b_included: false
+  geometry_exploration_included: false
+  scope_change_requires_new_go: true
+
+frozen_basis:
+  merge_commit_pr45: "7ae07e65a9018a36b221118dc52f1b4dbaf52311"
+  protocol: protocol/studies/study_1_face_backbone.yaml
+  gate: protocol/studies/STUDY1_BACKBONE_ACCEPTANCE_GATE.md
+  execution_contract: protocol/studies/STUDY1_EXECUTION_ARCHITECTURE_AND_SBOM.md
+  review_contract: protocol/studies/STUDY1_DOUBLE_REVIEW_REQUEST.md
+  harness_ref: "3b109adcdd9a8cba4df029d3803ee0e5cb5bdf98"
+
+activation_rule:
+  effect: >-
+    The human GO requirement is satisfied, but outcome-bearing Study 1A execution MUST NOT
+    begin until every mandatory pre-execution blocker below is closed with recoverable evidence.
+  required_before_outcome_bearing_execution:
+    - exact_AdaFace_R100_WebFace12M_checkpoint_SHA256_materialized_and_frozen
+    - checkpoint_and_training_data_usage_terms_reviewed_and_disposition_recorded
+    - lawful_replayable_IJB_C_access_demonstrated_OR_pre_outcome_independently_reviewed_low_FMR_replacement_frozen
+    - overlap_and_near_duplicate_audit_design_frozen_before_data_opening
+    - compute_environment_and_budget_frozen
+    - worker_count_equivalence_and_interruption_resume_equivalence_green
+    - final_execution_head_CI_and_research_assurance_green
+  permitted_before_activation:
+    - checkpoint_download_and_hashing_without_evaluation_data
+    - licence_and_provenance_review
+    - synthetic_or_non_evaluation_smoke_tests
+    - throughput_memory_and_sharding_engineering_measurement_without_scientific_metrics
+    - SBOM_dependency_secret_and_static_security_checks
+    - preparation_of_dataset_manifests_without_opening_protected_outcomes
+
+scientific_boundary:
+  outcome_bearing_execution_authorized_after_activation: true
+  study_1b_execution_authorized: false
+  representation_geometry_authorized: false
+  threshold_or_gate_mutation_after_outcome_opening: false
+  unofficial_IJB_C_reacquisition_authorized: false
+  scientific_results_before_activation_must_remain_null: true
+
+notes:
+  - "This authorization records human authority; it does not manufacture missing evidence."
+  - "Engineering evidence produced before activation remains non-outcome-bearing by contract."
