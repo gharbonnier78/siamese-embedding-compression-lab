@@ -33,6 +33,7 @@ jobs:
           python -m pip install --disable-pip-version-check \
             'huggingface_hub==0.34.4' \
             'safetensors==0.6.2' \
+            'numpy==2.2.6' \
             'torch==2.8.0'
 
       - name: Download hash-pinned candidate artifacts
@@ -91,7 +92,6 @@ jobs:
           ckpt_path = root / 'historical_mirror' / 'adaface_ir101_webface12m.ckpt'
           safe_path = root / 'author_hf' / 'model.safetensors'
 
-          # Security boundary: never fall back to weights_only=False for a third-party pickle-like checkpoint.
           obj = torch.load(ckpt_path, map_location='cpu', weights_only=True)
 
           def tensor_dict_from_checkpoint(value):
