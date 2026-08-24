@@ -43,16 +43,44 @@ entries:
 
   - id: CHRON-20260824-S1A-014
     kind: semantics_preserving_execution_fix
-    status: RERUN_IN_PROGRESS
+    status: SUPERSEDED_BY_LATER_TRANSPORT_FIX
     fix_commit: abb97d5ee97bdf0192ae3c05b50b3ab59998d6db
     engineering_green_commit: 2576e79d6bab963d5e422d9379aea5ab90c10e82
-    canonical_rerun_id: 32773090830
+    canonical_rerun_id_at_time: 32773090830
     change: >-
-      Validation transport normalization now accepts bytes, bytearray, or one-dimensional
+      Validation transport normalization accepts bytes, bytearray, or one-dimensional
       NumPy uint8 vectors; the latter are converted with ndarray.tobytes(order='C') before the
       same deterministic OpenCV decode. Other ndarray shapes/dtypes fail closed.
     scientific_semantics_changed: false
     thresholds_changed: false
     protected_outcome_interpretation: >-
-      The earlier infrastructure failures are not scientific FAIL results. Canonical A1/A2
-      evidence will come from the green-head rerun and will be retained durably after completion.
+      Earlier infrastructure failures are not scientific FAIL results.
+
+  - id: CHRON-20260824-S1A-015
+    kind: semantics_preserving_execution_fix
+    status: CANONICAL_RERUN_IN_PROGRESS
+    preceding_run_id: 32773090830
+    observed_transport_shape:
+      dtype: uint8
+      shape_example: [5156, 1]
+    failure_class: INFRASTRUCTURE_OR_PROVENANCE_FAILURE
+    scientific_outcome_observed_for_failed_job: false
+    fix_commit: 2dbbf832e30f33628b68a1122ee642ab504777d8
+    canonical_rerun_id: 32773439197
+    change: >-
+      Encoded validation payloads may also be serialized as two-dimensional uint8 arrays with
+      exactly one singleton axis, for example (N,1). The adapter now accepts only 1-D vectors or
+      2-D singleton-axis uint8 arrays and flattens them losslessly with reshape(-1).tobytes(C)
+      before the unchanged deterministic OpenCV decode. Other ndarray shapes or dtypes still
+      fail closed.
+    scientific_semantics_changed: false
+    model_identity_changed: false
+    preprocessing_changed: false
+    verification_protocol_changed: false
+    thresholds_changed: false
+    protected_outcome_interpretation: >-
+      The transport fix changes only the container representation admitted before image decode.
+      It does not alter image bytes, benchmark membership, pair labels, gate thresholds or the
+      verification algorithm. Canonical A1/A2 evidence will come from run 32773439197 or a later
+      strictly semantics-preserving infrastructure retry if required.
+    durable_evidence_required_after_valid_completion: true
