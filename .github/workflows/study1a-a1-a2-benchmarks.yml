@@ -1,13 +1,9 @@
 name: Study 1A A1 A2 Benchmarks
 
+# Canonical outcome run 32773439197 is complete. Keep further outcome-bearing
+# A1/A2 executions explicit; ordinary PR updates must not silently create new
+# scientific observations.
 on:
-  pull_request:
-    paths:
-      - '.github/workflows/study1a-a1-a2-benchmarks.yml'
-      - 'scripts/study1a_run_a1_a2_benchmark.py'
-      - 'protocol/studies/STUDY1A_A1_A2_EXECUTION_PLAN_2026-08-24.md'
-      - 'protocol/studies/STUDY1A_COMPRESSION_FOCUSED_AMENDMENT_2026-08-24.md'
-      - 'protocol/studies/STUDY1A_FROZEN_INPUT_IMAGE_CONTRACT.md'
   workflow_dispatch:
 
 permissions:
