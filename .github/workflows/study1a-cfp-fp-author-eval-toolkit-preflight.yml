@@ -1,0 +1,82 @@
+name: Study 1A CFP-FP Author Eval Toolkit Preflight
+
+on:
+  push:
+    branches:
+      - agent/study1a-go-preexecution-20260824
+    paths:
+      - '.github/workflows/study1a-cfp-fp-author-eval-toolkit-preflight.yml'
+      - 'protocol/studies/STUDY1A_CFP_FP_SOURCE_CORRECTION_REPLAY_2026-08-25.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  author-toolkit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.10'
+      - name: Install download helper
+        run: python -m pip install --disable-pip-version-check 'gdown==5.2.0'
+      - name: Materialize author-managed CVLFace evaluation toolkit archive
+        run: |
+          set -euo pipefail
+          mkdir -p study1a/cfp_author_toolkit
+          python - <<'PY'
+          import hashlib, json, subprocess, zipfile
+          from pathlib import Path
+
+          file_id = '1oEvQdseNhcWdBh2X7l2bMK_BfBZX8JCZ'
+          locator = f'https://drive.google.com/file/d/{file_id}/view?usp=sharing'
+          out = Path('study1a/cfp_author_toolkit/eval_toolkit.zip')
+          report = {
+              'schema_version': '1.0',
+              'kind': 'study1a_cvlface_author_eval_toolkit_preflight',
+              'authoritative_instruction': 'mk-minchul/CVLface cvlface/data_utils/recognition/eval_data/README_EVAL_TOOLKIT.md',
+              'source_locator': locator,
+              'google_drive_file_id': file_id,
+              'scientific_outcome_opened': False,
+              'gate_changed': False,
+          }
+          try:
+              subprocess.run(['gdown', '--id', file_id, '-O', str(out)], check=True)
+              report['download_status'] = 'MATERIALIZED'
+              report['size_bytes'] = out.stat().st_size
+              h = hashlib.sha256()
+              with out.open('rb') as f:
+                  for block in iter(lambda: f.read(1024*1024), b''):
+                      h.update(block)
+              report['sha256'] = h.hexdigest()
+              try:
+                  with zipfile.ZipFile(out) as z:
+                      names = z.namelist()
+                      report['zip_member_count'] = len(names)
+                      report['member_name_sample'] = names[:100]
+                      report['cfp_named_members'] = [n for n in names if 'cfp' in n.lower()][:100]
+                      encrypted = [i.filename for i in z.infolist() if i.flag_bits & 0x1]
+                      report['encrypted_member_count'] = len(encrypted)
+                      report['password_required_for_content'] = bool(encrypted)
+                      report['archive_status'] = 'AUTHOR_TOOLKIT_AVAILABLE_PASSWORD_REQUIRED' if encrypted else 'AUTHOR_TOOLKIT_AVAILABLE_UNENCRYPTED'
+              except Exception as exc:
+                  report['archive_status'] = 'DOWNLOADED_NOT_READABLE_AS_ZIP'
+                  report['archive_error'] = repr(exc)
+          except Exception as exc:
+              report['download_status'] = 'UNAVAILABLE'
+              report['archive_status'] = 'AUTHOR_TOOLKIT_ENDPOINT_UNAVAILABLE'
+              report['download_error'] = repr(exc)
+          Path('study1a/cfp_author_toolkit/source_preflight.json').write_text(json.dumps(report, indent=2, sort_keys=True) + '\n')
+          print(json.dumps(report, indent=2, sort_keys=True))
+          PY
+      - name: Upload author-toolkit source evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: study1a-cfp-author-eval-toolkit-preflight
+          path: study1a/cfp_author_toolkit/source_preflight.json
+          if-no-files-found: error
+          retention-days: 30
