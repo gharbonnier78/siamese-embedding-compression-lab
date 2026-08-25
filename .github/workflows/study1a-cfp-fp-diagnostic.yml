@@ -8,6 +8,11 @@ on:
       - '.github/workflows/study1a-cfp-fp-diagnostic.yml'
       - 'scripts/study1a_cfp_fp_source_diagnostic.py'
       - 'protocol/studies/STUDY1A_CFP_FP_DIAGNOSTIC_PLAN_2026-08-25.md'
+  pull_request:
+    paths:
+      - '.github/workflows/study1a-cfp-fp-diagnostic.yml'
+      - 'scripts/study1a_cfp_fp_source_diagnostic.py'
+      - 'protocol/studies/STUDY1A_CFP_FP_DIAGNOSTIC_PLAN_2026-08-25.md'
   workflow_dispatch:
 
 permissions:
