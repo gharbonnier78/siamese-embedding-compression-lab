@@ -1,30 +1,54 @@
-name: Study 1A CFP-FP Author Eval Toolkit Preflight
+name: Study 1A CFP-FP Author Eval Toolkit Correction Replay
 
+# Human-authorized source correction replay. The original Icar-based FAIL remains
+# historical evidence. This workflow may revise the bounded CFP-FP decision only
+# by replaying the frozen checkpoint/evaluator against the author-managed CVLFace
+# evaluation derivative. It does not authorize Study 1B.
 on:
   push:
     branches:
       - agent/study1a-go-preexecution-20260824
     paths:
       - '.github/workflows/study1a-cfp-fp-author-eval-toolkit-preflight.yml'
-      - 'protocol/studies/STUDY1A_CFP_FP_SOURCE_CORRECTION_REPLAY_2026-08-25.md'
   workflow_dispatch:
 
 permissions:
   contents: read
 
 jobs:
-  author-toolkit:
+  author-toolkit-correction-replay:
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 330
     env:
       CVLFACE_EVAL_TOOLKIT_PASSWORD: ${{ secrets.CVLFACE_EVAL_TOOLKIT_PASSWORD }}
+      CHECKPOINT_REPO: VishalMishraTss/AdaFace
+      CHECKPOINT_FILE: adaface_ir101_webface12m.ckpt
+      CHECKPOINT_SHA256: 0e7a3238d2a50f3fe3860782534928ac7cb2598977cf897f6869fd5ac2493fd0
+      ADAFACE_COMMIT: c60eaa786a42c03444f3df7096dbaf9d57ae010d
+      AUTHOR_TOOLKIT_FILE_ID: 1oEvQdseNhcWdBh2X7l2bMK_BfBZX8JCZ
+      FROZEN_MINIMUM: '0.9896'
+      OMP_NUM_THREADS: '4'
+      MKL_NUM_THREADS: '4'
+      OPENBLAS_NUM_THREADS: '4'
+
     steps:
       - uses: actions/checkout@v5
+
       - uses: actions/setup-python@v6
         with:
           python-version: '3.10'
-      - name: Install download helper
-        run: python -m pip install --disable-pip-version-check 'gdown==5.2.0'
+
+      - name: Install bounded replay dependencies
+        run: |
+          python -m pip install --disable-pip-version-check \
+            'gdown==5.2.0' \
+            'numpy==1.26.4' \
+            'torch==2.8.0' \
+            'opencv-python-headless==4.10.0.84' \
+            'huggingface_hub==0.34.4' \
+            'datasets==3.6.0' \
+            'pillow==11.1.0'
+
       - name: Materialize and validate author-managed CVLFace evaluation toolkit
         run: |
           set -euo pipefail
@@ -33,11 +57,11 @@ jobs:
           import hashlib, json, os, subprocess, zipfile
           from pathlib import Path
 
-          file_id = '1oEvQdseNhcWdBh2X7l2bMK_BfBZX8JCZ'
+          file_id = os.environ['AUTHOR_TOOLKIT_FILE_ID']
           locator = f'https://drive.google.com/file/d/{file_id}/view?usp=sharing'
           out = Path('study1a/cfp_author_toolkit/eval_toolkit.zip')
           report = {
-              'schema_version': '1.1',
+              'schema_version': '1.2',
               'kind': 'study1a_cvlface_author_eval_toolkit_preflight',
               'authoritative_instruction': 'mk-minchul/CVLface cvlface/data_utils/recognition/eval_data/README_EVAL_TOOLKIT.md',
               'source_locator': locator,
@@ -49,59 +73,225 @@ jobs:
           }
           password = os.environ.get('CVLFACE_EVAL_TOOLKIT_PASSWORD', '')
           report['password_secret_present'] = bool(password)
-          try:
-              subprocess.run(['gdown', '--id', file_id, '-O', str(out)], check=True)
-              report['download_status'] = 'MATERIALIZED'
-              report['size_bytes'] = out.stat().st_size
-              h = hashlib.sha256()
-              with out.open('rb') as f:
-                  for block in iter(lambda: f.read(1024*1024), b''):
-                      h.update(block)
-              report['sha256'] = h.hexdigest()
-              with zipfile.ZipFile(out) as z:
-                  infos = z.infolist()
-                  names = [i.filename for i in infos]
-                  encrypted = [i.filename for i in infos if i.flag_bits & 0x1]
-                  report['zip_member_count'] = len(names)
-                  report['member_name_sample'] = names[:100]
-                  report['cfp_named_members'] = [n for n in names if 'cfp' in n.lower()][:200]
-                  report['encrypted_member_count'] = len(encrypted)
-                  report['password_required_for_content'] = bool(encrypted)
-                  probe = next((i for i in infos if not i.is_dir() and 'cfp' in i.filename.lower()), None)
-                  if probe is None:
-                      probe = next((i for i in infos if not i.is_dir()), None)
-                  if probe is not None:
-                      try:
-                          with z.open(probe, pwd=password.encode('utf-8') if password else None) as stream:
-                              sample = stream.read(64)
-                          report['password_validation_status'] = 'VALID_FOR_PROBE'
-                          report['probe_member'] = probe.filename
-                          report['probe_read_bytes'] = len(sample)
-                      except Exception as exc:
-                          report['password_validation_status'] = 'FAILED_OR_MISSING'
-                          report['probe_member'] = probe.filename
-                          report['password_validation_error_type'] = type(exc).__name__
-                  report['archive_status'] = (
-                      'AUTHOR_TOOLKIT_PASSWORD_VALIDATED'
-                      if report.get('password_validation_status') == 'VALID_FOR_PROBE'
-                      else 'AUTHOR_TOOLKIT_PRESENT_PASSWORD_NOT_VALIDATED'
-                  )
-          except Exception as exc:
-              report['download_status'] = report.get('download_status', 'UNAVAILABLE')
-              report['archive_status'] = 'AUTHOR_TOOLKIT_ENDPOINT_OR_ARCHIVE_UNAVAILABLE'
-              report['error_type'] = type(exc).__name__
-          Path('study1a/cfp_author_toolkit/source_preflight.json').write_text(json.dumps(report, indent=2, sort_keys=True) + '\n')
-          print(json.dumps(report, indent=2, sort_keys=True))
-          if report.get('password_secret_present') is not True:
+          if not password:
               raise SystemExit('CVLFACE_EVAL_TOOLKIT_PASSWORD secret is not available')
-          if report.get('password_validation_status') != 'VALID_FOR_PROBE':
-              raise SystemExit('author toolkit password could not be validated')
+          subprocess.run(['gdown', '--id', file_id, '-O', str(out)], check=True)
+          report['download_status'] = 'MATERIALIZED'
+          report['size_bytes'] = out.stat().st_size
+          h = hashlib.sha256()
+          with out.open('rb') as f:
+              for block in iter(lambda: f.read(1024*1024), b''):
+                  h.update(block)
+          report['sha256'] = h.hexdigest()
+          with zipfile.ZipFile(out) as z:
+              infos = z.infolist()
+              names = [i.filename for i in infos]
+              encrypted = [i.filename for i in infos if i.flag_bits & 0x1]
+              report['zip_member_count'] = len(names)
+              report['cfp_named_members'] = [n for n in names if 'cfp' in n.lower()]
+              report['encrypted_member_count'] = len(encrypted)
+              report['password_required_for_content'] = bool(encrypted)
+              probe = next((i for i in infos if not i.is_dir() and 'cfp' in i.filename.lower()), None)
+              if probe is None:
+                  raise SystemExit('author toolkit contains no CFP member')
+              with z.open(probe, pwd=password.encode('utf-8')) as stream:
+                  sample = stream.read(64)
+              report['password_validation_status'] = 'VALID_FOR_PROBE'
+              report['probe_member'] = probe.filename
+              report['probe_read_bytes'] = len(sample)
+              report['archive_status'] = 'AUTHOR_TOOLKIT_PASSWORD_VALIDATED'
+          Path('study1a/cfp_author_toolkit/source_preflight.json').write_text(
+              json.dumps(report, indent=2, sort_keys=True) + '\n', encoding='utf-8'
+          )
+          print(json.dumps(report, indent=2, sort_keys=True))
           PY
-      - name: Upload author-toolkit source evidence
+
+      - name: Extract only CFP-FP author derivative and convert losslessly to frozen evaluator container
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib, io, json, os, pickle, zipfile
+          from pathlib import Path
+          import numpy as np
+          from datasets import Dataset
+          from PIL import Image
+
+          archive = Path('study1a/cfp_author_toolkit/eval_toolkit.zip')
+          target_root = Path('study1a/cfp_author_toolkit/extracted')
+          target_root.mkdir(parents=True, exist_ok=True)
+          password = os.environ['CVLFACE_EVAL_TOOLKIT_PASSWORD'].encode('utf-8')
+          prefix = 'facerec_val/cfp_fp/'
+          with zipfile.ZipFile(archive) as z:
+              members = [i for i in z.infolist() if i.filename.startswith(prefix) and not i.is_dir()]
+              if not members:
+                  raise SystemExit('no CFP-FP files found in author toolkit')
+              for info in members:
+                  rel = Path(info.filename).relative_to('facerec_val')
+                  dest = target_root / rel
+                  dest.parent.mkdir(parents=True, exist_ok=True)
+                  with z.open(info, pwd=password) as src, dest.open('wb') as dst:
+                      while True:
+                          block = src.read(1024 * 1024)
+                          if not block:
+                              break
+                          dst.write(block)
+
+          dataset_path = target_root / 'cfp_fp'
+          ds = Dataset.load_from_disk(str(dataset_path))
+          required = {'image', 'index', 'is_same'}
+          if not required.issubset(ds.column_names):
+              raise SystemExit(f'unexpected author dataset columns: {ds.column_names}')
+          ds = ds.sort('index')
+          if len(ds) != 14000:
+              raise SystemExit(f'expected 14000 CFP-FP image rows, got {len(ds)}')
+
+          blobs = []
+          labels = []
+          pixel_hashes = []
+          for i in range(len(ds)):
+              row = ds[i]
+              image = row['image']
+              if not isinstance(image, Image.Image):
+                  raise SystemExit(f'row {i} image is {type(image).__name__}, expected PIL.Image')
+              rgb = np.asarray(image.convert('RGB'), dtype=np.uint8)
+              if rgb.shape != (112, 112, 3):
+                  raise SystemExit(f'row {i} shape {rgb.shape}, expected 112x112x3')
+              pixel_hashes.append(hashlib.sha256(rgb.tobytes(order='C')).hexdigest())
+              buf = io.BytesIO()
+              Image.fromarray(rgb, mode='RGB').save(buf, format='PNG', optimize=False)
+              blobs.append(buf.getvalue())
+              if i % 2 == 0:
+                  mate = ds[i + 1]
+                  if bool(row['is_same']) != bool(mate['is_same']):
+                      raise SystemExit(f'pair label mismatch at rows {i}/{i+1}')
+                  labels.append(bool(row['is_same']))
+
+          if len(labels) != 7000:
+              raise SystemExit(f'expected 7000 pair labels, got {len(labels)}')
+          out = Path('study1a/cfp_author_toolkit/cfp_fp_author_lossless.bin')
+          with out.open('wb') as f:
+              pickle.dump((blobs, labels), f, protocol=4)
+
+          manifest = {
+              'schema_version': '1.0',
+              'kind': 'study1a_cfp_fp_author_derivative_conversion_manifest',
+              'author_dataset_path': 'facerec_val/cfp_fp',
+              'row_count': len(ds),
+              'pair_count': len(labels),
+              'genuine_pair_count': int(sum(labels)),
+              'impostor_pair_count': int(len(labels) - sum(labels)),
+              'source_columns': list(ds.column_names),
+              'ordering': 'sorted_by_author_index',
+              'pixel_transport': 'author_PIL_RGB_pixels_to_lossless_PNG_then_frozen_cv2_BGR_decode',
+              'unique_rgb_pixel_digest_count': len(set(pixel_hashes)),
+              'converted_bin_sha256': hashlib.sha256(out.read_bytes()).hexdigest(),
+              'converted_bin_size_bytes': out.stat().st_size,
+              'dataset_content_not_uploaded': True,
+          }
+          Path('study1a/cfp_author_toolkit/conversion_manifest.json').write_text(
+              json.dumps(manifest, indent=2, sort_keys=True) + '\n', encoding='utf-8'
+          )
+          print(json.dumps(manifest, indent=2, sort_keys=True))
+          PY
+
+      - name: Materialize hash-pinned AdaFace checkpoint
+        run: |
+          python - <<'PY'
+          import hashlib, os
+          from pathlib import Path
+          from huggingface_hub import hf_hub_download
+          root = Path('study1a/cfp_author_toolkit/model')
+          root.mkdir(parents=True, exist_ok=True)
+          path = Path(hf_hub_download(
+              repo_id=os.environ['CHECKPOINT_REPO'],
+              filename=os.environ['CHECKPOINT_FILE'],
+              local_dir=root,
+          ))
+          h = hashlib.sha256()
+          with path.open('rb') as stream:
+              for chunk in iter(lambda: stream.read(1024 * 1024), b''):
+                  h.update(chunk)
+          observed = h.hexdigest()
+          if observed != os.environ['CHECKPOINT_SHA256']:
+              raise SystemExit(f'checkpoint SHA mismatch: {observed}')
+          Path('study1a/cfp_author_toolkit/checkpoint_path.txt').write_text(str(path) + '\n')
+          print(f'checkpoint verified: {observed}')
+          PY
+
+      - name: Materialize pinned AdaFace inference code
+        run: |
+          git clone --filter=blob:none --no-checkout https://github.com/mk-minchul/AdaFace.git study1a/cfp_author_toolkit/AdaFace
+          git -C study1a/cfp_author_toolkit/AdaFace checkout "$ADAFACE_COMMIT" -- net.py convert.py evaluate_utils.py utils.py train_val.py
+          test "$(git -C study1a/cfp_author_toolkit/AdaFace rev-parse HEAD)" = "$ADAFACE_COMMIT"
+
+      - name: Execute authorized CFP-FP source correction replay
+        run: |
+          CHECKPOINT_PATH="$(cat study1a/cfp_author_toolkit/checkpoint_path.txt)"
+          python scripts/study1a_run_a1_a2_benchmark.py \
+            --benchmark cfp_fp \
+            --checkpoint "$CHECKPOINT_PATH" \
+            --checkpoint-locator "hf://VishalMishraTss/AdaFace/adaface_ir101_webface12m.ckpt#sha256=0e7a3238d2a50f3fe3860782534928ac7cb2598977cf897f6869fd5ac2493fd0" \
+            --dataset-file study1a/cfp_author_toolkit/cfp_fp_author_lossless.bin \
+            --dataset-locator "cvlface-author-toolkit://facerec_val/cfp_fp#archive-sha256=79df53a35b8fed4bca0130685fe145aec26610efadab3abe3af3da52c800f79f" \
+            --adaface-src study1a/cfp_author_toolkit/AdaFace \
+            --output-dir study1a/cfp_author_toolkit/report/cfp_fp \
+            --batch-size 32 \
+            --torch-threads 4 \
+            --progress-every 512
+
+      - name: Build correction decision record
+        if: always()
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          result_path = Path('study1a/cfp_author_toolkit/report/cfp_fp/cfp_fp_result.json')
+          preflight_path = Path('study1a/cfp_author_toolkit/source_preflight.json')
+          conversion_path = Path('study1a/cfp_author_toolkit/conversion_manifest.json')
+          result = json.loads(result_path.read_text()) if result_path.exists() else None
+          preflight = json.loads(preflight_path.read_text()) if preflight_path.exists() else None
+          conversion = json.loads(conversion_path.read_text()) if conversion_path.exists() else None
+          valid = bool(result and result.get('execution_status') == 'VALID_OUTCOME')
+          observed = result.get('observed_accuracy') if valid else None
+          corrected_cfp = 'PASS' if valid and observed >= 0.9896 else ('FAIL' if valid else 'INDETERMINATE')
+          decision = {
+              'schema_version': '1.0',
+              'kind': 'study1a_cfp_fp_source_correction_replay_decision',
+              'outcome_bearing': True,
+              'human_authorized': True,
+              'original_canonical_run_id': 32773439197,
+              'original_cfp_fp_accuracy': 0.9765714285714285,
+              'original_cfp_fp_decision': 'FAIL',
+              'original_record_status_after_correction': 'HISTORICAL_SUPERSEDED_IF_REVIEW_ACCEPTS_CORRECTION',
+              'source_authority': 'mk-minchul/CVLface author-managed evaluation toolkit',
+              'frozen_minimum': 0.9896,
+              'corrected_cfp_fp_accuracy': observed,
+              'corrected_cfp_fp_decision': corrected_cfp,
+              'bounded_study1a_revision_candidate': 'PASS' if corrected_cfp == 'PASS' else corrected_cfp,
+              'study1b_authorized': False,
+              'review_required_before_canonical_replacement': True,
+              'preflight': preflight,
+              'conversion_manifest': conversion,
+              'result': result,
+              'interpretation_boundary': (
+                  'A reviewed PASS revises only the Study1A substrate-qualification decision. '
+                  'It does not constitute biometric certification and does not itself authorize Study1B.'
+              ),
+          }
+          out = Path('study1a/cfp_author_toolkit/correction_decision.json')
+          out.write_text(json.dumps(decision, indent=2, sort_keys=True) + '\n')
+          print(json.dumps(decision, indent=2, sort_keys=True))
+          PY
+
+      - name: Upload compact correction replay evidence
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: study1a-cfp-author-eval-toolkit-preflight
-          path: study1a/cfp_author_toolkit/source_preflight.json
-          if-no-files-found: error
+          name: study1a-cfp-fp-author-source-correction-replay
+          path: |
+            study1a/cfp_author_toolkit/source_preflight.json
+            study1a/cfp_author_toolkit/conversion_manifest.json
+            study1a/cfp_author_toolkit/report/cfp_fp/*.json
+            study1a/cfp_author_toolkit/correction_decision.json
+          if-no-files-found: warn
           retention-days: 30
