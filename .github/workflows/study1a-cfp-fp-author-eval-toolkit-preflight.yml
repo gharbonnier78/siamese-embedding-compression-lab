@@ -16,6 +16,8 @@ jobs:
   author-toolkit:
     runs-on: ubuntu-latest
     timeout-minutes: 45
+    env:
+      CVLFACE_EVAL_TOOLKIT_PASSWORD: ${{ secrets.CVLFACE_EVAL_TOOLKIT_PASSWORD }}
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-python@v6
@@ -23,26 +25,30 @@ jobs:
           python-version: '3.10'
       - name: Install download helper
         run: python -m pip install --disable-pip-version-check 'gdown==5.2.0'
-      - name: Materialize author-managed CVLFace evaluation toolkit archive
+      - name: Materialize and validate author-managed CVLFace evaluation toolkit
         run: |
           set -euo pipefail
           mkdir -p study1a/cfp_author_toolkit
           python - <<'PY'
-          import hashlib, json, subprocess, zipfile
+          import hashlib, json, os, subprocess, zipfile
           from pathlib import Path
 
           file_id = '1oEvQdseNhcWdBh2X7l2bMK_BfBZX8JCZ'
           locator = f'https://drive.google.com/file/d/{file_id}/view?usp=sharing'
           out = Path('study1a/cfp_author_toolkit/eval_toolkit.zip')
           report = {
-              'schema_version': '1.0',
+              'schema_version': '1.1',
               'kind': 'study1a_cvlface_author_eval_toolkit_preflight',
               'authoritative_instruction': 'mk-minchul/CVLface cvlface/data_utils/recognition/eval_data/README_EVAL_TOOLKIT.md',
               'source_locator': locator,
               'google_drive_file_id': file_id,
               'scientific_outcome_opened': False,
               'gate_changed': False,
+              'password_source': 'github_actions_secret',
+              'password_value_recorded': False,
           }
+          password = os.environ.get('CVLFACE_EVAL_TOOLKIT_PASSWORD', '')
+          report['password_secret_present'] = bool(password)
           try:
               subprocess.run(['gdown', '--id', file_id, '-O', str(out)], check=True)
               report['download_status'] = 'MATERIALIZED'
@@ -52,25 +58,44 @@ jobs:
                   for block in iter(lambda: f.read(1024*1024), b''):
                       h.update(block)
               report['sha256'] = h.hexdigest()
-              try:
-                  with zipfile.ZipFile(out) as z:
-                      names = z.namelist()
-                      report['zip_member_count'] = len(names)
-                      report['member_name_sample'] = names[:100]
-                      report['cfp_named_members'] = [n for n in names if 'cfp' in n.lower()][:100]
-                      encrypted = [i.filename for i in z.infolist() if i.flag_bits & 0x1]
-                      report['encrypted_member_count'] = len(encrypted)
-                      report['password_required_for_content'] = bool(encrypted)
-                      report['archive_status'] = 'AUTHOR_TOOLKIT_AVAILABLE_PASSWORD_REQUIRED' if encrypted else 'AUTHOR_TOOLKIT_AVAILABLE_UNENCRYPTED'
-              except Exception as exc:
-                  report['archive_status'] = 'DOWNLOADED_NOT_READABLE_AS_ZIP'
-                  report['archive_error'] = repr(exc)
+              with zipfile.ZipFile(out) as z:
+                  infos = z.infolist()
+                  names = [i.filename for i in infos]
+                  encrypted = [i.filename for i in infos if i.flag_bits & 0x1]
+                  report['zip_member_count'] = len(names)
+                  report['member_name_sample'] = names[:100]
+                  report['cfp_named_members'] = [n for n in names if 'cfp' in n.lower()][:200]
+                  report['encrypted_member_count'] = len(encrypted)
+                  report['password_required_for_content'] = bool(encrypted)
+                  probe = next((i for i in infos if not i.is_dir() and 'cfp' in i.filename.lower()), None)
+                  if probe is None:
+                      probe = next((i for i in infos if not i.is_dir()), None)
+                  if probe is not None:
+                      try:
+                          with z.open(probe, pwd=password.encode('utf-8') if password else None) as stream:
+                              sample = stream.read(64)
+                          report['password_validation_status'] = 'VALID_FOR_PROBE'
+                          report['probe_member'] = probe.filename
+                          report['probe_read_bytes'] = len(sample)
+                      except Exception as exc:
+                          report['password_validation_status'] = 'FAILED_OR_MISSING'
+                          report['probe_member'] = probe.filename
+                          report['password_validation_error_type'] = type(exc).__name__
+                  report['archive_status'] = (
+                      'AUTHOR_TOOLKIT_PASSWORD_VALIDATED'
+                      if report.get('password_validation_status') == 'VALID_FOR_PROBE'
+                      else 'AUTHOR_TOOLKIT_PRESENT_PASSWORD_NOT_VALIDATED'
+                  )
           except Exception as exc:
-              report['download_status'] = 'UNAVAILABLE'
-              report['archive_status'] = 'AUTHOR_TOOLKIT_ENDPOINT_UNAVAILABLE'
-              report['download_error'] = repr(exc)
+              report['download_status'] = report.get('download_status', 'UNAVAILABLE')
+              report['archive_status'] = 'AUTHOR_TOOLKIT_ENDPOINT_OR_ARCHIVE_UNAVAILABLE'
+              report['error_type'] = type(exc).__name__
           Path('study1a/cfp_author_toolkit/source_preflight.json').write_text(json.dumps(report, indent=2, sort_keys=True) + '\n')
           print(json.dumps(report, indent=2, sort_keys=True))
+          if report.get('password_secret_present') is not True:
+              raise SystemExit('CVLFACE_EVAL_TOOLKIT_PASSWORD secret is not available')
+          if report.get('password_validation_status') != 'VALID_FOR_PROBE':
+              raise SystemExit('author toolkit password could not be validated')
           PY
       - name: Upload author-toolkit source evidence
         if: always()
