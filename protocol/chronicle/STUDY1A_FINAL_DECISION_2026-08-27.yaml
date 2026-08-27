@@ -1,0 +1,87 @@
+schema_version: "1.0"
+date: "2026-08-27"
+entries:
+  - id: CHRON-20260827-S1A-016
+    kind: bounded_study1a_final_resolution
+    scope: study_1a_substrate_qualification
+    status: RESOLVED
+    outcome_evidence_seen: true
+    human_authority:
+      study1a_execution_go: explicit
+      cfp_fp_diagnostic_go: explicit
+      cfp_fp_source_correction_go: explicit
+      study1b_go: false
+    supersedes_for_bounded_decision:
+      historical_run_id: 32773439197
+      historical_cfp_fp_source: hf-dataset://Icar/val_sets/cfp_fp.bin
+      historical_cfp_fp_accuracy: 0.9765714285714285
+      historical_cfp_fp_decision: FAIL
+      retention: IMMUTABLE_HISTORICAL_EVIDENCE
+    corrected_source_replay:
+      run_id: 33003912752
+      source_authority: mk-minchul/CVLface author-managed evaluation toolkit
+      source_member: facerec_val/cfp_fp
+      toolkit_archive_sha256: 79df53a35b8fed4bca0130685fe145aec26610efadab3abe3af3da52c800f79f
+      converted_container_sha256: 8204a7eccfb0a6eb7ed9a4511a0136f5326758f713270f17016fee908c38e45a
+      checkpoint_sha256: 0e7a3238d2a50f3fe3860782534928ac7cb2598977cf897f6869fd5ac2493fd0
+      adaface_commit: c60eaa786a42c03444f3df7096dbaf9d57ae010d
+      observed_accuracy: 0.9924285714285717
+      observed_std: 0.002478478796128225
+      frozen_minimum: 0.9896
+      scientific_decision: PASS_CORRECTED_SOURCE_REPLAY
+      decode_failures: 0
+      exclusions: 0
+      pairs: 7000
+      images: 14000
+      evidence_artifact_id: 9622506401
+      evidence_artifact_zip_sha256: 068a6de98f9aedd0b9b15f7de4568b61845b33ecef37b8e37305673c306ff211
+    other_frozen_gates:
+      lfw:
+        accuracy: 0.9981666666666666
+        minimum: 0.9962
+        decision: PASS
+      cplfw:
+        accuracy: 0.946
+        minimum: 0.9427
+        decision: PASS
+      calfw:
+        accuracy: 0.9611666666666666
+        minimum: 0.9582
+        decision: PASS
+      agedb_30:
+        accuracy: 0.98
+        minimum: 0.977
+        decision: PASS
+    independent_review:
+      verdict: ACCEPT_CORRECTION
+      record: protocol/reviews/STUDY1A_CFP_FP_SOURCE_CORRECTION_REVIEW_ACCEPTED_2026-08-27.md
+      reviewer_recomputed_accuracy_and_std: true
+      reviewer_tests: "PYTHONPATH=src python -m unittest tests.test_study1_execution"
+      reviewer_tests_result: "8/8 OK"
+      reviewer_actions_run_and_artifact_direct_verification: NOT_VERIFIED_RATE_LIMITED
+      repository_side_authenticated_run_artifact_verification: VERIFIED
+    final_bounded_decision:
+      study1a: CORRECTED_PASS
+      meaning: >-
+        The frozen AdaFace IR101/R100 WebFace12M 512D representation is accepted only as the
+        qualified substrate for the separately gated compression comparison. This does not
+        constitute biometric certification, production qualification, fairness/PAD/1:N proof,
+        low-FMR production validation, or a state-of-the-art claim.
+      study1b_authorized: false
+      representation_geometry_authorized: false
+    evidence_refs:
+      - https://github.com/gharbonnier78/siamese-embedding-compression-lab/pull/46
+      - https://github.com/gharbonnier78/siamese-embedding-compression-lab/actions/runs/33003912752
+      - protocol/studies/STUDY1A_COMPRESSION_FOCUSED_AMENDMENT_2026-08-24.md
+      - protocol/studies/STUDY1A_A1_A2_EXECUTION_PLAN_2026-08-24.md
+      - protocol/studies/STUDY1A_CFP_FP_DIAGNOSTIC_PLAN_2026-08-25.md
+      - protocol/studies/STUDY1A_CFP_FP_SOURCE_CORRECTION_REPLAY_2026-08-25.md
+      - protocol/reviews/STUDY1A_CFP_FP_SOURCE_CORRECTION_REVIEW_REQUEST_2026-08-27.md
+      - protocol/reviews/STUDY1A_CFP_FP_SOURCE_CORRECTION_REVIEW_ACCEPTED_2026-08-27.md
+      - commit:21a8f1715fa7f94c1edd7dd05fef2bfa1c11d0a3
+    next_admissible_action: >-
+      Merge PR #46 after a final branch-versus-main integration check. After merge, do not
+      execute Study 1B until a separate explicit human GO is recorded. No representation
+      geometry work is authorized by this decision.
+    blocks:
+      - study1b_requires_separate_explicit_go
