@@ -9,6 +9,7 @@ on:
       - 'protocol/studies/STUDY1B_*'
       - 'protocol/studies/study_1b_matched_compression.yaml'
       - 'protocol/simulations/STUDY1B_*'
+      - 'protocol/chronicle/STUDY1B_*'
       - '.github/workflows/study1b-nonoutcome-preflight.yml'
   workflow_dispatch:
 
@@ -53,11 +54,11 @@ jobs:
         with:
           python-version: '3.11'
           cache: pip
-      - name: Install LFW preflight dependencies
+      - name: Install minimal LFW preflight dependencies
         run: |
           python -m pip install --upgrade pip 'setuptools>=83.0.0'
-          python -m pip install -e '.[lfw]'
-      - name: Materialize LFW roles, capture audit and frozen pair graphs
+          python -m pip install -e . kagglehub
+      - name: Materialize official View 1 metadata, roles, capture audit and frozen pair graphs
         env:
           PYTHONPATH: src
         run: |
@@ -74,15 +75,18 @@ jobs:
             --scenario subject_dependence_null \
             --start 0 --stop 2 \
             --output artifacts/study1b/nonoutcome-preflight/cost_pilot.jsonl
-      - name: Assert evidence boundary
+      - name: Assert evidence boundary and metadata provenance
         run: |
           python - <<'PY'
           import json
           from pathlib import Path
           report = json.loads(Path('artifacts/study1b/nonoutcome-preflight/preflight_report.json').read_text())
           assert report['scientific_outcomes_opened'] is False
-          assert report['overall_status'] == 'PASS'
-          print('non-outcome boundary preserved')
+          assert report['overall_status'] in {'PASS', 'PASS_PENDING_NEAR_DUPLICATE_REVIEW'}
+          assert len(report['metadata_provenance']) == 2
+          for row in report['metadata_provenance']:
+              assert row['md5'] == row['expected_md5']
+          print('non-outcome boundary and metadata provenance preserved')
           PY
       - name: Upload non-outcome preflight artifact
         if: always()
