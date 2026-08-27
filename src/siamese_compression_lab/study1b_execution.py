@@ -72,7 +72,7 @@ class EmbeddingTable:
     source_sha256: str
 
     @classmethod
-    def load(cls, path: Path) -> "EmbeddingTable":
+    def load(cls, path: Path) -> EmbeddingTable:
         payload = np.load(path, allow_pickle=False)
         capture_id = payload["capture_id"].astype(str)
         subject_id = payload["subject_id"].astype(str)
@@ -136,7 +136,7 @@ class Random128:
     seed_token_value: int
 
     @classmethod
-    def fit(cls, seed_label: int) -> "Random128":
+    def fit(cls, seed_label: int) -> Random128:
         token = seed_token(f"random128|seed={seed_label}")
         rng = np.random.default_rng(token)
         matrix = rng.normal(0.0, 1.0 / np.sqrt(128), size=(512, 128)).astype(np.float32)
@@ -153,11 +153,10 @@ class PCA128:
     seed_token_value: int
 
     @classmethod
-    def fit(cls, unique_train_captures: np.ndarray, seed_label: int) -> "PCA128":
+    def fit(cls, unique_train_captures: np.ndarray, seed_label: int) -> PCA128:
         if unique_train_captures.ndim != 2 or unique_train_captures.shape[1] != 512:
             raise ValueError("PCA TRAIN capture matrix must be Nx512")
         token = seed_token(f"pca128|seed={seed_label}")
-        # sklearn requires a conventional 32-bit random_state token.
         random_state = int(token % (2**32 - 1))
         pca = PCA(n_components=128, svd_solver="randomized", whiten=False, random_state=random_state)
         pca.fit(unique_train_captures)
@@ -169,8 +168,6 @@ class PCA128:
 
 def fit_siamese128(train: PairSplit, validation: PairSplit, seed_label: int) -> SiameseLinearProjection:
     token = seed_token(f"siamese128|seed={seed_label}")
-    # Existing reviewed NumPy implementation is preserved; only its RNG token is derived
-    # through the Study 1B task-bound lineage.
     model = SiameseLinearProjection(
         input_dim=512,
         output_dim=128,
@@ -191,7 +188,13 @@ def serialize_transform(path: Path, method: str, model, seed_label: int | None) 
     if method == "raw512" and isinstance(model, RawProjection):
         np.savez(path, method=method, input_dim=512)
     elif method == "random128" and isinstance(model, Random128):
-        np.savez(path, method=method, matrix=model.matrix, seed_label=seed_label, seed_token=model.seed_token_value)
+        np.savez(
+            path,
+            method=method,
+            matrix=model.matrix,
+            seed_label=seed_label,
+            seed_token=model.seed_token_value,
+        )
     elif method == "pca128" and isinstance(model, PCA128):
         np.savez(
             path,
