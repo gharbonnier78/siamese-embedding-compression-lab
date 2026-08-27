@@ -1,0 +1,213 @@
+schema_version: "1.0.0"
+study_id: study_1b_matched_compression
+status: FROZEN_DESIGN_PENDING_NONOUTCOME_PREFLIGHT_AND_INDEPENDENT_REVIEW
+claim_level: NONE_UNTIL_AUTHORIZED_AND_EXECUTED
+human_readable_contract: protocol/studies/STUDY1B_MATCHED_COMPRESSION_PREREGISTRATION_2026-08-27.md
+
+harness:
+  manifest: harness-adoption.yaml
+  pinned_ref: "3b109adcdd9a8cba4df029d3803ee0e5cb5bdf98"
+  engineering_care_profile: POC
+
+prerequisites:
+  study1a_decision: CORRECTED_PASS
+  study1a_decision_artifact: protocol/decisions/STUDY1A_FINAL_DECISION_2026-08-27.yaml
+  execution_authorization: BLOCKED_PENDING_SEPARATE_EXPLICIT_HUMAN_GO
+  geometry_authorization: false
+
+raw512:
+  method: AdaFace
+  architecture: ir_101_R100
+  released_training_corpus: WebFace12M
+  dimension: 512
+  code_commit: c60eaa786a42c03444f3df7096dbaf9d57ae010d
+  checkpoint_sha256: 0e7a3238d2a50f3fe3860782534928ac7cb2598977cf897f6869fd5ac2493fd0
+  preprocessing_contract:
+    shape: [112, 112, 3]
+    evaluator_channel_boundary: BGR
+    normalization: "(pixel / 255 - 0.5) / 0.5"
+    horizontal_flip_fusion: true
+    fusion: AdaFace_norm_aware
+    output_normalization: L2
+
+routes:
+  raw512:
+    seed_variability: false
+  random128:
+    dimension: 128
+    matrix_distribution: normal
+    mean: 0.0
+    variance: 0.0078125
+    orthonormalize: false
+    output_normalization: L2
+    serialize_and_hash: true
+  pca128:
+    dimension: 128
+    fit_population: unique_TRAIN_captures_once
+    centering: TRAIN_mean
+    solver: randomized
+    whiten: false
+    random_state: route_seed
+    output_normalization: L2
+    serialize_and_hash: true
+  siamese128:
+    dimension: 128
+    architecture: shared_affine_512_to_128_then_L2
+    distance: euclidean_on_L2_normalized_outputs
+    loss: contrastive
+    margin: 1.0
+    optimizer: Adam
+    beta1: 0.9
+    beta2: 0.999
+    epsilon: 1.0e-8
+    learning_rate: 0.002
+    weight_decay: 0.0001
+    batch_size: 128
+    max_epochs: 35
+    early_stopping_patience: 6
+    minimum_validation_improvement: 0.0001
+    checkpoint_selection: minimum_VALIDATION_contrastive_loss
+    pair_graph: fixed_SHARED_TRAIN_graph
+    model_seed_controls: [initialization, minibatch_permutation]
+    output_normalization: L2
+    serialize_and_hash: true
+
+data:
+  corpus: LFW_View_1
+  expected_identity_counts:
+    peopleDevTrain: 4038
+    peopleDevTest: 1711
+  role_assignment:
+    ordering: "SHA256('study1b-role-v1|' + identity)"
+    TRAIN: 2827
+    VALIDATION: 606
+    SCREEN: 605
+    TEST: 1711
+  test_source: peopleDevTest_only
+  capture_assignment: all_authorized_captures_follow_identity_role
+  overlap_audit_required: true
+  near_duplicate_audit_required: true
+  pair_graph:
+    shared_across_routes_and_model_seeds: true
+    genuine_sampling: uniform_eligible_identity_then_uniform_two_distinct_captures_reject_duplicate_edge
+    impostor_sampling: uniform_two_distinct_identities_then_uniform_capture_each_reject_duplicate_edge
+    requested_counts:
+      TRAIN: {genuine: 20000, impostor: 20000}
+      VALIDATION: {genuine: 5000, impostor: 20000}
+      SCREEN: {genuine: 5000, impostor: 50000}
+      TEST: {genuine: 10000, impostor: 100000}
+    insufficiency_policy: FAIL_CLOSED_BEFORE_OUTCOMES
+
+seeds:
+  root_entropy: 20260827
+  lineage: numpy_SeedSequence_task_bound
+  stage_a: [11, 29]
+  stage_b: [11, 29, 47, 71, 101]
+  projection_training_and_bootstrap_streams_distinct: true
+  worker_number_not_scientific_seed: true
+
+primary_estimand:
+  name: delta_fnmr_equal_fmr
+  definition: FNMR_candidate_at_alpha_minus_FNMR_raw512_at_alpha
+  alpha_fmr: 0.01
+  noninferiority_margin_delta: 0.03
+  endpoint: TEST_equal_FMR_representation_comparison_non_deployable
+  one_sided_ucb_level: 0.975
+  method_rule: every_predeclared_stage_b_seed_UCB_le_delta
+  failure_semantics: NOT_DEMONSTRATED
+
+multiplicity:
+  primary_candidate_vs_raw:
+    hypotheses: [random128_vs_raw512, pca128_vs_raw512, siamese128_vs_raw512]
+    treatment: separately_interpreted_fully_reported_method_specific_claims_at_one_sided_alpha_0_025
+    prohibited_omnibus_claim: any_route_noninferior
+    seed_rule: intersection_union_all_five_seeds
+  siamese_vs_controls:
+    estimands: [siamese_minus_pca_FNMR, siamese_minus_random_FNMR]
+    treatment: Holm_one_sided_family_alpha_0_025
+    superiority_rule: all_five_seed_matched_adjusted_UCB_below_zero
+
+uncertainty:
+  estimator: subject_slot_identity_bootstrap
+  stage_b_replicates: 10000
+  paired_draw_across_routes: true
+  genuine_weight: m_i
+  impostor_weight: m_i_times_m_j
+  synthesize_unobserved_edges: false
+  degeneracy_limit_fraction: 0.001
+  degeneracy_failure_semantics: INDETERMINATE
+  coverage_revalidation_required: true
+  coverage_min_exact_lower_95_cp: 0.93
+
+screening:
+  claim_bearing: false
+  qualification_test_access: prohibited
+  seeds: [11, 29]
+  screen_ucb_level: 0.95
+  continue_rule: at_least_one_candidate_has_both_seed_UCB_le_0_06_and_power_preflight_passes
+  stop_rule: every_candidate_has_both_seed_point_delta_gt_0_06
+  otherwise: REDIRECT
+  redirect_requires_amendment_and_independent_review: true
+  route_or_hyperparameter_search: prohibited
+
+power:
+  status: MUST_PASS_BEFORE_INDEPENDENT_ACCEPT_REVIEW
+  simulated_datasets_per_scenario: 4000
+  true_delta_scenarios: [0.0, 0.01]
+  target_probability_ucb_below_margin: 0.90
+  required_components:
+    - realized_TEST_identity_capture_structure
+    - realized_TEST_pair_graph
+    - identity_clustering
+    - FMR_threshold_uncertainty
+    - paired_raw_candidate_correlation
+    - seed_variation
+    - all_five_seed_method_rule
+  failure_policy: BLOCK_TEST_AND_AMEND_BEFORE_OUTCOMES
+  primary_sampling_units: [identities, captures]
+
+operational_secondary:
+  threshold_source: VALIDATION
+  selection_rule: largest_distance_threshold_with_empirical_FMR_le_0_01
+  freeze_before_TEST: true
+  TEST_outputs: [FMR, FNMR]
+  claim_role: descriptive_non_production
+
+engineering_assurance:
+  outcome_workflows: manual_fail_closed
+  required:
+    - content_hashed_raw512_embedding_manifest
+    - content_hashed_role_and_pair_graph_manifests
+    - serialized_hashed_route_transforms
+    - environment_capture
+    - machine_readable_SBOM
+    - focused_unit_tests
+    - lint_or_static_checks
+    - dependency_supply_chain_review
+    - secret_scan
+    - static_security_analysis_where_supported
+    - deterministic_smoke_path
+    - parent_owned_progress_jsonl
+    - worker_count_digest_equivalence
+    - interruption_resume_equivalence_if_used
+    - mixed_provenance_aggregation_refusal
+    - CI_green
+    - Research_Assurance_green
+
+nonoutcome_preflight_blockers:
+  - exact_LFW_source_hashes_and_capture_manifest
+  - exact_role_capture_counts_and_pair_graph_hashes
+  - overlap_and_near_duplicate_audit
+  - coverage_simulation_pass
+  - power_simulation_pass
+  - implementation_and_POC_assurance
+  - scientific_review_ACCEPT
+  - technical_review_ACCEPT
+
+next_gate:
+  id: STUDY1B_EXPLICIT_HUMAN_GO
+  state: BLOCKED
+  rule: >-
+    Ask for explicit Study 1B GO only after all non-outcome preflight blockers are closed,
+    both independent reviews ACCEPT the unchanged final head, CI and Research Assurance are
+    green, and the Chronicle records READY_FOR_STUDY1B_GO.
