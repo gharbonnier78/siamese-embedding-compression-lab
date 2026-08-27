@@ -4,12 +4,11 @@ name: Study 1A CFP-FP Author Eval Toolkit Correction Replay
 # historical evidence. This workflow may revise the bounded CFP-FP decision only
 # by replaying the frozen checkpoint/evaluator against the author-managed CVLFace
 # evaluation derivative. It does not authorize Study 1B.
+#
+# IMPORTANT: outcome-bearing execution is manual-only. The canonical correction
+# replay has already been executed in run 33003912752; maintenance commits must
+# not silently create new scientific observations.
 on:
-  push:
-    branches:
-      - agent/study1a-go-preexecution-20260824
-    paths:
-      - '.github/workflows/study1a-cfp-fp-author-eval-toolkit-preflight.yml'
   workflow_dispatch:
 
 permissions:
@@ -252,10 +251,20 @@ jobs:
           preflight = json.loads(preflight_path.read_text()) if preflight_path.exists() else None
           conversion = json.loads(conversion_path.read_text()) if conversion_path.exists() else None
           valid = bool(result and result.get('execution_status') == 'VALID_OUTCOME')
-          observed = result.get('observed_accuracy') if valid else None
+          gate_evaluation = (result.get('gate_evaluation') or {}) if result else {}
+          metrics = (result.get('metrics') or {}) if result else {}
+          observed = (
+              gate_evaluation.get('observed_accuracy', metrics.get('accuracy_mean'))
+              if valid else None
+          )
+          if valid and observed is None:
+              raise RuntimeError(
+                  'VALID_OUTCOME result contains neither gate_evaluation.observed_accuracy '
+                  'nor metrics.accuracy_mean'
+              )
           corrected_cfp = 'PASS' if valid and observed >= 0.9896 else ('FAIL' if valid else 'INDETERMINATE')
           decision = {
-              'schema_version': '1.0',
+              'schema_version': '1.1',
               'kind': 'study1a_cfp_fp_source_correction_replay_decision',
               'outcome_bearing': True,
               'human_authorized': True,
