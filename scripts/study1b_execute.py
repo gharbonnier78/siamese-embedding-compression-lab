@@ -15,14 +15,15 @@ import numpy as np
 from siamese_compression_lab.metrics import evaluate_benchmark_at_fmr
 from siamese_compression_lab.models import RawProjection, pair_distances
 from siamese_compression_lab.study1b_execution import (
-    EmbeddingTable,
     PCA128,
+    EmbeddingTable,
     Random128,
     append_progress,
     assert_outcome_authorized,
     fit_siamese128,
     graph_to_split,
     load_pair_graph,
+    seed_token,
     serialize_transform,
 )
 from siamese_compression_lab.study1b_statistics import subject_bootstrap_summary
@@ -71,8 +72,6 @@ def main() -> int:
     parser.add_argument("--output-dir", type=Path, required=True)
     args = parser.parse_args()
 
-    # Critical ordering: authority is checked before loading any embedding table or graph whose
-    # route-level output could become scientific evidence.
     authorization = assert_outcome_authorized(args.authorization, args.protocol)
     allowed = set(authorization.get("allowed_stages", []))
     if args.stage not in allowed:
@@ -116,7 +115,9 @@ def main() -> int:
                 reference_distances=raw_distances,
                 target_fmr=0.01,
                 replicates=bootstrap_replicates,
-                seed=seed_label,
+                seed=seed_token(
+                    f"bootstrap|stage={args.stage}|method={method}|seed={seed_label}"
+                ),
             )
             point_delta = candidate_result.fnmr - raw_result.fnmr
             selected_ucb = (
