@@ -10,7 +10,7 @@ from __future__ import annotations
 import csv
 import hashlib
 import json
-from collections import defaultdict
+from collections import Counter, defaultdict
 from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Iterable
@@ -82,9 +82,7 @@ def _parse_people_file(path: Path) -> dict[str, int]:
             raise ValueError(f"duplicate identity in {path.name}: {identity}")
         rows[identity] = count
     if len(rows) != declared_total:
-        raise ValueError(
-            f"{path.name}: declared {declared_total} identities but parsed {len(rows)}"
-        )
+        raise ValueError(f"{path.name}: declared {declared_total} identities but parsed {len(rows)}")
     return rows
 
 
@@ -99,9 +97,8 @@ def assign_roles(dev_train: Iterable[str], dev_test: Iterable[str]) -> dict[str,
     if overlap:
         raise ValueError(f"LFW DevTrain/DevTest identity overlap: {len(overlap)}")
     roles: dict[str, str] = {}
-    boundaries = (("TRAIN", 2827), ("VALIDATION", 606), ("SCREEN", 605))
     offset = 0
-    for role, count in boundaries:
+    for role, count in (("TRAIN", 2827), ("VALIDATION", 606), ("SCREEN", 605)):
         for identity in train_names[offset : offset + count]:
             roles[identity] = role
         offset += count
@@ -148,14 +145,12 @@ def materialize_captures(root: Path, roles: dict[str, str], declared: dict[str, 
             )
         subject_id = _public_subject(identity)
         for index, path in enumerate(paths, 1):
-            relative = str(path.relative_to(images_root))
-            capture_id = f"{subject_id}_capture_{index:04d}"
             captures.append(
                 Capture(
                     subject_id=subject_id,
-                    capture_id=capture_id,
+                    capture_id=f"{subject_id}_capture_{index:04d}",
                     role=role,
-                    relative_path=relative,
+                    relative_path=str(path.relative_to(images_root)),
                     sha256=sha256_file(path),
                     dhash64=_dhash64(path),
                 )
@@ -171,26 +166,23 @@ def _cross_role_duplicate_audit(captures: list[Capture], max_hamming: int = 4) -
     for digest, group in exact_groups.items():
         roles = {item.role for item in group}
         if len(roles) > 1:
-            exact.append({"sha256": digest, "roles": sorted(roles), "captures": [x.capture_id for x in group]})
+            exact.append(
+                {"sha256": digest, "roles": sorted(roles), "captures": [x.capture_id for x in group]}
+            )
 
-    # Five disjoint/near-disjoint bands guarantee that any 64-bit hashes within Hamming<=4
-    # collide in at least one band (pigeonhole principle). Candidate pairs are then checked
-    # with exact Hamming distance, avoiding an O(N^2) scan.
-    band_slices = ((0, 13), (13, 26), (26, 39), (39, 52), (52, 64))
+    # Hamming<=4 over 64 bits implies equality in at least one of five disjoint bands.
+    bands = ((0, 13), (13, 26), (26, 39), (39, 52), (52, 64))
     buckets: dict[tuple[int, int], list[int]] = defaultdict(list)
     for index, capture in enumerate(captures):
-        for band_index, (start, stop) in enumerate(band_slices):
-            width = stop - start
-            shift = 64 - stop
+        for band_index, (start, stop) in enumerate(bands):
+            width, shift = stop - start, 64 - stop
             value = (capture.dhash64 >> shift) & ((1 << width) - 1)
             buckets[(band_index, value)].append(index)
     checked: set[tuple[int, int]] = set()
     near = []
     for bucket in buckets.values():
-        if len(bucket) < 2:
-            continue
-        for left_offset, left in enumerate(bucket):
-            for right in bucket[left_offset + 1 :]:
+        for offset, left in enumerate(bucket):
+            for right in bucket[offset + 1 :]:
                 a, b = (left, right) if left < right else (right, left)
                 if (a, b) in checked:
                     continue
@@ -212,7 +204,9 @@ def _cross_role_duplicate_audit(captures: list[Capture], max_hamming: int = 4) -
     return {
         "exact_cross_role_duplicates": exact,
         "near_duplicate_rule": {"algorithm": "dhash64", "max_hamming": max_hamming},
-        "near_cross_role_candidates": sorted(near, key=lambda row: (row["dhash_hamming"], row["capture_id_1"])),
+        "near_cross_role_candidates": sorted(
+            near, key=lambda row: (row["dhash_hamming"], row["capture_id_1"])
+        ),
         "blocking": bool(exact or near),
     }
 
@@ -226,18 +220,38 @@ def _canonical_edge(a: Capture, b: Capture) -> tuple[Capture, Capture]:
     return (a, b) if a.capture_id < b.capture_id else (b, a)
 
 
-def make_pair_graph(role: str, captures: list[Capture], genuine_count: int, impostor_count: int) -> list[PairEdge]:
+def make_pair_graph(
+    role: str,
+    captures: list[Capture],
+    genuine_count: int,
+    impostor_count: int,
+) -> list[PairEdge]:
     by_subject: dict[str, list[Capture]] = defaultdict(list)
     for capture in captures:
         if capture.role == role:
             by_subject[capture.subject_id].append(capture)
-    eligible = np.asarray(sorted(subject for subject, items in by_subject.items() if len(items) >= 2), dtype=object)
+    eligible = np.asarray(
+        sorted(subject for subject, items in by_subject.items() if len(items) >= 2), dtype=object
+    )
     subjects = np.asarray(sorted(by_subject), dtype=object)
     if len(eligible) == 0 or len(subjects) < 2:
         raise ValueError(f"{role}: insufficient subjects for requested graph")
+
+    # Cheap capacity guards before randomized materialization.
+    genuine_capacity = sum(len(items) * (len(items) - 1) // 2 for items in by_subject.values())
+    total_captures = sum(len(items) for items in by_subject.values())
+    same_subject_ordered = sum(len(items) ** 2 for items in by_subject.values())
+    impostor_capacity = (total_captures**2 - same_subject_ordered) // 2
+    if genuine_capacity < genuine_count or impostor_capacity < impostor_count:
+        raise ValueError(
+            f"{role}: pair capacity insufficient: genuine={genuine_capacity}/{genuine_count}, "
+            f"impostor={impostor_capacity}/{impostor_count}"
+        )
+
     rng = np.random.default_rng(task_seed_sequence(f"pair-graph|{role}"))
     edges: list[PairEdge] = []
     seen: set[tuple[str, str, int]] = set()
+    counters = {1: 0, 0: 0}
 
     def add(first: Capture, second: Capture, same: int) -> bool:
         first, second = _canonical_edge(first, second)
@@ -245,9 +259,11 @@ def make_pair_graph(role: str, captures: list[Capture], genuine_count: int, impo
         if key in seen:
             return False
         seen.add(key)
+        pair_index = counters[same]
+        counters[same] += 1
         edges.append(
             PairEdge(
-                pair_id=f"{role.lower()}_{'g' if same else 'i'}_{sum(e.same == same for e in edges):06d}",
+                pair_id=f"{role.lower()}_{'g' if same else 'i'}_{pair_index:06d}",
                 same=same,
                 subject_slot_id_1=first.subject_id,
                 subject_slot_id_2=second.subject_id,
@@ -259,31 +275,37 @@ def make_pair_graph(role: str, captures: list[Capture], genuine_count: int, impo
 
     max_attempts = 250 * max(genuine_count, impostor_count)
     attempts = 0
-    while sum(edge.same == 1 for edge in edges) < genuine_count and attempts < max_attempts:
+    while counters[1] < genuine_count and attempts < max_attempts:
         attempts += 1
         subject = str(rng.choice(eligible))
-        first, second = rng.choice(len(by_subject[subject]), size=2, replace=False)
-        add(by_subject[subject][int(first)], by_subject[subject][int(second)], 1)
-    realized_genuine = sum(edge.same == 1 for edge in edges)
-    if realized_genuine != genuine_count:
-        raise ValueError(f"{role}: unique genuine graph capacity/sampling failed: {realized_genuine}/{genuine_count}")
+        first_index, second_index = rng.choice(len(by_subject[subject]), size=2, replace=False)
+        add(by_subject[subject][int(first_index)], by_subject[subject][int(second_index)], 1)
+    if counters[1] != genuine_count:
+        raise ValueError(
+            f"{role}: unique genuine graph sampling failed: {counters[1]}/{genuine_count}"
+        )
 
     attempts = 0
-    while sum(edge.same == 0 for edge in edges) < impostor_count and attempts < max_attempts:
+    while counters[0] < impostor_count and attempts < max_attempts:
         attempts += 1
         first_subject, second_subject = rng.choice(subjects, size=2, replace=False)
-        first = by_subject[str(first_subject)][int(rng.integers(len(by_subject[str(first_subject)])))]
-        second = by_subject[str(second_subject)][int(rng.integers(len(by_subject[str(second_subject)])))]
+        first_items = by_subject[str(first_subject)]
+        second_items = by_subject[str(second_subject)]
+        first = first_items[int(rng.integers(len(first_items)))]
+        second = second_items[int(rng.integers(len(second_items)))]
         add(first, second, 0)
-    realized_impostor = sum(edge.same == 0 for edge in edges)
-    if realized_impostor != impostor_count:
-        raise ValueError(f"{role}: unique impostor graph capacity/sampling failed: {realized_impostor}/{impostor_count}")
+    if counters[0] != impostor_count:
+        raise ValueError(
+            f"{role}: unique impostor graph sampling failed: {counters[0]}/{impostor_count}"
+        )
     return edges
 
 
 def write_pair_graph(path: Path, edges: list[PairEdge]) -> str:
+    if not edges:
+        raise ValueError("pair graph cannot be empty")
     path.parent.mkdir(parents=True, exist_ok=True)
-    fields = list(asdict(edges[0])) if edges else []
+    fields = list(asdict(edges[0]))
     with path.open("w", encoding="utf-8", newline="") as handle:
         writer = csv.DictWriter(handle, fieldnames=fields)
         writer.writeheader()
@@ -309,24 +331,27 @@ def run_lfw_preflight(root: Path, output_dir: Path) -> dict:
     if audit["blocking"]:
         raise RuntimeError("cross-role exact/near-duplicate leakage detected; preflight fails closed")
 
+    counts_by_role_subject: dict[str, Counter[str]] = defaultdict(Counter)
+    for capture in captures:
+        counts_by_role_subject[capture.role][capture.subject_id] += 1
+
     role_summary = {}
     graph_hashes = {}
     for role in ("TRAIN", "VALIDATION", "SCREEN", "TEST"):
         role_captures = [item for item in captures if item.role == role]
-        subjects = {item.subject_id for item in role_captures}
-        eligible = {subject for subject in subjects if sum(x.subject_id == subject for x in role_captures) >= 2}
+        subject_counts = counts_by_role_subject[role]
         genuine, impostor = PAIR_COUNTS[role]
         graph = make_pair_graph(role, captures, genuine, impostor)
         graph_path = output_dir / "graphs" / f"{role.lower()}_pairs.csv"
         graph_hashes[role] = write_pair_graph(graph_path, graph)
         role_summary[role] = {
-            "identities": len(subjects),
+            "identities": len(subject_counts),
             "captures": len(role_captures),
-            "eligible_genuine_identities": len(eligible),
+            "eligible_genuine_identities": sum(count >= 2 for count in subject_counts.values()),
             "genuine_pairs": genuine,
             "impostor_pairs": impostor,
         }
-        if len(subjects) != ROLE_COUNTS[role]:
+        if len(subject_counts) != ROLE_COUNTS[role]:
             raise RuntimeError(f"{role}: identity-count invariant failed")
 
     capture_rows = [
