@@ -1,0 +1,244 @@
+schema_version: "1.0"
+chronicle_fragment_id: study1a_preexecution_2026_08_24
+canonical_chronicle: protocol/scientific_chronicle.yaml
+append_only: true
+scope: study_1a_backbone_qualification_preexecution
+outcome_evidence_seen: false
+scientific_outcomes_opened: false
+harness_ref: "3b109adcdd9a8cba4df029d3803ee0e5cb5bdf98"
+entries:
+  - id: CHRON-20260824-S1A-001
+    recorded_at_utc: "2026-08-24T04:29:50Z"
+    kind: researcher_authorization
+    status: RESOLVED_WITH_REMAINING_BLOCKERS
+    summary: >-
+      The accountable researcher gave explicit GO for Study 1A only. The authorization
+      closes the human-authority prerequisite but does not authorize outcome-bearing
+      execution until all preregistered preexecution blockers are closed.
+    evidence_refs:
+      - https://github.com/gharbonnier78/siamese-embedding-compression-lab/pull/46
+      - protocol/authorizations/study_1a_execution_go_2026-08-24.yaml
+    prohibited_inferences:
+      - the GO does not authorize Study 1B
+      - the GO does not authorize representation-geometry work
+      - the GO does not waive checkpoint identity, rights, low-FMR, environment or replay blockers
+    next_action: >-
+      Continue non-outcome-bearing preexecution closure only.
+
+  - id: CHRON-20260824-S1A-002
+    recorded_at_utc: "2026-08-24T05:09:48Z"
+    kind: checkpoint_source_availability
+    status: OPEN
+    summary: >-
+      The preregistered Google Drive locator for AdaFace R100 / WebFace12M was temporarily
+      unavailable because of download quota. This is an infrastructure/source-availability
+      failure, not a scientific failure and not evidence about model performance.
+    evidence_refs:
+      - .github/workflows/study1a-preexecution-checkpoint.yml
+      - protocol/studies/STUDY1_CHECKPOINT_SOURCE_AND_EQUIVALENCE.md
+      - workflow:32692521043:Study-1A-Preexecution-Checkpoint:success
+      - artifact:9507721129
+    decision: >-
+      A locator is not an artifact identity. Do not silently substitute another checkpoint
+      merely because it has the same model label.
+    next_action: >-
+      Materialize alternate hash-pinned sources and prove byte or tensor equivalence before
+      accepting a mirror as scientifically interchangeable.
+
+  - id: CHRON-20260824-S1A-003
+    recorded_at_utc: "2026-08-24T05:09:48Z"
+    kind: alternate_source_identity
+    status: RESOLVED_FOR_ARTIFACT_IDENTITY_ONLY
+    summary: >-
+      The author-maintained CVLFace Hugging Face candidate
+      minchul/cvlface_adaface_ir101_webface12m/model.safetensors was materialized and its
+      observed SHA-256 exactly matched the frozen expected digest.
+    artifact:
+      repository: minchul/cvlface_adaface_ir101_webface12m
+      filename: model.safetensors
+      size_bytes: 260980552
+      sha256: 2ea535a43877bd3de8091903935c783ce335be66a9f8917fae9a7a18ae4bbf56
+    boundary: >-
+      This closes identity of the Hugging Face artifact only. Equivalence to the historical
+      preregistered checkpoint remains unproven at this point.
+    evidence_refs:
+      - workflow:32692521043:Study-1A-Preexecution-Checkpoint:success
+      - artifact:9507721129
+      - protocol/studies/STUDY1_CHECKPOINT_SOURCE_AND_EQUIVALENCE.md
+
+  - id: CHRON-20260824-S1A-004
+    recorded_at_utc: "2026-08-24T16:44:54Z"
+    kind: provenance_risk_discovery
+    status: OPEN
+    summary: >-
+      A public upstream CVLFace issue reports that the Hugging Face repository labelled
+      ir101 may expose an IR50 model. Therefore repository/model naming is insufficient to
+      establish the required R100 / ir_101 backbone identity.
+    evidence_refs:
+      - https://github.com/mk-minchul/CVLface/issues/39
+      - https://github.com/mk-minchul/AdaFace/blob/c60eaa786a42c03444f3df7096dbaf9d57ae010d/net.py
+      - https://github.com/mk-minchul/AdaFace/blob/c60eaa786a42c03444f3df7096dbaf9d57ae010d/validation_hq/eval_5valsets.sh
+    architecture_reference:
+      expected_label: ir_101
+      expected_adaface_backbone_num_layers: 100
+      expected_block_units: [3, 13, 30, 3]
+      contrasting_ir50_block_units: [3, 4, 14, 3]
+    next_action: >-
+      Require an architecture fingerprint proving IR101/R100 compatibility in addition to
+      artifact and tensor identity checks.
+
+  - id: CHRON-20260824-S1A-005
+    recorded_at_utc: "2026-08-24T16:48:30Z"
+    kind: equivalence_probe_infrastructure_failure
+    status: RESOLVED
+    summary: >-
+      E2 tensor-equivalence probe run #1 downloaded both hash-pinned artifacts successfully
+      but failed before producing an equivalence verdict because NumPy was missing from the
+      workflow environment. No scientific outcomes were opened.
+    evidence_refs:
+      - workflow:32752705641:Study-1A-Checkpoint-E2-Equivalence-Probe:failure
+      - .github/workflows/study1a-checkpoint-equivalence-probe.yml
+    root_cause: "RuntimeError: Numpy is not available"
+    remediation: >-
+      Pin numpy==2.2.6 in the equivalence workflow and rerun the exact non-outcome-bearing
+      comparison.
+
+  - id: CHRON-20260824-S1A-006
+    recorded_at_utc: "2026-08-24T17:07:30Z"
+    kind: checkpoint_tensor_equivalence_result
+    status: OPEN_NOT_PROVEN
+    outcome_evidence_seen: false
+    scientific_outcomes_opened: false
+    summary: >-
+      Corrected E2 probe run #2 completed successfully as an engineering/provenance check,
+      but exact tensor identity between the historical mirror checkpoint and the
+      author-maintained Hugging Face safetensors artifact was NOT PROVEN.
+    artifacts_compared:
+      historical_mirror:
+        repository: VishalMishraTss/AdaFace
+        filename: adaface_ir101_webface12m.ckpt
+        size_bytes: 1526801999
+        sha256: 0e7a3238d2a50f3fe3860782534928ac7cb2598977cf897f6869fd5ac2493fd0
+        provenance_status: third_party_mirror_candidate
+      author_hf:
+        repository: minchul/cvlface_adaface_ir101_webface12m
+        filename: model.safetensors
+        size_bytes: 260980552
+        sha256: 2ea535a43877bd3de8091903935c783ce335be66a9f8917fae9a7a18ae4bbf56
+    measured_engineering_result:
+      historical_tensor_count: 921
+      author_hf_tensor_count: 917
+      author_hf_exact_tensor_coverage_in_historical_checkpoint: 0.9989094874591058
+      author_hf_shape_dtype_coverage_in_historical_checkpoint: 1.0
+      exact_name_matches: 0
+      exact_name_and_value_matches: 0
+      e2_status: NOT_PROVEN
+      unsafe_pickle_fallback_used: false
+    localized_difference:
+      author_hf_key: model.net.input_layer.0.weight
+      historical_mirror_key: model.input_layer.0.weight
+      shape: [64, 3, 3, 3]
+      dtype: torch.float32
+      author_hf_tensor_sha256: 36949c1b290a1d82bcc5badd7652825f033255abab40f85810a11a000dbde200
+      historical_mirror_tensor_sha256: 02d7ce728ea1e7debc5d669a4df81a2874f0e711e8f378993e68cfdd727611ee
+      interpretation: >-
+        916 of 917 author-HF tensors have an exact shape/dtype/value fingerprint counterpart
+        in the historical mirror, while the input convolution tensor has the same shape and
+        dtype but a different value fingerprint. This is strong similarity evidence but is
+        insufficient for E2 exact tensor identity.
+    evidence_refs:
+      - workflow:32754557695:Study-1A-Checkpoint-E2-Equivalence-Probe:success
+      - artifact:9530398999
+      - artifact_sha256:180fbd78c8cd303cb8ac952eeba8a551b64b74197aaced3b90abc9c686928420
+      - .github/workflows/study1a-checkpoint-equivalence-probe.yml
+      - protocol/studies/STUDY1_CHECKPOINT_SOURCE_AND_EQUIVALENCE.md
+    decision: >-
+      Do not substitute the author-HF safetensors artifact for the preregistered checkpoint
+      on E2 grounds. Keep checkpoint equivalence fail-closed.
+    next_action: >-
+      First establish the architecture fingerprint (IR101/R100 versus IR50) for both
+      artifacts and investigate the single differing input-layer tensor plus the four extra
+      historical tensors. If exact identity cannot be demonstrated, either obtain the
+      original preregistered Google Drive bytes from a lawful independent source or treat
+      the Hugging Face model as a scientifically distinct checkpoint requiring a reviewed
+      preregistration amendment before any outcome-bearing Gate A execution.
+
+  - id: CHRON-20260824-S1A-007
+    recorded_at_utc: "2026-08-24T17:15:00Z"
+    kind: architecture_and_preprocessing_equivalence_hypothesis
+    status: OPEN_REQUIRES_DIRECT_PROOF
+    outcome_evidence_seen: false
+    scientific_outcomes_opened: false
+    summary: >-
+      The downloaded historical mirror and author-HF safetensors both expose 49 residual body
+      blocks (indices 0..48), matching AdaFace IR101/R100 block units [3,13,30,3] and not IR50
+      [3,4,14,3]. The remaining backbone-value mismatch is localized to the first convolution.
+      This materially reduces the IR50-mislabel risk for the exact safetensors artifact used by
+      the probe, but does not by itself prove scientific equivalence.
+    exact_reference_policy:
+      preregistered_model_identity: "AdaFace R100 / WebFace12M"
+      original_locator_google_drive_file_id: "1dswnavflETcnAuplZj1IOKKP0eM8ITgT"
+      original_code_protocol_ref: "c60eaa786a42c03444f3df7096dbaf9d57ae010d"
+      historical_mirror_sha256: "0e7a3238d2a50f3fe3860782534928ac7cb2598977cf897f6869fd5ac2493fd0"
+      author_hf_repo: "minchul/cvlface_adaface_ir101_webface12m"
+      author_hf_file: "model.safetensors"
+      author_hf_sha256: "2ea535a43877bd3de8091903935c783ce335be66a9f8917fae9a7a18ae4bbf56"
+      rule: >-
+        Any Study 1A outcome must record the exact artifact SHA, source revision/locator,
+        architecture fingerprint, and input color/preprocessing contract. A model label alone
+        is not an admissible reference.
+    architecture_fingerprint:
+      historical_mirror_body_blocks: 49
+      author_hf_body_blocks: 49
+      expected_ir101_body_blocks: 49
+      expected_ir50_body_blocks: 24
+      current_interpretation: "IR101/R100 structure supported for both probed artifacts"
+    historical_extra_tensors:
+      - head.batch_mean
+      - head.batch_std
+      - head.kernel
+      - head.t
+    historical_extra_tensor_interpretation: >-
+      These four tensors belong to the training/classification head rather than the frozen
+      inference backbone and explain the 921-versus-917 tensor-count difference. They are not
+      evidence of an IR50 backbone.
+    preprocessing_risk_hypothesis:
+      original_adaface_contract: "BGR 112x112 normalized with mean=0.5 std=0.5"
+      author_hf_contract: "RGB 112x112 according to CVLFace/Hugging Face config"
+      observation: >-
+        Exactly one backbone tensor differs and it is the first [64,3,3,3] convolution. A
+        red-blue input-channel permutation is therefore a plausible deterministic conversion
+        hypothesis, but it has not yet been tested directly.
+      risk_if_wrong_preprocessing_is_used: >-
+        Embeddings can change from the first layer onward, invalidating direct comparison to
+        the published AdaFace reference metrics and potentially changing Gate A outcomes.
+    internet_refs:
+      - https://github.com/mk-minchul/AdaFace
+      - https://github.com/mk-minchul/AdaFace/blob/master/inference.py
+      - https://huggingface.co/minchul/cvlface_adaface_ir101_webface12m/blob/main/config.json
+      - https://huggingface.co/minchul/cvlface_adaface_ir101_webface12m/blob/main/pretrained_model/model.yaml
+      - https://github.com/mk-minchul/CVLface/issues/39
+    issue_39_scope_note: >-
+      CVLFace issue #39 is an unresolved user report that links pretrained_model/model.pt.
+      It has no maintainer reply and is not proof that the exact hash-pinned model.safetensors
+      artifact is IR50. The local 49-block fingerprint is stronger direct evidence for the
+      exact artifact under study.
+    next_action: >-
+      Run a bounded non-outcome-bearing conversion probe that tests all six input-channel
+      permutations on the first convolution, with particular attention to RGB<->BGR reversal.
+      If one permutation makes the first convolution exactly identical and all 916 remaining
+      inference-backbone tensors are already exact, document the deterministic preprocessing
+      transformation and request technical review of E2 equivalence under the declared
+      lossless representation rule. Do not open benchmark outcomes to decide this.
+
+current_state:
+  study1a_human_go: satisfied
+  google_drive_locator: quota_blocked_or_unreliable
+  author_hf_artifact_identity: verified
+  historical_mirror_artifact_identity: verified_as_third_party_mirror_only
+  exact_tensor_equivalence_e2: NOT_PROVEN
+  architecture_identity_ir101_r100: SUPPORTED_BY_49_BLOCK_FINGERPRINT
+  preprocessing_equivalence_rgb_bgr: UNPROVEN_TEST_NEXT
+  checkpoint_rights: INDETERMINATE
+  low_fmr_benchmark_path: UNRESOLVED
+  outcome_bearing_gate_a_execution: BLOCKED

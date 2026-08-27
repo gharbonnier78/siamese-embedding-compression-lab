@@ -1,0 +1,57 @@
+schema_version: "1.0"
+chronicle_fragment_id: study1a_input_contract_2026_08_24
+canonical_chronicle: protocol/scientific_chronicle.yaml
+append_only: true
+scope: study_1a_backbone_qualification_preexecution
+outcome_evidence_seen: false
+scientific_outcomes_opened: false
+harness_ref: "3b109adcdd9a8cba4df029d3803ee0e5cb5bdf98"
+entries:
+  - id: CHRON-20260824-S1A-009
+    recorded_at_utc: "2026-08-24T17:34:00Z"
+    kind: frozen_input_contract
+    status: OPEN_UNTIL_CONTROLS_DEMONSTRATED
+    summary: >-
+      Study 1A now treats preprocessing as part of the executed scientific model rather than
+      as incidental data plumbing. A frozen CNN alone is insufficient: image decoding,
+      orientation, face detection, 5-point alignment, 112x112 crop geometry, RGB/BGR pairing,
+      normalization, exclusions and embedding postprocessing can all change the resulting
+      512D representation and therefore verification outcomes.
+    authoritative_contract:
+      - protocol/studies/STUDY1A_FROZEN_INPUT_IMAGE_CONTRACT.md
+    canonical_pipeline: >-
+      raw image -> deterministic decode/orientation -> face detection -> 5-point alignment ->
+      112x112 crop -> exact artifact/color-space contract -> AdaFace normalization -> frozen
+      IR101/R100 -> L2-normalized 512D embedding
+    required_controls:
+      - immutable dataset manifest and sample identities
+      - explicit failure/exclusion accounting
+      - exact artifact SHA plus preprocessing revision in every run manifest
+      - preprocessing fingerprint on bounded non-evaluation fixtures
+      - deterministic embedding replay with stable serialized 512D digest
+      - 1-worker versus multi-worker embedding/output equivalence
+      - interruption/resume reconstruction equivalence
+      - dedicated RGB/BGR sentinel tied to exact model SHA
+      - duplicate/near-duplicate and overlap audit where feasible
+      - preservation of subject/template dependence metadata
+    prohibited_mutations_after_outcome_opening:
+      - changing channel order
+      - changing detector/alignment behavior
+      - changing resize/interpolation/crop geometry
+      - changing normalization or dtype semantics
+      - adding denoise/sharpen/super-resolution/face-restoration/color correction
+      - changing exclusion rules based on observed scores
+      - introducing test-time augmentation without preregistered amendment
+    rationale: >-
+      The RGB/BGR checkpoint investigation demonstrated concretely that a single silent
+      preprocessing convention can be absorbed into the first convolution and still leave
+      two weight artifacts apparently different. Conversely, pairing the wrong color-space
+      convention with otherwise correct frozen weights can change activations from the first
+      layer onward. This makes preprocessing provenance decision-relevant and not merely an
+      implementation detail.
+    next_action: >-
+      Implement and review the bounded preprocessing fingerprint, deterministic embedding
+      replay, worker-count equivalence, resume equivalence and RGB/BGR sentinel before any
+      protected Study 1A benchmark outcomes are opened.
+    blocks:
+      - outcome_bearing_gate_a_execution

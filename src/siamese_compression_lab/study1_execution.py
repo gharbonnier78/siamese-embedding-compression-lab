@@ -114,3 +114,53 @@ def normalize_adaface_bgr_uint8(image):
         raise ValueError("AdaFace input must be aligned 112x112x3 BGR")
     x = image.astype("float32") / 255.0
     return (x - 0.5) / 0.5
+
+
+def canonical_array_sha256(array) -> str:
+    """Return a stable digest for a C-contiguous numeric array.
+
+    Shape and dtype are included in the digest material so an identical byte stream with a
+    different interpretation cannot collide at the contract level. This helper is intended
+    for non-outcome-bearing preprocessing and replay fixtures as well as frozen embedding
+    artifacts.
+    """
+    contiguous = array.copy(order="C") if not getattr(array, "flags", {}).c_contiguous else array
+    metadata = json.dumps(
+        {"shape": list(contiguous.shape), "dtype": str(contiguous.dtype)},
+        sort_keys=True,
+        separators=(",", ":"),
+    ).encode("utf-8")
+    digest = hashlib.sha256()
+    digest.update(metadata)
+    digest.update(b"\0")
+    digest.update(contiguous.tobytes(order="C"))
+    return digest.hexdigest()
+
+
+def preprocessing_fingerprint(aligned_bgr_uint8) -> dict[str, str]:
+    """Fingerprint the raw aligned fixture and its exact normalized model input.
+
+    This is engineering/provenance evidence only. It does not inspect or summarize a
+    scientific benchmark outcome.
+    """
+    normalized = normalize_adaface_bgr_uint8(aligned_bgr_uint8)
+    return {
+        "aligned_bgr_uint8_sha256": canonical_array_sha256(aligned_bgr_uint8),
+        "normalized_float32_sha256": canonical_array_sha256(normalized),
+    }
+
+
+def embedding_replay_digest(embedding) -> str:
+    """Digest one frozen 512D embedding for deterministic replay checks."""
+    if getattr(embedding, "shape", None) != (512,):
+        raise ValueError("Study 1A replay embedding must be exactly 512D")
+    return canonical_array_sha256(embedding)
+
+
+def bgr_rgb_roundtrip_exact(image) -> bool:
+    """Check the explicit RGB<->BGR representation sentinel on a fixture."""
+    if getattr(image, "shape", None) != (112, 112, 3):
+        raise ValueError("representation sentinel expects 112x112x3 input")
+    rgb = image[..., ::-1]
+    restored_bgr = rgb[..., ::-1]
+    return canonical_array_sha256(restored_bgr) == canonical_array_sha256(image)

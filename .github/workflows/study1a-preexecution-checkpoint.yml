@@ -1,0 +1,131 @@
+name: Study 1A Preexecution Checkpoint
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/study1a-preexecution-checkpoint.yml'
+      - 'protocol/authorizations/study_1a_execution_go_2026-08-24.yaml'
+      - 'protocol/studies/study_1_face_backbone.yaml'
+      - 'protocol/studies/STUDY1_BACKBONE_ACCEPTANCE_GATE.md'
+      - 'protocol/studies/STUDY1_CHECKPOINT_SOURCE_AND_EQUIVALENCE.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  CHECKPOINT_FILE_ID: 1dswnavflETcnAuplZj1IOKKP0eM8ITgT
+  CHECKPOINT_NAME: adaface_ir101_webface12m.ckpt
+  HF_REPO: minchul/cvlface_adaface_ir101_webface12m
+  HF_FILE: model.safetensors
+  HF_EXPECTED_SHA256: 2ea535a43877bd3de8091903935c783ce335be66a9f8917fae9a7a18ae4bbf56
+
+jobs:
+  materialize-checkpoint-identity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+      - name: Install bounded downloaders
+        run: python -m pip install --disable-pip-version-check 'gdown==5.2.0' 'huggingface_hub==0.34.4'
+      - name: Try frozen Google Drive source without failing over silently
+        id: drive
+        continue-on-error: true
+        run: |
+          mkdir -p preexecution
+          python -m gdown "https://drive.google.com/uc?id=${CHECKPOINT_FILE_ID}" -O "preexecution/${CHECKPOINT_NAME}"
+          test -s "preexecution/${CHECKPOINT_NAME}"
+      - name: Hash Google Drive bytes when available
+        if: steps.drive.outcome == 'success'
+        run: |
+          python - <<'PY'
+          import hashlib, json, os
+          from pathlib import Path
+          path = Path('preexecution') / os.environ['CHECKPOINT_NAME']
+          h = hashlib.sha256(path.read_bytes()).hexdigest()
+          Path('preexecution/google_drive_identity.json').write_text(json.dumps({
+              'artifact_role': 'frozen preregistered checkpoint identity',
+              'source': 'google_drive',
+              'source_google_drive_file_id': os.environ['CHECKPOINT_FILE_ID'],
+              'filename': path.name,
+              'size_bytes': path.stat().st_size,
+              'sha256': h,
+              'scientific_outcomes_opened': False,
+              'checkpoint_deserialized': False,
+          }, indent=2, sort_keys=True) + '\n', encoding='utf-8')
+          print(h)
+          PY
+      - name: Materialize author-maintained Hugging Face candidate
+        run: |
+          python - <<'PY'
+          import hashlib, json, os
+          from pathlib import Path
+          from huggingface_hub import hf_hub_download
+
+          out = Path('preexecution/hf')
+          out.mkdir(parents=True, exist_ok=True)
+          path = Path(hf_hub_download(
+              repo_id=os.environ['HF_REPO'],
+              filename=os.environ['HF_FILE'],
+              local_dir=out,
+          ))
+          digest = hashlib.sha256()
+          with path.open('rb') as stream:
+              for chunk in iter(lambda: stream.read(1024 * 1024), b''):
+                  digest.update(chunk)
+          sha = digest.hexdigest()
+          expected = os.environ['HF_EXPECTED_SHA256']
+          if sha != expected:
+              raise SystemExit(f'Hugging Face artifact SHA mismatch: {sha} != {expected}')
+          metadata = {
+              'artifact_role': 'candidate alternate source; equivalence to preregistered Google Drive checkpoint NOT YET PROVEN',
+              'source': 'huggingface',
+              'repo_id': os.environ['HF_REPO'],
+              'filename': os.environ['HF_FILE'],
+              'size_bytes': path.stat().st_size,
+              'sha256': sha,
+              'expected_sha256': expected,
+              'equivalence_status': 'UNPROVEN_UNTIL_BYTE_OR_TENSOR_EQUIVALENCE_WITH_FROZEN_CHECKPOINT_IS_ESTABLISHED',
+              'scientific_outcomes_opened': False,
+              'checkpoint_deserialized': False,
+          }
+          Path('preexecution/hf_candidate_identity.json').write_text(
+              json.dumps(metadata, indent=2, sort_keys=True) + '\n', encoding='utf-8'
+          )
+          print(json.dumps(metadata, sort_keys=True))
+          PY
+      - name: Record source-resolution state
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          drive_ok = Path('preexecution/google_drive_identity.json').exists()
+          state = {
+              'google_drive_materialized': drive_ok,
+              'huggingface_candidate_materialized': True,
+              'canonical_checkpoint_identity_closed': drive_ok,
+              'huggingface_is_canonical': False,
+              'reason': (
+                  'Google Drive bytes available and hashed; compare against alternate candidate before adding an equivalent mirror.'
+                  if drive_ok else
+                  'Google Drive unavailable; Hugging Face candidate hash is known but equivalence is not yet established, so the scientific blocker remains open.'
+              ),
+              'scientific_outcomes_opened': False,
+          }
+          Path('preexecution/checkpoint_source_state.json').write_text(
+              json.dumps(state, indent=2, sort_keys=True) + '\n', encoding='utf-8'
+          )
+          print(json.dumps(state, sort_keys=True))
+          PY
+      - name: Upload metadata only
+        uses: actions/upload-artifact@v4
+        with:
+          name: study1a-checkpoint-source-evidence
+          path: |
+            preexecution/*identity.json
+            preexecution/checkpoint_source_state.json
+          if-no-files-found: error
+          retention-days: 30

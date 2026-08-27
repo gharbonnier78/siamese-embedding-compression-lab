@@ -1,0 +1,113 @@
+name: Study 1A Preexecution Controls
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/study1a-preexecution-controls.yml'
+      - 'scripts/study1a_run_preexecution_controls.py'
+      - 'src/siamese_compression_lab/study1_execution.py'
+      - 'protocol/studies/STUDY1A_FROZEN_INPUT_IMAGE_CONTRACT.md'
+      - 'protocol/studies/STUDY1A_OVERLAP_AUDIT_DESIGN.md'
+      - 'protocol/studies/STUDY1A_COMPRESSION_FOCUSED_AMENDMENT_2026-08-24.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  controls:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      CHECKPOINT_REPO: VishalMishraTss/AdaFace
+      CHECKPOINT_FILE: adaface_ir101_webface12m.ckpt
+      CHECKPOINT_SHA256: 0e7a3238d2a50f3fe3860782534928ac7cb2598977cf897f6869fd5ac2493fd0
+      ADAFACE_COMMIT: c60eaa786a42c03444f3df7096dbaf9d57ae010d
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.12'
+
+      - name: Install bounded control dependencies
+        run: |
+          python -m pip install --disable-pip-version-check \
+            'numpy==2.2.6' \
+            'torch==2.8.0' \
+            'huggingface_hub==0.34.4'
+
+      - name: Materialize hash-pinned historical checkpoint candidate
+        run: |
+          python - <<'PY'
+          import hashlib
+          import os
+          from pathlib import Path
+          from huggingface_hub import hf_hub_download
+
+          root = Path('preexecution/controls/model')
+          root.mkdir(parents=True, exist_ok=True)
+          path = Path(hf_hub_download(
+              repo_id=os.environ['CHECKPOINT_REPO'],
+              filename=os.environ['CHECKPOINT_FILE'],
+              local_dir=root,
+          ))
+          h = hashlib.sha256()
+          with path.open('rb') as stream:
+              for chunk in iter(lambda: stream.read(1024 * 1024), b''):
+                  h.update(chunk)
+          observed = h.hexdigest()
+          expected = os.environ['CHECKPOINT_SHA256']
+          if observed != expected:
+              raise SystemExit(f'checkpoint SHA mismatch: {observed} != {expected}')
+          Path('preexecution/controls/checkpoint_path.txt').write_text(str(path) + '\n', encoding='utf-8')
+          print(f'checkpoint verified: {observed}')
+          PY
+
+      - name: Materialize pinned AdaFace inference code
+        run: |
+          git clone --filter=blob:none --no-checkout https://github.com/mk-minchul/AdaFace.git preexecution/controls/AdaFace
+          git -C preexecution/controls/AdaFace checkout "$ADAFACE_COMMIT" -- net.py
+          test "$(git -C preexecution/controls/AdaFace rev-parse HEAD)" = "$ADAFACE_COMMIT"
+
+      - name: Execute all declared non-outcome preexecution controls
+        env:
+          PYTHONPATH: src
+        run: |
+          CHECKPOINT_PATH="$(cat preexecution/controls/checkpoint_path.txt)"
+          python scripts/study1a_run_preexecution_controls.py \
+            --checkpoint "$CHECKPOINT_PATH" \
+            --adaface-src preexecution/controls/AdaFace \
+            --output-dir preexecution/controls/report
+
+      - name: Assert fail-closed report semantics
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          p = Path('preexecution/controls/report/preexecution_control_report.json')
+          report = json.loads(p.read_text(encoding='utf-8'))
+          assert report['scientific_outcomes_opened'] is False
+          assert report['overall_status'] == 'PASS'
+          for key in (
+              'rgb_bgr_sentinel',
+              'deterministic_embedding_replay',
+              'worker_count_equivalence',
+              'restart_resume_equivalence',
+              'manifest_provenance',
+          ):
+              assert report[key]['status'] == 'PASS', (key, report[key])
+          assert report['overlap_audit_design']['status'] == 'PASS_DESIGN_FROZEN'
+          print(json.dumps(report, indent=2, sort_keys=True))
+          PY
+
+      - name: Upload reports only
+        uses: actions/upload-artifact@v4
+        with:
+          name: study1a-preexecution-controls
+          path: |
+            preexecution/controls/report/preexecution_control_report.json
+            preexecution/controls/report/synthetic_dataset_manifest.json
+            preexecution/controls/report/overlap_audit_design.json
+          retention-days: 30

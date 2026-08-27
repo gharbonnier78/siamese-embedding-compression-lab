@@ -1,0 +1,48 @@
+schema_version: "1.0"
+chronicle_fragment_id: study1a_amendment_activation_2026_08_24
+scope: study_1a_compression_focused_amendment_activation
+outcome_evidence_seen: false
+scientific_outcomes_opened: false
+harness_ref: "3b109adcdd9a8cba4df029d3803ee0e5cb5bdf98"
+entries:
+  - id: CHRON-20260824-S1A-AMEND-001
+    recorded_at_local: "2026-08-24T21:43+02:00"
+    kind: independent_review_verdict
+    status: ACCEPTED
+    review_basis_head: "2110c32b071fa9a836d5dc2d55716d448bc8a10f"
+    review_record: protocol/reviews/STUDY1A_COMPRESSION_FOCUSED_AMENDMENT_REVIEW_ACCEPTED_2026-08-24.md
+    summary: >-
+      Independent pre-outcome review accepted the compression-focused Study 1A amendment.
+      The reviewer found the rescope proportionate to the actual scientific question,
+      accepted demotion of IJB-C/FRTE to external-validity/extension evidence, confirmed
+      unchanged A1/A2 thresholds, and found no blocking issue for amendment activation.
+    prohibited_inferences:
+      - this does not authorize Study 1B
+      - this does not authorize representation-geometry work
+      - this does not establish biometric production readiness or commercial rights
+
+  - id: CHRON-20260824-S1A-AMEND-002
+    recorded_at_local: "2026-08-24T21:43+02:00"
+    kind: protocol_activation
+    status: ACTIVE_WITH_PREEXECUTION_CONTROLS
+    amendment: protocol/studies/STUDY1A_COMPRESSION_FOCUSED_AMENDMENT_2026-08-24.md
+    activation_commit: "7e3d268e04b4798f2266b1a9b2a8ee953d8515aa"
+    active_gate: >-
+      A0 pipeline integrity + A1 LFW >= 99.62% + all A2 thresholds
+      (CFP-FP >= 98.96%, CPLFW >= 94.27%, CALFW >= 95.82%, AgeDB-30 >= 97.70%).
+      Low-FMR IJB-C/FRTE is external-validity/extension evidence and no longer a mandatory
+      release condition for the bounded compression-focused Study 1A decision.
+    mandatory_before_outcomes:
+      - exact model artifact identity and architecture fingerprint
+      - frozen input/preprocessing contract
+      - RGB/BGR sentinel/equivalence
+      - preprocessing fingerprint on non-scientific fixtures
+      - deterministic 512D embedding replay
+      - worker-count equivalence when multiprocessing is used
+      - interruption/restart equivalence when resumable sharding is used
+      - dataset/protocol manifest and explicit failure/exclusion semantics
+      - overlap/duplicate/near-duplicate audit design frozen before outcomes
+      - environment/dependencies/SBOM/replay metadata
+    next_admissible_action: >-
+      Complete and verify the declared non-outcome-bearing pre-execution qualification
+      controls, then open Study 1A A1/A2 benchmark outcomes under the active amendment.

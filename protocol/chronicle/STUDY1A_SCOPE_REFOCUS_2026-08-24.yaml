@@ -1,0 +1,36 @@
+schema_version: "1.0"
+chronicle_fragment_id: study1a_scope_refocus_2026_08_24
+canonical_chronicle: protocol/scientific_chronicle.yaml
+append_only: true
+scope: study_1a_preoutcome_protocol_refocus
+outcome_evidence_seen: false
+scientific_outcomes_opened: false
+harness_ref: "3b109adcdd9a8cba4df029d3803ee0e5cb5bdf98"
+entries:
+  - id: CHRON-20260824-S1A-010
+    recorded_at_utc: "2026-08-24T19:23:00Z"
+    kind: researcher_scope_direction
+    status: RECORDED_PREOUTCOME
+    summary: >-
+      The accountable researcher clarified that Study 1's objective is the compression
+      comparison itself: determine whether a learned Siamese 512D-to-128D projection can
+      preserve verification performance better than random projection and PCA while being
+      compared with the uncompressed 512D reference. The researcher explicitly asked to keep
+      the guardrails and pre-execution qualification controls while avoiding a disproportionate
+      biometric-certification programme.
+    decision: >-
+      Prepare a pre-outcome amendment that retains AdaFace substrate sanity checks and all
+      preprocessing/replay/overlap controls, while demoting unavailable/sequestered low-FMR
+      benchmarks from mandatory release blockers to external-validity extensions.
+    evidence_refs:
+      - protocol/studies/STUDY1A_COMPRESSION_FOCUSED_AMENDMENT_2026-08-24.md
+      - protocol/reviews/STUDY1A_COMPRESSION_FOCUSED_AMENDMENT_REVIEW_REQUEST_2026-08-24.md
+      - protocol/studies/STUDY1A_FROZEN_INPUT_IMAGE_CONTRACT.md
+    boundary: >-
+      No Study 1A benchmark outcome has been opened. The amendment is not active until its
+      independent pre-outcome methodological review is recorded. Study 1B still requires a
+      separate GO after Study 1A acceptance.
+    next_action: >-
+      Obtain independent review of the amendment, run/finalize the non-outcome-bearing
+      preprocessing fingerprint and deterministic replay controls, then activate the amended
+      gate only if review accepts it.

@@ -1,0 +1,39 @@
+schema_version: "1.0"
+date: "2026-08-25"
+entries:
+  - id: CHRON-20260825-S1A-015
+    kind: post_outcome_diagnostic_opened
+    scope: study_1a_cfp_fp_failure_analysis_only
+    status: OPEN
+    human_authority: explicit_user_instruction_ok_pour_lancer_analyse
+    trigger:
+      canonical_run_id: 32773439197
+      canonical_head_sha: 2dbbf832e30f33628b68a1122ee642ab504777d8
+      benchmark: CFP-FP
+      observed_accuracy: 0.9765714285714285
+      frozen_minimum_accuracy: 0.9896
+      published_reference_accuracy: 0.9926
+      canonical_scientific_decision: FAIL
+    frozen_during_diagnostic:
+      - a1_a2_thresholds
+      - checkpoint_identity
+      - adaface_ir101_r100_architecture
+      - bgr_and_normalization_contract
+      - horizontal_flip_norm_aware_fusion
+      - ten_fold_non_shuffled_threshold_selection
+      - squared_l2_on_l2_normalized_512d
+    hypotheses_priority:
+      - validation_artifact_source_mismatch
+      - evaluator_protocol_parity
+      - decode_backend_or_transport_difference
+      - checkpoint_specific_behavior
+    prohibited_actions:
+      - threshold_relaxation
+      - post_outcome_cherry_picking_of_dataset_source
+      - retroactive_gate_release_from_diagnostic_result
+      - study1b_execution
+    next_action: >-
+      Compare independently hosted CFP-FP artifacts by SHA, size, labels and image-byte digests;
+      evaluate differing artifacts under exactly the frozen evaluator and record diagnostic-only
+      results with no gate authority. If a source/protocol defect is demonstrated, request a
+      separately reviewed correction/replay decision while retaining the canonical FAIL evidence.

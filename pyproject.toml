@@ -47,3 +47,8 @@ testpaths = ["tests"]
 [tool.ruff]
 line-length = 96
 target-version = "py310"
+
+[tool.ruff.lint.per-file-ignores]
+# Preserve the exact preexecution-control script that produced the already archived
+# evidence bundle. These narrow style waivers avoid mutating a proven evidence producer.
+"scripts/study1a_run_preexecution_controls.py" = ["F401", "TRY004", "PLW0602"]

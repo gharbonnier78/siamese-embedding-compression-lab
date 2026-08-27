@@ -1,0 +1,69 @@
+schema_version: "1.0"
+chronicle_fragment_id: study1a_low_fmr_rights_2026_08_24
+canonical_chronicle: protocol/scientific_chronicle.yaml
+append_only: true
+scope: study_1a_backbone_qualification_preexecution
+outcome_evidence_seen: false
+scientific_outcomes_opened: false
+entries:
+  - id: CHRON-20260824-S1A-009
+    recorded_at_utc: "2026-08-24T17:48:00Z"
+    kind: low_fmr_benchmark_disposition
+    status: OPEN_INDETERMINATE_WITH_CANDIDATE_PATH
+    summary: >-
+      The preferred IJB-C Gate A3 benchmark remains scientifically appropriate for the
+      published AdaFace R100/WebFace12M reference, but NIST discontinued public distribution
+      of IJB-A/B/C on 2023-03-14. MegaFace was investigated as a replacement and rejected
+      because the University of Washington now states that the benchmark is decommissioned
+      and its data are no longer distributed. WebFace260M low-FMR test protocols remain a
+      scientifically relevant replacement candidate, but they are not a drop-in substitute
+      and require an independently reviewed preregistration amendment with their own frozen
+      reference criterion before any outcome is opened.
+    evidence_refs:
+      - protocol/studies/STUDY1A_LOW_FMR_AND_RIGHTS_DISPOSITION_2026-08-24.md
+      - https://www.nist.gov/programs-projects/face-challenges
+      - https://megaface.cs.washington.edu/
+      - https://megaface.cs.washington.edu/dataset/download.html
+      - https://ibug.doc.ic.ac.uk/media/uploads/documents/webface260m_a_benchmark_for_million-scale_deep_face_recognition.pdf
+    decision: >-
+      Do not acquire IJB-C or MegaFace from unofficial mirrors. First determine whether a
+      lawful pre-existing institutional IJB-C copy with official protocol metadata exists.
+      If not, prepare a pre-outcome amendment for an actually available low-FMR benchmark;
+      WebFace260M test protocols are the first candidate for further access/rights review.
+    blocks:
+      - study1a_gate_a3_low_fmr
+
+  - id: CHRON-20260824-S1A-010
+    recorded_at_utc: "2026-08-24T17:48:00Z"
+    kind: checkpoint_rights_disposition
+    status: CONDITIONAL_NOT_FULLY_CLEARED
+    summary: >-
+      The author-maintained Hugging Face model card declares MIT metadata for the
+      CVLFace AdaFace IR101/WebFace12M model, but explicitly instructs users to follow the
+      training-dataset licence. Therefore MIT metadata alone does not establish unrestricted
+      rights to WebFace12M-derived checkpoint use or redistribution.
+    exact_artifact:
+      repository: minchul/cvlface_adaface_ir101_webface12m
+      filename: model.safetensors
+      sha256: 2ea535a43877bd3de8091903935c783ce335be66a9f8917fae9a7a18ae4bbf56
+    evidence_refs:
+      - protocol/studies/STUDY1A_LOW_FMR_AND_RIGHTS_DISPOSITION_2026-08-24.md
+      - https://huggingface.co/minchul/cvlface_adaface_ir101_webface12m/blob/cc0182931c6b82d0de9fe007f96fd7a221c5c2eb/README.md
+      - https://huggingface.co/minchul/cvlface_adaface_ir101_webface12m/blob/main/model.safetensors
+      - https://github.com/mk-minchul/CVLface/blob/main/cvlface/data_utils/recognition/training_data/README_TRAIN_DATA.md
+    decision: >-
+      Keep checkpoint bytes out of Git and do not claim commercial or unrestricted rights.
+      Local research use may be activated only after the accountable researcher or an
+      institutional/legal review confirms compatibility with the applicable WebFace12M terms.
+    blocks:
+      - study1a_checkpoint_rights
+
+current_state:
+  low_fmr_benchmark_path: INDETERMINATE
+  ijbc_public_distribution: DISCONTINUED
+  megaface_new_replacement: REJECTED_DISTRIBUTION_DECOMMISSIONED
+  webface260m_low_fmr_candidate: REQUIRES_ACCESS_RIGHTS_REFERENCE_AND_PREREG_REVIEW
+  checkpoint_model_card_license_metadata: MIT
+  checkpoint_training_data_terms_dependency: PRESENT
+  checkpoint_rights: CONDITIONAL_NOT_FULLY_CLEARED
+  outcome_bearing_gate_a_execution: BLOCKED

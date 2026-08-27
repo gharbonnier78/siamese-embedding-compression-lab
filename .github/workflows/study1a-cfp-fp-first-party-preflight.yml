@@ -1,0 +1,87 @@
+name: Study 1A CFP-FP First-Party Source Preflight
+
+on:
+  push:
+    branches:
+      - agent/study1a-go-preexecution-20260824
+    paths:
+      - '.github/workflows/study1a-cfp-fp-first-party-preflight.yml'
+      - 'protocol/studies/STUDY1A_CFP_FP_SOURCE_CORRECTION_REPLAY_2026-08-25.md'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  first-party-source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Probe and materialize historical first-party CFP distribution
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p study1a/cfp_source_preflight
+          URL='http://www.cfpw.io/cfp-dataset.zip'
+          OUT='study1a/cfp_source_preflight/cfp-dataset.zip'
+          echo "first_party_url=${URL}"
+          if ! curl --fail --location --retry 3 --retry-delay 5 --connect-timeout 20 --max-time 1200 "$URL" -o "$OUT"; then
+            python - <<'PY'
+          import json
+          from pathlib import Path
+          p = Path('study1a/cfp_source_preflight/source_preflight.json')
+          p.write_text(json.dumps({
+              'schema_version': '1.0',
+              'kind': 'study1a_cfp_first_party_source_preflight',
+              'first_party_url': 'http://www.cfpw.io/cfp-dataset.zip',
+              'status': 'FIRST_PARTY_ENDPOINT_UNAVAILABLE',
+              'scientific_outcome_opened': False,
+              'gate_changed': False,
+              'next_action': 'Use only a separately documented preservation copy tied to the first-party distribution; do not relabel a mirror official.'
+          }, indent=2, sort_keys=True) + '\n')
+          PY
+            exit 0
+          fi
+
+          python - <<'PY'
+          import hashlib, json, zipfile
+          from pathlib import Path
+          z = Path('study1a/cfp_source_preflight/cfp-dataset.zip')
+          h = hashlib.sha256(z.read_bytes()).hexdigest()
+          names = []
+          with zipfile.ZipFile(z) as arc:
+              names = arc.namelist()
+          required_suffixes = [
+              'Protocol/Pair_list_F.txt',
+              'Protocol/Pair_list_P.txt',
+              'Protocol/Split/FP/1/same.txt',
+              'Protocol/Split/FP/1/diff.txt',
+          ]
+          missing = [s for s in required_suffixes if not any(n.endswith(s) for n in names)]
+          status = 'FIRST_PARTY_ARCHIVE_MATERIALIZED' if not missing else 'FIRST_PARTY_ARCHIVE_STRUCTURE_INVALID'
+          payload = {
+              'schema_version': '1.0',
+              'kind': 'study1a_cfp_first_party_source_preflight',
+              'first_party_url': 'http://www.cfpw.io/cfp-dataset.zip',
+              'status': status,
+              'sha256': h,
+              'size_bytes': z.stat().st_size,
+              'zip_member_count': len(names),
+              'missing_required_protocol_members': missing,
+              'scientific_outcome_opened': False,
+              'gate_changed': False,
+          }
+          Path('study1a/cfp_source_preflight/source_preflight.json').write_text(json.dumps(payload, indent=2, sort_keys=True) + '\n')
+          print(json.dumps(payload, indent=2, sort_keys=True))
+          PY
+
+      - name: Upload source preflight evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: study1a-cfp-first-party-source-preflight
+          path: study1a/cfp_source_preflight/source_preflight.json
+          if-no-files-found: error
+          retention-days: 30
