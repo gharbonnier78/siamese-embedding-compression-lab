@@ -1,0 +1,91 @@
+schema_version: "1.0"
+study: Study1A
+scope: frozen_face_specific_substrate_qualification
+status: CORRECTED_PASS
+decided_on: "2026-08-27"
+
+basis:
+  canonical_a1_a2_run:
+    run_id: 32773439197
+    retained_as_historical_evidence: true
+    lfw:
+      accuracy: 0.9981666666666666
+      minimum: 0.9962
+      decision: PASS
+    cfp_fp_icar:
+      accuracy: 0.9765714285714285
+      minimum: 0.9896
+      decision: FAIL
+      final_role: HISTORICAL_SUPERSEDED_FOR_BOUNDED_DECISION
+    cplfw:
+      accuracy: 0.946
+      minimum: 0.9427
+      decision: PASS
+    calfw:
+      accuracy: 0.9611666666666666
+      minimum: 0.9582
+      decision: PASS
+    agedb_30:
+      accuracy: 0.98
+      minimum: 0.977
+      decision: PASS
+
+  cfp_fp_source_diagnostic:
+    run_id: 32805230034
+    gate_authority: false
+    result_summary:
+      gaunernst_accuracy: 0.9924285714285717
+      namkuner_accuracy: 0.9934285714285714
+    interpretation: strong_source_artifact_dependence_evidence
+
+  corrected_author_managed_replay:
+    run_id: 33003912752
+    source: mk-minchul/CVLface author-managed evaluation toolkit
+    toolkit_archive_sha256: 79df53a35b8fed4bca0130685fe145aec26610efadab3abe3af3da52c800f79f
+    cfp_fp_member: facerec_val/cfp_fp
+    converted_container_sha256: 8204a7eccfb0a6eb7ed9a4511a0136f5326758f713270f17016fee908c38e45a
+    checkpoint_sha256: 0e7a3238d2a50f3fe3860782534928ac7cb2598977cf897f6869fd5ac2493fd0
+    adaface_commit: c60eaa786a42c03444f3df7096dbaf9d57ae010d
+    accuracy: 0.9924285714285717
+    std: 0.002478478796128225
+    minimum: 0.9896
+    decision: PASS_CORRECTED_SOURCE_REPLAY
+    valid_outcome: true
+    decode_failures: 0
+    exclusions: 0
+
+  independent_review:
+    verdict: ACCEPT_CORRECTION
+    record: protocol/reviews/STUDY1A_CFP_FP_SOURCE_CORRECTION_REVIEW_ACCEPTED_2026-08-27.md
+
+bounded_decision:
+  study1a: CORRECTED_PASS
+  rationale: >-
+    All frozen Study 1A compression-focused substrate-qualification gates pass after replacing
+    only the CFP-FP transport/source artifact used for the bounded decision with the reviewed
+    author-managed CVLFace derivative. The original Icar observation is retained immutably as
+    historical evidence and is not rewritten.
+  authorizes:
+    - qualification_of_raw512_adaface_as_candidate_substrate_for_future_compression_comparison
+  does_not_authorize:
+    - Study1B_execution
+    - representation_geometry
+    - production_use
+    - biometric_certification
+    - fairness_claims
+    - PAD_claims
+    - one_to_many_claims
+    - low_FMR_production_claims
+    - state_of_the_art_claims
+
+next_gate:
+  id: STUDY1B_EXPLICIT_HUMAN_GO
+  status: BLOCKED_PENDING_EXPLICIT_GO
+  rule: >-
+    Study 1B may be executed only after this decision is merged and a separate explicit human
+    authorization is recorded under the pinned scientific-research harness.
+
+provenance:
+  pull_request: https://github.com/gharbonnier78/siamese-embedding-compression-lab/pull/46
+  pinned_harness: https://github.com/gharbonnier78/scientific-research-harness/blob/3b109adcdd9a8cba4df029d3803ee0e5cb5bdf98/HARNESS.md
+  chronicle_record: protocol/chronicle/STUDY1A_FINAL_DECISION_2026-08-27.yaml
