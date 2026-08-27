@@ -1,0 +1,93 @@
+name: Study 1B Non-outcome Preflight
+
+on:
+  pull_request:
+    paths:
+      - 'src/siamese_compression_lab/study1b_*'
+      - 'scripts/study1b_*'
+      - 'tests/test_study1b_*'
+      - 'protocol/studies/STUDY1B_*'
+      - 'protocol/studies/study_1b_matched_compression.yaml'
+      - 'protocol/simulations/STUDY1B_*'
+      - '.github/workflows/study1b-nonoutcome-preflight.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contract-and-unit-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: Install package and development checks
+        run: |
+          python -m pip install --upgrade pip 'setuptools>=83.0.0'
+          python -m pip install -e '.[dev]'
+      - name: Study 1B focused tests
+        env:
+          PYTHONPATH: src
+        run: python -m unittest tests.test_study1b_preflight_execution -v
+      - name: Focused lint
+        run: |
+          ruff check \
+            src/siamese_compression_lab/study1b_preflight.py \
+            src/siamese_compression_lab/study1b_statistics.py \
+            src/siamese_compression_lab/study1b_simulation.py \
+            src/siamese_compression_lab/study1b_execution.py \
+            scripts/study1b_preflight_lfw.py \
+            scripts/study1b_run_simulation_shard.py \
+            tests/test_study1b_preflight_execution.py
+
+  lfw-metadata-graph-and-cost-pilot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: Install LFW preflight dependencies
+        run: |
+          python -m pip install --upgrade pip 'setuptools>=83.0.0'
+          python -m pip install -e '.[lfw]'
+      - name: Materialize LFW roles, capture audit and frozen pair graphs
+        env:
+          PYTHONPATH: src
+        run: |
+          python scripts/study1b_preflight_lfw.py \
+            --output-dir artifacts/study1b/nonoutcome-preflight
+      - name: Run non-gating simulation cost pilot
+        env:
+          PYTHONPATH: src
+        run: |
+          python scripts/study1b_run_simulation_shard.py \
+            --contract protocol/simulations/STUDY1B_COVERAGE_POWER_PREFLIGHT_2026-08-27.yaml \
+            --test-graph artifacts/study1b/nonoutcome-preflight/graphs/test_pairs.csv \
+            --mode cost-pilot \
+            --scenario subject_dependence_null \
+            --start 0 --stop 2 \
+            --output artifacts/study1b/nonoutcome-preflight/cost_pilot.jsonl
+      - name: Assert evidence boundary
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          report = json.loads(Path('artifacts/study1b/nonoutcome-preflight/preflight_report.json').read_text())
+          assert report['scientific_outcomes_opened'] is False
+          assert report['overall_status'] == 'PASS'
+          print('non-outcome boundary preserved')
+          PY
+      - name: Upload non-outcome preflight artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: study1b-nonoutcome-preflight
+          path: artifacts/study1b/nonoutcome-preflight
+          if-no-files-found: warn
