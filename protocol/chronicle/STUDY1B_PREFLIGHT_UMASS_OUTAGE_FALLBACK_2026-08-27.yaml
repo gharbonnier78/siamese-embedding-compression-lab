@@ -1,0 +1,37 @@
+schema_version: "1.0"
+event_id: STUDY1B_PREFLIGHT_UMASS_OUTAGE_FALLBACK_2026-08-27
+timestamp_local: "2026-08-27T22:40:00+02:00"
+study_id: study_1b_matched_compression
+phase: nonoutcome_preflight
+scientific_outcomes_opened: false
+
+observed_failure:
+  workflow_run: 33114215560
+  job: lfw-metadata-graph-and-cost-pilot
+  source: "http://vis-www.cs.umass.edu/lfw/"
+  failure: "DNS resolution failed from GitHub-hosted runner"
+  interpretation: >-
+    The original authority endpoint was unavailable from the runner. This does not change the
+    canonical metadata definition and does not justify deriving identities from pair samples.
+
+recovery_policy:
+  primary_source: "original UMass LFW endpoint"
+  fallback_source:
+    type: immutable_https_mirror
+    repository: "charlesreid1/in-your-face"
+    commit: "00d3f2e4bdcc3ef8a851e5e133cde29d2f574f15"
+    path_prefix: "data/"
+  acceptance_rule: >-
+    Fallback bytes are accepted only if they match the canonical MD5 values independently
+    published by torchvision. A filename match, mirror reputation, or successful download is
+    insufficient by itself.
+  canonical_md5:
+    peopleDevTrain.txt: "54eaac34beb6d042ed3a7d883e247a21"
+    peopleDevTest.txt: "e4bf5be0a43b5dcd9dc5ccfcb8fb19c5"
+  fail_closed_if_no_canonical_source_available: true
+
+engineering_note:
+  lint_issue_observed: "unused noqa S310 in focused Ruff configuration"
+  correction: "removed unused noqa while retaining explicit trusted-source allowlist in code"
+
+next_state: FALLBACK_IMPLEMENTED_PENDING_FRESH_CI_AND_PREFLIGHT_EVIDENCE
