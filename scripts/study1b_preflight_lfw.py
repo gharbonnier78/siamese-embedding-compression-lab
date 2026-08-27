@@ -43,6 +43,8 @@ def _md5(path: Path) -> str:
 
 
 def _candidate_urls(name: str) -> tuple[tuple[str, str], ...]:
+    if name not in METADATA:
+        raise ValueError(f"metadata filename is not allowlisted: {name}")
     return (
         ("umass_original", f"{UMASS_LFW_PREFIX}{name}"),
         ("github_commit_pinned_mirror", f"{PINNED_GITHUB_MIRROR_PREFIX}{name}"),
@@ -58,7 +60,9 @@ def _download_verified_metadata(name: str, expected_md5: str, destination: Path)
             headers={"User-Agent": "siamese-embedding-compression-lab-study1b-preflight/1.0"},
         )
         try:
-            with urllib.request.urlopen(request, timeout=45) as response:
+            # nosec B310: URLs are generated only from the two constant allowlisted prefixes
+            # above and an allowlisted filename; arbitrary schemes/hosts are never accepted.
+            with urllib.request.urlopen(request, timeout=45) as response:  # nosec B310
                 payload = response.read()
                 final_url = response.geturl()
         except (urllib.error.URLError, TimeoutError, OSError) as exc:
