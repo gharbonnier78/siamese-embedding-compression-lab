@@ -1,6 +1,7 @@
 schema_version: "1.0.0"
 study_id: study_1b_matched_compression
-status: FROZEN_DESIGN_PENDING_NONOUTCOME_PREFLIGHT_AND_INDEPENDENT_REVIEW
+status: PREREGISTERED
+execution_status: FROZEN_DESIGN_PENDING_NONOUTCOME_PREFLIGHT_AND_INDEPENDENT_REVIEW
 claim_level: NONE_UNTIL_AUTHORIZED_AND_EXECUTED
 human_readable_contract: protocol/studies/STUDY1B_MATCHED_COMPRESSION_PREREGISTRATION_2026-08-27.md
 
@@ -204,6 +205,7 @@ nonoutcome_preflight_blockers:
   - scientific_review_ACCEPT
   - technical_review_ACCEPT
 
+results: null
 next_gate:
   id: STUDY1B_EXPLICIT_HUMAN_GO
   state: BLOCKED
