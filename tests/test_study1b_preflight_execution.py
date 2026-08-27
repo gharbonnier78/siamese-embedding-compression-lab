@@ -54,9 +54,11 @@ class Study1BPreflightTests(unittest.TestCase):
 
 class Study1BExecutionTests(unittest.TestCase):
     def test_outcome_execution_fails_closed_without_go(self) -> None:
-        with tempfile.TemporaryDirectory() as directory:
-            with self.assertRaises(PermissionError):
-                assert_outcome_authorized(Path(directory) / "missing.yaml")
+        with (
+            tempfile.TemporaryDirectory() as directory,
+            self.assertRaises(PermissionError),
+        ):
+            assert_outcome_authorized(Path(directory) / "missing.yaml")
 
     def test_task_seed_token_is_stable_and_task_bound(self) -> None:
         self.assertEqual(seed_token("random128|seed=11"), seed_token("random128|seed=11"))
