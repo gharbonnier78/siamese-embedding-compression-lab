@@ -1,8 +1,7 @@
 """Study 1B non-outcome LFW preflight.
 
-This module inspects source metadata, capture bytes, role boundaries, duplicate/near-duplicate
-risk and deterministic pair-graph feasibility. It deliberately computes no AdaFace embeddings,
-verification distances, FMR/FNMR, SCREEN outcomes or qualification outcomes.
+Inspect source metadata, capture bytes, role boundaries, duplicate/near-duplicate risk and
+pair-graph feasibility without computing AdaFace embeddings or verification outcomes.
 """
 
 from __future__ import annotations
@@ -11,9 +10,9 @@ import csv
 import hashlib
 import json
 from collections import Counter, defaultdict
+from collections.abc import Iterable
 from dataclasses import asdict, dataclass
 from pathlib import Path
-from typing import Iterable
 
 import numpy as np
 from PIL import Image
@@ -68,7 +67,11 @@ def _role_key(identity: str) -> str:
 
 
 def _parse_people_file(path: Path) -> dict[str, int]:
-    lines = [line.strip() for line in path.read_text(encoding="utf-8-sig").splitlines() if line.strip()]
+    lines = [
+        line.strip()
+        for line in path.read_text(encoding="utf-8-sig").splitlines()
+        if line.strip()
+    ]
     if not lines:
         raise ValueError(f"empty LFW people file: {path}")
     declared_total = int(lines[0])
@@ -82,7 +85,9 @@ def _parse_people_file(path: Path) -> dict[str, int]:
             raise ValueError(f"duplicate identity in {path.name}: {identity}")
         rows[identity] = count
     if len(rows) != declared_total:
-        raise ValueError(f"{path.name}: declared {declared_total} identities but parsed {len(rows)}")
+        raise ValueError(
+            f"{path.name}: declared {declared_total} identities but parsed {len(rows)}"
+        )
     return rows
 
 
@@ -91,7 +96,8 @@ def assign_roles(dev_train: Iterable[str], dev_test: Iterable[str]) -> dict[str,
     test_names = set(dev_test)
     if len(train_names) != 4038 or len(test_names) != 1711:
         raise ValueError(
-            f"unexpected LFW identity counts: DevTrain={len(train_names)}, DevTest={len(test_names)}"
+            f"unexpected LFW identity counts: DevTrain={len(train_names)}, "
+            f"DevTest={len(test_names)}"
         )
     overlap = set(train_names) & test_names
     if overlap:
@@ -133,7 +139,11 @@ def _dhash64(path: Path) -> int:
     return result
 
 
-def materialize_captures(root: Path, roles: dict[str, str], declared: dict[str, int]) -> list[Capture]:
+def materialize_captures(
+    root: Path,
+    roles: dict[str, str],
+    declared: dict[str, int],
+) -> list[Capture]:
     images_root = _find_images_root(root)
     captures: list[Capture] = []
     for identity, role in sorted(roles.items(), key=lambda item: (item[1], item[0])):
@@ -141,7 +151,8 @@ def materialize_captures(root: Path, roles: dict[str, str], declared: dict[str, 
         paths = sorted((images_root / identity).glob(f"{identity}_*.jpg"))
         if len(paths) != expected:
             raise ValueError(
-                f"capture count mismatch for {_public_subject(identity)}: {len(paths)} != {expected}"
+                f"capture count mismatch for {_public_subject(identity)}: "
+                f"{len(paths)} != {expected}"
             )
         subject_id = _public_subject(identity)
         for index, path in enumerate(paths, 1):
@@ -167,17 +178,23 @@ def _cross_role_duplicate_audit(captures: list[Capture], max_hamming: int = 4) -
         roles = {item.role for item in group}
         if len(roles) > 1:
             exact.append(
-                {"sha256": digest, "roles": sorted(roles), "captures": [x.capture_id for x in group]}
+                {
+                    "sha256": digest,
+                    "roles": sorted(roles),
+                    "captures": [item.capture_id for item in group],
+                }
             )
 
-    # Hamming<=4 over 64 bits implies equality in at least one of five disjoint bands.
+    # A Hamming<=4 pair over 64 bits must match at least one of five disjoint bands.
     bands = ((0, 13), (13, 26), (26, 39), (39, 52), (52, 64))
     buckets: dict[tuple[int, int], list[int]] = defaultdict(list)
     for index, capture in enumerate(captures):
-        for band_index, (start, stop) in enumerate(bands):
+        for band_index, (_start, stop) in enumerate(bands):
+            start = bands[band_index][0]
             width, shift = stop - start, 64 - stop
             value = (capture.dhash64 >> shift) & ((1 << width) - 1)
             buckets[(band_index, value)].append(index)
+
     checked: set[tuple[int, int]] = set()
     near = []
     for bucket in buckets.values():
@@ -201,18 +218,20 @@ def _cross_role_duplicate_audit(captures: list[Capture], max_hamming: int = 4) -
                             "dhash_hamming": distance,
                         }
                     )
+    near = sorted(near, key=lambda row: (row["dhash_hamming"], row["capture_id_1"]))
     return {
         "exact_cross_role_duplicates": exact,
         "near_duplicate_rule": {"algorithm": "dhash64", "max_hamming": max_hamming},
-        "near_cross_role_candidates": sorted(
-            near, key=lambda row: (row["dhash_hamming"], row["capture_id_1"])
-        ),
-        "blocking": bool(exact or near),
+        "near_cross_role_candidates": near,
+        "exact_duplicate_blocking": bool(exact),
+        "near_duplicate_review_required": bool(near),
     }
 
 
 def task_seed_sequence(label: str, root_entropy: int = ROOT_ENTROPY) -> np.random.SeedSequence:
-    words = np.frombuffer(hashlib.sha256(label.encode()).digest()[:16], dtype=">u4").astype(np.uint32)
+    words = np.frombuffer(hashlib.sha256(label.encode()).digest()[:16], dtype=">u4").astype(
+        np.uint32
+    )
     return np.random.SeedSequence([int(root_entropy), *(int(word) for word in words)])
 
 
@@ -231,13 +250,13 @@ def make_pair_graph(
         if capture.role == role:
             by_subject[capture.subject_id].append(capture)
     eligible = np.asarray(
-        sorted(subject for subject, items in by_subject.items() if len(items) >= 2), dtype=object
+        sorted(subject for subject, items in by_subject.items() if len(items) >= 2),
+        dtype=object,
     )
     subjects = np.asarray(sorted(by_subject), dtype=object)
     if len(eligible) == 0 or len(subjects) < 2:
         raise ValueError(f"{role}: insufficient subjects for requested graph")
 
-    # Cheap capacity guards before randomized materialization.
     genuine_capacity = sum(len(items) * (len(items) - 1) // 2 for items in by_subject.values())
     total_captures = sum(len(items) for items in by_subject.values())
     same_subject_ordered = sum(len(items) ** 2 for items in by_subject.values())
@@ -326,10 +345,11 @@ def run_lfw_preflight(root: Path, output_dir: Path) -> dict:
 
     audit = _cross_role_duplicate_audit(captures)
     (output_dir / "overlap_near_duplicate_audit.json").write_text(
-        json.dumps(audit, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+        json.dumps(audit, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
     )
-    if audit["blocking"]:
-        raise RuntimeError("cross-role exact/near-duplicate leakage detected; preflight fails closed")
+    if audit["exact_duplicate_blocking"]:
+        raise RuntimeError("cross-role exact duplicate leakage detected; preflight fails closed")
 
     counts_by_role_subject: dict[str, Counter[str]] = defaultdict(Counter)
     for capture in captures:
@@ -370,6 +390,7 @@ def run_lfw_preflight(root: Path, output_dir: Path) -> dict:
         writer.writeheader()
         writer.writerows(capture_rows)
 
+    near_review = bool(audit["near_duplicate_review_required"])
     report = {
         "schema_version": "1.0",
         "kind": "study1b_lfw_non_outcome_preflight",
@@ -381,10 +402,12 @@ def run_lfw_preflight(root: Path, output_dir: Path) -> dict:
         },
         "roles": role_summary,
         "graph_sha256": graph_hashes,
-        "overlap_near_duplicate_audit": "PASS",
-        "overall_status": "PASS",
+        "exact_duplicate_audit": "PASS",
+        "near_duplicate_review_required": near_review,
+        "overall_status": "PASS_PENDING_NEAR_DUPLICATE_REVIEW" if near_review else "PASS",
     }
     (output_dir / "preflight_report.json").write_text(
-        json.dumps(report, indent=2, sort_keys=True) + "\n", encoding="utf-8"
+        json.dumps(report, indent=2, sort_keys=True) + "\n",
+        encoding="utf-8",
     )
     return report
