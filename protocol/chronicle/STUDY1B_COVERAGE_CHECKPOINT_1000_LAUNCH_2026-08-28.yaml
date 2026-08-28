@@ -1,0 +1,48 @@
+chronicle_version: 1
+study: Study 1B
+date: 2026-08-28
+kind: nonoutcome_coverage_simulation_launch
+status: LAUNCHED
+scientific_outcomes_opened: false
+screen_authorized: false
+test_authorized: false
+
+prerequisites:
+  active_amended_data_boundary: true
+  nonoutcome_preflight_green: true
+  ci_green_before_simulation_change: true
+  research_assurance_green_before_simulation_change: true
+  engineering_assurance_green_before_simulation_change: true
+  common_reference_power_issue_corrected_before_power_launch: true
+
+coverage_checkpoint:
+  datasets_per_scenario: 1000
+  scenarios:
+    - independent_pair_null
+    - subject_dependence_null
+    - subject_dependence_noninferior
+    - subject_dependence_boundary
+    - subject_dependence_inferior
+  bootstrap_replicates_per_dataset: 10000
+  target_fmr: 0.01
+  exact_lower_95_clopper_pearson_minimum: 0.93
+  degenerate_fraction_maximum: 0.001
+  stop_rule: >-
+    If every scenario passes at 1000, the preregistered coverage stop rule closes the coverage gate.
+    Otherwise continue, without changing semantics, to checkpoint 2000 and then 4000 as required.
+
+execution:
+  workflow: .github/workflows/study1b-coverage-checkpoint.yml
+  shards_per_scenario: 10
+  datasets_per_shard: 100
+  maximum_shard_wall_time_minutes: 240
+  resumable_output: append_only_jsonl
+  progress: append_only_progress_jsonl
+
+power:
+  launch_in_this_workflow: false
+  reason: >-
+    First close the earliest preregistered coverage checkpoint. Power implementation is already
+    corrected to one common raw reference realization across the five candidate seeds and will be
+    launched after coverage checkpoint disposition, avoiding unnecessary compute if interval
+    validity requires remediation.
