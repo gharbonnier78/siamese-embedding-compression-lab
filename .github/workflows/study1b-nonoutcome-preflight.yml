@@ -39,6 +39,7 @@ jobs:
           ruff check \
             src/siamese_compression_lab/study1b_preflight.py \
             src/siamese_compression_lab/study1b_statistics.py \
+            src/siamese_compression_lab/study1b_bootstrap_vectorized.py \
             src/siamese_compression_lab/study1b_simulation.py \
             src/siamese_compression_lab/study1b_execution.py \
             scripts/study1b_preflight_lfw.py \
@@ -62,9 +63,15 @@ jobs:
       - name: Resolve cached LFW dataset root
         id: lfw
         run: |
-          python - <<'PY' >> "$GITHUB_OUTPUT"
+          python - <<'PY'
+          import contextlib
+          import os
+          import sys
           import kagglehub
-          print('root=' + kagglehub.dataset_download('jessicali9530/lfw-dataset/versions/4'))
+          with contextlib.redirect_stdout(sys.stderr):
+              root = kagglehub.dataset_download('jessicali9530/lfw-dataset/versions/4')
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as handle:
+              handle.write(f'root={root}\n')
           PY
       - name: Materialize official View 1 metadata, roles, capture audit and frozen pair graphs
         env:
