@@ -1,7 +1,8 @@
-"""Deterministically adjudicate Study 1B cross-role dHash candidates without model outcomes.
+"""Examen déterministe des quasi-doublons candidats Study 1B, sans résultat biométrique.
 
-The first-stage dHash audit is intentionally high-recall. This second stage uses only image
-pixels and a frozen, model-free rule. It never reads AdaFace embeddings or biometric scores.
+Le premier filtre dHash est volontairement sensible. Cette seconde étape n'utilise que les
+pixels et une règle figée, sans embeddings AdaFace ni scores de vérification. Les chemins LFW
+nominatifs ne sont pas écrits dans l'artefact : les images sont retrouvées par leur SHA-256.
 """
 
 from __future__ import annotations
@@ -14,7 +15,7 @@ from pathlib import Path
 import numpy as np
 from PIL import Image
 
-from siamese_compression_lab.study1b_preflight import _find_images_root
+from siamese_compression_lab.study1b_preflight import _find_images_root, sha256_file
 
 CANONICAL_SIZE = 128
 CENTRAL_FRACTION = 0.80
@@ -80,33 +81,52 @@ def _load_manifest(path: Path) -> dict[str, dict[str, str]]:
     return {row["capture_id"]: row for row in rows}
 
 
+def _locate_required_images(images_root: Path, required_hashes: set[str]) -> dict[str, Path]:
+    located: dict[str, Path] = {}
+    for path in sorted(images_root.rglob("*.jpg")):
+        digest = sha256_file(path)
+        if digest in required_hashes:
+            located[digest] = path
+            if len(located) == len(required_hashes):
+                break
+    missing = sorted(required_hashes - located.keys())
+    if missing:
+        raise FileNotFoundError(f"missing {len(missing)} candidate image hashes in LFW source")
+    return located
+
+
 def main() -> int:
     parser = argparse.ArgumentParser()
-    parser.add_argument("--preflight-report", type=Path, required=True)
+    parser.add_argument("--near-duplicate-audit", type=Path, required=True)
     parser.add_argument("--capture-manifest", type=Path, required=True)
     parser.add_argument("--dataset-root", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
 
-    report = json.loads(args.preflight_report.read_text(encoding="utf-8"))
-    candidates = report["duplicate_audit"]["near_cross_role_candidates"]
+    audit = json.loads(args.near_duplicate_audit.read_text(encoding="utf-8"))
+    candidates = audit["near_cross_role_candidates"]
     manifest = _load_manifest(args.capture_manifest)
     images_root = _find_images_root(args.dataset_root)
+    required_hashes = {
+        manifest[capture_id]["source_sha256"]
+        for candidate in candidates
+        for capture_id in (candidate["capture_id_1"], candidate["capture_id_2"])
+    }
+    image_by_hash = _locate_required_images(images_root, required_hashes)
+
     adjudications = []
     for candidate in candidates:
         capture_1 = candidate["capture_id_1"]
         capture_2 = candidate["capture_id_2"]
-        row_1 = manifest[capture_1]
-        row_2 = manifest[capture_2]
-        path_1 = images_root / row_1["relative_path"]
-        path_2 = images_root / row_2["relative_path"]
-        metrics = _metrics(path_1, path_2)
+        hash_1 = manifest[capture_1]["source_sha256"]
+        hash_2 = manifest[capture_2]["source_sha256"]
+        metrics = _metrics(image_by_hash[hash_1], image_by_hash[hash_2])
         decision, passed_checks = _decision(metrics)
         adjudications.append(
             {
                 **candidate,
-                "relative_path_1": row_1["relative_path"],
-                "relative_path_2": row_2["relative_path"],
+                "source_sha256_1": hash_1,
+                "source_sha256_2": hash_2,
                 **metrics,
                 "threshold_checks_passed": passed_checks,
                 "decision": decision,
@@ -137,6 +157,7 @@ def main() -> int:
                 "3/3 => BLOCK_DUPLICATE_LIKE; 2/3 => AMBIGUOUS_REVIEW; "
                 "0-1/3 => CLEAR_NOT_DUPLICATE_LIKE"
             ),
+            "image_locator": "capture source SHA-256; no nominal LFW path persisted",
         },
         "candidate_count": len(adjudications),
         "counts": counts,
