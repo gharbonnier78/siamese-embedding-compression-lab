@@ -13,8 +13,8 @@ from pathlib import Path
 
 import numpy as np
 from PIL import Image
-from siamese_compression_lab.study1b_preflight import _find_images_root
 
+from siamese_compression_lab.study1b_preflight import _find_images_root
 
 CANONICAL_SIZE = 128
 CENTRAL_FRACTION = 0.80
