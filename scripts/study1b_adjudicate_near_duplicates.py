@@ -12,9 +12,9 @@ import json
 from pathlib import Path
 
 import numpy as np
-from PIL import Image
 
 from siamese_compression_lab.study1b_preflight import _find_images_root
+from PIL import Image
 
 
 CANONICAL_SIZE = 128
@@ -28,8 +28,8 @@ def _canonical_pixels(path: Path) -> np.ndarray:
     with Image.open(path) as image:
         gray = image.convert("L")
         width, height = gray.size
-        crop_w = max(1, int(round(width * CENTRAL_FRACTION)))
-        crop_h = max(1, int(round(height * CENTRAL_FRACTION)))
+        crop_w = max(1, round(width * CENTRAL_FRACTION))
+        crop_h = max(1, round(height * CENTRAL_FRACTION))
         left = (width - crop_w) // 2
         top = (height - crop_h) // 2
         gray = gray.crop((left, top, left + crop_w, top + crop_h))
