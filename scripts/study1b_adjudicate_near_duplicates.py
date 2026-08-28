@@ -14,6 +14,8 @@ from pathlib import Path
 import numpy as np
 from PIL import Image
 
+from siamese_compression_lab.study1b_preflight import _find_images_root
+
 
 CANONICAL_SIZE = 128
 CENTRAL_FRACTION = 0.80
@@ -83,21 +85,22 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--preflight-report", type=Path, required=True)
     parser.add_argument("--capture-manifest", type=Path, required=True)
-    parser.add_argument("--images-root", type=Path, required=True)
+    parser.add_argument("--dataset-root", type=Path, required=True)
     parser.add_argument("--output", type=Path, required=True)
     args = parser.parse_args()
 
     report = json.loads(args.preflight_report.read_text(encoding="utf-8"))
     candidates = report["duplicate_audit"]["near_cross_role_candidates"]
     manifest = _load_manifest(args.capture_manifest)
+    images_root = _find_images_root(args.dataset_root)
     adjudications = []
     for candidate in candidates:
         capture_1 = candidate["capture_id_1"]
         capture_2 = candidate["capture_id_2"]
         row_1 = manifest[capture_1]
         row_2 = manifest[capture_2]
-        path_1 = args.images_root / row_1["relative_path"]
-        path_2 = args.images_root / row_2["relative_path"]
+        path_1 = images_root / row_1["relative_path"]
+        path_2 = images_root / row_2["relative_path"]
         metrics = _metrics(path_1, path_2)
         decision, passed_checks = _decision(metrics)
         adjudications.append(
