@@ -6,6 +6,9 @@ from pathlib import Path
 
 import numpy as np
 
+from siamese_compression_lab.study1b_bootstrap_vectorized import (
+    subject_bootstrap_summary_vectorized,
+)
 from siamese_compression_lab.study1b_execution import (
     PCA128,
     Random128,
@@ -82,16 +85,24 @@ class Study1BExecutionTests(unittest.TestCase):
 
 
 class Study1BStatisticsTests(unittest.TestCase):
-    def test_subject_bootstrap_uses_paired_identity_draws(self) -> None:
-        rows = [
+    @staticmethod
+    def _fixture_rows() -> list[SubjectPairRow]:
+        return [
             SubjectPairRow("g_a", 1, "A", "A", "fixture", 0),
             SubjectPairRow("g_b", 1, "B", "B", "fixture", 1),
             SubjectPairRow("g_c", 1, "C", "C", "fixture", 2),
-            SubjectPairRow("i_ab", 0, "A", "B", "fixture", 3),
-            SubjectPairRow("i_ac", 0, "A", "C", "fixture", 4),
-            SubjectPairRow("i_bc", 0, "B", "C", "fixture", 5),
+            SubjectPairRow("g_d", 1, "D", "D", "fixture", 3),
+            SubjectPairRow("i_ab", 0, "A", "B", "fixture", 4),
+            SubjectPairRow("i_ac", 0, "A", "C", "fixture", 5),
+            SubjectPairRow("i_ad", 0, "A", "D", "fixture", 6),
+            SubjectPairRow("i_bc", 0, "B", "C", "fixture", 7),
+            SubjectPairRow("i_bd", 0, "B", "D", "fixture", 8),
+            SubjectPairRow("i_cd", 0, "C", "D", "fixture", 9),
         ]
-        reference = np.asarray([0.4, 0.5, 0.6, 0.8, 0.9, 1.0])
+
+    def test_subject_bootstrap_uses_paired_identity_draws(self) -> None:
+        rows = self._fixture_rows()
+        reference = np.asarray([0.4, 0.5, 0.6, 0.7, 0.8, 0.8, 0.9, 0.9, 1.0, 1.0])
         candidate = reference.copy()
         result = subject_bootstrap_summary(
             rows=rows,
@@ -104,6 +115,31 @@ class Study1BStatisticsTests(unittest.TestCase):
         )
         self.assertEqual(result.valid_replicates + result.degenerate_replicates, 50)
         self.assertAlmostEqual(result.delta_fnmr_mean, 0.0)
+
+    def test_vectorized_bootstrap_matches_scalar_oracle_exactly(self) -> None:
+        rows = self._fixture_rows()
+        reference = np.asarray([0.31, 0.43, 0.57, 0.69, 0.80, 0.80, 0.88, 0.93, 1.01, 1.01])
+        candidate = np.asarray([0.33, 0.45, 0.61, 0.68, 0.79, 0.79, 0.90, 0.92, 1.02, 1.02])
+        kwargs = {
+            "rows": rows,
+            "candidate_distances": candidate,
+            "reference_distances": reference,
+            "target_fmr": 0.34,
+            "replicates": 257,
+            "seed": 20260828,
+            "degeneracy_limit_fraction": 1.0,
+        }
+        scalar = subject_bootstrap_summary(**kwargs)
+        vectorized = subject_bootstrap_summary_vectorized(**kwargs)
+        self.assertEqual(vectorized.requested_replicates, scalar.requested_replicates)
+        self.assertEqual(vectorized.valid_replicates, scalar.valid_replicates)
+        self.assertEqual(vectorized.degenerate_replicates, scalar.degenerate_replicates)
+        self.assertEqual(vectorized.degenerate_fraction, scalar.degenerate_fraction)
+        self.assertEqual(vectorized.delta_fnmr_mean, scalar.delta_fnmr_mean)
+        self.assertEqual(vectorized.delta_fnmr_ci_low, scalar.delta_fnmr_ci_low)
+        self.assertEqual(vectorized.delta_fnmr_ucb_95, scalar.delta_fnmr_ucb_95)
+        self.assertEqual(vectorized.delta_fnmr_ucb_97_5, scalar.delta_fnmr_ucb_97_5)
+        self.assertEqual(vectorized.status, scalar.status)
 
 
 if __name__ == "__main__":
