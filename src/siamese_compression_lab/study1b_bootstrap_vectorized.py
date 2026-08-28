@@ -16,8 +16,8 @@ from dataclasses import dataclass
 import numpy as np
 
 from .edge_weights_vectorized import edge_weights_vectorized_from_array, prepare_edge_index
-from .subject_bootstrap import SubjectPairRow
 from .study1b_statistics import Study1BBootstrapSummary
+from .subject_bootstrap import SubjectPairRow
 
 
 @dataclass(frozen=True)
