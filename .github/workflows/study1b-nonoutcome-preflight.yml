@@ -42,6 +42,7 @@ jobs:
             src/siamese_compression_lab/study1b_simulation.py \
             src/siamese_compression_lab/study1b_execution.py \
             scripts/study1b_preflight_lfw.py \
+            scripts/study1b_adjudicate_near_duplicates.py \
             scripts/study1b_run_simulation_shard.py \
             tests/test_study1b_preflight_execution.py
 
@@ -58,12 +59,29 @@ jobs:
         run: |
           python -m pip install --upgrade pip 'setuptools>=83.0.0'
           python -m pip install -e . kagglehub
+      - name: Resolve cached LFW dataset root
+        id: lfw
+        run: |
+          python - <<'PY' >> "$GITHUB_OUTPUT"
+          import kagglehub
+          print('root=' + kagglehub.dataset_download('jessicali9530/lfw-dataset/versions/4'))
+          PY
       - name: Materialize official View 1 metadata, roles, capture audit and frozen pair graphs
         env:
           PYTHONPATH: src
         run: |
           python scripts/study1b_preflight_lfw.py \
+            --dataset-root '${{ steps.lfw.outputs.root }}' \
             --output-dir artifacts/study1b/nonoutcome-preflight
+      - name: Deterministically adjudicate dHash candidates
+        env:
+          PYTHONPATH: src
+        run: |
+          python scripts/study1b_adjudicate_near_duplicates.py \
+            --preflight-report artifacts/study1b/nonoutcome-preflight/preflight_report.json \
+            --capture-manifest artifacts/study1b/nonoutcome-preflight/capture_manifest.csv \
+            --dataset-root '${{ steps.lfw.outputs.root }}' \
+            --output artifacts/study1b/nonoutcome-preflight/near_duplicate_adjudication.json
       - name: Run non-gating simulation cost pilot
         env:
           PYTHONPATH: src
@@ -81,12 +99,17 @@ jobs:
           import json
           from pathlib import Path
           report = json.loads(Path('artifacts/study1b/nonoutcome-preflight/preflight_report.json').read_text())
+          adjudication = json.loads(Path('artifacts/study1b/nonoutcome-preflight/near_duplicate_adjudication.json').read_text())
           assert report['scientific_outcomes_opened'] is False
+          assert adjudication['scientific_outcomes_opened'] is False
           assert report['overall_status'] in {'PASS', 'PASS_PENDING_NEAR_DUPLICATE_REVIEW'}
+          assert adjudication['candidate_count'] == len(report['duplicate_audit']['near_cross_role_candidates'])
           assert len(report['metadata_provenance']) == 2
           for row in report['metadata_provenance']:
               assert row['md5'] == row['expected_md5']
-          print('non-outcome boundary and metadata provenance preserved')
+          if adjudication['overall_status'] != 'PASS':
+              raise SystemExit(f"near-duplicate adjudication remains blocking: {adjudication['overall_status']}")
+          print('non-outcome boundary, source provenance and duplicate adjudication preserved')
           PY
       - name: Upload non-outcome preflight artifact
         if: always()
