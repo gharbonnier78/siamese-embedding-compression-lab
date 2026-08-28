@@ -11,6 +11,7 @@ from pathlib import Path
 from siamese_compression_lab.study1b_preflight import (
     PAIR_COUNTS,
     _cross_role_duplicate_audit,
+    _find_named,
     _parse_people_file,
     assign_roles,
     make_pair_graph,
@@ -65,8 +66,12 @@ def main() -> int:
     output_dir = args.output_dir.resolve()
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    dev_train = _parse_people_file(root / "peopleDevTrain.txt")
-    dev_test = _parse_people_file(root / "peopleDevTest.txt")
+    # KaggleHub archive layouts are not guaranteed to place View 1 metadata at the archive root.
+    # Use the same deterministic recursive resolver as the validated non-outcome preflight.
+    train_file = _find_named(root, "peopleDevTrain.txt")
+    test_file = _find_named(root, "peopleDevTest.txt")
+    dev_train = _parse_people_file(train_file)
+    dev_test = _parse_people_file(test_file)
     roles = assign_roles(dev_train, dev_test)
     all_captures = materialize_captures(root, roles, {**dev_train, **dev_test})
 
