@@ -45,6 +45,7 @@ jobs:
             scripts/study1b_preflight_lfw.py \
             scripts/study1b_adjudicate_near_duplicates.py \
             scripts/study1b_quarantine_dry_run.py \
+            scripts/study1b_apply_active_data_boundary.py \
             scripts/study1b_run_simulation_shard.py \
             tests/test_study1b_preflight_execution.py
 
@@ -74,14 +75,21 @@ jobs:
           with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as handle:
               handle.write(f'root={root}\n')
           PY
-      - name: Materialize official View 1 metadata, roles, capture audit and frozen pair graphs
+      - name: Materialize canonical View 1 metadata and baseline provenance
         env:
           PYTHONPATH: src
         run: |
           python scripts/study1b_preflight_lfw.py \
             --dataset-root '${{ steps.lfw.outputs.root }}' \
+            --output-dir artifacts/study1b/nonoutcome-preflight/baseline
+      - name: Materialize activated amended data boundary and official pair graphs
+        env:
+          PYTHONPATH: src
+        run: |
+          python scripts/study1b_apply_active_data_boundary.py \
+            --dataset-root '${{ steps.lfw.outputs.root }}' \
             --output-dir artifacts/study1b/nonoutcome-preflight
-      - name: Deterministically adjudicate dHash candidates
+      - name: Deterministically adjudicate active-boundary dHash candidates
         env:
           PYTHONPATH: src
         run: |
@@ -90,14 +98,7 @@ jobs:
             --capture-manifest artifacts/study1b/nonoutcome-preflight/capture_manifest.csv \
             --dataset-root '${{ steps.lfw.outputs.root }}' \
             --output artifacts/study1b/nonoutcome-preflight/near_duplicate_adjudication.json
-      - name: Dry-run proposed identity quarantine and generate human-review sheet
-        env:
-          PYTHONPATH: src
-        run: |
-          python scripts/study1b_quarantine_dry_run.py \
-            --dataset-root '${{ steps.lfw.outputs.root }}' \
-            --output-dir artifacts/study1b/nonoutcome-preflight/quarantine-dry-run
-      - name: Run non-gating simulation cost pilot
+      - name: Run non-gating simulation cost pilot on active TEST graph
         env:
           PYTHONPATH: src
         run: |
@@ -108,29 +109,30 @@ jobs:
             --scenario subject_dependence_null \
             --start 0 --stop 2 \
             --output artifacts/study1b/nonoutcome-preflight/cost_pilot.jsonl
-      - name: Assert evidence boundary and metadata provenance
+      - name: Assert active amended evidence boundary and source provenance
         run: |
           python - <<'PY'
           import json
           from pathlib import Path
+          baseline = json.loads(Path('artifacts/study1b/nonoutcome-preflight/baseline/preflight_report.json').read_text())
           report = json.loads(Path('artifacts/study1b/nonoutcome-preflight/preflight_report.json').read_text())
           audit = json.loads(Path('artifacts/study1b/nonoutcome-preflight/overlap_near_duplicate_audit.json').read_text())
           adjudication = json.loads(Path('artifacts/study1b/nonoutcome-preflight/near_duplicate_adjudication.json').read_text())
-          dry_run = json.loads(Path('artifacts/study1b/nonoutcome-preflight/quarantine-dry-run/quarantine_dry_run_report.json').read_text())
+          assert baseline['scientific_outcomes_opened'] is False
           assert report['scientific_outcomes_opened'] is False
           assert adjudication['scientific_outcomes_opened'] is False
-          assert dry_run['scientific_outcomes_opened'] is False
-          assert dry_run['active_boundary_modified'] is False
-          assert len(dry_run['excluded_identities']) == 4
-          assert all(row['sufficient'] for row in dry_run['capacity'].values())
-          assert report['overall_status'] in {'PASS', 'PASS_PENDING_NEAR_DUPLICATE_REVIEW'}
+          assert report['boundary_status'] == 'ACTIVE_PREOUTCOME_DATA_BOUNDARY'
+          assert report['excluded_identity_count'] == 4
+          assert report['exact_duplicate_audit'] == 'PASS'
           assert adjudication['candidate_count'] == len(audit['near_cross_role_candidates'])
-          assert len(report['metadata_provenance']) == 2
-          for row in report['metadata_provenance']:
+          assert len(baseline['metadata_provenance']) == 2
+          for row in baseline['metadata_provenance']:
               assert row['md5'] == row['expected_md5']
           if adjudication['overall_status'] != 'PASS':
-              raise SystemExit(f"near-duplicate adjudication remains blocking: {adjudication['overall_status']}")
-          print('non-outcome boundary, source provenance and duplicate adjudication preserved')
+              raise SystemExit(
+                  f"active-boundary near-duplicate adjudication remains blocking: {adjudication['overall_status']}"
+              )
+          print('active amended boundary, source provenance and duplicate adjudication PASS')
           PY
       - name: Upload non-outcome preflight artifact
         if: always()
