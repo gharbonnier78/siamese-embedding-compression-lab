@@ -1,7 +1,7 @@
 schema_version: "1.0.0"
 study_id: study_1b_matched_compression
 status: PREREGISTERED
-execution_status: FROZEN_DESIGN_PENDING_NONOUTCOME_PREFLIGHT_AND_INDEPENDENT_REVIEW
+execution_status: FROZEN_DESIGN_ACTIVE_DATA_BOUNDARY_PENDING_COVERAGE_POWER_AND_INDEPENDENT_REVIEW
 claim_level: NONE_UNTIL_AUTHORIZED_AND_EXECUTED
 human_readable_contract: protocol/studies/STUDY1B_MATCHED_COMPRESSION_PREREGISTRATION_2026-08-27.md
 
@@ -78,12 +78,28 @@ data:
   expected_identity_counts:
     peopleDevTrain: 4038
     peopleDevTest: 1711
-  role_assignment:
+  base_role_assignment:
     ordering: "SHA256('study1b-role-v1|' + identity)"
     TRAIN: 2827
     VALIDATION: 606
     SCREEN: 605
     TEST: 1711
+  active_boundary:
+    amendment: protocol/amendments/STUDY1B_DATA_BOUNDARY_AMENDMENT_2026-08-28.yaml
+    status: ACTIVE_PREOUTCOME_DATA_BOUNDARY
+    exclusion_policy: identity_level_no_replacement
+    excluded_identity_count: 4
+    role_assignment_after_exclusion:
+      TRAIN: 2825
+      VALIDATION: 606
+      SCREEN: 604
+      TEST: 1710
+    capture_manifest_sha256: 767f9fe8d1d8466a0e722f826b26875a0e852f525f7413a9658a307a9639366e
+    graph_sha256:
+      TRAIN: a0951ead4109d615d6854b7e60cc16d62319ae828137d160d3e08f5e669d0706
+      VALIDATION: fb849558e0b09b0fa7ff301991af010815f0b4ee98ab62faa1c585477f9f8601
+      SCREEN: c0d36757121f54c4585d2298a1b02c401606ce939c7be2bedd070c03adf233f7
+      TEST: 08c86ca9a641fc96b74014ae1974f713cd00e558dd98946ac32ff440c4666f85
   test_source: peopleDevTest_only
   capture_assignment: all_authorized_captures_follow_identity_role
   overlap_audit_required: true
@@ -130,6 +146,7 @@ multiplicity:
 
 uncertainty:
   estimator: subject_slot_identity_bootstrap
+  stage_a_replicates: 10000
   stage_b_replicates: 10000
   paired_draw_across_routes: true
   genuine_weight: m_i
@@ -196,20 +213,23 @@ engineering_assurance:
     - Research_Assurance_green
 
 nonoutcome_preflight_blockers:
-  - exact_LFW_source_hashes_and_capture_manifest
-  - exact_role_capture_counts_and_pair_graph_hashes
-  - overlap_and_near_duplicate_audit
   - coverage_simulation_pass
   - power_simulation_pass
   - implementation_and_POC_assurance
   - scientific_review_ACCEPT
   - technical_review_ACCEPT
 
+closed_nonoutcome_preflight_items:
+  - exact_LFW_source_hashes_and_capture_manifest
+  - exact_role_capture_counts_and_pair_graph_hashes
+  - overlap_and_near_duplicate_audit
+  - active_data_boundary_replay
+
 results: null
 next_gate:
   id: STUDY1B_EXPLICIT_HUMAN_GO
   state: BLOCKED
   rule: >-
-    Ask for explicit Study 1B GO only after all non-outcome preflight blockers are closed,
+    Ask for explicit Study 1B GO only after all remaining non-outcome preflight blockers are closed,
     both independent reviews ACCEPT the unchanged final head, CI and Research Assurance are
     green, and the Chronicle records READY_FOR_STUDY1B_GO.
