@@ -8,6 +8,7 @@ on:
       - 'tests/test_study1b_*'
       - 'protocol/studies/STUDY1B_*'
       - 'protocol/studies/study_1b_matched_compression.yaml'
+      - 'protocol/amendments/STUDY1B_*'
       - 'protocol/simulations/STUDY1B_*'
       - 'protocol/chronicle/STUDY1B_*'
       - '.github/workflows/study1b-nonoutcome-preflight.yml'
