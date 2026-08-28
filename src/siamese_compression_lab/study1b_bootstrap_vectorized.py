@@ -1,11 +1,11 @@
 """Bootstrap Study 1B accéléré, avec sémantique statistique inchangée.
 
 Le tirage des multiplicités de sujets reste exactement le bootstrap par emplacements de
-sujets revu pour Study 0/1B. L'accélération vient de deux préparations sans effet scientifique :
-(1) les extrémités du graphe sont indexées une seule fois et les poids m_i / m_i*m_j sont
-calculés par NumPy ; (2) l'ordre des distances et les blocs d'égalité sont préparés une seule
-fois, ce qui évite de rescanner toutes les distances pour chaque seuil et chaque réplication.
-Aucune arête synthétique n'est créée et aucune réplication dégénérée n'est retirée/redessinée.
+sujets revu pour Study 0/1B. L'accélération vient de préparations sans effet scientifique :
+les extrémités du graphe et les blocs d'égalité de distances sont indexés une seule fois, puis
+les poids/seuils sont calculés par petits lots NumPy. Chaque appel ``rng.multinomial`` reste
+individuel et dans le même ordre que la voie scalaire. Aucune arête synthétique n'est créée et
+aucune réplication dégénérée n'est retirée ou redessinée.
 """
 
 from __future__ import annotations
@@ -15,9 +15,11 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from .edge_weights_vectorized import edge_weights_vectorized_from_array, prepare_edge_index
+from .edge_weights_vectorized import prepare_edge_index
 from .study1b_statistics import Study1BBootstrapSummary
 from .subject_bootstrap import SubjectPairRow
+
+DEFAULT_BATCH_SIZE = 16
 
 
 @dataclass(frozen=True)
@@ -59,55 +61,81 @@ def prepare_route(rows: Sequence[SubjectPairRow], distances: np.ndarray) -> Prep
     )
 
 
-def _threshold_and_fnmr(
+def _edge_weight_batch(graph, multiplicities: np.ndarray) -> np.ndarray:
+    m1 = multiplicities[:, graph.endpoint_1]
+    m2 = multiplicities[:, graph.endpoint_2]
+    return np.where(graph.same[None, :] == 1, m1, m1 * m2).astype(np.int64, copy=False)
+
+
+def _route_fnmr_batch(
     prepared: PreparedRoute,
     weights: np.ndarray,
     target_fmr: float,
-) -> tuple[float, float]:
-    weights = np.asarray(weights, dtype=np.int64)
-    if len(weights) != len(prepared.distances):
-        raise ValueError("weights/distances must align one-to-one")
+) -> tuple[np.ndarray, np.ndarray]:
+    """Return per-row validity and FNMR using the frozen whole-tie-block threshold rule."""
+    if weights.ndim != 2 or weights.shape[1] != len(prepared.distances):
+        raise ValueError("weight matrix must be batch x edge and align with distances")
     if np.any(weights < 0):
         raise ValueError("edge weights must be non-negative")
     if not 0.0 <= target_fmr <= 1.0:
         raise ValueError("target_fmr must be in [0, 1]")
-    if len(prepared.nonfinite_indices) and np.any(weights[prepared.nonfinite_indices] > 0):
-        raise ValueError("degenerate replicate: non-finite positive-weight distance")
 
-    genuine_weights = weights[prepared.genuine_indices]
-    genuine_total = int(genuine_weights.sum())
-    if genuine_total <= 0:
-        raise ValueError("degenerate replicate: zero genuine or impostor total weight")
+    batch = weights.shape[0]
+    valid = np.ones(batch, dtype=bool)
+    if len(prepared.nonfinite_indices):
+        valid &= ~np.any(weights[:, prepared.nonfinite_indices] > 0, axis=1)
 
-    ordered_weights = weights[prepared.impostor_sorted_indices]
-    if not len(ordered_weights) or not np.any(ordered_weights > 0):
-        raise ValueError("degenerate replicate: no positive-weight impostor edges")
-    impostor_total = int(ordered_weights.sum())
-    if impostor_total <= 0:
-        raise ValueError("degenerate replicate: zero impostor weight")
+    genuine_weights = weights[:, prepared.genuine_indices]
+    genuine_total = genuine_weights.sum(axis=1, dtype=np.int64)
+    valid &= genuine_total > 0
 
-    cumulative = np.cumsum(ordered_weights, dtype=np.int64)
-    group_cumulative = cumulative[prepared.impostor_group_ends]
-    group_starts = np.r_[0, prepared.impostor_group_ends[:-1] + 1]
-    group_weights = np.add.reduceat(ordered_weights, group_starts)
+    if not len(prepared.impostor_sorted_indices):
+        return np.zeros(batch, dtype=bool), np.full(batch, np.nan)
+    ordered_weights = weights[:, prepared.impostor_sorted_indices]
+    impostor_total = ordered_weights.sum(axis=1, dtype=np.int64)
+    valid &= impostor_total > 0
+
+    cumulative = np.cumsum(ordered_weights, axis=1, dtype=np.int64)
+    group_cumulative = cumulative[:, prepared.impostor_group_ends]
+    group_weights = np.diff(
+        np.concatenate(
+            [np.zeros((batch, 1), dtype=np.int64), group_cumulative],
+            axis=1,
+        ),
+        axis=1,
+    )
     positive_groups = group_weights > 0
-    ratios = group_cumulative.astype(np.float64) / float(impostor_total)
-    admissible = positive_groups & (ratios <= target_fmr)
-    if np.any(admissible):
-        threshold = float(prepared.impostor_group_values[np.flatnonzero(admissible)[-1]])
-    else:
-        first_positive = int(np.flatnonzero(positive_groups)[0])
-        minimum = prepared.impostor_group_values[first_positive]
-        sentinel = np.nextafter(minimum, -np.inf, dtype=prepared.impostor_group_values.dtype)
-        if not np.isfinite(sentinel):
-            raise ValueError("degenerate replicate: threshold sentinel is non-finite")
-        threshold = float(sentinel)
+    valid &= np.any(positive_groups, axis=1)
 
-    rejected = prepared.distances[prepared.genuine_indices] > threshold
-    fnmr = float(genuine_weights[rejected].sum() / genuine_total)
-    if not np.isfinite(fnmr):
-        raise ValueError("degenerate replicate: non-finite statistic")
-    return threshold, fnmr
+    safe_total = np.where(impostor_total > 0, impostor_total, 1)
+    ratios = group_cumulative / safe_total[:, None]
+    admissible = positive_groups & (ratios <= target_fmr)
+    group_numbers = np.arange(len(prepared.impostor_group_values), dtype=np.int64)
+    last_admissible = np.where(admissible, group_numbers[None, :], -1).max(axis=1)
+    first_positive = np.where(positive_groups, group_numbers[None, :], len(group_numbers)).min(axis=1)
+
+    thresholds = np.empty(batch, dtype=np.float64)
+    has_admissible = last_admissible >= 0
+    if np.any(has_admissible):
+        thresholds[has_admissible] = prepared.impostor_group_values[
+            last_admissible[has_admissible]
+        ]
+    no_admissible = ~has_admissible
+    if np.any(no_admissible):
+        safe_first = np.minimum(first_positive[no_admissible], len(group_numbers) - 1)
+        minima = prepared.impostor_group_values[safe_first]
+        sentinels = np.nextafter(minima, -np.inf)
+        thresholds[no_admissible] = sentinels
+        valid[no_admissible] &= np.isfinite(sentinels)
+
+    genuine_distances = prepared.distances[prepared.genuine_indices]
+    rejected = genuine_distances[None, :] > thresholds[:, None]
+    rejected_weight = np.where(rejected, genuine_weights, 0).sum(axis=1, dtype=np.int64)
+    safe_genuine = np.where(genuine_total > 0, genuine_total, 1)
+    fnmr = rejected_weight / safe_genuine
+    valid &= np.isfinite(fnmr)
+    fnmr = np.where(valid, fnmr, np.nan)
+    return valid, fnmr
 
 
 def subject_bootstrap_summary_vectorized(
@@ -119,14 +147,13 @@ def subject_bootstrap_summary_vectorized(
     replicates: int,
     seed: int,
     degeneracy_limit_fraction: float = 0.001,
+    batch_size: int = DEFAULT_BATCH_SIZE,
 ) -> Study1BBootstrapSummary:
-    """Calcul accéléré du même résumé bootstrap Study 1B.
-
-    Les appels ``rng.multinomial`` restent un par réplication, dans le même ordre que la voie
-    scalaire, afin que la lignée aléatoire soit directement comparable lors des tests oracle.
-    """
+    """Calcul accéléré du même résumé bootstrap Study 1B, par petits lots bornés en mémoire."""
     if replicates <= 0:
         raise ValueError("replicates must be positive")
+    if batch_size <= 0:
+        raise ValueError("batch_size must be positive")
     if not 0.0 <= degeneracy_limit_fraction <= 1.0:
         raise ValueError("degeneracy_limit_fraction must be in [0, 1]")
 
@@ -141,18 +168,21 @@ def subject_bootstrap_summary_vectorized(
     probabilities = np.full(subject_count, 1.0 / subject_count)
     deltas: list[float] = []
     degenerate = 0
-    for _replicate in range(replicates):
-        multiplicities = rng.multinomial(subject_count, probabilities).astype(np.int64, copy=False)
-        weights = edge_weights_vectorized_from_array(graph, multiplicities)
-        try:
-            _, candidate_fnmr = _threshold_and_fnmr(candidate, weights, target_fmr)
-            _, reference_fnmr = _threshold_and_fnmr(reference, weights, target_fmr)
-        except ValueError as exc:
-            if not str(exc).startswith("degenerate replicate:"):
-                raise
-            degenerate += 1
-            continue
-        deltas.append(candidate_fnmr - reference_fnmr)
+    completed = 0
+    while completed < replicates:
+        current = min(batch_size, replicates - completed)
+        # Conserver exactement un tirage multinomial par réplication et son ordre RNG.
+        multiplicities = np.stack(
+            [rng.multinomial(subject_count, probabilities) for _ in range(current)]
+        ).astype(np.int64, copy=False)
+        weights = _edge_weight_batch(graph, multiplicities)
+        candidate_valid, candidate_fnmr = _route_fnmr_batch(candidate, weights, target_fmr)
+        reference_valid, reference_fnmr = _route_fnmr_batch(reference, weights, target_fmr)
+        valid = candidate_valid & reference_valid
+        degenerate += int(np.count_nonzero(~valid))
+        if np.any(valid):
+            deltas.extend((candidate_fnmr[valid] - reference_fnmr[valid]).tolist())
+        completed += current
 
     degenerate_fraction = degenerate / replicates
     if not deltas:
