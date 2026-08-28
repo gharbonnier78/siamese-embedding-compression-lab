@@ -10,8 +10,8 @@ import numpy as np
 from scipy.stats import binomtest
 
 from .coverage_simulation import CoverageScenario, scenario_truth, simulate_distances
+from .study1b_bootstrap_vectorized import subject_bootstrap_summary_vectorized
 from .study1b_execution import seed_token
-from .study1b_statistics import subject_bootstrap_summary
 from .subject_bootstrap import SubjectPairRow
 
 
@@ -72,7 +72,7 @@ def run_coverage_dataset(
     distance_seed = seed_token(f"coverage|{scenario.name}|dataset={dataset_index}|distances")
     bootstrap_seed = seed_token(f"coverage|{scenario.name}|dataset={dataset_index}|bootstrap")
     candidate, reference = simulate_distances(scenario, rows, seed=distance_seed)
-    summary = subject_bootstrap_summary(
+    summary = subject_bootstrap_summary_vectorized(
         rows=rows,
         candidate_distances=candidate,
         reference_distances=reference,
@@ -136,9 +136,8 @@ def run_power_dataset(
     effects = _truncated_seed_effects(dataset_index, seed_effect_sd, -0.02, 0.02)
     seed_rows = []
     all_pass = True
-    # Each model seed is simulated with its own candidate/reference noise stream. The common
-    # graph and common truth regime preserve the study-level sampling structure; additive seed
-    # effects make the all-five intersection rule explicit rather than pretending seeds vanish.
+    # Chaque seed de modèle conserve son propre flux synthétique candidat/référence. Cette
+    # hypothèse est explicitement pré-outcome et devra être revue avant le gate final de puissance.
     for seed_label, effect in zip(seed_labels, effects):
         delta = float(base_scenario.target_delta_fnmr + effect)
         scenario = CoverageScenario(
@@ -155,7 +154,7 @@ def run_power_dataset(
             f"power|{base_scenario.name}|dataset={dataset_index}|seed={seed_label}|bootstrap"
         )
         candidate, reference = simulate_distances(scenario, rows, seed=distance_seed)
-        summary = subject_bootstrap_summary(
+        summary = subject_bootstrap_summary_vectorized(
             rows=rows,
             candidate_distances=candidate,
             reference_distances=reference,
