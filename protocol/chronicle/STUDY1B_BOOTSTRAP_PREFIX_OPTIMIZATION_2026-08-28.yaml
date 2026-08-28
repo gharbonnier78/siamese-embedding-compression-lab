@@ -1,0 +1,46 @@
+schema_version: 1
+study_id: study_1b_matched_compression
+date: "2026-08-28"
+event: BOOTSTRAP_ENGINEERING_OPTIMIZATION
+scope: NONOUTCOME_PREFLIGHT
+scientific_boundary:
+  biometric_screen_outcomes_opened: false
+  qualification_test_outcomes_opened: false
+  full_coverage_power_shards_started: false
+statistical_invariants_preserved:
+  - "un tirage multinomial de multiplicités de sujets par réplication, même ordre RNG"
+  - "poids genuine m_i et imposteur m_i*m_j"
+  - "même tirage pour candidat et référence"
+  - "seuil FMR par blocs entiers d'égalités"
+  - "aucun redessin silencieux d'une réplication dégénérée"
+  - "aucune arête non observée synthétisée"
+correctness_evidence:
+  scalar_oracle_exact_match: PASS
+  oracle_replicates: 257
+  focused_unit_and_lint_job: PASS
+performance_evidence:
+  original_scalar_seconds_per_dataset_100_replicates_approx: 5.4
+  first_vectorized_seconds_per_dataset_100_replicates_approx: 0.45
+  batched_vectorization_seconds_per_dataset_100_replicates:
+    - 0.7426856900000018
+    - 0.7216933909999739
+  batched_vectorization_decision: REJECT_AS_PERFORMANCE_REGRESSION
+  low_fmr_prefix_seconds_per_dataset_100_replicates:
+    - 0.23
+    - 0.22
+  approximate_speedup_vs_scalar: 24
+engineering_change_fr: >-
+  La recherche du seuil à FMR cible calcule le poids imposteur total une seule fois puis
+  examine d'abord un préfixe déterministe des distances imposteurs triées. Les blocs d'égalité
+  sont conservés entiers. Si le franchissement du FMR cible n'est pas trouvé, le préfixe est
+  étendu sans approximation jusqu'à obtenir exactement la même règle que l'oracle scalaire.
+interpretation_fr: >-
+  La tentative de vectorisation par grands lots a montré qu'une vectorisation plus large peut
+  être plus lente à cause des allocations et du trafic mémoire. Cette régression est conservée
+  dans la Chronicle et n'est pas masquée. La stratégie par préfixe exploite la structure du
+  problème à faible FMR sans modifier l'estimateur.
+remaining_gate_fr: >-
+  Malgré l'accélération, les véritables lots complets de couverture statistique et de puissance
+  statistique ne doivent pas être lancés : l'examen déterministe des quasi-doublons reste
+  BLOCKED avec un cas 3/3 et un cas ambigu 2/3. Un projet d'amendement de quarantaine existe
+  mais reste DRAFT et NON ACTIF jusqu'à revue et GO humain explicite.
