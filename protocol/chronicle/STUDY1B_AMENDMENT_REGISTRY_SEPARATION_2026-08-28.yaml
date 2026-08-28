@@ -1,0 +1,37 @@
+schema_version: "1.0"
+date: "2026-08-28"
+entry_type: engineering_governance_correction
+study_id: study_1b_matched_compression
+trigger:
+  ci_errors:
+    - duplicate study_id
+    - invalid study status: ACTIVE_PREOUTCOME_DATA_BOUNDARY
+root_cause: >-
+  The active data-boundary amendment was stored under protocol/studies as a YAML document
+  carrying the same study_id as the canonical Study 1B contract. The research-assurance
+  validator intentionally treats every YAML under protocol/studies as a canonical study.
+correction:
+  - move the machine-readable amendment to protocol/amendments
+  - retain study_id only as the amendment target, not as a second canonical study registry entry
+  - represent activation through amendment_status: ACTIVE_PREOUTCOME_DATA_BOUNDARY
+  - bind the canonical Study 1B YAML explicitly to the active amendment
+  - update active role counts and frozen replay hashes in the canonical Study 1B contract
+  - add stage_a_replicates: 10000 explicitly to the machine-readable Study 1B uncertainty contract
+  - update the non-outcome preflight path trigger to include protocol/amendments/STUDY1B_*
+scientific_effect: none
+scientific_outcomes_opened: false
+screen_authorized: false
+test_authorized: false
+preserved:
+  - four identity-level exclusions
+  - no replacement identities
+  - pair counts
+  - RNG/seed lineages
+  - bootstrap replicate counts
+  - statistical thresholds
+  - expected amended manifest and graph hashes
+next_check:
+  - CI
+  - Research assurance
+  - Study 1B Engineering Assurance
+  - Study 1B Non-outcome Preflight
