@@ -13,7 +13,6 @@ from pathlib import Path
 
 import numpy as np
 from PIL import Image
-
 from siamese_compression_lab.study1b_preflight import _find_images_root
 
 
