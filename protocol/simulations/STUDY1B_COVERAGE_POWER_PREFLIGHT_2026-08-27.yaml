@@ -1,4 +1,4 @@
-schema_version: "1.0.0"
+schema_version: "1.0.1"
 contract_id: study1b_coverage_power_preflight_20260827
 status: NONOUTCOME_EXECUTION_AUTHORIZED
 human_authority:
@@ -77,6 +77,18 @@ power:
   simulated_datasets_per_scenario: 4000
   effect_scenarios: [0.0, 0.01]
   method_seeds: [11, 29, 47, 71, 101]
+  reference_realization:
+    policy: one_common_raw_reference_per_simulated_dataset
+    shared_across_method_seeds: true
+    rationale: >-
+      The five model/projection seeds are alternative candidate realizations evaluated against
+      the same realized raw512 reference dataset. Drawing a new reference world for each seed
+      would violate the matched all-five-seed Study 1B question and artificially add reference
+      variability to the method-level intersection rule.
+  candidate_generation:
+    conditional_on_common_reference: true
+    pair_noise_correlation_with_reference: 0.7
+    candidate_residual_stream_is_seed_specific: true
   seed_effect_model:
     distribution: centered_normal_additive_delta_fnmr
     sd: 0.005
