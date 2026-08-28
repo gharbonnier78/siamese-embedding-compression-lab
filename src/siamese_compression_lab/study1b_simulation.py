@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import csv
+import hashlib
 from dataclasses import asdict
 from pathlib import Path
 
@@ -122,6 +123,119 @@ def _truncated_seed_effects(dataset_index: int, sd: float, low: float, high: flo
     return np.clip(values, low, high)
 
 
+def _array_sha256(values: np.ndarray) -> str:
+    return hashlib.sha256(np.asarray(values, dtype=np.float64).tobytes(order="C")).hexdigest()
+
+
+def _power_shared_reference_latent(
+    scenario: CoverageScenario,
+    rows: list[SubjectPairRow],
+    *,
+    dataset_index: int,
+) -> tuple[np.ndarray, dict]:
+    """Generate one raw/reference realization shared by every candidate model seed.
+
+    The reference subject effects and pair noise are drawn once per simulated dataset. Candidate
+    seeds receive independent conditional residual pair noise while retaining the frozen marginal
+    candidate/reference correlation. This matches the Study 1B all-five-seed question: five model
+    seeds are compared against the same realized raw512 dataset, not five different raw worlds.
+    """
+    rho = float(scenario.candidate_reference_noise_correlation)
+    if not -0.95 < rho < 0.95:
+        raise ValueError("candidate/reference noise correlation must lie strictly inside (-0.95, 0.95)")
+    rng = np.random.default_rng(
+        seed_token(f"power|{scenario.name}|dataset={dataset_index}|shared-reference")
+    )
+    subjects = sorted(
+        {
+            subject
+            for row in rows
+            for subject in (row.subject_slot_id_1, row.subject_slot_id_2)
+        }
+    )
+    subject_index = {subject: position for position, subject in enumerate(subjects)}
+    genuine_effect = rng.normal(0.0, scenario.subject_effect_sd_genuine, len(subjects))
+    impostor_effect = rng.normal(0.0, scenario.subject_effect_sd_impostor, len(subjects))
+    same = np.asarray([row.same for row in rows], dtype=np.int8)
+    genuine_indices = np.flatnonzero(same == 1)
+    impostor_indices = np.flatnonzero(same == 0)
+    ref_g_noise = rng.normal(0.0, scenario.pair_noise_sd_genuine, len(genuine_indices))
+    ref_i_noise = rng.normal(0.0, scenario.pair_noise_sd_impostor, len(impostor_indices))
+
+    reference = np.empty(len(rows), dtype=np.float64)
+    for offset, row_index in enumerate(genuine_indices):
+        row = rows[row_index]
+        effect = genuine_effect[subject_index[row.subject_slot_id_1]]
+        reference[row_index] = scenario.reference_genuine_mean + effect + ref_g_noise[offset]
+    for offset, row_index in enumerate(impostor_indices):
+        row = rows[row_index]
+        effect = (
+            impostor_effect[subject_index[row.subject_slot_id_1]]
+            + impostor_effect[subject_index[row.subject_slot_id_2]]
+        )
+        reference[row_index] = scenario.impostor_mean + effect + ref_i_noise[offset]
+
+    latent = {
+        "subjects": subjects,
+        "subject_index": subject_index,
+        "genuine_effect": genuine_effect,
+        "impostor_effect": impostor_effect,
+        "genuine_indices": genuine_indices,
+        "impostor_indices": impostor_indices,
+        "ref_g_noise": ref_g_noise,
+        "ref_i_noise": ref_i_noise,
+    }
+    return reference, latent
+
+
+def _power_candidate_from_shared_reference(
+    scenario: CoverageScenario,
+    rows: list[SubjectPairRow],
+    latent: dict,
+    *,
+    dataset_index: int,
+    seed_label: int,
+) -> np.ndarray:
+    truth = scenario_truth(scenario)
+    genuine_sd = float(
+        np.sqrt(scenario.pair_noise_sd_genuine**2 + scenario.subject_effect_sd_genuine**2)
+    )
+    from scipy.stats import norm
+
+    candidate_genuine_mean = float(
+        truth.candidate_threshold - genuine_sd * norm.ppf(1.0 - truth.candidate_fnmr)
+    )
+    rho = float(scenario.candidate_reference_noise_correlation)
+    residual_scale = float(np.sqrt(1.0 - rho**2))
+    rng = np.random.default_rng(
+        seed_token(
+            f"power|{scenario.name}|dataset={dataset_index}|seed={seed_label}|candidate-residual"
+        )
+    )
+    cand_g_residual = rng.normal(
+        0.0, scenario.pair_noise_sd_genuine, len(latent["genuine_indices"])
+    )
+    cand_i_residual = rng.normal(
+        0.0, scenario.pair_noise_sd_impostor, len(latent["impostor_indices"])
+    )
+    cand_g_noise = rho * latent["ref_g_noise"] + residual_scale * cand_g_residual
+    cand_i_noise = rho * latent["ref_i_noise"] + residual_scale * cand_i_residual
+
+    candidate = np.empty(len(rows), dtype=np.float64)
+    for offset, row_index in enumerate(latent["genuine_indices"]):
+        row = rows[row_index]
+        effect = latent["genuine_effect"][latent["subject_index"][row.subject_slot_id_1]]
+        candidate[row_index] = candidate_genuine_mean + effect + cand_g_noise[offset]
+    for offset, row_index in enumerate(latent["impostor_indices"]):
+        row = rows[row_index]
+        effect = (
+            latent["impostor_effect"][latent["subject_index"][row.subject_slot_id_1]]
+            + latent["impostor_effect"][latent["subject_index"][row.subject_slot_id_2]]
+        )
+        candidate[row_index] = scenario.impostor_mean + effect + cand_i_noise[offset]
+    return candidate
+
+
 def run_power_dataset(
     base_scenario: CoverageScenario,
     rows: list[SubjectPairRow],
@@ -134,10 +248,12 @@ def run_power_dataset(
     if len(seed_labels) != 5:
         raise ValueError("frozen Study 1B power rule requires five seed labels")
     effects = _truncated_seed_effects(dataset_index, seed_effect_sd, -0.02, 0.02)
+    reference, latent = _power_shared_reference_latent(
+        base_scenario, rows, dataset_index=dataset_index
+    )
+    reference_hash = _array_sha256(reference)
     seed_rows = []
     all_pass = True
-    # Chaque seed de modèle conserve son propre flux synthétique candidat/référence. Cette
-    # hypothèse est explicitement pré-outcome et devra être revue avant le gate final de puissance.
     for seed_label, effect in zip(seed_labels, effects):
         delta = float(base_scenario.target_delta_fnmr + effect)
         scenario = CoverageScenario(
@@ -147,13 +263,16 @@ def run_power_dataset(
                 "target_delta_fnmr": delta,
             }
         )
-        distance_seed = seed_token(
-            f"power|{base_scenario.name}|dataset={dataset_index}|seed={seed_label}|distances"
-        )
         bootstrap_seed = seed_token(
             f"power|{base_scenario.name}|dataset={dataset_index}|seed={seed_label}|bootstrap"
         )
-        candidate, reference = simulate_distances(scenario, rows, seed=distance_seed)
+        candidate = _power_candidate_from_shared_reference(
+            scenario,
+            rows,
+            latent,
+            dataset_index=dataset_index,
+            seed_label=seed_label,
+        )
         summary = subject_bootstrap_summary_vectorized(
             rows=rows,
             candidate_distances=candidate,
@@ -175,11 +294,17 @@ def run_power_dataset(
                 "ucb_97_5": summary.delta_fnmr_ucb_97_5,
                 "passes": passes,
                 "degenerate_fraction": summary.degenerate_fraction,
+                "reference_sha256": reference_hash,
+                "candidate_sha256": _array_sha256(candidate),
             }
         )
+    if {row["reference_sha256"] for row in seed_rows} != {reference_hash}:
+        raise RuntimeError("power simulation violated shared-reference invariant")
     return {
         "dataset_index": dataset_index,
         "effect_scenario": base_scenario.target_delta_fnmr,
+        "shared_reference": True,
+        "reference_sha256": reference_hash,
         "all_five_seeds_pass": all_pass,
         "seeds": seed_rows,
     }
