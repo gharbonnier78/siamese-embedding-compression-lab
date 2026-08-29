@@ -3,7 +3,8 @@ name: Study 1B Coverage Checkpoint 1000
 on:
   pull_request:
     paths:
-      - 'protocol/chronicle/STUDY1B_COVERAGE_CHECKPOINT_1000_LAUNCH_2026-08-28.yaml'
+      - 'protocol/chronicle/STUDY1B_COVERAGE_CHECKPOINT_1000_*.yaml'
+      - '.github/workflows/study1b-coverage-checkpoint.yml'
   workflow_dispatch:
 
 permissions:
@@ -36,6 +37,13 @@ jobs:
           with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as handle:
               handle.write(f'root={root}\n')
           PY
+      - name: Bootstrap canonical View 1 metadata with checksum provenance
+        env:
+          PYTHONPATH: src
+        run: |
+          python scripts/study1b_preflight_lfw.py \
+            --dataset-root '${{ steps.lfw.outputs.root }}' \
+            --output-dir artifacts/study1b/coverage-metadata-bootstrap
       - name: Materialize active amended boundary
         env:
           PYTHONPATH: src
@@ -49,6 +57,8 @@ jobs:
           path: |
             artifacts/study1b/coverage-input/graphs/test_pairs.csv
             artifacts/study1b/coverage-input/preflight_report.json
+            artifacts/study1b/coverage-metadata-bootstrap/sources/lfw-view1-metadata
+            artifacts/study1b/coverage-metadata-bootstrap/preflight_report.json
           if-no-files-found: error
 
   coverage-shards:
