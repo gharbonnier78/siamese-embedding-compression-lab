@@ -98,10 +98,17 @@ jobs:
         run: |
           START=$((SHARD * 100))
           STOP=$((START + 100))
+          TEST_GRAPH="$(find artifacts/study1b/coverage-input -type f -name test_pairs.csv -print -quit)"
+          if [ -z "$TEST_GRAPH" ]; then
+            echo 'test_pairs.csv not found after artifact download' >&2
+            find artifacts/study1b/coverage-input -maxdepth 8 -type f -print >&2 || true
+            exit 2
+          fi
+          echo "Resolved TEST graph: $TEST_GRAPH"
           mkdir -p artifacts/study1b/coverage-shards
           python scripts/study1b_run_simulation_shard.py \
             --contract protocol/simulations/STUDY1B_COVERAGE_POWER_PREFLIGHT_2026-08-27.yaml \
-            --test-graph artifacts/study1b/coverage-input/graphs/test_pairs.csv \
+            --test-graph "$TEST_GRAPH" \
             --mode coverage \
             --scenario "$SCENARIO" \
             --start "$START" --stop "$STOP" \
