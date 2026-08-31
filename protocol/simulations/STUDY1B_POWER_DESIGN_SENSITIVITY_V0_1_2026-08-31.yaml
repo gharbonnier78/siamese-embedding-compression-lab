@@ -1,0 +1,123 @@
+schema_version: "1.0"
+analysis_id: STUDY1B_POWER_DESIGN_SENSITIVITY_V0_1_2026-08-31
+study_id: study_1b_matched_compression
+date: 2026-08-31
+status: NONOUTCOME_DESIGN_ANALYSIS_AUTHORIZED
+scientific_outcomes_permitted: false
+replaces_canonical_power_gate: false
+
+source_evidence:
+  canonical_power_run_id: 33299151340
+  canonical_summary_artifact_id: 9733239954
+  canonical_summary_digest: sha256:6daf4d3fe22573a33269bb1ff48a0b6a7bc3778c3a751e38a51399a4778b5d4e
+  amendment_draft: protocol/amendments/STUDY1B_POWER_DESIGN_AMENDMENT_V0_1_2026-08-31.yaml
+
+fixed_reference_design:
+  true_delta_scenarios: [0.0, 0.01]
+  target_fmr: 0.01
+  noninferiority_margin: 0.03
+  one_sided_ucb_level: 0.975
+  seed_labels: [11, 29, 47, 71, 101]
+  bootstrap_replicates: 10000
+  original_seed_effect_sd: 0.005
+  original_seed_effect_clip: [-0.02, 0.02]
+  original_decision_rule: all_five_seed_ucb_below_margin
+
+phase_S1_existing_rows:
+  purpose: diagnostic_reanalysis_only
+  new_bootstrap_simulation_required: false
+  metrics:
+    - per_seed_pass_probability
+    - all_five_pass_probability
+    - at_least_four_of_five_pass_probability
+    - at_least_three_of_five_pass_probability
+    - distribution_of_max_ucb_97_5
+    - distribution_of_seed_effects
+    - distribution_of_max_positive_seed_effect
+    - pairwise_seed_pass_indicator_correlation
+    - relation_between_max_seed_effect_and_max_ucb
+  reporting_rule: >-
+    Label every result as post-failure design diagnostic. Never report an alternative
+    rule's reanalysed success rate as if it had been preregistered.
+
+phase_S2_seed_variability_sweep:
+  purpose: prospective_synthetic_sensitivity
+  seed_effect_sd_values: [0.0, 0.0025, 0.005, 0.0075, 0.01]
+  seed_effect_clip: [-0.02, 0.02]
+  true_delta_scenarios: [0.0, 0.01]
+  decision_rules:
+    - {id: all_5_of_5, minimum_seed_passes: 5}
+    - {id: at_least_4_of_5, minimum_seed_passes: 4}
+    - {id: at_least_3_of_5, minimum_seed_passes: 3}
+  pilot_datasets_per_cell: 500
+  final_datasets_per_cell_if_candidate_survives_pilot: 4000
+  bootstrap_replicates_per_dataset: 10000
+  power_target: 0.90
+  pilot_role: screening_designs_not_claim_bearing
+  final_role: candidate_design_calibration_only
+  stopping_rule: >-
+    Do not expand a pilot cell to 4000 if its estimated power is below 0.80; retain
+    the pilot result as evidence of an implausible design. Expand only predeclared
+    surviving candidates, without changing thresholds after observation.
+
+phase_S3_information_sensitivity:
+  purpose: separate_effect_of_information_from_seed_rule
+  allowed_changes:
+    - genuine_pair_count_only_if_pairs_add_distinct_capture_information
+    - impostor_pair_count_only_if_pairs_add_distinct_identity_pair_information
+    - identity_or_capture_count_only_if_source_data_actually_supports_it
+  prohibited_shortcuts:
+    - duplicate_existing_pairs_and_call_them_independent_information
+    - bootstrap_more_replicates_and_call_that_more_dataset_information
+    - alter_target_fmr
+    - alter_noninferiority_margin
+    - lower_ucb_level
+  candidate_information_multipliers: [1.0, 1.5, 2.0]
+  feasibility_gate: >-
+    Each multiplier requires a documented construction showing that additional rows
+    represent additional independent or meaningfully distinct information under the
+    identity/capture structure. If the corpus cannot support it, mark the cell
+    INFEASIBLE rather than simulate fictional information.
+
+phase_S4_method_level_rule:
+  status: SPECIFICATION_REQUIRED_BEFORE_EXECUTION
+  candidate_family:
+    - hierarchical_seed_random_effects
+    - predeclared_seed_quantile_functional
+  requirements_before_simulation:
+    - exact_method_level_estimand
+    - estimator_definition
+    - confidence_bound_definition
+    - seed_population_interpretation
+    - known_truth_generator
+    - coverage_gate
+    - multiplicity_treatment
+  prohibition: >-
+    No method-level rule may be selected solely because it yields a higher success
+    rate on the already observed canonical power rows.
+
+selection_table_fields:
+  - candidate_id
+  - claim_semantics
+  - delta_0_power
+  - delta_0_01_power
+  - coverage_status
+  - seed_instability_visibility
+  - additional_information_required
+  - computational_cost
+  - implementation_complexity
+  - review_risk
+  - recommendation
+
+selection_gate:
+  minimum_power_both_scenarios: 0.90
+  coverage_required_if_rule_or_estimator_changes: true
+  scientific_review_required: true
+  technical_review_required: true
+  human_amendment_authorization_required: true
+
+provenance:
+  append_only: true
+  canonical_failed_power_result_preserved: true
+  diagnostics_cannot_replace_preregistered_result: true
+  screen_and_test_remain_sealed: true
