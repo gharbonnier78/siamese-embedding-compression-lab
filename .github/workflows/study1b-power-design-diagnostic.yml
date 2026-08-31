@@ -40,9 +40,14 @@ jobs:
           mkdir -p artifacts/study1b/power-design-diagnostic
           python scripts/study1b_power_design_diagnostic.py \
             --input-root artifacts/study1b/canonical-power-shards \
-            --output artifacts/study1b/power-design-diagnostic/s1_full_4000.json
+            --effect 0.0 --expected 4000 \
+            --output artifacts/study1b/power-design-diagnostic/s1_delta_0.json
+          python scripts/study1b_power_design_diagnostic.py \
+            --input-root artifacts/study1b/canonical-power-shards \
+            --effect 0.01 --expected 4000 \
+            --output artifacts/study1b/power-design-diagnostic/s1_delta_0_01.json
       - uses: actions/upload-artifact@v4
         with:
           name: study1b-power-design-diagnostic-s1
-          path: artifacts/study1b/power-design-diagnostic/s1_full_4000.json
+          path: artifacts/study1b/power-design-diagnostic/*.json
           if-no-files-found: error
