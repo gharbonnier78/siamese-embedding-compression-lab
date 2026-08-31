@@ -1,0 +1,145 @@
+name: Study 1B Power Design S2 Final Reference SD
+
+on:
+  push:
+    branches:
+      - agent/study1b-preregistration-20260827
+    paths:
+      - 'protocol/chronicle/STUDY1B_POWER_DESIGN_S2_FINAL_LAUNCH_2026-08-31.yaml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  prepare-test-graph:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: Install package and LFW access
+        run: |
+          python -m pip install --upgrade pip 'setuptools>=83.0.0'
+          python -m pip install -e . kagglehub
+      - name: Resolve LFW dataset root
+        id: lfw
+        run: |
+          python - <<'PY'
+          import contextlib, os, sys, kagglehub
+          with contextlib.redirect_stdout(sys.stderr):
+              root = kagglehub.dataset_download('jessicali9530/lfw-dataset/versions/4')
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as handle:
+              handle.write(f'root={root}\n')
+          PY
+      - name: Bootstrap canonical View 1 metadata
+        env:
+          PYTHONPATH: src
+        run: |
+          python scripts/study1b_preflight_lfw.py \
+            --dataset-root '${{ steps.lfw.outputs.root }}' \
+            --output-dir artifacts/study1b/s2-final-metadata-bootstrap
+      - name: Materialize active amended boundary
+        env:
+          PYTHONPATH: src
+        run: |
+          python scripts/study1b_apply_active_data_boundary.py \
+            --dataset-root '${{ steps.lfw.outputs.root }}' \
+            --output-dir artifacts/study1b/s2-final-input
+      - uses: actions/upload-artifact@v4
+        with:
+          name: study1b-s2-final-input
+          path: |
+            artifacts/study1b/s2-final-input/graphs/test_pairs.csv
+            artifacts/study1b/s2-final-input/preflight_report.json
+            artifacts/study1b/s2-final-metadata-bootstrap/sources/lfw-view1-metadata
+            artifacts/study1b/s2-final-metadata-bootstrap/preflight_report.json
+          if-no-files-found: error
+
+  s2-final-shards:
+    needs: prepare-test-graph
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix:
+        effect: ['0.0', '0.01']
+        shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: Install package
+        run: |
+          python -m pip install --upgrade pip 'setuptools>=83.0.0'
+          python -m pip install -e .
+      - uses: actions/download-artifact@v5
+        with:
+          name: study1b-s2-final-input
+          path: artifacts/study1b/s2-final-input
+      - name: Execute final S2 reference-SD shard
+        env:
+          PYTHONPATH: src
+          EFFECT: ${{ matrix.effect }}
+          SHARD: ${{ matrix.shard }}
+        run: |
+          START=$((SHARD * 100))
+          STOP=$((START + 100))
+          TEST_GRAPH="$(find artifacts/study1b/s2-final-input -type f -name test_pairs.csv -print -quit)"
+          test -n "$TEST_GRAPH" || { echo 'test_pairs.csv not found' >&2; exit 2; }
+          mkdir -p artifacts/study1b/s2-final-shards
+          python scripts/study1b_power_sensitivity_shard.py \
+            --contract protocol/simulations/STUDY1B_POWER_DESIGN_SENSITIVITY_V0_1_2026-08-31.yaml \
+            --test-graph "$TEST_GRAPH" \
+            --effect "$EFFECT" \
+            --seed-effect-sd '0.005' \
+            --start "$START" --stop "$STOP" \
+            --output "artifacts/study1b/s2-final-shards/sd_0.005_delta_${EFFECT}_${SHARD}.jsonl"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: study1b-s2-final-delta-${{ matrix.effect }}-shard-${{ matrix.shard }}
+          path: artifacts/study1b/s2-final-shards
+          if-no-files-found: error
+
+  aggregate-s2-final:
+    needs: s2-final-shards
+    if: always() && needs.s2-final-shards.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: Install package
+        run: |
+          python -m pip install --upgrade pip 'setuptools>=83.0.0'
+          python -m pip install -e .
+      - uses: actions/download-artifact@v5
+        with:
+          pattern: study1b-s2-final-delta-*
+          path: artifacts/study1b/s2-final-downloaded
+      - name: Aggregate final S2 reference-SD confirmation
+        env:
+          PYTHONPATH: src
+        run: |
+          python scripts/study1b_aggregate_power_design_s2_final.py \
+            --input-root artifacts/study1b/s2-final-downloaded \
+            --expected 4000 \
+            --seed-effect-sd 0.005 \
+            --power-target 0.90 \
+            --output artifacts/study1b/s2-final-summary/s2_final_reference_sd_4000.json
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: study1b-power-design-s2-final-reference-sd-summary
+          path: artifacts/study1b/s2-final-summary/s2_final_reference_sd_4000.json
+          if-no-files-found: error
