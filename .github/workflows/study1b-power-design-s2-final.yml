@@ -5,7 +5,7 @@ on:
     branches:
       - agent/study1b-preregistration-20260827
     paths:
-      - 'protocol/chronicle/STUDY1B_POWER_DESIGN_S2_FINAL_LAUNCH_2026-08-31.yaml'
+      - 'protocol/chronicle/STUDY1B_POWER_DESIGN_S2_FINAL_RETRY_2026-08-31.yaml'
   workflow_dispatch:
 
 permissions:
@@ -94,11 +94,12 @@ jobs:
           TEST_GRAPH="$(find artifacts/study1b/s2-final-input -type f -name test_pairs.csv -print -quit)"
           test -n "$TEST_GRAPH" || { echo 'test_pairs.csv not found' >&2; exit 2; }
           mkdir -p artifacts/study1b/s2-final-shards
-          python scripts/study1b_power_sensitivity_shard.py \
+          python scripts/study1b_power_sensitivity_final_shard.py \
             --contract protocol/simulations/STUDY1B_POWER_DESIGN_SENSITIVITY_V0_1_2026-08-31.yaml \
             --test-graph "$TEST_GRAPH" \
             --effect "$EFFECT" \
             --seed-effect-sd '0.005' \
+            --candidate-rule 'at_least_3_of_5' \
             --start "$START" --stop "$STOP" \
             --output "artifacts/study1b/s2-final-shards/sd_0.005_delta_${EFFECT}_${SHARD}.jsonl"
       - uses: actions/upload-artifact@v4
