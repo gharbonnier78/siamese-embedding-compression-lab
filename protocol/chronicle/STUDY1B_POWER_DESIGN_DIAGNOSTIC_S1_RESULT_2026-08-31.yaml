@@ -1,0 +1,104 @@
+entry_id: STUDY1B_POWER_DESIGN_DIAGNOSTIC_S1_RESULT_2026-08-31
+entry_type: post_failure_design_diagnostic_result
+study_id: study_1b_matched_compression
+date: 2026-08-31
+status: S1_DIAGNOSTIC_COMPLETE
+
+scope:
+  scientific_outcomes_opened: false
+  screen_authorized: false
+  test_authorized: false
+  geometry_authorized: false
+  canonical_power_gate_replaced: false
+  protocol_amendment_activated: false
+  purpose: >-
+    Record the full 4000-dataset post-failure diagnostic reanalysis of the
+    canonical synthetic Study 1B power artifacts. This is design analysis only
+    and does not alter or replace the preregistered power verdict.
+
+source:
+  canonical_power_run_id: 33299151340
+  diagnostic_workflow: Study 1B Power Design Diagnostic
+  diagnostic_run_id: 33349531521
+  diagnostic_run_number: 2
+  diagnostic_head_sha: e8158eb8b02a68cba79943596c3157f3a51a4b23
+  diagnostic_conclusion: success
+  artifact:
+    name: study1b-power-design-diagnostic-s1
+    artifact_id: 9743122297
+    digest: sha256:ce5208b10d1f25542fd2db42553151403a7b8b8c8413a8fb6860e671e49e8ac1
+    files:
+      - s1_delta_0.json
+      - s1_delta_0_01.json
+
+results:
+  delta_0:
+    datasets: 4000
+    per_seed_pass_probability:
+      seed_11: 0.983
+      seed_29: 0.98625
+      seed_47: 0.98775
+      seed_71: 0.9845
+      seed_101: 0.9875
+    decision_rate:
+      at_least_3_of_5: 0.999
+      at_least_4_of_5: 0.9955
+      all_5_of_5: 0.9345
+    max_ucb_97_5_quantiles:
+      q025: 0.011383070024223924
+      q25: 0.017657792233309162
+      median: 0.021207743987272716
+      q75: 0.02487322091447596
+      q975: 0.03246085474545437
+  delta_0_01:
+    datasets: 4000
+    per_seed_pass_probability:
+      seed_11: 0.78825
+      seed_29: 0.77975
+      seed_47: 0.79125
+      seed_71: 0.78875
+      seed_101: 0.80025
+    decision_rate:
+      at_least_3_of_5: 0.8885
+      at_least_4_of_5: 0.7055
+      all_5_of_5: 0.38725
+    max_ucb_97_5_quantiles:
+      q025: 0.021075580632761645
+      q25: 0.027882570355915366
+      median: 0.031656965538087
+      q75: 0.03572914587747547
+      q975: 0.04366278999876746
+
+interpretation:
+  - >-
+    The full 4000-dataset reanalysis confirms that the all-five-seed
+    intersection is the dominant source of power loss at true delta=0.01.
+  - >-
+    Individual seed pass probabilities at delta=0.01 are approximately
+    0.780-0.800, while the preregistered all-5-of-5 rule succeeds only 0.38725.
+  - >-
+    The median worst-seed UCB at delta=0.01 is 0.0316569655, already above the
+    0.03 non-inferiority margin, explaining why the joint rule often fails.
+  - >-
+    Alternative 3-of-5 and 4-of-5 rates are post-failure diagnostics only;
+    they were not preregistered and must not be reported as Study 1B outcomes
+    or adopted without a prospective amendment and independent review.
+  - >-
+    At delta=0, the original 5-of-5 rule remains above the required 0.90 power
+    target at 0.9345, consistent with the canonical power preflight verdict.
+
+scientific_boundary:
+  what_this_supports:
+    - The original power failure at delta=0.01 is reproducibly explained on the full canonical simulation set.
+    - Seed-level decisions are much less restrictive than the five-seed intersection.
+    - A prospective design amendment may legitimately study the scientific meaning of the seed aggregation rule.
+  what_this_does_not_support:
+    - Changing the primary decision rule retroactively.
+    - Claiming 3-of-5 or 4-of-5 as successful Study 1B gates.
+    - Any conclusion about actual random128, PCA128 or Siamese128 performance versus raw512.
+
+next_gate:
+  state: PREOUTCOME_AMENDMENT_ANALYSIS_CONTINUES
+  next_step: >-
+    Use S1 to select a minimal set of prospective sensitivity simulations for
+    the draft power-design amendment. Keep real SCREEN and TEST outcomes sealed.
