@@ -1,14 +1,9 @@
 name: Study 1B Power Preflight 4000
 
+# Heavy preregistered simulation. After the canonical 4000-dataset evidence run,
+# this workflow is replay-only: documentation/PR updates must not create new
+# scientific attempts implicitly.
 on:
-  pull_request:
-    paths:
-      - 'protocol/chronicle/STUDY1B_COVERAGE_CHECKPOINT_1000_PASS_AND_POWER_LAUNCH_2026-08-30.yaml'
-      - '.github/workflows/study1b-power-preflight.yml'
-      - 'scripts/study1b_run_simulation_shard.py'
-      - 'scripts/study1b_aggregate_simulation.py'
-      - 'src/siamese_compression_lab/study1b_simulation.py'
-      - 'protocol/simulations/STUDY1B_COVERAGE_POWER_PREFLIGHT_2026-08-27.yaml'
   workflow_dispatch:
 
 permissions:
