@@ -1,10 +1,8 @@
 name: Study 1B Coverage Checkpoint 1000
 
+# Heavy preregistered simulation. The canonical checkpoint has already been
+# closed; subsequent execution is explicit replay only.
 on:
-  pull_request:
-    paths:
-      - 'protocol/chronicle/STUDY1B_COVERAGE_CHECKPOINT_1000_*.yaml'
-      - '.github/workflows/study1b-coverage-checkpoint.yml'
   workflow_dispatch:
 
 permissions:
