@@ -5,7 +5,7 @@ on:
     branches:
       - agent/study1b-preregistration-20260827
     paths:
-      - 'protocol/chronicle/STUDY1B_POWER_DESIGN_S3_INFORMATION_FEASIBILITY_LAUNCH_2026-09-01.yaml'
+      - 'protocol/chronicle/STUDY1B_POWER_DESIGN_S3_INFORMATION_FEASIBILITY_RETRY_2026-09-01.yaml'
   workflow_dispatch:
 
 permissions:
@@ -34,6 +34,19 @@ jobs:
               root = kagglehub.dataset_download('jessicali9530/lfw-dataset/versions/4')
           with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as handle:
               handle.write(f'root={root}\n')
+          PY
+      - name: Stage pinned LFW View 1 metadata
+        run: |
+          cp protocol/sources/lfw_view1/peopleDevTrain.txt '${{ steps.lfw.outputs.root }}/peopleDevTrain.txt'
+          cp protocol/sources/lfw_view1/peopleDevTest.txt '${{ steps.lfw.outputs.root }}/peopleDevTest.txt'
+          python - <<'PY'
+          from pathlib import Path
+          root = Path(r'''${{ steps.lfw.outputs.root }}''')
+          for name, expected in [('peopleDevTrain.txt', 4038), ('peopleDevTest.txt', 1711)]:
+              path = root / name
+              lines = [line.strip() for line in path.read_text(encoding='utf-8-sig').splitlines() if line.strip()]
+              assert int(lines[0]) == expected, (name, lines[0], expected)
+              assert len(lines) - 1 == expected, (name, len(lines) - 1, expected)
           PY
       - name: Materialize active amended boundary
         env:
