@@ -5,7 +5,7 @@ on:
     branches:
       - agent/study1b-preregistration-20260827
     paths:
-      - 'protocol/chronicle/STUDY1B_POWER_DESIGN_S3_INFORMATION_FEASIBILITY_RETRY_2026-09-01.yaml'
+      - 'protocol/chronicle/STUDY1B_POWER_DESIGN_S3_INFORMATION_FEASIBILITY_RETRY2_2026-09-01.yaml'
   workflow_dispatch:
 
 permissions:
