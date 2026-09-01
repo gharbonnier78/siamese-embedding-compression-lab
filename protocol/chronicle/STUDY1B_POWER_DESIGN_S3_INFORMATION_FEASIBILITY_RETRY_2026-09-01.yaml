@@ -1,0 +1,70 @@
+schema_version: "1.0"
+entry_type: prospective_s3_information_feasibility_retry
+study_id: study_1b_matched_compression
+date: 2026-09-01
+status: INFRASTRUCTURE_METADATA_AVAILABILITY_FAILURE_RETRY_AUTHORIZED
+
+scientific_authorization:
+  scientific_outcomes_opened: false
+  screen_opened: false
+  test_outcomes_opened: false
+  representation_geometry_opened: false
+  canonical_gate_replaced: false
+  amendment_activated: false
+
+failed_attempt:
+  workflow: Study 1B Power Design S3 Information Feasibility
+  run_id: 33516198836
+  head_sha: e57c4b24543159b58114c93eccc86fdfdf55bcb4
+  conclusion: failure
+  failure_class: infrastructure_metadata_availability
+  scientific_result_available: false
+  exact_failure: >-
+    FileNotFoundError: missing required LFW metadata file: peopleDevTrain.txt
+  interpretation: >-
+    The Kaggle LFW image mirror downloaded successfully but did not bundle the View 1
+    development metadata required by the frozen role assignment. The distinct-information
+    capacity audit was not executed, so this run is not evidence that S3 is infeasible.
+
+retry_fix:
+  vendored_metadata:
+    train: protocol/sources/lfw_view1/peopleDevTrain.txt
+    test: protocol/sources/lfw_view1/peopleDevTest.txt
+    provenance: protocol/sources/lfw_view1/PROVENANCE.yaml
+  train_git_blob_sha1: 9eb441640161b3c87b5cfab81481eb5543955249
+  test_git_blob_sha1: 9e7d5ccd3ace0420250849825b86ebd89b91de66
+  expected_identity_counts:
+    train: 4038
+    test: 1711
+  workflow_fix_commit: 3dc86936139ba2de4cb62e036c6f18151e936b14
+  provenance_commit: 4150a620f955df27306a930b7fa4494a03fb8e40
+  effect_on_scientific_design: none
+  required_replay_guard: >-
+    Active amended boundary materialization must still reproduce the frozen capture-manifest
+    and TRAIN/VALIDATION/SCREEN/TEST pair-graph hashes before the S3 capacity audit runs.
+
+s3_scope_unchanged:
+  phase: S3_INFORMATION_FEASIBILITY_ONLY
+  candidate_information_multipliers: [1.0, 1.5, 2.0]
+  genuine_distinctness: previously_unused_genuine_capture_pairs
+  impostor_distinctness: previously_unused_identity_pairs
+  prohibited_shortcuts:
+    - duplicate_existing_pairs
+    - count_additional_bootstrap_replicates_as_information
+    - lower_target_fmr
+    - increase_noninferiority_margin
+    - lower_ucb_level
+    - open_screen_or_test_outcomes
+
+next_gate:
+  require_workflow_completion: true
+  require_capacity_artifact: study1b-s3-information-feasibility
+  if_no_multiplier_above_1_is_feasible: MOVE_TO_S4_METHOD_LEVEL_SPECIFICATION_OR_STOP
+  if_multiplier_above_1_is_feasible: >-
+    Freeze exact deterministic expanded-pair construction, then perform known-truth coverage
+    and prospective power calibration before any amendment activation or real outcomes.
+
+provenance:
+  append_only: true
+  preserves_failed_attempt: true
+  preserves_s2_final_failure: true
