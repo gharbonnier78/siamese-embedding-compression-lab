@@ -44,6 +44,14 @@ s3_scope:
     - lower_ucb_level
     - open_screen_or_test_outcomes
 
+execution_binding:
+  workflow: .github/workflows/study1b-power-design-s3-feasibility.yml
+  executor: scripts/study1b_s3_information_feasibility.py
+  trigger_note: >-
+    This append-only launch entry was amended only to bind the already-authorized feasibility
+    audit to its implementation after the workflow file was added. Scientific scope and gates
+    are unchanged.
+
 next_gate:
   if_no_multiplier_above_1_is_feasible: MOVE_TO_S4_METHOD_LEVEL_SPECIFICATION_OR_STOP
   if_multiplier_above_1_is_feasible: >-
