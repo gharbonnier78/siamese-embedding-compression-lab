@@ -37,7 +37,7 @@ def _load(source: Path) -> list[tuple[Path, dict[str, Any]]]:
     for path in sorted(source.glob("*.yaml"), key=lambda p: p.name):
         data = yaml.safe_load(path.read_text(encoding="utf-8"))
         if not isinstance(data, dict):
-            raise ValueError(f"{path}: top-level Chronicle entry must be a mapping")
+            raise TypeError(f"{path}: top-level Chronicle entry must be a mapping")
         entries.append((path, data))
     return entries
 
@@ -57,10 +57,10 @@ def render_tex(entries: list[tuple[Path, dict[str, Any]]]) -> str:
     body = []
     for index, (path, data) in enumerate(entries, 1):
         title = str(data.get("entry_type") or data.get("analysis_id") or data.get("study_id") or path.stem)
-        body += [rf"\section*{{{index}. {_escape_tex(title)}}}", rf"\textbf{{Source:}} \texttt{{{_escape_tex(path.as_posix())}}}", "\begin{itemize}"]
+        body += [rf"\section*{{{index}. {_escape_tex(title)}}}", rf"\textbf{{Source:}} \texttt{{{_escape_tex(path.as_posix())}}}", r"\begin{itemize}"]
         for key, value in _flatten(data):
             body.append(rf"\item \textbf{{{_escape_tex(key)}:}} \texttt{{{_escape_tex(value)}}}")
-        body += ["\end{itemize}"]
+        body += [r"\end{itemize}"]
     return "\n".join([
         r"\documentclass[10pt,a4paper]{article}",
         r"\usepackage[margin=1.8cm]{geometry}",

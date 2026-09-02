@@ -70,8 +70,8 @@ def main() -> int:
     by_subject: dict[str, list[str]] = defaultdict(list)
     for row in manifest:
         by_subject[row["subject_id"]].append(row["capture_id"])
-    for subject in by_subject:
-        by_subject[subject].sort()
+    for captures in by_subject.values():
+        captures.sort()
 
     base_genuine = [r for r in base if int(r["same"]) == 1]
     base_impostor = [r for r in base if int(r["same"]) == 0]

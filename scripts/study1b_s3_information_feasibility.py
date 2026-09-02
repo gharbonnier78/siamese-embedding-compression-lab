@@ -52,8 +52,8 @@ def main() -> int:
     multipliers = [1.0, 1.5, 2.0]
     candidates = []
     for m in multipliers:
-        target_g = int(round(base_genuine * m))
-        target_i = int(round(base_impostor * m))
+        target_g = round(base_genuine * m)
+        target_i = round(base_impostor * m)
         add_g = max(0, target_g - base_genuine)
         add_i = max(0, target_i - base_impostor)
         genuine_feasible = add_g <= unused_genuine_edges
