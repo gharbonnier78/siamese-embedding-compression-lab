@@ -1,0 +1,154 @@
+schema_version: "1.0"
+contract_id: study1b_s3_power_calibration_20260903
+study_id: study_1b_matched_compression
+date: 2026-09-03
+status: NONOUTCOME_EXECUTION_AUTHORIZED
+scientific_outcomes_permitted: false
+
+harness:
+  repository: gharbonnier78/scientific-research-harness
+  pinned_ref: 3b109adcdd9a8cba4df029d3803ee0e5cb5bdf98
+  manifest: harness-adoption.yaml
+  local_instructions: AGENTS.md
+
+human_authority:
+  source: "2026-09-03 project conversation: S3 Power Calibration"
+  authorization_scope: synthetic_nonoutcome_s3_power_calibration_only
+  outcome_bearing_study1b_authorized: false
+  geometry_authorized: false
+
+purpose: >-
+  Quantify whether the preregistered Study 1B all-five-seed non-inferiority decision rule
+  reaches at least 0.90 power at true delta FNMR = 0.00 and 0.01 when the frozen TEST
+  information graph is expanded to the prospectively constructed x1.5 and x2.0 S3 designs.
+  This isolates the effect of genuinely additional information while preserving the original
+  decision semantics, seed model, operating point, confidence level and NI margin.
+
+basis:
+  sensitivity_contract: protocol/simulations/STUDY1B_POWER_DESIGN_SENSITIVITY_V0_1_2026-08-31.yaml
+  amendment_draft: protocol/amendments/STUDY1B_POWER_DESIGN_AMENDMENT_V0_1_2026-08-31.yaml
+  graph_construction_result: protocol/chronicle/STUDY1B_POWER_DESIGN_S3_GRAPH_CONSTRUCTION_RESULT_2026-09-02.yaml
+  known_truth_result: protocol/chronicle/STUDY1B_POWER_DESIGN_S3_KNOWN_TRUTH_REVALIDATION_RESULT_2026-09-03.yaml
+  known_truth_run_id: 33675518924
+  known_truth_checkpoint: 1000
+  known_truth_verdict: PASS_BOTH_DESIGNS
+  canonical_failed_power_run_id: 33299151340
+  canonical_failed_power_result_preserved: true
+  s2_final_negative_result_preserved: true
+
+frozen_designs:
+  x1_5:
+    graph_file: test_pairs_s3_x1_5.csv
+    graph_sha256: 57dd4a3b2db26220ea8e29f5a4d218b50883cdac456f18e73691c1d26afdebc0
+    genuine_pairs: 15000
+    impostor_pairs: 150000
+    information_multiplier: 1.5
+  x2_0:
+    graph_file: test_pairs_s3_x2_0.csv
+    graph_sha256: 85cd8b04d768ca035cf76184bb1f4547b9c25349803681be9af16be5b65cda58
+    genuine_pairs: 20000
+    impostor_pairs: 200000
+    information_multiplier: 2.0
+  capture_manifest_sha256: 767f9fe8d1d8466a0e722f826b26875a0e852f525f7413a9658a307a9639366e
+  base_test_graph_sha256: 08c86ca9a641fc96b74014ae1974f713cd00e558dd98946ac32ff440c4666f85
+
+estimator:
+  primary_estimand: delta_fnmr_equal_fmr
+  definition: FNMR_candidate_at_alpha_minus_FNMR_raw512_at_alpha
+  target_fmr: 0.01
+  noninferiority_margin_delta_fnmr: 0.03
+  one_sided_ucb_level: 0.975
+  bootstrap_replicates: 10000
+  sampling_unit: identity_slot
+  same_draw_for_paired_raw_candidate_routes: true
+  genuine_edge_weight: m_i
+  impostor_edge_weight: m_i_times_m_j
+  synthesize_unobserved_edges: false
+
+power:
+  effect_scenarios: [0.0, 0.01]
+  datasets_per_scenario_per_design: 4000
+  required_power: 0.90
+  decision_rule:
+    id: all_five_seed_ucb_below_margin
+    minimum_seed_passes: 5
+    number_of_seeds: 5
+    per_seed_pass_condition: delta_fnmr_ucb_97_5_lt_0_03
+    semantics: frozen_worst_seed_robustness_intersection
+  seed_labels: [11, 29, 47, 71, 101]
+  seed_effect_model:
+    distribution: normal_then_clip
+    mean: 0.0
+    sd: 0.005
+    clip: [-0.02, 0.02]
+  shared_reference_across_seed_realizations: true
+  synthetic_dependence_model:
+    subject_effect_sd_genuine: 0.08
+    subject_effect_sd_impostor: 0.05
+    candidate_reference_noise_correlation: 0.7
+  gate: >-
+    Each design is evaluated independently. A design passes S3 power calibration only if
+    estimated power is at least 0.90 for both true delta = 0.00 and true delta = 0.01.
+  selection_rule: >-
+    If x1.5 passes both scenarios, prefer x1.5 as the smallest predeclared information
+    increase sufficient under the unchanged rule. If x1.5 fails and x2.0 passes, x2.0 is the
+    surviving S3 candidate. If both fail, S3 closes negatively and the next scientific option
+    is S4 method-level specification or STOP. This calibration does not activate an amendment.
+
+execution:
+  phase: S3_POWER_CALIBRATION
+  fixed_final_datasets_per_scenario_per_design: 4000
+  datasets_per_shard: 100
+  planned_shards_per_design_effect: 40
+  resumable: true
+  append_only_progress_jsonl: true
+  graph_hash_verification_required: true
+  scientific_failure_must_not_be_conflated_with_runtime_failure: true
+  no_adaptive_threshold_or_sample_size_change: true
+  rationale_for_4000: >-
+    Use the same final synthetic dataset count as the canonical Study 1B power preflight and
+    S2 final calibration, avoiding a post-result adaptive checkpoint or precision rule.
+
+prohibitions:
+  duplicate_pairs_as_new_information: true
+  additional_bootstrap_replicates_as_new_information: true
+  alter_target_fmr: false
+  alter_noninferiority_margin: false
+  lower_ucb_level: false
+  change_seed_rule: false
+  change_seed_effect_sd_after_observation: false
+  open_screen_route_scores: false
+  open_qualification_test_route_scores: false
+  open_representation_geometry: false
+  activate_amendment: false
+  replace_canonical_failed_power_result: false
+  replace_s2_final_negative_result: false
+
+interpretation_boundary:
+  permitted: >-
+    Compare synthetic power of the unchanged all-five rule across the two already frozen S3
+    information expansions and determine whether either predeclared design reaches the 0.90
+    power target under the frozen synthetic generator.
+  not_permitted:
+    - infer_real_compression_noninferiority
+    - infer_real_compression_superiority
+    - infer_real_raw512_random128_pca128_siamese128_fnmr
+    - authorize_screen_or_test_outcomes
+    - infer_representation_geometry
+    - claim_method_level_seed_semantics_beyond_the_frozen_all_five_rule
+
+next_gate_after_execution:
+  if_any_design_passes_both_scenarios: >-
+    Archive the complete S3 power result append-only, select the smallest passing predeclared
+    information design, update the draft amendment prospectively, then require independent
+    scientific and technical review, green assurance and explicit human amendment activation
+    before any real outcome authorization can become admissible.
+  if_no_design_passes_both_scenarios: >-
+    Archive S3 as a negative result and move to S4 method-level estimator specification or STOP.
+
+provenance:
+  append_only: true
+  known_truth_gate_preserved: true
+  canonical_failed_power_result_preserved: true
+  s2_final_failure_preserved: true
+  screen_and_test_remain_sealed: true
