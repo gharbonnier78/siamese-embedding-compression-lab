@@ -6,6 +6,9 @@ import argparse
 import json
 from pathlib import Path
 
+from siamese_compression_lab.study1b_s4n1_coverage import (
+    aggregate_core_coverage_candidate,
+)
 from siamese_compression_lab.study1b_s4n1_selection import (
     SELECTION_RULES,
     aggregate_core_candidate,
@@ -24,6 +27,7 @@ def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--input-root", type=Path, required=True)
     parser.add_argument("--mode", choices=("core",), required=True)
+    parser.add_argument("--gate", choices=("coverage", "power"), required=True)
     parser.add_argument("--expected", type=int, required=True)
     parser.add_argument("--truth-delta", type=float, required=True)
     parser.add_argument("--output", type=Path, required=True)
@@ -42,20 +46,42 @@ def main() -> int:
     if any(bool(row.get("scientific_outcomes_opened")) for row in rows):
         raise SystemExit("S4N1 aggregate refuses outcome-bearing rows")
 
-    candidates = {
-        candidate: aggregate_core_candidate(rows, candidate=candidate)
-        for candidate in SELECTION_RULES
-    }
-    summary = {
-        "schema_version": 1,
-        "kind": "study1b_s4n1_core_calibration_summary",
-        "scientific_outcomes_opened": False,
-        "test_truth_delta": args.truth_delta,
-        "simulated_datasets": len(rows),
-        "candidates": candidates,
-        "all_coverage_pass": all(value["coverage_pass"] for value in candidates.values()),
-        "all_power_pass": all(value["power_pass"] for value in candidates.values()),
-    }
+    if args.gate == "coverage":
+        candidates = {
+            candidate: aggregate_core_coverage_candidate(rows, candidate=candidate)
+            for candidate in SELECTION_RULES
+        }
+        summary = {
+            "schema_version": 1,
+            "kind": "study1b_s4n1_core_coverage_summary",
+            "gate": "coverage",
+            "scientific_outcomes_opened": False,
+            "test_truth_delta": args.truth_delta,
+            "simulated_datasets": len(rows),
+            "candidates": candidates,
+            "all_coverage_pass": all(
+                value["coverage_pass"] for value in candidates.values()
+            ),
+        }
+    else:
+        candidates = {
+            candidate: aggregate_core_candidate(rows, candidate=candidate)
+            for candidate in SELECTION_RULES
+        }
+        summary = {
+            "schema_version": 1,
+            "kind": "study1b_s4n1_core_power_summary",
+            "gate": "power",
+            "scientific_outcomes_opened": False,
+            "test_truth_delta": args.truth_delta,
+            "simulated_datasets": len(rows),
+            "candidates": candidates,
+            "all_coverage_pass": all(
+                value["coverage_pass"] for value in candidates.values()
+            ),
+            "all_power_pass": all(value["power_pass"] for value in candidates.values()),
+        }
+
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(
         json.dumps(summary, indent=2, sort_keys=True) + "\n",
