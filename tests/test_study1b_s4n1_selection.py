@@ -68,13 +68,13 @@ def _small_graph(name: str, n_subjects: int) -> list[SubjectPairRow]:
 def test_core_dataset_replays_and_targets_selected_artifact_test_truth() -> None:
     validation_rows = _small_graph("validation", 24)
     test_rows = _small_graph("test", 30)
-    kwargs = dict(
-        validation_rows=validation_rows,
-        test_rows=test_rows,
-        dataset_index=7,
-        test_truth_delta=0.01,
-        bootstrap_replicates=30,
-    )
+    kwargs = {
+        "validation_rows": validation_rows,
+        "test_rows": test_rows,
+        "dataset_index": 7,
+        "test_truth_delta": 0.01,
+        "bootstrap_replicates": 30,
+    }
     first = run_core_dataset(**kwargs)
     second = run_core_dataset(**kwargs)
     assert first == second
