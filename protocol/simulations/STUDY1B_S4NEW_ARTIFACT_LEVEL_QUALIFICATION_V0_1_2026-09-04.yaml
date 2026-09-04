@@ -1,0 +1,173 @@
+schema_version: "1.0"
+contract_id: STUDY1B_S4NEW_ARTIFACT_LEVEL_QUALIFICATION_V0_1_2026-09-04
+study_id: study_1b_matched_compression
+date: 2026-09-04
+status: PROSPECTIVE_NONOUTCOME_SPECIFICATION
+scientific_outcomes_permitted: false
+amendment_activated: false
+
+harness:
+  repository: gharbonnier78/scientific-research-harness
+  pinned_ref: 3b109adcdd9a8cba4df029d3803ee0e5cb5bdf98
+  manifest: harness-adoption.yaml
+  local_instructions: AGENTS.md
+
+human_authority:
+  source: "2026-09-04 project conversation"
+  authorization_scope: nonoutcome_s4new_design_specification_only
+  real_study1b_outcomes_authorized: false
+  geometry_authorized: false
+
+basis:
+  s3_result: protocol/chronicle/STUDY1B_POWER_DESIGN_S3_POWER_CALIBRATION_RESULT_2026-09-04.yaml
+  s4_reframe: protocol/chronicle/STUDY1B_S4_METHOD_LEVEL_PERSPECTIVE_REFRAME_2026-09-04.yaml
+  source_note: docs/research-notes/BIOMETRIC_TECHNOLOGY_EVALUATION_OBJECT_REFRAME_2026-09-04.md
+  original_sensitivity_contract: protocol/simulations/STUDY1B_POWER_DESIGN_SENSITIVITY_V0_1_2026-08-31.yaml
+  amendment_draft: protocol/amendments/STUDY1B_POWER_DESIGN_AMENDMENT_V0_1_2026-08-31.yaml
+
+scientific_object:
+  primary_object: frozen_route_artifact
+  secondary_object: training_procedure_seed_stability
+  separation_rule: >-
+    Artifact-level biometric performance and stochastic retraining stability are reported as
+    distinct scientific objects. A secondary stability analysis must not silently redefine the
+    primary artifact-level performance claim, and artifact qualification must not be presented
+    as proof of retraining stability.
+
+question: >-
+  What prospectively frozen artifact-selection and qualification procedure can compare one
+  final frozen 128D artifact from each stochastic compression route against frozen raw512 at
+  the matched FMR operating point, while preserving identity-aware uncertainty and keeping
+  training-seed instability visible as a separate secondary property?
+
+unchanged_primary_scientific_objects:
+  estimand: delta_fnmr_equal_fmr
+  definition: FNMR_candidate_at_alpha_minus_FNMR_raw512_at_alpha
+  target_fmr: 0.01
+  noninferiority_margin_delta_fnmr: 0.03
+  one_sided_ucb_level: 0.975
+  bootstrap_estimator: subject_slot_identity_bootstrap
+  bootstrap_replicates: 10000
+  paired_raw_candidate_draw: true
+  genuine_edge_weight: m_i
+  impostor_edge_weight: m_i_times_m_j
+  synthesize_unobserved_edges: false
+  active_data_boundary_unchanged: true
+  screen_and_test_sealed: true
+
+route_objects:
+  raw512:
+    stochastic_artifact_selection_required: false
+    role: frozen_reference
+  random128:
+    stochastic_artifact_selection_required: true
+  pca128:
+    stochastic_artifact_selection_required: true
+  siamese128:
+    stochastic_artifact_selection_required: true
+
+artifact_selection_candidates:
+  fixed_predeclared_seed:
+    id: S4N_FIXED_SEED
+    semantics: >-
+      Use one seed fixed independently of route outcomes before any SCREEN/TEST access. This
+      gives the cleanest artifact-level estimand but says nothing about a typical or best
+      retraining realization.
+    candidate_seed: 11
+    outcome_search_risk: minimal
+  validation_selected_best:
+    id: S4N_VALIDATION_BEST
+    semantics: >-
+      Select among the five predeclared route seeds using a single route-neutral validation
+      criterion and freeze the selected transform/checkpoint before SCREEN/TEST. This models a
+      development process that selects a delivered artifact, but selection-induced optimism and
+      uncertainty must be calibrated.
+    permitted_data: VALIDATION_only
+    required_before_use:
+      - exact_validation_metric
+      - deterministic_tie_break
+      - route_neutral_selection_budget
+      - selection_aware_known_truth_calibration
+  validation_selected_median_rank:
+    id: S4N_VALIDATION_MEDIAN
+    semantics: >-
+      Select the median-ranked validation realization using a frozen route-neutral criterion.
+      This avoids best-of-five optimization and targets a central delivered realization, but
+      the claim is still about the selected artifact rather than the training population.
+    permitted_data: VALIDATION_only
+    required_before_use:
+      - exact_validation_metric
+      - deterministic_tie_break
+      - selection_aware_known_truth_calibration
+
+selection_rule_status:
+  selected_candidate: null
+  reason_not_selected_yet: >-
+    The external biometric evaluation references identify the fixed/submitted implementation as
+    the evaluation object but do not prescribe how an ML developer must select one stochastic
+    training realization. Choosing the Study 1B artifact-selection rule therefore remains a
+    project-specific scientific design decision requiring prospective calibration.
+
+planned_phase_S4N1:
+  id: S4NEW_SELECTION_SEMANTICS_AND_CALIBRATION_DESIGN
+  permitted_actions:
+    - formalize_exact_claim_semantics_for_each_selection_candidate
+    - define_route_neutral_validation_selection_metric_candidates
+    - quantify_selection_induced_bias_by_known_truth_simulation
+    - quantify_power_at_true_delta_0_and_0_01
+    - retain_seed_stability_secondary_reporting
+  prohibited_actions:
+    - open_screen_scores
+    - open_test_scores
+    - inspect_representation_geometry
+    - choose_rule_from_real_route_performance
+    - alter_noninferiority_margin_because_prior_designs_failed
+    - lower_confidence_level_because_prior_designs_failed
+
+calibration_gate_before_any_amendment_proposal:
+  coverage_required: true
+  minimum_exact_lower_95_cp_coverage: 0.93
+  power_required_both_scenarios: true
+  minimum_power: 0.90
+  true_delta_scenarios: [0.0, 0.01]
+  seed_instability_secondary_visible: true
+  independent_scientific_review_required: true
+  independent_technical_review_required: true
+
+original_s4_method_level_status:
+  retained: true
+  role: separate_secondary_or_future_study
+  candidate_family:
+    - hierarchical_seed_random_effects
+    - predeclared_seed_quantile_functional
+  reason_deferred: >-
+    It targets the distribution of retraining realizations rather than the delivered artifact.
+    With only five real training seeds, strong population-level conclusions would require
+    additional design assumptions and likely additional retraining replicates; it is therefore
+    not used as a shortcut to unblock the current artifact-level Study 1B comparison.
+
+external_alignment_boundary:
+  references:
+    - https://www.iso.org/standard/73515.html
+    - https://pages.nist.gov/frvt/html/frvt11.html
+    - https://pages.nist.gov/frvt/api/FRVT_ongoing_11_api.pdf
+    - https://www.nist.gov/programs-projects/proprietary-fingerprint-template-evaluations-pft-overview
+    - https://www.nist.gov/itl/iad/btg/minex-iii-compliance-guidelines
+  interpretation: >-
+    These references motivate separation of submitted/frozen implementation performance from
+    retraining-procedure stability. They do not dictate the Study 1B artifact-selection rule and
+    are not used to claim formal ISO or NIST conformance.
+
+next_action: >-
+  Execute S4N1 as non-outcome design work only: freeze the exact candidate selection metrics and
+  known-truth generator needed to compare fixed-seed, validation-best and validation-median
+  artifact semantics. Do not activate an amendment or open real outcomes until a candidate has
+  passed prospective coverage/power calibration and independent review.
+
+provenance:
+  append_only: true
+  original_s4_preserved: true
+  canonical_original_power_failure_preserved: true
+  s2_failure_preserved: true
+  s3_failure_preserved: true
+  screen_and_test_remain_sealed: true
