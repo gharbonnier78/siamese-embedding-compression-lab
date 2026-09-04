@@ -6,8 +6,8 @@ metadata plus synthetic distances generated from prospectively frozen known-trut
 
 from __future__ import annotations
 
-from dataclasses import asdict
 from collections.abc import Mapping, Sequence
+from dataclasses import asdict
 
 import numpy as np
 from scipy.stats import binomtest
