@@ -1,0 +1,112 @@
+schema_version: "1.0"
+entry_type: s4n1_core_coverage_result
+chronicle_entry_id: CHRON-20260905-018
+study_id: study_1b_matched_compression
+scope: study_1b_s4n1_core_known_truth_coverage_checkpoint_1000
+date: 2026-09-05
+kind: append_only_nonoutcome_synthetic_result
+status: CLOSED_POSITIVE
+outcome_evidence_seen: false
+
+summary: >-
+  The prospectively frozen S4N1 1000-dataset core known-truth coverage checkpoint completed
+  successfully. All 12 candidate-by-truth cells passed the frozen exact Clopper-Pearson lower
+  bound and degeneracy gates. The 1000-dataset coverage stop rule is therefore satisfied and no
+  2000/4000 coverage escalation is warranted. This result is synthetic non-outcome evidence only;
+  it opens no Study 1B SCREEN, qualification TEST, real route performance, geometry, or amendment.
+
+harness:
+  repository: gharbonnier78/scientific-research-harness
+  pinned_ref: 3b109adcdd9a8cba4df029d3803ee0e5cb5bdf98
+  manifest: harness-adoption.yaml
+  local_instructions: AGENTS.md
+  task_id: STUDY1B_S4N1_SELECTION_SEMANTICS_AND_CALIBRATION_DESIGN
+
+basis:
+  frozen_contract: protocol/simulations/STUDY1B_S4N1_SELECTION_SEMANTICS_AND_CALIBRATION_DESIGN_V0_1_2026-09-04.yaml
+  freeze_chronicle: protocol/chronicle/STUDY1B_S4N1_SELECTION_SEMANTICS_FREEZE_2026-09-04.yaml
+  launch_chronicle: protocol/chronicle/STUDY1B_S4N1_CORE_COVERAGE_CHECKPOINT_1000_LAUNCH_2026-09-04.yaml
+  source_commit: 6f6c57cb0dd9bcce2910031a2854f7a727a2a5ce
+
+execution:
+  workflow: Study 1B S4N1 Core Coverage 1000
+  run_id: 33867720413
+  run_number: 1
+  event: push
+  conclusion: success
+  started_at_utc: "2026-09-04T11:23:30Z"
+  completed_at_utc: "2026-09-04T12:47:51Z"
+
+canonical_artifact:
+  id: 9937308606
+  name: study1b-s4n1-core-coverage-checkpoint-1000-summary
+  github_digest: sha256:80b50630eb67186683f64b52c54123786ec311fe2d8b3ad9505ebf5a2ddab6af
+  independently_verified_zip_sha256: 80b50630eb67186683f64b52c54123786ec311fe2d8b3ad9505ebf5a2ddab6af
+  extracted_summary_file: checkpoint_1000.json
+  extracted_summary_sha256: d21bae887f3363b0587df2f15f38b201cf2b60b03d50c5cf4dd1054f99139732
+
+frozen_gate:
+  datasets_per_truth_cell: 1000
+  truth_delta_fnmr_cells: [0.0, 0.01, 0.03, 0.05]
+  candidates:
+    - S4N_FIXED_SEED
+    - S4N_VALIDATION_BEST
+    - S4N_VALIDATION_MEDIAN
+  exact_clopper_pearson_two_sided_95_lower_bound_gte: 0.93
+  degenerate_fraction_lte: 0.001
+  power_interpretation_from_this_checkpoint: prohibited
+
+results:
+  delta_0_00:
+    S4N_FIXED_SEED: {covered: 992, empirical_coverage: 0.992, lower_95_clopper_pearson: 0.9842979508239253, degenerate_fraction: 0.0, pass: true}
+    S4N_VALIDATION_BEST: {covered: 986, empirical_coverage: 0.986, lower_95_clopper_pearson: 0.9766218439896855, degenerate_fraction: 0.0, pass: true}
+    S4N_VALIDATION_MEDIAN: {covered: 997, empirical_coverage: 0.997, lower_95_clopper_pearson: 0.9912579767613423, degenerate_fraction: 0.0, pass: true}
+  delta_0_01:
+    S4N_FIXED_SEED: {covered: 996, empirical_coverage: 0.996, lower_95_clopper_pearson: 0.9897903353160701, degenerate_fraction: 0.0, pass: true}
+    S4N_VALIDATION_BEST: {covered: 996, empirical_coverage: 0.996, lower_95_clopper_pearson: 0.9897903353160701, degenerate_fraction: 0.0, pass: true}
+    S4N_VALIDATION_MEDIAN: {covered: 994, empirical_coverage: 0.994, lower_95_clopper_pearson: 0.9869865767290255, degenerate_fraction: 0.0, pass: true}
+  delta_0_03:
+    S4N_FIXED_SEED: {covered: 994, empirical_coverage: 0.994, lower_95_clopper_pearson: 0.9869865767290255, degenerate_fraction: 0.0, pass: true}
+    S4N_VALIDATION_BEST: {covered: 994, empirical_coverage: 0.994, lower_95_clopper_pearson: 0.9869865767290255, degenerate_fraction: 0.0, pass: true}
+    S4N_VALIDATION_MEDIAN: {covered: 988, empirical_coverage: 0.988, lower_95_clopper_pearson: 0.9791323204089633, degenerate_fraction: 0.0, pass: true}
+  delta_0_05:
+    S4N_FIXED_SEED: {covered: 992, empirical_coverage: 0.992, lower_95_clopper_pearson: 0.9842979508239253, degenerate_fraction: 0.0, pass: true}
+    S4N_VALIDATION_BEST: {covered: 987, empirical_coverage: 0.987, lower_95_clopper_pearson: 0.9778721963632198, degenerate_fraction: 0.0, pass: true}
+    S4N_VALIDATION_MEDIAN: {covered: 990, empirical_coverage: 0.99, lower_95_clopper_pearson: 0.9816867569448875, degenerate_fraction: 0.0, pass: true}
+
+secondary_non_gate_observations:
+  validation_best_mean_validation_optimism:
+    delta_0_00: -0.006878206751597299
+    delta_0_01: -0.006893370084386592
+    delta_0_03: -0.007507009916868034
+    delta_0_05: -0.007757383734863483
+  interpretation: >-
+    The validation-best selector exhibits the expected finite-VALIDATION winner's-curse optimism,
+    while this checkpoint's primary decision remains coverage of the selected artifact's untouched
+    synthetic TEST truth. These observations do not constitute real Study 1B outcome evidence.
+
+decision:
+  overall_coverage_gate_pass: true
+  frozen_stop_rule_satisfied_at_checkpoint: 1000
+  escalate_to_2000_or_4000: false
+  next_admissible_phase: S4N1_CORE_POWER_CALIBRATION
+  next_phase_truth_delta_fnmr_cells: [0.0, 0.01]
+  next_phase_datasets_per_truth_cell: 4000
+  next_phase_requires_separate_launch: true
+
+scientific_boundary:
+  scientific_outcomes_opened: false
+  screen_opened: false
+  qualification_test_outcomes_opened: false
+  real_route_performance_opened: false
+  representation_geometry_opened: false
+  amendment_activated: false
+  original_5_of_5_rule_replaced: false
+  artifact_selector_activated_for_real_study: false
+  canonical_negative_results_preserved: true
+
+provenance:
+  append_only: true
+  launch_record_not_rewritten: true
+  frozen_contract_not_modified: true
+  negative_s2_s3_evidence_not_rewritten: true
