@@ -1,0 +1,141 @@
+schema_version: "1.0"
+entry_type: s4n1_core_power_launch
+chronicle_entry_id: CHRON-20260905-019
+study_id: study_1b_matched_compression
+scope: study_1b_s4n1_core_known_truth_power_calibration_4000
+date: 2026-09-05
+recorded_at_utc: "2026-09-05T06:50:48Z"
+kind: prospective_nonoutcome_synthetic_execution_launch
+status: LAUNCHED
+outcome_evidence_seen: false
+
+summary: >-
+  Explicit human authorization proceeds from the archived positive S4N1 1000-dataset core
+  known-truth coverage checkpoint to the separately launched, prospectively frozen S4N1 core
+  power calibration. The launch evaluates exactly 4000 synthetic datasets at each of TEST truth
+  Delta_FNMR 0.00 and 0.01 for the three frozen artifact-selection candidates. No Study 1B
+  SCREEN, qualification TEST, real route performance, representation geometry, amendment, or
+  real-study artifact selection is opened or activated.
+
+harness:
+  repository: gharbonnier78/scientific-research-harness
+  pinned_ref: 3b109adcdd9a8cba4df029d3803ee0e5cb5bdf98
+  manifest: harness-adoption.yaml
+  local_instructions: AGENTS.md
+  task_id: STUDY1B_S4N1_SELECTION_SEMANTICS_AND_CALIBRATION_DESIGN
+
+human_authority:
+  source: "2026-09-05 project conversation"
+  instruction: "Ok do that."
+  interpretation: >-
+    Archive the completed positive S4N1 coverage checkpoint append-only, then execute the
+    separate next admissible S4N1 synthetic core power calibration under the already-frozen
+    contract. This does not authorize any real Study 1B outcome access.
+  authorization_scope: synthetic_nonoutcome_core_power_calibration_4000
+  screen_authorized: false
+  qualification_test_authorized: false
+  real_route_performance_authorized: false
+  geometry_authorized: false
+  amendment_activation_authorized: false
+
+basis:
+  frozen_contract: protocol/simulations/STUDY1B_S4N1_SELECTION_SEMANTICS_AND_CALIBRATION_DESIGN_V0_1_2026-09-04.yaml
+  freeze_chronicle: protocol/chronicle/STUDY1B_S4N1_SELECTION_SEMANTICS_FREEZE_2026-09-04.yaml
+  coverage_launch_chronicle: protocol/chronicle/STUDY1B_S4N1_CORE_COVERAGE_CHECKPOINT_1000_LAUNCH_2026-09-04.yaml
+  coverage_result_chronicle: protocol/chronicle/STUDY1B_S4N1_CORE_COVERAGE_CHECKPOINT_1000_RESULT_2026-09-05.yaml
+  coverage_result_commit: dadfe50aac660ac312a1c057902423febc2f5148
+  coverage_run_id: 33867720413
+  coverage_canonical_artifact_id: 9937308606
+  coverage_canonical_artifact_digest: sha256:80b50630eb67186683f64b52c54123786ec311fe2d8b3ad9505ebf5a2ddab6af
+  coverage_gate_status: CLOSED_POSITIVE
+  coverage_stop_rule_satisfied_at_checkpoint: 1000
+
+prelaunch_head:
+  sha: 87e3511d81abf23f22fac212398c753bf31f7ba6
+  power_workflow: .github/workflows/study1b-s4n1-core-power.yml
+  shard_runner: scripts/study1b_s4n1_run_shard.py
+  aggregate_runner: scripts/study1b_s4n1_aggregate.py
+
+prelaunch_assurance:
+  ci:
+    run_id: 33950790658
+    run_number: 550
+    conclusion: success
+  research_assurance:
+    run_id: 33950790664
+    run_number: 481
+    conclusion: success
+  study1b_engineering_assurance:
+    run_id: 33950790693
+    run_number: 127
+    conclusion: success
+  study1b_nonoutcome_preflight:
+    run_id: 33950790642
+    run_number: 130
+    conclusion: success
+  study1b_power_design_diagnostic:
+    run_id: 33950790662
+    run_number: 52
+    conclusion: success
+
+power_calibration:
+  phase: S4N1_CORE_KNOWN_TRUTH_POWER
+  datasets_per_truth_cell: 4000
+  truth_delta_fnmr_cells: [0.0, 0.01]
+  candidates:
+    - S4N_FIXED_SEED
+    - S4N_VALIDATION_BEST
+    - S4N_VALIDATION_MEDIAN
+  prospectively_frozen_preference_order:
+    - S4N_VALIDATION_BEST
+    - S4N_VALIDATION_MEDIAN
+    - S4N_FIXED_SEED
+  bootstrap_replicates_per_selected_artifact_dataset: 10000
+  target_fmr: 0.01
+  noninferiority_margin_delta_fnmr: 0.03
+  one_sided_ucb_level: 0.975
+  decision_rule: selected_artifact_TEST_UCB_97_5_le_0_03
+  minimum_estimated_power_each_truth_cell: 0.90
+  gate: candidate_must_pass_both_exact_truth_cells
+  synthetic_power_alone_must_not_reorder_candidates: true
+  transport_sensitivity_part_of_this_launch: false
+
+frozen_graphs:
+  validation_sha256: fb849558e0b09b0fa7ff301991af010815f0b4ee98ab62faa1c585477f9f8601
+  test_sha256: 08c86ca9a641fc96b74014ae1974f713cd00e558dd98946ac32ff440c4666f85
+  capture_manifest_sha256: 767f9fe8d1d8466a0e722f826b26875a0e852f525f7413a9658a307a9639366e
+
+scientific_boundary:
+  scientific_outcomes_opened: false
+  screen_opened: false
+  qualification_test_outcomes_opened: false
+  real_route_performance_opened: false
+  representation_geometry_opened: false
+  amendment_activated: false
+  original_5_of_5_rule_replaced: false
+  artifact_selector_activated_for_real_study: false
+  canonical_negative_results_preserved: true
+
+failure_semantics:
+  infrastructure_failure: >-
+    Preserve the attempt as infrastructure evidence. Any recovery must preserve the frozen
+    scientific generator, truth cells, dataset-index seed lineage, thresholds, selectors and
+    decision rule; do not convert an infrastructure retry into a new scientific design.
+  scientific_power_failure: >-
+    Archive the negative result append-only. Any candidate failing either exact-truth power cell
+    is ineligible for an S4N1 amendment proposal under this contract. Do not tune the NI margin,
+    FMR, UCB level, selector, truth scenarios, or dataset count after observing the result.
+
+next_action_if_power_passes: >-
+  Archive the synthetic power result append-only. Then review the separately frozen
+  Validation-to-TEST transport sensitivity and amendment admissibility before any proposal to
+  activate S4N1. SCREEN and real qualification TEST remain sealed.
+next_action_if_power_fails: >-
+  Archive the negative result append-only and fail affected candidate rules closed. Do not open
+  real outcomes and do not opportunistically redesign this calibration after observation.
+
+provenance:
+  append_only: true
+  coverage_result_not_rewritten: true
+  frozen_contract_not_modified: true
+  original_negative_power_evidence_not_rewritten: true
