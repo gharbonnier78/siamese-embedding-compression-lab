@@ -1,0 +1,249 @@
+schema_version: "1.0"
+entry_type: s4n2_dagjk20_power_4000_result
+chronicle_entry_id: CHRON-20260906-026
+study_id: study_1b_matched_compression
+scope: study_1b_s4n2_dagjk20_core_power_calibration_4000
+date: 2026-09-06
+kind: append_only_nonoutcome_synthetic_result
+status: CLOSED_NEGATIVE
+outcome_evidence_seen: false
+
+summary: >-
+  Archive the prospectively frozen S4N2 DAGJK20 core power calibration result. The GitHub
+  workflow completed successfully as infrastructure, but the scientific power gate failed:
+  at true Delta_FNMR = 0.01 none of the three prospectively frozen artifact selectors reached
+  the required 0.90 power. The S4N2 uncertainty estimator candidate is therefore closed
+  negative and must not be tuned post hoc from this result. This result opens no Study 1B
+  SCREEN, qualification TEST outcome, real route performance, representation geometry,
+  amendment, or real-study artifact selector.
+
+harness:
+  repository: gharbonnier78/scientific-research-harness
+  pinned_ref: 3b109adcdd9a8cba4df029d3803ee0e5cb5bdf98
+  manifest: harness-adoption.yaml
+  local_instructions: AGENTS.md
+
+human_authority:
+  source: "2026-09-06 project conversation"
+  prior_instruction: >-
+    Finir le plan actuel sans le modifier : archiver S4N1 negatif, diagnostiquer pourquoi on
+    plafonne a environ 86,9 %, puis concevoir/tester prospectivement S4N2.
+  current_instruction: "Ok pour next step."
+  interpretation: >-
+    Archive the completed prospectively frozen S4N2 result, stop this estimator candidate if
+    negative, preserve the scientific boundaries, and continue non-outcome pedagogical and
+    decision-risk capitalisation without opening real Study 1B outcomes.
+  scientific_outcome_opening_authorized: false
+  screen_authorized: false
+  qualification_test_authorized: false
+  real_route_performance_authorized: false
+  geometry_authorized: false
+  amendment_activation_authorized: false
+
+basis:
+  frozen_s4n2_contract: protocol/simulations/STUDY1B_S4N2_DAGJK20_CALIBRATION_V0_1_2026-09-06.yaml
+  coverage_result: protocol/chronicle/STUDY1B_S4N2_DAGJK20_COVERAGE_1000_RESULT_2026-09-06.yaml
+  power_launch: protocol/chronicle/STUDY1B_S4N2_DAGJK20_POWER_4000_LAUNCH_2026-09-06.yaml
+  s4n1_negative_result: protocol/chronicle/STUDY1B_S4N1_CORE_POWER_CALIBRATION_RESULT_2026-09-06.yaml
+  s4n1_plateau_diagnostic: protocol/chronicle/STUDY1B_S4N1_POWER_PLATEAU_DIAGNOSTIC_RESULT_2026-09-06.yaml
+
+execution:
+  workflow_name: Study 1B S4N2 DAGJK20 Power 4000
+  workflow_run_id: 34040093432
+  workflow_run_number: 1
+  source_commit: d9a9e49e89dc89b67e75d5163603e447510044d5
+  workflow_status: completed
+  workflow_conclusion: success
+  workflow_success_is_scientific_success: false
+
+artifact_provenance:
+  github_artifact_id: 9991610075
+  github_artifact_name: study1b-s4n2-dagjk20-power-calibration-4000-summary
+  github_artifact_digest_sha256: 54035b395ae8b51da10a224386b718f27693164890bedd9348400a59bd7ef090
+  independently_verified_zip_sha256: 54035b395ae8b51da10a224386b718f27693164890bedd9348400a59bd7ef090
+  extracted_summary_file: power_4000.json
+  extracted_summary_sha256: 62e6f2ed194b871ea7fe1b99b89191f1389216f34da13d1aa75c5d8c40abe2a5
+  digest_match: true
+
+frozen_source_boundary:
+  capture_manifest_sha256: 767f9fe8d1d8466a0e722f826b26875a0e852f525f7413a9658a307a9639366e
+  validation_graph_sha256: fb849558e0b09b0fa7ff301991af010815f0b4ee98ab62faa1c585477f9f8601
+  test_graph_sha256: 08c86ca9a641fc96b74014ae1974f713cd00e558dd98946ac32ff440c4666f85
+  new_real_data_used: false
+
+frozen_scientific_contract:
+  inference_candidate: S4N2_DAGJK20_T975
+  estimand: delta_fnmr_equal_fmr
+  target_fmr: 0.01
+  noninferiority_margin_delta_fnmr: 0.03
+  one_sided_upper_confidence_level: 0.975
+  identity_delete_group_count: 20
+  datasets_per_truth_cell: 4000
+  power_truth_delta_fnmr_cells: [0.0, 0.01]
+  required_power_each_truth_cell: 0.90
+  prospective_preference_order:
+    - S4N_VALIDATION_BEST
+    - S4N_VALIDATION_MEDIAN
+    - S4N_FIXED_SEED
+    - STOP_NO_ADMISSIBLE_S4N2_RULE
+
+results:
+  truth_delta_0:
+    S4N_FIXED_SEED:
+      estimated_power: 0.99625
+      noninferiority_passes: 3985
+      coverage_pass: true
+      power_pass: true
+      two_sided_empirical_coverage: 0.979
+      two_sided_cp95_lower: 0.9740657862809264
+      upper_empirical_coverage: 0.9895
+      upper_cp95_lower: 0.9858332908763784
+      degenerate_fraction: 0.0
+      point_error_mean: 0.00011017500000000025
+      point_error_sd: 0.005100947841979631
+      dagjk_se_mean: 0.006532343475632549
+      dagjk_se_median: 0.006463963798650427
+      median_se_to_point_error_sd_ratio: 1.2672083696785699
+    S4N_VALIDATION_BEST:
+      estimated_power: 0.9955
+      noninferiority_passes: 3982
+      coverage_pass: true
+      power_pass: true
+      two_sided_empirical_coverage: 0.9825
+      two_sided_cp95_lower: 0.9779409069085863
+      upper_empirical_coverage: 0.99225
+      upper_cp95_lower: 0.9890173857982496
+      degenerate_fraction: 0.0
+      point_error_mean: 0.00011465000000000014
+      point_error_sd: 0.00512290556401877
+      dagjk_se_mean: 0.006490768051956783
+      dagjk_se_median: 0.006405981892610839
+      median_se_to_point_error_sd_ratio: 1.2504587118692725
+    S4N_VALIDATION_MEDIAN:
+      estimated_power: 0.99625
+      noninferiority_passes: 3985
+      coverage_pass: true
+      power_pass: true
+      two_sided_empirical_coverage: 0.98375
+      two_sided_cp95_lower: 0.9793343620115139
+      upper_empirical_coverage: 0.99125
+      upper_cp95_lower: 0.98785169178477
+      degenerate_fraction: 0.0
+      point_error_mean: 0.0000761000000000002
+      point_error_sd: 0.005073252237181344
+      dagjk_se_mean: 0.006517829108597897
+      dagjk_se_median: 0.0064475680758952075
+      median_se_to_point_error_sd_ratio: 1.2708944429456206
+  truth_delta_0_01:
+    S4N_FIXED_SEED:
+      estimated_power: 0.847
+      noninferiority_passes: 3388
+      coverage_pass: true
+      power_pass: false
+      two_sided_empirical_coverage: 0.987
+      two_sided_cp95_lower: 0.9829867937247497
+      upper_empirical_coverage: 0.993
+      upper_cp95_lower: 0.9898988278079512
+      degenerate_fraction: 0.0
+      point_error_mean: -0.00005080000000000896
+      point_error_sd: 0.005158831529104863
+      dagjk_se_mean: 0.006653507501112064
+      dagjk_se_median: 0.006563252818893859
+      median_se_to_point_error_sd_ratio: 1.2722363158916115
+    S4N_VALIDATION_BEST:
+      estimated_power: 0.849
+      noninferiority_passes: 3396
+      coverage_pass: true
+      power_pass: false
+      two_sided_empirical_coverage: 0.9845
+      two_sided_cp95_lower: 0.9801732185747208
+      upper_empirical_coverage: 0.99175
+      upper_cp95_lower: 0.9884332751030974
+      degenerate_fraction: 0.0
+      point_error_mean: -0.00008045000000000907
+      point_error_sd: 0.005151624754085038
+      dagjk_se_mean: 0.006616766183215998
+      dagjk_se_median: 0.006527613015657441
+      median_se_to_point_error_sd_ratio: 1.267097920996924
+    S4N_VALIDATION_MEDIAN:
+      estimated_power: 0.8535
+      noninferiority_passes: 3414
+      coverage_pass: true
+      power_pass: false
+      two_sided_empirical_coverage: 0.98375
+      two_sided_cp95_lower: 0.9793343620115139
+      upper_empirical_coverage: 0.99025
+      upper_cp95_lower: 0.9866953047954137
+      degenerate_fraction: 0.0
+      point_error_mean: -0.00009997500000000894
+      point_error_sd: 0.00511370755916147
+      dagjk_se_mean: 0.0066365079534654635
+      dagjk_se_median: 0.006534228027120972
+      median_se_to_point_error_sd_ratio: 1.2777868017529799
+
+comparison_to_s4n1_at_true_delta_0_01:
+  interpretation: >-
+    This comparison concerns synthetic end-to-end decision power only. It does not compare real
+    biometric route performance and does not imply that any face model became better or worse.
+  S4N_FIXED_SEED:
+    s4n1_power: 0.8655
+    s4n2_power: 0.847
+    difference_percentage_points_s4n2_minus_s4n1: -1.85
+  S4N_VALIDATION_BEST:
+    s4n1_power: 0.869
+    s4n2_power: 0.849
+    difference_percentage_points_s4n2_minus_s4n1: -2.0
+  S4N_VALIDATION_MEDIAN:
+    s4n1_power: 0.8695
+    s4n2_power: 0.8535
+    difference_percentage_points_s4n2_minus_s4n1: -1.6
+
+scientific_decision:
+  coverage_archive_remains_valid: true
+  all_candidates_pass_both_power_truths: false
+  preferred_candidate: null
+  scientific_gate: FAIL
+  s4n2_estimator_candidate_status: CLOSED_NEGATIVE
+  posthoc_tuning_permitted: false
+  group_count_tuning_permitted: false
+  selector_substitution_permitted: false
+  confidence_level_change_permitted: false
+  noninferiority_margin_change_permitted: false
+  target_fmr_change_permitted: false
+  next_action: >-
+    Stop S4N2_DAGJK20_T975 as an estimator candidate. Preserve the negative result and move only
+    to non-outcome residual decision-risk and operational-impact analysis before any future human
+    decision about real-outcome opening.
+
+interpretation_guardrails:
+  - >-
+    High coverage does not imply high power. A cautious interval can contain the truth very often
+    while still being too wide or variable to establish non-inferiority often enough.
+  - >-
+    "Expected power" means the prospectively required 0.90 gate, not a theorem that DAGJK20 was
+    expected to achieve 0.90.
+  - >-
+    Zero degeneracy means zero simulated datasets produced an invalid statistical calculation;
+    it does not mean zero biometric errors.
+  - >-
+    S4N2 being lower-powered than S4N1 in this synthetic calibration does not mean the compressed
+    model is worse; only the uncertainty/decision procedure changed.
+
+scientific_boundary:
+  scientific_outcomes_opened: false
+  screen_opened: false
+  qualification_test_outcomes_opened: false
+  real_route_performance_opened: false
+  representation_geometry_opened: false
+  amendment_activated: false
+  original_5_of_5_rule_replaced: false
+  artifact_selector_activated_for_real_study: false
+  s4n1_negative_result_reopened: false
+  s4n1_closed_negative_preserved: true
+
+provenance:
+  append_only: true
+  frozen_s4n2_contract_not_modified: true
+  s4n1_negative_result_not_rewritten: true
+  s4n2_coverage_result_not_rewritten: true
+  real_outcome_data_not_read: true
