@@ -1,0 +1,157 @@
+schema_version: "1.0"
+entry_type: s4n2_dagjk20_coverage_1000_launch
+chronicle_entry_id: CHRON-20260906-023
+study_id: study_1b_matched_compression
+scope: study_1b_s4n2_dagjk20_known_truth_coverage_checkpoint_1000
+date: 2026-09-06
+kind: append_only_nonoutcome_synthetic_launch
+status: LAUNCHED
+outcome_evidence_seen: false
+
+summary: >-
+  Launch the first prospectively frozen S4N2 DAGJK20 known-truth coverage checkpoint at 1000
+  simulated datasets per truth cell. This launch follows successful CI, engineering assurance,
+  power-design diagnostic, non-outcome preflight, and research assurance on the frozen S4N2
+  implementation. It tests only synthetic known-truth calibration and opens no Study 1B SCREEN,
+  qualification TEST outcomes, real route performance, representation geometry, amendment, or
+  real-study artifact selection.
+
+harness:
+  repository: gharbonnier78/scientific-research-harness
+  pinned_ref: 3b109adcdd9a8cba4df029d3803ee0e5cb5bdf98
+  manifest: harness-adoption.yaml
+  local_instructions: AGENTS.md
+
+human_authority:
+  source: "2026-09-06 project conversation"
+  prior_instruction: >-
+    Finir le plan actuel sans le modifier : archiver S4N1 négatif, diagnostiquer pourquoi on
+    plafonne à environ 86,9 %, puis concevoir/tester prospectivement S4N2.
+  current_instruction: "Ok pour étape suivante"
+  interpretation: >-
+    Proceed to the next already-defined gated action: after all frozen S4N2 implementation
+    assurances pass, launch the prospectively specified synthetic coverage checkpoint 1000.
+  synthetic_coverage_launch_authorized: true
+  scientific_outcome_opening_authorized: false
+  screen_authorized: false
+  qualification_test_authorized: false
+  real_route_performance_authorized: false
+  geometry_authorized: false
+  amendment_activation_authorized: false
+
+basis:
+  s4n1_negative_result: protocol/chronicle/STUDY1B_S4N1_CORE_POWER_CALIBRATION_RESULT_2026-09-06.yaml
+  s4n1_diagnostic_result: protocol/chronicle/STUDY1B_S4N1_POWER_PLATEAU_DIAGNOSTIC_RESULT_2026-09-06.yaml
+  frozen_s4n2_contract: protocol/simulations/STUDY1B_S4N2_DAGJK20_CALIBRATION_V0_1_2026-09-06.yaml
+  s4n2_research_note: docs/research-notes/STUDY1B_S4N2_UNCERTAINTY_ESTIMATOR_RESEARCH_2026-09-06.md
+  implementation: src/siamese_compression_lab/study1b_s4n2_dagjk.py
+  focused_tests: tests/test_study1b_s4n2_dagjk.py
+  shard_runner: scripts/study1b_s4n2_run_shard.py
+  aggregate: scripts/study1b_s4n2_aggregate.py
+  workflow: .github/workflows/study1b-s4n2-core-coverage.yml
+  prelaunch_head: 7cee94fced397c87cf115716555c94e6ca88bcd9
+
+prelaunch_assurance:
+  ci:
+    run_id: 34034123372
+    run_number: 569
+    conclusion: success
+  engineering_assurance:
+    run_id: 34034123615
+    run_number: 146
+    conclusion: success
+  power_design_diagnostic:
+    run_id: 34034123390
+    run_number: 71
+    conclusion: success
+  nonoutcome_preflight:
+    run_id: 34034123389
+    run_number: 149
+    conclusion: success
+  research_assurance:
+    run_id: 34034123385
+    run_number: 500
+    conclusion: success
+  note: >-
+    The only prelaunch defect encountered was Ruff style/lint failure on imports and a nested
+    test context. It was corrected without changing the frozen S4N2 scientific contract,
+    estimand, operating point, confidence level, margin, selector semantics, or calibration gates.
+
+frozen_source_boundary:
+  capture_manifest_sha256: 767f9fe8d1d8466a0e722f826b26875a0e852f525f7413a9658a307a9639366e
+  validation_graph_sha256: fb849558e0b09b0fa7ff301991af010815f0b4ee98ab62faa1c585477f9f8601
+  test_graph_sha256: 08c86ca9a641fc96b74014ae1974f713cd00e558dd98946ac32ff440c4666f85
+  validation_identities: 606
+  validation_genuine_edges: 5000
+  validation_impostor_edges: 20000
+  test_identities: 1710
+  test_genuine_edges: 10000
+  test_impostor_edges: 100000
+  new_real_data_used: false
+
+frozen_scientific_contract:
+  inference_candidate: S4N2_DAGJK20_T975
+  estimand: delta_fnmr_equal_fmr
+  target_fmr: 0.01
+  noninferiority_margin_delta_fnmr: 0.03
+  one_sided_upper_confidence_level: 0.975
+  identity_delete_group_count: 20
+  candidate_and_raw_thresholds_separate: true
+  whole_tie_block_threshold_rule_preserved: true
+  selection_rules:
+    - S4N_VALIDATION_BEST
+    - S4N_VALIDATION_MEDIAN
+    - S4N_FIXED_SEED
+  prospective_preference_order:
+    - S4N_VALIDATION_BEST
+    - S4N_VALIDATION_MEDIAN
+    - S4N_FIXED_SEED
+    - STOP_NO_ADMISSIBLE_S4N2_RULE
+  changed_because_of_s4n1_result:
+    target_fmr: false
+    noninferiority_margin: false
+    confidence_level: false
+    selector_preference_order: false
+
+coverage_checkpoint:
+  checkpoint: 1000
+  simulated_datasets_per_selector_truth_cell: 1000
+  truth_delta_fnmr_cells: [0.0, 0.01, 0.03, 0.05]
+  two_sided_coverage_exact_clopper_pearson_95_lower_bound_gte: 0.93
+  one_sided_upper_coverage_exact_clopper_pearson_95_lower_bound_gte: 0.95
+  degenerate_fraction_lte: 0.001
+  stop_rule: first_checkpoint_where_all_selector_truth_cells_pass
+  next_checkpoint_if_not_all_pass: 2000
+  maximum_frozen_checkpoint: 4000
+
+launch_semantics:
+  coverage_only: true
+  power_calibration_opened_by_this_launch: false
+  next_action_if_pass: >-
+    Archive the checkpoint-1000 coverage result append-only, then separately launch the frozen
+    S4N2 core power calibration. Coverage success alone does not activate an amendment or open
+    real Study 1B outcomes.
+  next_action_if_fail: >-
+    Archive the checkpoint-1000 result and follow the prospectively frozen 2000/4000 coverage
+    checkpoint rule without redesigning the estimator from the observed checkpoint.
+  redesign_from_checkpoint_1000_result_permitted: false
+  posthoc_gate_change_permitted: false
+
+scientific_boundary:
+  scientific_outcomes_opened: false
+  screen_opened: false
+  qualification_test_outcomes_opened: false
+  real_route_performance_opened: false
+  representation_geometry_opened: false
+  amendment_activated: false
+  original_5_of_5_rule_replaced: false
+  artifact_selector_activated_for_real_study: false
+  s4n1_negative_result_reopened: false
+  s4n1_closed_negative_preserved: true
+
+provenance:
+  append_only: true
+  frozen_s4n2_contract_not_modified: true
+  s4n1_negative_result_not_rewritten: true
+  s4n1_diagnostic_not_rewritten: true
+  real_outcome_data_not_read: true
