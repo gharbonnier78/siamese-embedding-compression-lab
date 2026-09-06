@@ -1,0 +1,144 @@
+schema_version: "1.0"
+decision_id: STUDY1B-S4-RESIDUAL-DECISION-RISK-2026-09-06
+study_id: study_1b_matched_compression
+date: 2026-09-06
+status: INTERIM_DECISION_FRAMEWORK
+kind: nonoutcome_decision_analysis
+
+purpose: >-
+  Convert the prospectively observed S4N1/S4N2 power shortfall into an engineering decision-risk
+  framework without changing any previously frozen scientific gate and without opening any real
+  Study 1B outcome. This artifact explicitly separates study-level non-demonstration risk from
+  person-level biometric risk and defines what additional operational/economic inputs are needed
+  before deciding whether a future design should target more power.
+
+scientific_boundary:
+  real_study_outcomes_opened: false
+  screen_opened: false
+  qualification_test_opened: false
+  real_route_performance_opened: false
+  representation_geometry_opened: false
+  amendment_activated: false
+  s4n1_reclassified_as_pass: false
+  s4n2_reclassified_as_pass: false
+
+frozen_results_preserved:
+  s4n1_status: CLOSED_NEGATIVE
+  s4n2_status: CLOSED_NEGATIVE
+  required_power: 0.90
+  critical_synthetic_truth_delta_fnmr: 0.01
+  noninferiority_margin_delta_fnmr: 0.03
+  target_fmr: 0.01
+  one_sided_upper_confidence_level: 0.975
+
+observed_synthetic_power:
+  S4N1:
+    S4N_FIXED_SEED: 0.8655
+    S4N_VALIDATION_BEST: 0.8690
+    S4N_VALIDATION_MEDIAN: 0.8695
+  S4N2:
+    S4N_FIXED_SEED: 0.8470
+    S4N_VALIDATION_BEST: 0.8490
+    S4N_VALIDATION_MEDIAN: 0.8535
+
+study_level_non_demonstration_probability:
+  definition: "beta = 1 - power"
+  S4N1:
+    S4N_FIXED_SEED: 0.1345
+    S4N_VALIDATION_BEST: 0.1310
+    S4N_VALIDATION_MEDIAN: 0.1305
+  S4N2:
+    S4N_FIXED_SEED: 0.1530
+    S4N_VALIDATION_BEST: 0.1510
+    S4N_VALIDATION_MEDIAN: 0.1465
+  frozen_target: 0.10
+
+interpretation:
+  key_statement: >-
+    The excess over the 0.10 target is a probability of failing to demonstrate an actually
+    non-inferior state under the frozen synthetic truth. It is not a probability of false match,
+    false non-match, person-level harm, or real candidate inferiority.
+  target_gap_percentage_points:
+    S4N1_best: 3.10
+    S4N2_best: 5.10
+
+operational_policy_mapping:
+  conservative_fallback:
+    rule: "NOT_DEMONSTRATED -> retain raw512 / do not adopt compression"
+    dominant_risk: opportunity_cost
+    examples:
+      - foregone memory reduction
+      - foregone storage or transfer reduction
+      - foregone compute or throughput benefit
+      - delayed engineering simplification
+    biometric_safety_inference_from_power_gap: prohibited
+  additional_evidence_fallback:
+    rule: "NOT_DEMONSTRATED -> acquire more independent evidence / repeat qualification"
+    dominant_risk: qualification_cost_and_delay
+  override_fallback:
+    rule: "NOT_DEMONSTRATED -> deploy compressed route anyway"
+    disposition: not_supported_by_this_framework
+
+symbolic_decision_model:
+  variables:
+    q: "prospective probability, before outcome opening, that the candidate state is acceptable"
+    p: "power of the qualification design at the decision-relevant acceptable effect"
+    beta: "1 - p; probability of missed demonstration when acceptable"
+    alpha: "false-qualification probability under the adverse state; must be separately calibrated"
+    C_miss: "cost of missing/delaying an actually acceptable compression"
+    C_false_pass: "cost of qualifying an actually unacceptable compression"
+    C_extra_evidence: "incremental cost of acquiring additional independent evidence"
+  expected_decision_loss_template: >-
+    L = q * beta * C_miss + (1 - q) * alpha * C_false_pass + C_evidence.
+    This is a framework only; no numerical q, alpha, C_miss, C_false_pass, or C_evidence is inferred here.
+  incremental_value_of_power:
+    from_s4n1_best_to_0_90: "q * (0.90 - 0.8690) * C_miss = q * 0.0310 * C_miss"
+    from_s4n2_best_to_0_90: "q * (0.90 - 0.8490) * C_miss = q * 0.0510 * C_miss"
+    break_even_rule: >-
+      Additional evidence intended only to raise power is economically justified, on the missed-
+      demonstration side alone, only if its incremental cost is lower than the expected avoided
+      missed-demonstration cost. False-pass risk and any change in alpha must be considered separately.
+
+current_disposition:
+  estimator_search:
+    decision: STOP_PROSPECTIVE_S4N3_FOR_NOW
+    rationale: >-
+      Two prospectively frozen uncertainty procedures have now failed the same 0.90 power target.
+      Continuing to search for an estimator merely because previous candidates missed the gate would
+      create a strong post-hoc optimization risk. A new estimator study would require a new, independently
+      motivated scientific question and prospective contract, not a desire to manufacture a PASS.
+  previous_90_percent_gate:
+    remains_binding_for_s4n1_s4n2: true
+    may_be_redefined_retroactively: false
+    interpretation: >-
+      The 0.90 threshold is a design-qualification gate for the completed S4 campaigns. The current
+      evidence does not establish it as a physical or operational safety boundary. Any future power
+      requirement should be justified prospectively from decision consequence, evidence cost, fallback
+      policy, criticality, reversibility, and independent-information feasibility.
+
+required_inputs_before_future_power_target_decision:
+  - exact action enabled by PASS
+  - exact action after NOT_DEMONSTRATED
+  - whether raw512 is a valid retained fallback
+  - engineering benefit of adopting 128D if acceptable
+  - cost and delay of additional independent evidence
+  - operational criticality and reversibility of deployment
+  - cost/severity of false qualification
+  - cost/severity of missed acceptable compression
+  - whether a decision-relevant effect other than Delta_FNMR=0.01 should be prospectively justified
+  - separate calibration evidence for false-qualification risk if a future design is proposed
+
+next_step:
+  action: COLLECT_OPERATIONAL_COST_AND_POLICY_INPUTS
+  allowed_scope: nonoutcome_only
+  real_outcome_opening: false
+  note: >-
+    The next work product should be an engineering decision table / value-of-information analysis.
+    It may use symbolic or explicitly supplied operational inputs, but must not infer unavailable real
+    Study 1B performance, geometry, or product savings from the closed outcome boundary.
+
+references:
+  s4n1_result: protocol/chronicle/STUDY1B_S4N1_CORE_POWER_CALIBRATION_RESULT_2026-09-06.yaml
+  s4n2_result: protocol/chronicle/STUDY1B_S4N2_DAGJK20_POWER_4000_RESULT_2026-09-06.yaml
+  operational_note: docs/research-notes/STUDY1B_S4N1_S4N2_RESIDUAL_DECISION_RISK_OPERATIONAL_IMPACT_2026-09-06.md
+  pedagogy_case: pedagogy/case-studies/quand-une-methode-bien-calibree-manque-de-puissance-study1b-s4n1-s4n2.fr.md
