@@ -92,12 +92,14 @@ class Study1BS4N2DagjkTest(unittest.TestCase):
         rows = _toy_rows(40)
         candidate = np.linspace(0.1, 1.0, len(rows))
         reference = candidate + 0.01
-        with patch(
-            "siamese_compression_lab.study1b_s4n2_dagjk._delta_for_keep",
-            side_effect=ValueError("degenerate delete-group replicate"),
+        with (
+            patch(
+                "siamese_compression_lab.study1b_s4n2_dagjk._delta_for_keep",
+                side_effect=ValueError("degenerate delete-group replicate"),
+            ),
+            self.assertRaisesRegex(ValueError, "degenerate delete-group replicate"),
         ):
-            with self.assertRaisesRegex(ValueError, "degenerate delete-group replicate"):
-                dagjk20_summary(rows, candidate, reference, point_delta=0.0)
+            dagjk20_summary(rows, candidate, reference, point_delta=0.0)
 
 
 if __name__ == "__main__":
