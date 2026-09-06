@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Diagnose archived S4N1 synthetic power without rerunning scientific simulation."""
 from __future__ import annotations
 
@@ -137,7 +136,7 @@ def summarize_cell(arrays: dict[str, np.ndarray], truth: float) -> dict[str, Any
     info_multiplier = 1.0 / (k90 * k90) if 0.0 < k90 < 1.0 else 1.0
 
     return {
-        "n": int(len(point)),
+        "n": len(point),
         "current_noninferiority_pass_fraction": float(np.mean(arrays["passed"])),
         "existing_two_sided_interval_coverage": float(np.mean(arrays["covered"])),
         "one_sided_upper_coverage_truth_lte_ucb97_5": float(np.mean(u975 >= truth)),
