@@ -1,0 +1,112 @@
+schema_version: "1.0"
+entry_type: s4n1_core_coverage_launch
+chronicle_entry_id: CHRON-20260904-017
+study_id: study_1b_matched_compression
+scope: study_1b_s4n1_core_known_truth_coverage_checkpoint_1000
+date: 2026-09-04
+recorded_at_utc: "2026-09-04T11:23:00Z"
+kind: prospective_nonoutcome_synthetic_execution_launch
+status: LAUNCHED
+outcome_evidence_seen: false
+
+summary: >-
+  Explicit human GO authorizes execution of the already-frozen S4N1 1000-dataset core
+  known-truth coverage checkpoint. This launch occurs only after the coverage-only aggregation
+  path, focused tests and workflow were committed and all required CI/research/Study 1B
+  assurance checks passed on the exact preparatory head. This launch opens no Study 1B SCREEN,
+  qualification TEST, real route performance, representation geometry, or amendment.
+
+harness:
+  repository: gharbonnier78/scientific-research-harness
+  pinned_ref: 3b109adcdd9a8cba4df029d3803ee0e5cb5bdf98
+  manifest: harness-adoption.yaml
+  local_instructions: AGENTS.md
+  task_id: STUDY1B_S4N1_SELECTION_SEMANTICS_AND_CALIBRATION_DESIGN
+
+human_authority:
+  source: "2026-09-04 project conversation"
+  instruction: "GO"
+  interpretation: >-
+    Execute the next admissible S4N1 action previously stated: the prospectively frozen
+    1000-dataset core known-truth coverage checkpoint only.
+  authorization_scope: synthetic_nonoutcome_core_coverage_checkpoint_1000
+  screen_authorized: false
+  qualification_test_authorized: false
+  geometry_authorized: false
+  amendment_activation_authorized: false
+
+frozen_contract:
+  path: protocol/simulations/STUDY1B_S4N1_SELECTION_SEMANTICS_AND_CALIBRATION_DESIGN_V0_1_2026-09-04.yaml
+  freeze_chronicle: protocol/chronicle/STUDY1B_S4N1_SELECTION_SEMANTICS_FREEZE_2026-09-04.yaml
+  contract_status: FROZEN_PROSPECTIVE_NONOUTCOME_CALIBRATION_CONTRACT
+
+prelaunch_head:
+  sha: 01aa9223ab2a73febabcdca833788ef6f8b77fd0
+  coverage_workflow: .github/workflows/study1b-s4n1-core-coverage.yml
+  coverage_aggregator: src/siamese_compression_lab/study1b_s4n1_coverage.py
+  shard_runner: scripts/study1b_s4n1_run_shard.py
+  aggregate_runner: scripts/study1b_s4n1_aggregate.py
+
+prelaunch_assurance:
+  ci:
+    run_id: 33867402727
+    run_number: 547
+    conclusion: success
+  research_assurance:
+    run_id: 33867402773
+    run_number: 478
+    conclusion: success
+  study1b_engineering_assurance:
+    run_id: 33867402671
+    run_number: 124
+    conclusion: success
+  study1b_nonoutcome_preflight:
+    run_id: 33867402751
+    run_number: 127
+    conclusion: success
+  study1b_power_design_diagnostic:
+    run_id: 33867402617
+    run_number: 49
+    conclusion: success
+
+checkpoint:
+  phase: S4N1_CORE_KNOWN_TRUTH_COVERAGE
+  datasets_per_truth_cell: 1000
+  truth_delta_fnmr_cells: [0.0, 0.01, 0.03, 0.05]
+  candidates:
+    - S4N_FIXED_SEED
+    - S4N_VALIDATION_BEST
+    - S4N_VALIDATION_MEDIAN
+  bootstrap_replicates_per_selected_artifact_dataset: 10000
+  target_fmr: 0.01
+  coverage_interval: percentile_two_sided_95_with_97_5_upper_bound
+  exact_lower_95_clopper_pearson_minimum: 0.93
+  degenerate_fraction_maximum: 0.001
+  gate: all_candidate_by_truth_cells_must_pass
+  power_interpretation_in_this_checkpoint: prohibited
+
+frozen_graphs:
+  validation_sha256: fb849558e0b09b0fa7ff301991af010815f0b4ee98ab62faa1c585477f9f8601
+  test_sha256: 08c86ca9a641fc96b74014ae1974f713cd00e558dd98946ac32ff440c4666f85
+  capture_manifest_sha256: 767f9fe8d1d8466a0e722f826b26875a0e852f525f7413a9658a307a9639366e
+
+scientific_boundary:
+  scientific_outcomes_opened: false
+  screen_opened: false
+  qualification_test_outcomes_opened: false
+  real_route_performance_opened: false
+  representation_geometry_opened: false
+  amendment_activated: false
+  original_5_of_5_rule_replaced: false
+  canonical_negative_results_preserved: true
+
+next_action_if_checkpoint_passes: >-
+  Archive the synthetic coverage result append-only. S4N1 core power calibration at exact TEST
+  truths 0.00 and 0.01 remains a separate next action; do not open real outcomes.
+next_action_if_checkpoint_fails: >-
+  Follow the prospectively frozen coverage checkpoint rule and escalate to 2000 then, if needed,
+  4000 datasets without changing thresholds, scenarios or candidates after observation.
+
+provenance:
+  append_only: true
+  launch_does_not_modify_frozen_contract: true

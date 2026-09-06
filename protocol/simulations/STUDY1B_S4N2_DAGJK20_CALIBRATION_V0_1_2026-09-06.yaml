@@ -1,0 +1,212 @@
+schema_version: "1.0"
+contract_id: STUDY1B_S4N2_DAGJK20_CALIBRATION_V0_1_2026-09-06
+study_id: study_1b_matched_compression
+date: 2026-09-06
+status: FROZEN_PROSPECTIVE_NONOUTCOME_CALIBRATION_CONTRACT
+scientific_outcomes_permitted: false
+screen_opening_permitted: false
+test_opening_permitted: false
+representation_geometry_permitted: false
+amendment_activated: false
+
+purpose: >-
+  Test prospectively whether an identity-level delete-20-group jackknife uncertainty estimator can
+  preserve the unchanged selected-artifact equal-FMR non-inferiority claim while removing enough
+  excess uncertainty spread to meet the frozen 0.90 power requirement. This is a new S4N2
+  methodological candidate; it does not rescue or rewrite S4N1.
+
+harness:
+  repository: gharbonnier78/scientific-research-harness
+  pinned_ref: 3b109adcdd9a8cba4df029d3803ee0e5cb5bdf98
+  manifest: harness-adoption.yaml
+  local_instructions: AGENTS.md
+
+human_authority:
+  source: "2026-09-06 project conversation"
+  instruction: >-
+    Finir le plan actuel sans le modifier : archiver S4N1 négatif, diagnostiquer pourquoi on
+    plafonne à environ 86,9 %, puis concevoir/tester prospectivement S4N2.
+  authorization_scope: prospective_nonoutcome_s4n2_design_implementation_and_synthetic_testing
+
+basis:
+  s4n1_negative_result: protocol/chronicle/STUDY1B_S4N1_CORE_POWER_CALIBRATION_RESULT_2026-09-06.yaml
+  s4n1_diagnostic_result: protocol/chronicle/STUDY1B_S4N1_POWER_PLATEAU_DIAGNOSTIC_RESULT_2026-09-06.yaml
+  research_note: docs/research-notes/STUDY1B_S4N2_UNCERTAINTY_ESTIMATOR_RESEARCH_2026-09-06.md
+  prior_selection_contract: protocol/simulations/STUDY1B_S4N1_SELECTION_SEMANTICS_AND_CALIBRATION_DESIGN_V0_1_2026-09-04.yaml
+  active_study_contract: protocol/studies/study_1b_matched_compression.yaml
+
+unchanged_scientific_object:
+  primary: frozen_route_artifact_selected_before_independent_TEST
+  population_retraining_claim: false
+  validation_used_for_final_inference: false
+
+unchanged_estimand_and_decision:
+  estimand: delta_fnmr_equal_fmr
+  definition: FNMR_candidate_at_alpha_minus_FNMR_raw512_at_alpha
+  target_fmr: 0.01
+  noninferiority_margin_delta_fnmr: 0.03
+  one_sided_upper_confidence_level: 0.975
+  paired_raw_candidate_comparison: true
+  candidate_and_raw_thresholds_separate: true
+  threshold_semantics: largest_whole_tie_block_admissible_threshold_else_sentinel
+  decision_rule: selected_artifact_TEST_UCB_97_5_le_0_03
+  operating_point_changed_from_s4n1: false
+  margin_changed_from_s4n1: false
+  confidence_level_changed_from_s4n1: false
+
+selection_rules_reused_as_new_s4n2_combinations:
+  rules:
+    - S4N_VALIDATION_BEST
+    - S4N_VALIDATION_MEDIAN
+    - S4N_FIXED_SEED
+  frozen_seed_labels: [11, 29, 47, 71, 101]
+  validation_metric_unchanged: S4N1_VALIDATION_EQUAL_FMR_DELTA_POINT
+  validation_only: true
+  no_SCREEN_or_TEST_input: true
+  prospective_preference_order:
+    - S4N_VALIDATION_BEST
+    - S4N_VALIDATION_MEDIAN
+    - S4N_FIXED_SEED
+    - STOP_NO_ADMISSIBLE_S4N2_RULE
+  rationale: >-
+    S4N1 diagnosed selector choice as non-primary and the original semantic preference was frozen
+    before S4N1 calibration. S4N2 does not choose a selector from S4N1's least-failing power; it
+    preserves the same development semantics while replacing only the TEST uncertainty estimator.
+
+inference_candidate:
+  id: S4N2_DAGJK20_T975
+  point_estimate: unchanged_unbootstrapped_paired_equal_fmr_delta
+  primary_sampling_unit: identity
+  group_count: 20
+  group_assignment:
+    score_or_outcome_blind: true
+    algorithm: >-
+      For each TEST subject-slot identity compute SHA256 of the UTF-8 string
+      'study1b-s4n2-dagjk20|' + subject_id, sort identities by the hexadecimal digest then by
+      subject_id, and assign sorted rank modulo 20. This creates deterministic nearly equal groups
+      without reading biometric scores.
+    assignment_tuning_after_results: prohibited
+  replicate_definition: >-
+    For group g remove every graph edge for which subject_slot_id_1 or subject_slot_id_2 belongs to
+    g. On the remaining graph recompute the candidate and raw whole-tie-block thresholds separately
+    at FMR 0.01 and recompute Delta_FNMR. No synthetic edge is added and no pair is treated as an
+    independent primary unit.
+  variance:
+    replicate_values: theta_minus_g
+    replicate_mean: mean_g_theta_minus_g
+    formula: ((G-1)/G)*sum_g((theta_minus_g-replicate_mean)^2)
+    standard_error: sqrt(variance)
+  confidence_bound:
+    critical_distribution: student_t
+    degrees_of_freedom: 19
+    upper: point_estimate_plus_t_0_975_df19_times_standard_error
+    lower_for_two_sided_coverage: point_estimate_minus_t_0_975_df19_times_standard_error
+  fail_closed_if:
+    - any_delete_group_replicate_has_no_genuine_edges
+    - any_delete_group_replicate_has_no_impostor_edges
+    - any_threshold_is_nonfinite
+    - variance_or_standard_error_is_nonfinite
+  theoretical_boundary: >-
+    Delete-a-group jackknife and U-statistic/dyadic variance literature motivates the candidate but
+    does not prove validity for this nonlinear equal-FMR statistic and graph. Known-truth synthetic
+    calibration is therefore mandatory.
+
+known_truth_generator:
+  reuse_exact_s4n1_core_generator: true
+  validation_graph_sha256: fb849558e0b09b0fa7ff301991af010815f0b4ee98ab62faa1c585477f9f8601
+  test_graph_sha256: 08c86ca9a641fc96b74014ae1974f713cd00e558dd98946ac32ff440c4666f85
+  TEST_identities: 1710
+  TEST_genuine_edges: 10000
+  TEST_impostor_edges: 100000
+  candidate_reference_pair_noise_correlation: 0.7
+  subject_effect_sd_genuine: 0.08
+  subject_effect_sd_impostor: 0.05
+  validation_seed_effect_sd: 0.005
+  all_five_TEST_artifacts_share_declared_truth_in_core_mode: true
+  new_real_data_used: false
+
+coverage_calibration:
+  truths: [0.0, 0.01, 0.03, 0.05]
+  checkpoints: [1000, 2000, 4000]
+  initial_checkpoint: 1000
+  stop_rule: first_checkpoint_where_all_selector_truth_cells_pass
+  metrics:
+    - two_sided_95_coverage
+    - one_sided_upper_97_5_coverage
+    - degenerate_fraction
+    - standard_error_to_repeated_sampling_point_sd_ratio
+  gate:
+    two_sided_coverage_exact_clopper_pearson_95_lower_bound_gte: 0.93
+    one_sided_upper_coverage_exact_clopper_pearson_95_lower_bound_gte: 0.95
+    degenerate_fraction_lte: 0.001
+  note: >-
+    The one-sided Monte-Carlo lower-bound gate is a calibration tolerance and does not redefine the
+    real-data confidence level; the real candidate remains a 97.5 percent one-sided Student-t UCB.
+
+power_calibration:
+  truths: [0.0, 0.01]
+  datasets_per_selector_truth: 4000
+  gate:
+    minimum_estimated_power_each_truth: 0.90
+  decision_rule: S4N2_DAGJK20_T975_UCB_le_0_03
+
+candidate_eligibility:
+  combination: selection_rule_plus_S4N2_DAGJK20_T975
+  required:
+    - deterministic_selection_rule_returns_exactly_one_artifact
+    - deterministic_identity_group_assignment_replays_exactly
+    - no_SCREEN_or_TEST_input_to_selection
+    - all_core_coverage_cells_pass
+    - both_core_power_cells_pass
+    - no_degeneracy_gate_failure
+    - focused_tests_and_static_assurance_pass
+  failure_semantics: INELIGIBLE_FOR_S4N2_AMENDMENT_PROPOSAL
+  preferred_if_eligible: S4N_VALIDATION_BEST
+  fallback_if_ineligible:
+    - S4N_VALIDATION_MEDIAN
+    - S4N_FIXED_SEED
+    - STOP_NO_ADMISSIBLE_S4N2_RULE
+
+engineering_before_execution:
+  focused_tests_required:
+    - deterministic_balanced_group_assignment
+    - every_identity_in_exactly_one_group
+    - edge_deletion_if_either_endpoint_in_group
+    - full_threshold_reestimation_in_each_replicate
+    - jackknife_variance_formula
+    - t19_ucb_formula
+    - invalid_replicate_fail_closed
+    - selected_artifact_accounting
+    - worker_count_seed_lineage_invariance_if_parallelized
+  static_assurance_required: true
+  scientific_randomness:
+    root_entropy: 20260827
+    reuse_s4n1_generator_seed_lineage: true
+    group_assignment_contains_no_randomness: true
+
+prohibited_posthoc_actions:
+  - reduce_confidence_level_to_95_percent
+  - multiply_s4n1_ucb_by_observed_diagnostic_headroom_factor
+  - tune_group_count_after_synthetic_results
+  - change_margin_because_of_failure
+  - change_target_fmr_because_of_failure
+  - choose_least_failing_selector_posthoc
+  - treat_pairs_as_independent_primary_units
+  - open_real_study_outcomes
+
+screen_downstream_boundary:
+  screen_remains_sealed: true
+  issue_if_s4n2_later_activated: >-
+    Stage A SCREEN must be prospectively reconciled to the selected artifact before any SCREEN
+    opening; the old two-seed method-level SCREEN rule cannot be silently reused.
+
+scientific_boundary:
+  scientific_outcomes_opened: false
+  screen_opened: false
+  qualification_test_outcomes_opened: false
+  real_route_performance_opened: false
+  representation_geometry_opened: false
+  amendment_activated: false
+  original_5_of_5_rule_replaced: false
+  artifact_selector_activated_for_real_study: false
+  s4n1_negative_result_reopened: false

@@ -1,0 +1,50 @@
+schema_version: "1.0"
+entry_id: STUDY1B_DATA_BOUNDARY_ACTIVATION_2026_08_28
+date: "2026-08-28"
+kind: protocol_amendment_activation
+status: ACTIVE_PENDING_REPLAY_CONFIRMATION
+
+trigger:
+  explicit_human_go_text: "Levons l amendement puisque nous avons levé le doute"
+  interpretation: activate_the_reviewed_preoutcome_data_boundary_amendment
+
+resolved_evidence:
+  deterministic_second_stage:
+    candidates_total: 18
+    clear_not_duplicate_like: 16
+    block_duplicate_like: 1
+    ambiguous_review: 1
+  human_visual_review:
+    scope: same_photograph_or_direct_derivative_only
+    blocking_pair: DUPLICATE_CONFIRMED
+    formerly_ambiguous_pair: DUPLICATE_CONFIRMED
+    identity_recognition_attempted: false
+  quarantine_dry_run:
+    exact_cross_role_duplicates_after: 0
+    remaining_dhash_candidates: 16
+    remaining_candidates_previous_second_stage: CLEAR_NOT_DUPLICATE_LIKE
+    all_pair_capacities_sufficient: true
+    scientific_outcomes_opened: false
+  independent_review:
+    artifact: protocol/reviews/STUDY1B_DATA_BOUNDARY_AMENDMENT_REVIEW_RESULT_2026-08-28.md
+    verdict: ACCEPT_WITH_REQUIRED_CHANGES
+    required_changes_addressed_by_activation_series: true
+
+active_exclusions:
+  - {subject_id: subject_1070cf723eb7b93398de, role: SCREEN, reason: duplicate_confirmed_cross_role}
+  - {subject_id: subject_97df35f042b9b8c49b8e, role: TRAIN, reason: duplicate_confirmed_cross_role}
+  - {subject_id: subject_fb92b5fb0163ff4b3751, role: TEST, reason: duplicate_confirmed_cross_role}
+  - {subject_id: subject_815e0549ed1f8d0514b4, role: TRAIN, reason: duplicate_confirmed_cross_role}
+
+unchanged_frozen_semantics:
+  pair_counts: true
+  seeds_and_rng_lineage: true
+  bootstrap_replicates_10000: true
+  statistical_thresholds: true
+  outcome_authorization: false
+
+next_gate:
+  action: rerun_nonoutcome_preflight_on_active_amended_boundary
+  pass_condition: no_BLOCK_DUPLICATE_LIKE_and_no_AMBIGUOUS_REVIEW
+  coverage_power_authorized_only_after_pass: true
+  screen_test_authorized: false

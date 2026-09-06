@@ -1,0 +1,223 @@
+name: Study 1B S4N2 DAGJK20 Coverage 1000
+
+on:
+  push:
+    branches:
+      - agent/study1b-preregistration-20260827
+    paths:
+      - 'protocol/chronicle/STUDY1B_S4N2_DAGJK20_COVERAGE_1000_LAUNCH_2026-09-06.yaml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  prepare-frozen-graphs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: Install package and LFW access
+        run: |
+          python -m pip install --upgrade pip 'setuptools>=83.0.0'
+          python -m pip install -e . kagglehub
+      - name: Resolve LFW dataset root
+        id: lfw
+        run: |
+          python - <<'PY'
+          import contextlib, os, sys, kagglehub
+          with contextlib.redirect_stdout(sys.stderr):
+              root = kagglehub.dataset_download('jessicali9530/lfw-dataset/versions/4')
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as handle:
+              handle.write(f'root={root}\n')
+          PY
+      - name: Stage pinned LFW View 1 metadata
+        run: |
+          cp protocol/sources/lfw_view1/peopleDevTrain.txt '${{ steps.lfw.outputs.root }}/peopleDevTrain.txt'
+          cp protocol/sources/lfw_view1/peopleDevTest.txt '${{ steps.lfw.outputs.root }}/peopleDevTest.txt'
+      - name: Materialize frozen active data boundary
+        env:
+          PYTHONPATH: src
+        run: |
+          python scripts/study1b_apply_active_data_boundary.py \
+            --dataset-root '${{ steps.lfw.outputs.root }}' \
+            --output-dir artifacts/study1b/s4n2-source
+      - name: Verify frozen source hashes
+        working-directory: artifacts/study1b/s4n2-source
+        run: |
+          printf '%s  %s\n' \
+            '767f9fe8d1d8466a0e722f826b26875a0e852f525f7413a9658a307a9639366e' \
+            'capture_manifest.csv' | sha256sum -c -
+          printf '%s  %s\n' \
+            'fb849558e0b09b0fa7ff301991af010815f0b4ee98ab62faa1c585477f9f8601' \
+            'graphs/validation_pairs.csv' | sha256sum -c -
+          printf '%s  %s\n' \
+            '08c86ca9a641fc96b74014ae1974f713cd00e558dd98946ac32ff440c4666f85' \
+            'graphs/test_pairs.csv' | sha256sum -c -
+      - uses: actions/upload-artifact@v4
+        with:
+          name: study1b-s4n2-frozen-graphs
+          path: |
+            artifacts/study1b/s4n2-source/capture_manifest.csv
+            artifacts/study1b/s4n2-source/graphs/validation_pairs.csv
+            artifacts/study1b/s4n2-source/graphs/test_pairs.csv
+            artifacts/study1b/s4n2-source/preflight_report.json
+          if-no-files-found: error
+
+  coverage-shards:
+    needs: prepare-frozen-graphs
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix:
+        truth: [d0, d001, d003, d005]
+        shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: Install package
+        run: |
+          python -m pip install --upgrade pip 'setuptools>=83.0.0'
+          python -m pip install -e .
+      - uses: actions/download-artifact@v5
+        with:
+          name: study1b-s4n2-frozen-graphs
+          path: artifacts/study1b/s4n2-source
+      - name: Execute frozen S4N2 coverage shard
+        env:
+          PYTHONPATH: src
+          TRUTH: ${{ matrix.truth }}
+          SHARD: ${{ matrix.shard }}
+        run: |
+          case "$TRUTH" in
+            d0) DELTA='0.0' ;;
+            d001) DELTA='0.01' ;;
+            d003) DELTA='0.03' ;;
+            d005) DELTA='0.05' ;;
+            *) echo "unknown truth label: $TRUTH" >&2; exit 2 ;;
+          esac
+          START=$((SHARD * 50))
+          STOP=$((START + 50))
+          mkdir -p artifacts/study1b/s4n2-shards
+          python scripts/study1b_s4n2_run_shard.py \
+            --validation-graph artifacts/study1b/s4n2-source/graphs/validation_pairs.csv \
+            --test-graph artifacts/study1b/s4n2-source/graphs/test_pairs.csv \
+            --truth-delta "$DELTA" \
+            --start "$START" \
+            --stop "$STOP" \
+            --output "artifacts/study1b/s4n2-shards/${TRUTH}_${SHARD}.jsonl"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: study1b-s4n2-coverage-${{ matrix.truth }}-${{ matrix.shard }}
+          path: artifacts/study1b/s4n2-shards/
+          if-no-files-found: error
+
+  aggregate-truth:
+    needs: coverage-shards
+    if: always() && needs.coverage-shards.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        truth: [d0, d001, d003, d005]
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: Install package
+        run: |
+          python -m pip install --upgrade pip 'setuptools>=83.0.0'
+          python -m pip install -e .
+      - uses: actions/download-artifact@v5
+        with:
+          pattern: study1b-s4n2-coverage-${{ matrix.truth }}-*
+          path: artifacts/study1b/s4n2-downloaded
+          merge-multiple: true
+      - name: Aggregate S4N2 coverage
+        env:
+          PYTHONPATH: src
+          TRUTH: ${{ matrix.truth }}
+        run: |
+          case "$TRUTH" in
+            d0) DELTA='0.0' ;;
+            d001) DELTA='0.01' ;;
+            d003) DELTA='0.03' ;;
+            d005) DELTA='0.05' ;;
+            *) echo "unknown truth label: $TRUTH" >&2; exit 2 ;;
+          esac
+          mkdir -p artifacts/study1b/s4n2-summary
+          python scripts/study1b_s4n2_aggregate.py \
+            --input-root artifacts/study1b/s4n2-downloaded \
+            --gate coverage \
+            --expected 1000 \
+            --truth-delta "$DELTA" \
+            --output "artifacts/study1b/s4n2-summary/${TRUTH}_checkpoint_1000.json"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: study1b-s4n2-coverage-${{ matrix.truth }}-checkpoint-1000-summary
+          path: artifacts/study1b/s4n2-summary/${{ matrix.truth }}_checkpoint_1000.json
+          if-no-files-found: error
+
+  combine-checkpoint:
+    needs: aggregate-truth
+    if: always() && needs.aggregate-truth.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/download-artifact@v5
+        with:
+          pattern: study1b-s4n2-coverage-*-checkpoint-1000-summary
+          path: artifacts/study1b/s4n2-combined-input
+          merge-multiple: true
+      - name: Combine frozen S4N2 coverage cells
+        env:
+          SOURCE_COMMIT: ${{ github.sha }}
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          root = Path('artifacts/study1b/s4n2-combined-input')
+          cells = {}
+          for label in ('d0', 'd001', 'd003', 'd005'):
+              data = json.loads((root / f'{label}_checkpoint_1000.json').read_text())
+              if data.get('gate') != 'coverage' or data.get('scientific_outcomes_opened') is not False:
+                  raise SystemExit(f'{label}: invalid coverage summary')
+              cells[label] = data
+          out = {
+              'schema_version': 1,
+              'kind': 'study1b_s4n2_dagjk20_coverage_checkpoint_1000',
+              'scientific_outcomes_opened': False,
+              'screen_opened': False,
+              'test_opened': False,
+              'representation_geometry_opened': False,
+              'amendment_activated': False,
+              'source_commit': os.environ['SOURCE_COMMIT'],
+              'checkpoint': 1000,
+              'truth_cells': cells,
+              'pass': all(bool(cell.get('all_coverage_pass')) for cell in cells.values()),
+              'next_action_if_pass': 'S4N2_DAGJK20_CORE_POWER_REQUIRES_SEPARATE_LAUNCH',
+              'next_action_if_fail': 'FOLLOW_FROZEN_2000_4000_COVERAGE_CHECKPOINT_RULE',
+          }
+          target = Path('artifacts/study1b/s4n2-combined/checkpoint_1000.json')
+          target.parent.mkdir(parents=True, exist_ok=True)
+          target.write_text(json.dumps(out, indent=2, sort_keys=True) + '\n')
+          print(json.dumps({'coverage_gate_pass': out['pass']}, sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: study1b-s4n2-dagjk20-coverage-checkpoint-1000-summary
+          path: artifacts/study1b/s4n2-combined/checkpoint_1000.json
+          if-no-files-found: error

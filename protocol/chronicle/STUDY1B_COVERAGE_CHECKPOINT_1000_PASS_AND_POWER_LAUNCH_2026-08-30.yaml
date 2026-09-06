@@ -1,0 +1,137 @@
+schema_version: "1.0"
+entry_id: STUDY1B_COVERAGE_CHECKPOINT_1000_PASS_AND_POWER_LAUNCH_2026-08-30
+study_id: study_1b_matched_compression
+date: "2026-08-30"
+kind: NONOUTCOME_STATISTICAL_PREFLIGHT_MILESTONE
+status: COVERAGE_GATE_CLOSED_POWER_PREFLIGHT_NEXT
+
+scope:
+  scientific_outcomes_opened: false
+  screen_opened: false
+  test_opened: false
+  representation_geometry_authorized: false
+  raw512_vs_compressed_performance_result: false
+
+coverage_checkpoint:
+  workflow_run_id: 33256396749
+  workflow_name: Study 1B Coverage Checkpoint 1000
+  workflow_run_number: 7
+  head_sha: 051d24d3e1f013200d0f36c1d28bdb5cf4d4b6e3
+  summary_artifact:
+    artifact_id: 9716914954
+    name: study1b-coverage-checkpoint-1000-summary
+    digest: sha256:b3acfcd530c38e0a63364a569d07a75b9e686dd65920ded488b7d51cc1dc4fb3
+  expected_datasets_per_scenario: 1000
+  frozen_gate:
+    lower_95_clopper_pearson_gte: 0.93
+    degenerate_fraction_lte: 0.001
+    stop_rule: first_checkpoint_where_all_cells_pass
+  result:
+    pass: true
+    scenarios:
+      independent_pair_null:
+        covered: 983
+        empirical_coverage: 0.983
+        lower_95_clopper_pearson: 0.9729205031351928
+        degenerate_fraction: 0.0
+        pass: true
+      subject_dependence_null:
+        covered: 999
+        empirical_coverage: 0.999
+        lower_95_clopper_pearson: 0.9944410757201502
+        degenerate_fraction: 0.0
+        pass: true
+      subject_dependence_noninferior:
+        target_delta_fnmr: 0.01
+        covered: 992
+        empirical_coverage: 0.992
+        lower_95_clopper_pearson: 0.9842979508239253
+        degenerate_fraction: 0.0
+        pass: true
+      subject_dependence_boundary:
+        target_delta_fnmr: 0.03
+        covered: 994
+        empirical_coverage: 0.994
+        lower_95_clopper_pearson: 0.9869865767290255
+        degenerate_fraction: 0.0
+        pass: true
+      subject_dependence_inferior:
+        target_delta_fnmr: 0.05
+        covered: 986
+        empirical_coverage: 0.986
+        lower_95_clopper_pearson: 0.9766218439896855
+        degenerate_fraction: 0.0
+        pass: true
+  decision:
+    coverage_gate_closed_at_checkpoint: 1000
+    checkpoints_2000_and_4000_required: false
+    rationale: >-
+      All five preregistered known-truth cells passed the frozen checkpoint gate at 1000 datasets.
+      The frozen stop rule therefore closes coverage validation at the first checkpoint; continuing
+      to 2000 or 4000 would add computation without changing the preregistered decision rule.
+
+interpretation_boundary:
+  statement: >-
+    These coverage percentages validate the statistical procedure on synthetic known-truth datasets.
+    They are not performance measurements of random128, PCA128, or Siamese128 against raw512.
+  not_yet_measured:
+    - actual FNMR_raw512 on SCREEN or TEST
+    - actual FNMR_random128 on SCREEN or TEST
+    - actual FNMR_PCA128 on SCREEN or TEST
+    - actual FNMR_Siamese128 on SCREEN or TEST
+    - actual delta_fnmr of any compressed representation versus raw512
+    - any Study 1B qualification claim
+  future_estimand: delta_fnmr(m, alpha) = FNMR_m(alpha) - FNMR_raw512(alpha)
+
+power_next_step:
+  authorization_basis: >-
+    Existing non-outcome preflight authorization covers power simulation; this entry records
+    progression to the already frozen power step and does not authorize Study 1B outcomes.
+  simulated_datasets_per_effect: 4000
+  effect_scenarios: [0.0, 0.01]
+  method_seeds: [11, 29, 47, 71, 101]
+  shared_reference_invariant: one_common_raw_reference_per_simulated_dataset
+  seed_effect_sd: 0.005
+  pass_rule: all_five_seed_ucb_below_0_03
+  required_probability: 0.90
+  overall_gate: both_effect_scenarios_power_gte_0_90
+  execution_policy:
+    decomposed: true
+    resumable: true
+    bootstrap_replicates_per_dataset: 10000
+    no_silent_reduction: true
+    maximum_planned_shard_wall_time_hours: 4
+
+pedagogical_reading:
+  en_francais_dans_le_texte: >-
+    On vient de vérifier notre règle de mesure, pas la qualité de la compression. On a fabriqué
+    des expériences où la bonne réponse était connue à l'avance, puis vérifié que notre intervalle
+    statistique retrouvait correctement cette réponse. Les cinq situations passent dès 1000 essais,
+    donc la règle prévue nous dit de ne pas gaspiller du calcul avec 2000 puis 4000 essais de
+    couverture. L'étape suivante est de vérifier que notre protocole a assez de puissance pour
+    détecter la non-infériorité que nous voulons démontrer. Les vraies comparaisons 512D contre
+    128D restent fermées.
+  lecture_ingenieur: >-
+    Le checkpoint coverage valide le sous-système de décision statistique indépendamment du
+    système biométrique évalué. La chaîne identité-slot -> bootstrap apparié -> UCB -> décision de
+    non-infériorité a été soumise à cinq régimes synthétiques de vérité connue. Chaque cellule
+    satisfait la borne inférieure Clopper-Pearson préenregistrée et aucune dégénérescence n'est
+    observée. Le gate coverage est donc fermé conformément à la règle d'arrêt. Le prochain risque
+    méthodologique est un manque de puissance de la règle d'intersection sur cinq seeds; il est
+    testé avant toute ouverture de SCREEN/TEST afin de ne pas confondre incapacité du protocole à
+    conclure et performance réelle des représentations.
+  lecture_12_ans: >-
+    Imagine une règle graduée qu'on veut utiliser pour comparer deux objets. Avant de mesurer les
+    vrais objets, on teste la règle avec des objets dont on connaît déjà exactement la taille. Si
+    elle donne la bonne réponse presque tout le temps, on peut lui faire davantage confiance. Ici,
+    la règle a réussi les cinq séries de tests. Maintenant on vérifie une autre chose: est-ce que
+    notre expérience sera assez forte pour voir une petite différence si elle existe vraiment ?
+    On n'a toujours pas regardé qui gagne entre la version 512 et les versions 128.
+
+next_gate:
+  id: STUDY1B_POWER_PREFLIGHT
+  state: READY_TO_EXECUTE_NONOUTCOME
+  after_power_pass: >-
+    Archive power evidence, update Chronicle, rerun assurance, obtain the required independent
+    reviews on the unchanged final preregistration head, and only then request the separate explicit
+    human GO required before outcome-bearing Study 1B SCREEN/TEST execution.

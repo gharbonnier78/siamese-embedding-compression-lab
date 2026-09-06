@@ -1,0 +1,55 @@
+name: Study 1B S4N1 Power Plateau Diagnostic
+
+on:
+  push:
+    branches:
+      - agent/study1b-preregistration-20260827
+    paths:
+      - 'protocol/chronicle/STUDY1B_S4N1_POWER_PLATEAU_DIAGNOSTIC_LAUNCH_2026-09-06.yaml'
+  workflow_dispatch:
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  diagnose-archived-synthetic-power:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: Install package
+        run: |
+          python -m pip install --upgrade pip 'setuptools>=83.0.0'
+          python -m pip install -e .
+      - name: Download only the archived S4N1 synthetic power shards
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          mkdir -p artifacts/study1b/s4n1-power-plateau-source
+          gh run download 33950949898 \
+            --pattern 'study1b-s4n1-power-d0-*' \
+            --dir artifacts/study1b/s4n1-power-plateau-source
+          gh run download 33950949898 \
+            --pattern 'study1b-s4n1-power-d001-*' \
+            --dir artifacts/study1b/s4n1-power-plateau-source
+          test "$(find artifacts/study1b/s4n1-power-plateau-source -type f -name '*.jsonl' | wc -l)" -eq 80
+      - name: Diagnose frozen S4N1 power plateau
+        env:
+          PYTHONPATH: src
+        run: |
+          mkdir -p artifacts/study1b/s4n1-power-plateau-diagnostic
+          python scripts/study1b_s4n1_power_plateau_diagnostic.py \
+            --input-root artifacts/study1b/s4n1-power-plateau-source \
+            --expected-per-truth 4000 \
+            --output artifacts/study1b/s4n1-power-plateau-diagnostic/diagnostic.json
+          sha256sum artifacts/study1b/s4n1-power-plateau-diagnostic/diagnostic.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: study1b-s4n1-power-plateau-diagnostic
+          path: artifacts/study1b/s4n1-power-plateau-diagnostic/diagnostic.json
+          if-no-files-found: error

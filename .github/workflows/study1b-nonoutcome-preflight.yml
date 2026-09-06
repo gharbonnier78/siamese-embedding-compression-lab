@@ -1,0 +1,144 @@
+name: Study 1B Non-outcome Preflight
+
+on:
+  pull_request:
+    paths:
+      - 'src/siamese_compression_lab/study1b_*'
+      - 'scripts/study1b_*'
+      - 'tests/test_study1b_*'
+      - 'protocol/studies/STUDY1B_*'
+      - 'protocol/studies/study_1b_matched_compression.yaml'
+      - 'protocol/amendments/STUDY1B_*'
+      - 'protocol/simulations/STUDY1B_*'
+      - 'protocol/chronicle/STUDY1B_*'
+      - '.github/workflows/study1b-nonoutcome-preflight.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contract-and-unit-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: Install package and development checks
+        run: |
+          python -m pip install --upgrade pip 'setuptools>=83.0.0'
+          python -m pip install -e '.[dev]'
+      - name: Study 1B focused tests
+        env:
+          PYTHONPATH: src
+        run: python -m unittest tests.test_study1b_preflight_execution -v
+      - name: Focused lint
+        run: |
+          ruff check \
+            src/siamese_compression_lab/study1b_preflight.py \
+            src/siamese_compression_lab/study1b_statistics.py \
+            src/siamese_compression_lab/study1b_bootstrap_vectorized.py \
+            src/siamese_compression_lab/study1b_simulation.py \
+            src/siamese_compression_lab/study1b_execution.py \
+            scripts/study1b_preflight_lfw.py \
+            scripts/study1b_adjudicate_near_duplicates.py \
+            scripts/study1b_quarantine_dry_run.py \
+            scripts/study1b_apply_active_data_boundary.py \
+            scripts/study1b_run_simulation_shard.py \
+            tests/test_study1b_preflight_execution.py
+
+  lfw-metadata-graph-and-cost-pilot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: Install minimal LFW preflight dependencies
+        run: |
+          python -m pip install --upgrade pip 'setuptools>=83.0.0'
+          python -m pip install -e . kagglehub
+      - name: Resolve cached LFW dataset root
+        id: lfw
+        run: |
+          python - <<'PY'
+          import contextlib
+          import os
+          import sys
+          import kagglehub
+          with contextlib.redirect_stdout(sys.stderr):
+              root = kagglehub.dataset_download('jessicali9530/lfw-dataset/versions/4')
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as handle:
+              handle.write(f'root={root}\n')
+          PY
+      - name: Materialize canonical View 1 metadata and baseline provenance
+        env:
+          PYTHONPATH: src
+        run: |
+          python scripts/study1b_preflight_lfw.py \
+            --dataset-root '${{ steps.lfw.outputs.root }}' \
+            --output-dir artifacts/study1b/nonoutcome-preflight/baseline
+      - name: Materialize activated amended data boundary and official pair graphs
+        env:
+          PYTHONPATH: src
+        run: |
+          python scripts/study1b_apply_active_data_boundary.py \
+            --dataset-root '${{ steps.lfw.outputs.root }}' \
+            --output-dir artifacts/study1b/nonoutcome-preflight
+      - name: Deterministically adjudicate active-boundary dHash candidates
+        env:
+          PYTHONPATH: src
+        run: |
+          python scripts/study1b_adjudicate_near_duplicates.py \
+            --near-duplicate-audit artifacts/study1b/nonoutcome-preflight/overlap_near_duplicate_audit.json \
+            --capture-manifest artifacts/study1b/nonoutcome-preflight/capture_manifest.csv \
+            --dataset-root '${{ steps.lfw.outputs.root }}' \
+            --output artifacts/study1b/nonoutcome-preflight/near_duplicate_adjudication.json
+      - name: Run non-gating simulation cost pilot on active TEST graph
+        env:
+          PYTHONPATH: src
+        run: |
+          python scripts/study1b_run_simulation_shard.py \
+            --contract protocol/simulations/STUDY1B_COVERAGE_POWER_PREFLIGHT_2026-08-27.yaml \
+            --test-graph artifacts/study1b/nonoutcome-preflight/graphs/test_pairs.csv \
+            --mode cost-pilot \
+            --scenario subject_dependence_null \
+            --start 0 --stop 2 \
+            --output artifacts/study1b/nonoutcome-preflight/cost_pilot.jsonl
+      - name: Assert active amended evidence boundary and source provenance
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          baseline = json.loads(Path('artifacts/study1b/nonoutcome-preflight/baseline/preflight_report.json').read_text())
+          report = json.loads(Path('artifacts/study1b/nonoutcome-preflight/preflight_report.json').read_text())
+          audit = json.loads(Path('artifacts/study1b/nonoutcome-preflight/overlap_near_duplicate_audit.json').read_text())
+          adjudication = json.loads(Path('artifacts/study1b/nonoutcome-preflight/near_duplicate_adjudication.json').read_text())
+          assert baseline['scientific_outcomes_opened'] is False
+          assert report['scientific_outcomes_opened'] is False
+          assert adjudication['scientific_outcomes_opened'] is False
+          assert report['boundary_status'] == 'ACTIVE_PREOUTCOME_DATA_BOUNDARY'
+          assert report['excluded_identity_count'] == 4
+          assert report['exact_duplicate_audit'] == 'PASS'
+          assert adjudication['candidate_count'] == len(audit['near_cross_role_candidates'])
+          assert len(baseline['metadata_provenance']) == 2
+          for row in baseline['metadata_provenance']:
+              assert row['md5'] == row['expected_md5']
+          if adjudication['overall_status'] != 'PASS':
+              raise SystemExit(
+                  f"active-boundary near-duplicate adjudication remains blocking: {adjudication['overall_status']}"
+              )
+          print('active amended boundary, source provenance and duplicate adjudication PASS')
+          PY
+      - name: Upload non-outcome preflight artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: study1b-nonoutcome-preflight
+          path: artifacts/study1b/nonoutcome-preflight
+          if-no-files-found: warn

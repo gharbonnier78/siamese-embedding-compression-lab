@@ -1,0 +1,379 @@
+schema_version: "1.0"
+entry_type: s3_known_truth_revalidation_result
+chronicle_entry_id: CHRON-20260903-012
+study_id: study_1b_matched_compression
+scope: study_1b_s3_power_design_information_expansion
+date: 2026-09-03
+recorded_at_utc: "2026-09-03T04:53:00Z"
+kind: known_truth_coverage_revalidation_result
+status: RESOLVED
+outcome_evidence_seen: false
+
+summary: >-
+  The frozen S3 x1.5 and x2.0 expanded-information designs both pass the synthetic
+  known-truth coverage revalidation gate at the first preregistered checkpoint of 1000
+  simulated datasets per scenario and per design. The combined machine-readable verdict is
+  PASS. No escalation to the 2000 or 4000 checkpoints is admissible under the frozen
+  first_checkpoint_where_all_cells_pass stopping rule. This result validates the bounded
+  interval/estimator behavior on the two frozen expanded pair graphs; it is not evidence of
+  real 512D-to-128D compression performance and opens no SCREEN, qualification TEST, or
+  representation-geometry outcome.
+
+harness:
+  repository: gharbonnier78/scientific-research-harness
+  pinned_ref: 3b109adcdd9a8cba4df029d3803ee0e5cb5bdf98
+  pinned_url: https://github.com/gharbonnier78/scientific-research-harness/blob/3b109adcdd9a8cba4df029d3803ee0e5cb5bdf98/HARNESS.md
+  manifest: harness-adoption.yaml
+  local_instructions: AGENTS.md
+  local_chronicle_policy: docs/SCIENTIFIC_HARNESS.md
+  task_id: STUDY1B_S3_KNOWN_TRUTH_REVALIDATION_1000
+  lifecycle_record:
+    bind: completed
+    frame: completed_by_frozen_contract
+    execute: completed
+    verify: completed_by_per_design_and_combined_aggregation
+    chronicle_and_handoff: this_entry
+
+human_authority:
+  source: "2026-09-02 project conversation"
+  instruction: "revalidation known-truth des designs x1.5 et x2"
+  authorization_scope: synthetic_nonoutcome_known_truth_revalidation_only
+
+scientific_authorization_boundary:
+  scientific_outcomes_opened: false
+  screen_opened: false
+  qualification_test_outcomes_opened: false
+  representation_geometry_opened: false
+  canonical_failed_power_result_replaced: false
+  s2_final_failure_replaced: false
+  power_design_amendment_activated: false
+  s3_power_calibration_authorized_by_this_entry: false
+  human_go_for_real_study1b_outcomes_admissible_from_this_entry: false
+
+framing:
+  question: >-
+    Does the frozen Study 1B subject-slot interval retain the preregistered known-truth
+    coverage behavior when evaluated on the two frozen S3 expanded TEST information graphs?
+  permitted_inference: >-
+    The interval/estimator implementation satisfies the frozen synthetic known-truth coverage
+    gate for both expanded graph designs at the first checkpoint.
+  prohibited_inferences:
+    - infer_real_compression_noninferiority
+    - infer_real_compression_superiority
+    - infer_screen_or_test_performance
+    - inspect_or_infer_representation_geometry
+    - treat_synthetic_coverage_as_real_biometric_outcome_evidence
+    - infer_that_s3_power_will_pass_before_power_calibration
+    - replace_the_canonical_original_power_failure
+    - replace_the_s2_final_negative_result
+
+basis:
+  launch_chronicle: protocol/chronicle/STUDY1B_POWER_DESIGN_S3_KNOWN_TRUTH_REVALIDATION_LAUNCH_2026-09-02.yaml
+  revalidation_contract: protocol/simulations/STUDY1B_POWER_DESIGN_S3_KNOWN_TRUTH_REVALIDATION_V0_1_2026-09-02.yaml
+  graph_construction_result: protocol/chronicle/STUDY1B_POWER_DESIGN_S3_GRAPH_CONSTRUCTION_RESULT_2026-09-02.yaml
+  workflow: .github/workflows/study1b-power-design-s3-known-truth.yml
+  source_head: 5397c58e171ac202f67f58f6cb6a7d0253be3a02
+  pull_request: https://github.com/gharbonnier78/siamese-embedding-compression-lab/pull/50
+
+frozen_designs:
+  x1_5:
+    graph_file: test_pairs_s3_x1_5.csv
+    graph_sha256: 57dd4a3b2db26220ea8e29f5a4d218b50883cdac456f18e73691c1d26afdebc0
+    genuine_pairs: 15000
+    impostor_pairs: 150000
+  x2_0:
+    graph_file: test_pairs_s3_x2_0.csv
+    graph_sha256: 85cd8b04d768ca035cf76184bb1f4547b9c25349803681be9af16be5b65cda58
+    genuine_pairs: 20000
+    impostor_pairs: 200000
+  capture_manifest_sha256: 767f9fe8d1d8466a0e722f826b26875a0e852f525f7413a9658a307a9639366e
+  base_test_graph_sha256: 08c86ca9a641fc96b74014ae1974f713cd00e558dd98946ac32ff440c4666f85
+
+frozen_estimator_and_gate:
+  target_fmr: 0.01
+  noninferiority_margin_delta_fnmr: 0.03
+  ucb_quantile: 0.975
+  bootstrap_replicates_per_dataset: 10000
+  sampling_unit: identity_slot
+  genuine_edge_weight: m_i
+  impostor_edge_weight: m_i_times_m_j
+  synthesize_unobserved_edges: false
+  same_draw_for_paired_routes: true
+  coverage_metric: representation_delta_fnmr
+  nominal_interval: percentile_two_sided_95_with_97_5_upper_bound
+  exact_clopper_pearson_two_sided_95_lower_bound_gte: 0.93
+  degenerate_fraction_lte: 0.001
+  checkpoints: [1000, 2000, 4000]
+  stop_rule: first_checkpoint_where_all_cells_pass
+
+execution_provenance:
+  workflow_name: Study 1B S3 Known-Truth Revalidation 1000
+  workflow_run_id: 33675518924
+  workflow_url: https://github.com/gharbonnier78/siamese-embedding-compression-lab/actions/runs/33675518924
+  event: push
+  run_attempt: 1
+  run_started_at_utc: "2026-09-02T19:48:32Z"
+  run_completed_at_utc: "2026-09-02T21:44:57Z"
+  execution_status: completed
+  execution_conclusion: success
+  head_branch: agent/study1b-preregistration-20260827
+  head_sha: 5397c58e171ac202f67f58f6cb6a7d0253be3a02
+  total_jobs: 204
+  design_count: 2
+  scenarios_per_design: 5
+  datasets_per_scenario_per_design: 1000
+  total_simulated_datasets: 10000
+  datasets_per_shard: 50
+  coverage_shard_jobs: 200
+  degenerate_datasets_observed: 0
+  scientific_outcomes_opened: false
+  runtime_note: >-
+    Workflow execution success is recorded separately from the scientific coverage verdict.
+    The aggregate jobs intentionally preserve a scientific FAIL as data rather than turning
+    it into an infrastructure failure; in this run both design-level scientific verdicts
+    were PASS.
+
+results:
+  x1_5:
+    pass: true
+    scenarios:
+      independent_pair_null:
+        covered: 984
+        simulated_datasets: 1000
+        empirical_coverage: 0.984
+        lower_95_clopper_pearson: 0.9741467509186107
+        degenerate_fraction: 0.0
+        pass: true
+      subject_dependence_null:
+        covered: 987
+        simulated_datasets: 1000
+        empirical_coverage: 0.987
+        lower_95_clopper_pearson: 0.9778721963632198
+        degenerate_fraction: 0.0
+        pass: true
+      subject_dependence_noninferior:
+        covered: 996
+        simulated_datasets: 1000
+        empirical_coverage: 0.996
+        lower_95_clopper_pearson: 0.9897903353160701
+        degenerate_fraction: 0.0
+        pass: true
+      subject_dependence_boundary:
+        covered: 986
+        simulated_datasets: 1000
+        empirical_coverage: 0.986
+        lower_95_clopper_pearson: 0.9766218439896855
+        degenerate_fraction: 0.0
+        pass: true
+      subject_dependence_inferior:
+        covered: 974
+        simulated_datasets: 1000
+        empirical_coverage: 0.974
+        lower_95_clopper_pearson: 0.9621348775210785
+        degenerate_fraction: 0.0
+        pass: true
+    minimum_lower_95_clopper_pearson:
+      scenario: subject_dependence_inferior
+      value: 0.9621348775210785
+      margin_above_gate: 0.0321348775210785
+  x2_0:
+    pass: true
+    scenarios:
+      independent_pair_null:
+        covered: 982
+        simulated_datasets: 1000
+        empirical_coverage: 0.982
+        lower_95_clopper_pearson: 0.9717009587509808
+        degenerate_fraction: 0.0
+        pass: true
+      subject_dependence_null:
+        covered: 991
+        simulated_datasets: 1000
+        empirical_coverage: 0.991
+        lower_95_clopper_pearson: 0.9829842169299511
+        degenerate_fraction: 0.0
+        pass: true
+      subject_dependence_noninferior:
+        covered: 991
+        simulated_datasets: 1000
+        empirical_coverage: 0.991
+        lower_95_clopper_pearson: 0.9829842169299511
+        degenerate_fraction: 0.0
+        pass: true
+      subject_dependence_boundary:
+        covered: 980
+        simulated_datasets: 1000
+        empirical_coverage: 0.98
+        lower_95_clopper_pearson: 0.9692799673173909
+        degenerate_fraction: 0.0
+        pass: true
+      subject_dependence_inferior:
+        covered: 962
+        simulated_datasets: 1000
+        empirical_coverage: 0.962
+        lower_95_clopper_pearson: 0.9482128963780345
+        degenerate_fraction: 0.0
+        pass: true
+    minimum_lower_95_clopper_pearson:
+      scenario: subject_dependence_inferior
+      value: 0.9482128963780345
+      margin_above_gate: 0.0182128963780345
+  combined:
+    checkpoint: 1000
+    pass: true
+    all_ten_design_scenario_cells_pass: true
+    all_degenerate_fraction_checks_pass: true
+    minimum_lower_95_clopper_pearson_over_all_cells:
+      design: x2_0
+      scenario: subject_dependence_inferior
+      value: 0.9482128963780345
+      gate: 0.93
+      margin_above_gate: 0.0182128963780345
+
+artifacts:
+  combined_summary:
+    name: study1b-s3-known-truth-checkpoint-1000-summary
+    artifact_id: 9868424786
+    digest: sha256:63a750377f134e83b7614b2a7ada7697db9a166a63b8c1bd9d3a0da9123e8092
+    url: https://github.com/gharbonnier78/siamese-embedding-compression-lab/actions/runs/33675518924/artifacts/9868424786
+  x1_5_summary:
+    name: study1b-s3-known-truth-x1_5-checkpoint-1000-summary
+    artifact_id: 9868418936
+    digest: sha256:6b99e4d032afbdc15169cc83cf1a17760b31b72aa0ec8f16ac2d262f8773c4b1
+    url: https://github.com/gharbonnier78/siamese-embedding-compression-lab/actions/runs/33675518924/artifacts/9868418936
+  x2_0_summary:
+    name: study1b-s3-known-truth-x2_0-checkpoint-1000-summary
+    artifact_id: 9868415985
+    digest: sha256:3335032daa23889334d889e97c618b757dd426be88e90e43b09ebe5ed58f97bf
+    url: https://github.com/gharbonnier78/siamese-embedding-compression-lab/actions/runs/33675518924/artifacts/9868415985
+  raw_shard_artifacts:
+    count: 200
+    policy: >-
+      Per-design, per-scenario, per-shard synthetic JSONL artifacts remain attached to the
+      canonical workflow run. Their individual artifact IDs and SHA-256 digests are
+      recoverable from the run artifacts API and are not collapsed into the three summary
+      digests above.
+
+stopping_rule_evaluation:
+  checkpoint_1000_all_cells_pass: true
+  escalate_to_2000: false
+  escalate_to_4000: false
+  rationale: >-
+    The frozen stop rule is the first checkpoint where all cells pass. Because both design
+    aggregates pass at 1000 and the combined verdict is PASS, later checkpoints are not a
+    precision bonus or optional confirmation run; launching them would violate the frozen
+    decision rule unless a new prospective contract explicitly justified a different task.
+
+verification:
+  execution_vs_science_separated: true
+  graph_hash_verification_required_by_workflow: true
+  graph_hashes_match_frozen_contract_by_successful_prepare_job: true
+  per_design_aggregation_completed: true
+  combined_aggregation_completed: true
+  combined_machine_verdict: PASS
+  independent_review_of_this_archive: NOT_PERFORMED
+  note: >-
+    This Chronicle entry records the canonical machine-produced gate result and its
+    provenance. It is not an independent review report and must not be represented as one.
+
+interpretation:
+  validated: >-
+    The frozen subject-slot interval and coverage gate remain behaviorally acceptable on the
+    two larger S3 information graphs under the same five known-truth scenario family.
+  not_validated:
+    - real_method_power
+    - real_noninferiority
+    - superiority
+    - screen_performance
+    - qualification_test_performance
+    - representation_geometry
+    - external_dataset_generalization
+  engineering_scientific_observation: >-
+    Increasing the frozen pair-graph information from the base S3 construction to x1.5 and
+    x2.0 did not invalidate the synthetic interval calibration. This removes the bounded
+    estimator-revalidation prerequisite for considering a prospective S3 power-calibration
+    step; it does not predict that such a power calculation will reach the 0.90 target.
+
+preserved_negative_evidence:
+  canonical_original_power_failure: >-
+    The preregistered original all-five power result remains canonical and failed at true
+    delta 0.01; this S3 coverage revalidation does not replace or reinterpret it.
+  s2_final_failure: >-
+    The S2 final candidate 3/5 result remains a negative design-analysis result and is not
+    replaced or softened by S3 known-truth coverage.
+
+next_admissible_action:
+  action: prepare_prospective_s3_power_calibration
+  authorization_status: NOT_GRANTED_BY_THIS_ENTRY
+  requirements:
+    - preserve_the_frozen_x1_5_and_x2_0_graph_hashes
+    - preserve_estimator_fmr_ni_margin_ucb_and_bootstrap_semantics_unless_prospectively_amended
+    - define_power_scenarios_and_target_before_execution
+    - retain_task_bound_rng_lineage_and_replay_metadata
+    - keep_real_screen_test_and_geometry_outcomes_sealed
+    - record_a_separate_authorization_and_launch_chronicle_entry_before_execution
+  do_not_do:
+    - launch_checkpoint_2000_or_4000_known_truth_as_a_post_pass_confirmation
+    - open_real_study1b_outcomes
+    - inspect_representation_geometry
+    - opportunistically_tune_power_rules_after_results
+
+handoff:
+  harness_ref: 3b109adcdd9a8cba4df029d3803ee0e5cb5bdf98
+  frozen_artifacts:
+    - graph:x1_5:sha256:57dd4a3b2db26220ea8e29f5a4d218b50883cdac456f18e73691c1d26afdebc0
+    - graph:x2_0:sha256:85cd8b04d768ca035cf76184bb1f4547b9c25349803681be9af16be5b65cda58
+    - artifact:9868424786:sha256:63a750377f134e83b7614b2a7ada7697db9a166a63b8c1bd9d3a0da9123e8092
+    - artifact:9868418936:sha256:6b99e4d032afbdc15169cc83cf1a17760b31b72aa0ec8f16ac2d262f8773c4b1
+    - artifact:9868415985:sha256:3335032daa23889334d889e97c618b757dd426be88e90e43b09ebe5ed58f97bf
+  evidence_produced: >-
+    Ten passing design-scenario coverage cells at checkpoint 1000, zero degenerate datasets,
+    two passing design summaries and one combined PASS summary, all from synthetic
+    known-truth simulations.
+  replay_and_recovery:
+    workflow_dispatch: .github/workflows/study1b-power-design-s3-known-truth.yml
+    note: >-
+      Replay is available for verification, but the frozen scientific stopping rule does not
+      justify additional higher-checkpoint scientific attempts after the checkpoint-1000
+      PASS. A replay must be labeled as replay/verification and must not silently become a
+      new canonical attempt.
+  unresolved_gates:
+    - S3_POWER_CALIBRATION_NOT_YET_AUTHORIZED
+    - STUDY1B_REAL_OUTCOME_HUMAN_GO_NOT_ADMISSIBLE_FROM_THIS_RESULT_ALONE
+    - SCREEN_SEALED
+    - TEST_SEALED
+    - REPRESENTATION_GEOMETRY_SEALED
+  exact_next_admissible_action: >-
+    Draft and review a prospective S3 power-calibration contract for the frozen x1.5 and
+    x2.0 designs, then record a separate explicit authorization/launch before executing it.
+
+provenance:
+  append_only: true
+  synthetic_raw_data_only: true
+  original_coverage_result_preserved: true
+  canonical_failed_power_result_preserved: true
+  s2_final_failure_preserved: true
+  launch_entry_preserved: true
+  no_retrospective_protocol_rewrite: true
+
+blocks: []
+
+evidence_refs:
+  - https://github.com/gharbonnier78/siamese-embedding-compression-lab
+  - https://github.com/gharbonnier78/siamese-embedding-compression-lab/pull/50
+  - https://github.com/gharbonnier78/siamese-embedding-compression-lab/commit/5397c58e171ac202f67f58f6cb6a7d0253be3a02
+  - https://github.com/gharbonnier78/siamese-embedding-compression-lab/actions/runs/33675518924
+  - https://github.com/gharbonnier78/scientific-research-harness/blob/3b109adcdd9a8cba4df029d3803ee0e5cb5bdf98/HARNESS.md
+  - harness-adoption.yaml
+  - AGENTS.md
+  - docs/SCIENTIFIC_HARNESS.md
+  - protocol/chronicle/STUDY1B_POWER_DESIGN_S3_KNOWN_TRUTH_REVALIDATION_LAUNCH_2026-09-02.yaml
+  - protocol/simulations/STUDY1B_POWER_DESIGN_S3_KNOWN_TRUTH_REVALIDATION_V0_1_2026-09-02.yaml
+  - protocol/chronicle/STUDY1B_POWER_DESIGN_S3_GRAPH_CONSTRUCTION_RESULT_2026-09-02.yaml
+  - .github/workflows/study1b-power-design-s3-known-truth.yml
+  - artifact:9868424786
+  - artifact_sha256:63a750377f134e83b7614b2a7ada7697db9a166a63b8c1bd9d3a0da9123e8092
+  - artifact:9868418936
+  - artifact_sha256:6b99e4d032afbdc15169cc83cf1a17760b31b72aa0ec8f16ac2d262f8773c4b1
+  - artifact:9868415985
+  - artifact_sha256:3335032daa23889334d889e97c618b757dd426be88e90e43b09ebe5ed58f97bf

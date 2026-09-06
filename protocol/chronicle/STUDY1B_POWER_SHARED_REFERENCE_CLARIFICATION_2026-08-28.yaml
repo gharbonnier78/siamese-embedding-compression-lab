@@ -1,0 +1,46 @@
+chronicle_version: 1
+study: Study 1B
+date: 2026-08-28
+kind: nonoutcome_power_simulation_clarification
+status: IMPLEMENTED_PENDING_ASSURANCE
+scientific_outcomes_opened: false
+screen_authorized: false
+test_authorized: false
+
+issue:
+  prior_implementation: each_model_seed_drew_independent_candidate_and_reference_world
+  problem: >-
+    The preregistered method-level power question is matched: five candidate model/projection
+    seeds are evaluated against one realized raw512 reference dataset. Independent reference
+    worlds add reference variability that does not belong to the all-five-seed method rule.
+
+clarification:
+  common_raw_reference_per_simulated_dataset: true
+  shared_across_method_seeds: [11, 29, 47, 71, 101]
+  candidate_residual_noise_seed_specific: true
+  frozen_candidate_reference_pair_noise_correlation: 0.7
+  bootstrap_draws_remain_paired_within_each_candidate_reference_comparison: true
+  seed_effect_model_unchanged:
+    sd: 0.005
+    truncation: [-0.02, 0.02]
+
+implementation:
+  module: src/siamese_compression_lab/study1b_simulation.py
+  test: tests/test_study1b_power_simulation.py
+  contract: protocol/simulations/STUDY1B_COVERAGE_POWER_PREFLIGHT_2026-08-27.yaml
+
+unchanged:
+  bootstrap_replicates: 10000
+  coverage_checkpoints: [1000, 2000, 4000]
+  power_datasets_per_effect_scenario: 4000
+  power_effect_scenarios: [0.0, 0.01]
+  method_seeds: [11, 29, 47, 71, 101]
+  noninferiority_margin_delta_fnmr: 0.03
+  required_power: 0.90
+
+next_gate:
+  - CI_green_on_shared_reference_head
+  - Research_Assurance_green
+  - Study1B_Engineering_Assurance_green
+  - Study1B_Nonoutcome_Preflight_green
+  - then_launch_resumable_coverage_and_power_shards
