@@ -2,15 +2,15 @@
 from __future__ import annotations
 
 import hashlib
+from collections.abc import Sequence
 from dataclasses import dataclass
-from typing import Sequence
 
 import numpy as np
 from scipy.stats import binomtest, t
 
 from .study1b_s4n1_selection import (
-    SELECTION_RULES,
     SEED_LABELS,
+    SELECTION_RULES,
     _point_scores,
     _role_distances,
     select_seed,
