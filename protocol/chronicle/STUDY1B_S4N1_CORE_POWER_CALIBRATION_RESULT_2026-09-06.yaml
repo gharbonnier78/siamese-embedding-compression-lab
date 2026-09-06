@@ -1,0 +1,214 @@
+schema_version: "1.0"
+entry_type: s4n1_core_power_result
+chronicle_entry_id: CHRON-20260906-020
+study_id: study_1b_matched_compression
+scope: study_1b_s4n1_core_known_truth_power_calibration_4000
+date: 2026-09-06
+kind: append_only_nonoutcome_synthetic_result
+status: CLOSED_NEGATIVE
+outcome_evidence_seen: false
+
+summary: >-
+  The prospectively frozen S4N1 core known-truth power calibration completed successfully as an
+  engineering workflow but failed its scientific power gate. All three frozen artifact-selection
+  candidates passed the Delta_FNMR 0.00 power cell and failed the Delta_FNMR 0.01 power cell
+  against the prospectively frozen minimum estimated power of 0.90. The S4N1 amendment proposal
+  therefore stops for these candidate rules. This negative result is preserved append-only and
+  opens no Study 1B SCREEN, qualification TEST, real route performance, representation geometry,
+  amendment, or real-study artifact selection.
+
+harness:
+  repository: gharbonnier78/scientific-research-harness
+  pinned_ref: 3b109adcdd9a8cba4df029d3803ee0e5cb5bdf98
+  manifest: harness-adoption.yaml
+  local_instructions: AGENTS.md
+  task_id: STUDY1B_S4N1_SELECTION_SEMANTICS_AND_CALIBRATION_DESIGN
+
+human_authority:
+  source: "2026-09-06 project conversation"
+  instruction: >-
+    Finir le plan actuel sans le modifier : archiver S4N1 négatif, diagnostiquer pourquoi on
+    plafonne à environ 86,9 %, puis concevoir/tester prospectivement S4N2.
+  interpretation: >-
+    Close and archive the already-completed S4N1 synthetic negative result first. Subsequent
+    diagnosis and any S4N2 work are separate non-outcome methodological work and cannot rewrite,
+    rescue, reinterpret, or activate S4N1.
+  screen_authorized: false
+  qualification_test_authorized: false
+  real_route_performance_authorized: false
+  geometry_authorized: false
+  amendment_activation_authorized: false
+
+basis:
+  frozen_contract: protocol/simulations/STUDY1B_S4N1_SELECTION_SEMANTICS_AND_CALIBRATION_DESIGN_V0_1_2026-09-04.yaml
+  freeze_chronicle: protocol/chronicle/STUDY1B_S4N1_SELECTION_SEMANTICS_FREEZE_2026-09-04.yaml
+  coverage_result_chronicle: protocol/chronicle/STUDY1B_S4N1_CORE_COVERAGE_CHECKPOINT_1000_RESULT_2026-09-05.yaml
+  power_launch_chronicle: protocol/chronicle/STUDY1B_S4N1_CORE_POWER_CALIBRATION_LAUNCH_2026-09-05.yaml
+  source_commit: 01c25c8d9858c1cea10b723d8fa1c301ea6f4fba
+
+execution:
+  workflow: Study 1B S4N1 Core Power 4000
+  workflow_file: .github/workflows/study1b-s4n1-core-power.yml
+  run_id: 33950949898
+  run_number: 1
+  event: push
+  infrastructure_conclusion: success
+  started_at_utc: "2026-09-05T06:51:14Z"
+  completed_at_utc: "2026-09-05T09:31:32Z"
+
+canonical_artifact:
+  id: 9967056081
+  name: study1b-s4n1-core-power-calibration-4000-summary
+  github_digest: sha256:f45867edc18d7d59f73589267f9372c2bdaca6752a094fbad5404fc46ddecdba
+  independently_verified_zip_sha256: f45867edc18d7d59f73589267f9372c2bdaca6752a094fbad5404fc46ddecdba
+  extracted_summary_file: power_4000.json
+  extracted_summary_sha256: 0b35ed4baa8b3acfbcf518df0a5d5b8869d999ea49896f735bbd518569fba5b2
+
+frozen_gate:
+  datasets_per_truth_cell: 4000
+  truth_delta_fnmr_cells: [0.0, 0.01]
+  candidates:
+    - S4N_FIXED_SEED
+    - S4N_VALIDATION_BEST
+    - S4N_VALIDATION_MEDIAN
+  target_fmr: 0.01
+  noninferiority_margin_delta_fnmr: 0.03
+  one_sided_ucb_level: 0.975
+  decision_rule: selected_artifact_TEST_UCB_97_5_le_0_03
+  minimum_estimated_power_each_truth_cell: 0.90
+  gate: candidate_must_pass_both_exact_truth_cells
+
+results:
+  delta_0_00:
+    S4N_FIXED_SEED:
+      noninferiority_passes: 3995
+      datasets: 4000
+      estimated_power: 0.99875
+      covered: 3969
+      empirical_coverage: 0.99225
+      lower_95_clopper_pearson: 0.9890173858
+      degenerate_fraction: 0.0
+      power_gate_pass: true
+    S4N_VALIDATION_BEST:
+      noninferiority_passes: 3998
+      datasets: 4000
+      estimated_power: 0.9995
+      covered: 3960
+      empirical_coverage: 0.99
+      lower_95_clopper_pearson: 0.9864074952
+      degenerate_fraction: 0.0
+      power_gate_pass: true
+    S4N_VALIDATION_MEDIAN:
+      noninferiority_passes: 3997
+      datasets: 4000
+      estimated_power: 0.99925
+      covered: 3983
+      empirical_coverage: 0.99575
+      lower_95_clopper_pearson: 0.9932040313
+      degenerate_fraction: 0.0
+      power_gate_pass: true
+  delta_0_01:
+    S4N_FIXED_SEED:
+      noninferiority_passes: 3462
+      datasets: 4000
+      estimated_power: 0.8655
+      covered: 3982
+      empirical_coverage: 0.9955
+      lower_95_clopper_pearson: 0.9928973496
+      degenerate_fraction: 0.0
+      power_gate_pass: false
+    S4N_VALIDATION_BEST:
+      noninferiority_passes: 3476
+      datasets: 4000
+      estimated_power: 0.869
+      covered: 3980
+      empirical_coverage: 0.995
+      lower_95_clopper_pearson: 0.9922884185
+      degenerate_fraction: 0.0
+      power_gate_pass: false
+    S4N_VALIDATION_MEDIAN:
+      noninferiority_passes: 3478
+      datasets: 4000
+      estimated_power: 0.8695
+      covered: 3976
+      empirical_coverage: 0.994
+      lower_95_clopper_pearson: 0.9910855491
+      degenerate_fraction: 0.0
+      power_gate_pass: false
+
+secondary_non_gate_observations:
+  delta_0_00:
+    S4N_FIXED_SEED:
+      mean_test_estimation_error: 0.000110175
+      mean_validation_optimism: -0.0001706722
+    S4N_VALIDATION_BEST:
+      mean_test_estimation_error: 0.00011465
+      mean_validation_optimism: -0.0068869406
+    S4N_VALIDATION_MEDIAN:
+      mean_test_estimation_error: 0.0000761
+      mean_validation_optimism: -0.000193689
+  delta_0_01:
+    S4N_FIXED_SEED:
+      mean_test_estimation_error: -0.0000508
+      mean_validation_optimism: 0.0000668688
+    S4N_VALIDATION_BEST:
+      mean_test_estimation_error: -0.00008045
+      mean_validation_optimism: -0.0069241711
+    S4N_VALIDATION_MEDIAN:
+      mean_test_estimation_error: -0.000099975
+      mean_validation_optimism: 0.0000288345
+  interpretation: >-
+    VALIDATION_BEST shows the expected finite-VALIDATION winner's-curse optimism, while the
+    selected artifact's independent TEST point-estimation error remains near zero in the core
+    generator. The failed primary gate is not attributed here to a cause; causal diagnosis of the
+    approximately 86.9 percent power plateau is a separate post-closure non-outcome task.
+
+scientific_decision:
+  overall_core_power_gate_pass: false
+  candidate_power_pass_both_truths:
+    S4N_FIXED_SEED: false
+    S4N_VALIDATION_BEST: false
+    S4N_VALIDATION_MEDIAN: false
+  preferred_candidate_if_coverage_archive_remains_valid: null
+  s4n1_candidate_rules_eligible_for_amendment_proposal: []
+  s4n1_amendment_proposal_status: STOPPED_NEGATIVE
+  transport_sensitivity_may_rescue_core_failure: false
+  interpretation: >-
+    Workflow success records successful execution, not scientific success. Coverage remained
+    strong and degeneracy was zero, but each candidate failed the frozen minimum power requirement
+    at exact TEST truth Delta_FNMR 0.01. No candidate may be selected post hoc because it was the
+    least failing rule.
+
+frozen_next_action:
+  action: ARCHIVE_NEGATIVE_RESULT_AND_STOP_S4N1_AMENDMENT_PROPOSAL_FOR_INELIGIBLE_CANDIDATES
+  subsequent_authorized_nonoutcome_work: >-
+    Diagnose the cause of the observed power plateau without rewriting S4N1, then design a
+    separately identified S4N2 contract prospectively and test it only after its design is frozen.
+  prohibited_rescue_actions:
+    - change_noninferiority_margin_because_of_this_result
+    - change_target_fmr_because_of_this_result
+    - change_ucb_level_because_of_this_result
+    - reorder_or_replace_selector_because_of_this_result
+    - change_s4n1_truth_scenarios_because_of_this_result
+    - increase_s4n1_dataset_count_to_seek_a_pass
+    - use_transport_sensitivity_to_override_core_power_failure
+    - open_real_study_outcomes
+
+scientific_boundary:
+  scientific_outcomes_opened: false
+  screen_opened: false
+  qualification_test_outcomes_opened: false
+  real_route_performance_opened: false
+  representation_geometry_opened: false
+  amendment_activated: false
+  original_5_of_5_rule_replaced: false
+  artifact_selector_activated_for_real_study: false
+  canonical_negative_results_preserved: true
+
+provenance:
+  append_only: true
+  power_launch_record_not_rewritten: true
+  coverage_result_not_rewritten: true
+  frozen_s4n1_contract_not_modified: true
+  s3_negative_result_not_rewritten: true
+  no_posthoc_rescue: true
