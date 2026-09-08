@@ -1,0 +1,311 @@
+schema_version: "1.0"
+benchmark_id: STUDY1B-JUNGLE-CHAMPIONSHIP-ENGINEERING-BENCHMARK-V0.2-2026-09-08
+study_id: study_1b_matched_compression
+date: 2026-09-08
+kind: nonoutcome_engineering_benchmark_contract
+status: CORRECTED_AWAITING_INDEPENDENT_REREVIEW_AND_ENVIRONMENT_BINDING
+supersedes_for_future_execution: protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_BENCHMARK_V0_1_2026-09-07.yaml
+independent_review_basis: protocol/reviews/PR50_INDEPENDENT_REVIEW_2026-09-08.md
+
+purpose: >-
+  Measure the engineering consequences of 512D versus 128D embeddings for the Jungle Championship
+  distributed-edge use case without opening or using protected Study 1B biometric outcomes. The benchmark
+  quantifies RAM feasibility, exact dense-search response, energy/battery behavior and hardware-tier effects
+  that may contribute to C_miss and the value of additional independent biometric evidence.
+
+scientific_boundary:
+  protected_biometric_inputs_required: false
+  real_study_outcomes_opened: false
+  screen_opened: false
+  qualification_test_opened: false
+  real_route_performance_opened: false
+  representation_geometry_opened: false
+  amendment_activated: false
+  s4n1_status: CLOSED_NEGATIVE
+  s4n2_status: CLOSED_NEGATIVE
+  s4n3_launched: false
+  engineering_results_may_be_opened_after_admissible_execution: true
+  interpretation_firewall: >-
+    Engineering measurements can support RAM/compute/energy/cost statements on the bound hardware and workload.
+    They MUST NOT be promoted into evidence of biometric non-inferiority, superiority, SCREEN, qualification TEST,
+    representation geometry or production suitability.
+
+reference_and_candidate:
+  representation_reference:
+    name: raw512
+    dimension: 512
+  compression_candidate:
+    dimension: 128
+  phase_a_pairing_rule: >-
+    Change representation dimension only. Hardware, datatype, gallery cardinality, template count, search algorithm,
+    query schedule, concurrency, thread/backend configuration, warm-up, measurement window and aggregation policy
+    MUST be identical between the 512D and 128D arms on a given hardware tier.
+
+phase_a_search_semantics:
+  algorithm: EXACT_DENSE_DOT_PRODUCT_TOP1
+  vector_normalization: L2_NORMALIZED_BEFORE_MEASUREMENT
+  top_k: 1
+  threshold_gating: false
+  threshold_lookup: none
+  candidate_pruning: none
+  approximate_search: false
+  index: none
+  returned_value: top1_index_and_score
+  fixed_work_reason: >-
+    Every query compares against every resident gallery vector and returns exactly one argmax. No threshold-dependent
+    downstream candidate list is produced, so the dimension-dependent concentration of synthetic cosine scores cannot
+    change the amount of work performed in Phase A.
+
+synthetic_data_contract:
+  root_seed: 20260908
+  generator_family: PCG64_NORMAL_FLOAT32
+  base_distribution: independent_standard_normal_before_row_normalization
+  finite_normal_range_required: true
+  nan_inf_subnormal_guard: >-
+    Generation MUST fail closed on NaN or Inf. Subnormal values MAY be flushed by the hardware backend, but the generator
+    MUST record their count before execution; a nonzero material count requires reviewer-visible disposition.
+  paired_generation:
+    base_dimension: 512
+    method: >-
+      Generate deterministic 512-component pre-normalization rows. The 512D arm normalizes the full row. The 128D arm
+      takes the first 128 components of the same pre-normalization row and normalizes that prefix independently. Arm-specific
+      matrices are materialized separately; the 512D base matrix MUST NOT remain resident during a 128D measurement.
+  no_real_biometric_embeddings: true
+  no_protected_match_scores: true
+  no_real_identity_labels: true
+  permitted_claims: [memory_footprint, memory_traffic_proxy, exact_dense_compute, throughput, latency, queueing, device_energy]
+  prohibited_claims: [biometric_accuracy, biometric_noninferiority, biometric_superiority, operational_fmr_fnmr]
+
+scenario_galleries:
+  G0_blacklist_control:
+    whitelist_identities: 0
+    blacklist_identities: 10000
+    templates_per_identity: 3
+    provenance: SCENARIO_ONLY_NOT_EVENT_FACT
+    role: SMALL_WORKING_SET_CONTROL
+  G1_hybrid:
+    whitelist_global_identities: 500000
+    whitelist_local_fraction: 0.25
+    blacklist_identities: 10000
+    templates_per_identity: 3
+    provenance: SCENARIO_ONLY_NOT_EVENT_FACT
+  G2_central_full:
+    whitelist_identities: 500000
+    blacklist_identities: 10000
+    templates_per_identity: 3
+    provenance: SCENARIO_ONLY_NOT_EVENT_FACT
+    role: PRIMARY_ENGINEERING_SENSITIVITY_POINT
+  G3_stress:
+    whitelist_identities: 1000000
+    blacklist_identities: 100000
+    templates_per_identity: 5
+    provenance: SCENARIO_ONLY_NOT_EVENT_FACT
+
+phase_a_scope:
+  galleries: [G0_blacklist_control, G2_central_full]
+  datatype: FP32
+  compute: CPU
+  search: EXACT_DENSE_DOT_PRODUCT_TOP1
+  representations: [512, 128]
+  objective: >-
+    G0 estimates a small-working-set control where arithmetic/cache behavior dominates. G2 tests the central large-gallery
+    sensitivity where RAM capacity and memory bandwidth may dominate. No event-frequency claim is attached to either scenario.
+
+ram_residency_contract:
+  gallery_must_be_ram_resident: true
+  swap_policy: DISABLED_OR_PROVEN_ZERO_ACTIVITY
+  preflight_measurements:
+    - vector_payload_bytes_derived
+    - process_RSS_before_gallery
+    - process_RSS_after_gallery
+    - peak_working_set
+    - available_system_RAM_before_load
+    - available_system_RAM_after_load
+    - swap_activity
+  vector_payload_bytes_classification: ANALYTICALLY_DERIVED_NOT_MEASURED_FINDING
+  g2_512d_fp32_payload_bytes: 3133440000
+  g2_128d_fp32_payload_bytes: 783360000
+  infeasible_arm_rule: >-
+    If a gallery cannot be allocated and kept RAM-resident on the bound hardware tier, record RAM_INFEASIBLE_ON_TIER as a
+    valid engineering result. Do not substitute a smaller gallery, enable swap, change datatype, or move only one arm to a
+    larger tier. Paired G2 throughput/energy comparison on that tier stops. If a larger tier was prospectively declared in
+    the materialized environment plan, BOTH arms may be repeated there under a new execution identity while retaining the
+    original infeasibility result. G0 remains available as the same-tier paired control.
+
+load_generation:
+  canonical_placement: OFF_DEVICE
+  arrival_process: DETERMINISTIC_OPEN_LOOP_FIXED_RATE
+  query_sequence: deterministic_cycle_over_materialized_synthetic_queries
+  steady_qps_per_device: [0.25, 0.5, 1.0, 2.0, 4.0, 8.0]
+  burst:
+    qps: 16.0
+    duration_seconds: 30
+    recovery_observation_seconds: 600
+    nonrecovery_reporting: RIGHT_CENSORED_GREATER_THAN_600_SECONDS
+  saturation_extension: >-
+    If saturation is not observed by 8 QPS, continue 16, 32, 64... QPS by powers of two with unchanged semantics until
+    the first stable saturation region or a prospectively frozen hardware safety ceiling is reached.
+  load_generator_resource_accounting: >-
+    Canonical load generation is off-device. Record generator host, runtime and link in the materialized environment lock.
+    Report both server-boundary device latency and client round-trip latency. Generator CPU/RAM/power is excluded from device
+    energy. An on-device generator makes the run diagnostic only unless separately re-reviewed.
+
+measurement_statistics:
+  independent_process_restarts_per_configuration: 5
+  warmup_seconds_per_restart: 60
+  warmup_samples_excluded: true
+  steady_measurement_seconds_per_restart: 600
+  burst_repetitions: 5
+  raw_per_query_latency_retained: true
+  raw_power_samples_retained: true
+  aggregation:
+    per_restart: [count, throughput_qps, p50_ms, p95_ms, p99_ms, queue_max, queue_recovery_s]
+    across_restarts: [median, mean, standard_deviation, interquartile_range, minimum, maximum]
+  percentile_support_rules:
+    p95_min_completed_samples_per_restart: 200
+    p99_min_completed_samples_per_restart: 1000
+    insufficient_support_status: INSUFFICIENT_SAMPLES_NO_PERCENTILE_CLAIM
+  no_silent_failed_run_exclusion: true
+  failed_run_handling: retain_failure_record_and_reason
+  execution_order:
+    arm_order: COUNTERBALANCED_ACROSS_RESTARTS
+    rule: >-
+      Alternate 512D-first and 128D-first across restarts so thermal drift and background-time effects are not systematically
+      assigned to one arm. Exact order and timestamps are retained.
+
+saturation_characterization:
+  purpose: characterization_not_operational_pass_fail
+  indicators:
+    - offered_qps
+    - completed_qps
+    - queue_depth_time_series
+    - latency_distribution
+    - queue_recovery_time
+    - cpu_frequency_and_throttling_if_observable
+    - temperature_if_observable
+  no_single_metric_saturation_claim: true
+
+energy_measurement:
+  canonical_measurement_plane: EXTERNAL_DEVICE_INPUT_OR_WALL
+  external_meter_required_for_strong_energy_claim: true
+  minimum_external_sampling_rate_hz: 10
+  on_chip_telemetry_role: SUPPORTING_DIAGNOSTIC_ONLY
+  idle_baseline:
+    duration_seconds: 300
+    measured_immediately_before_or_after_each_configuration_block: true
+  canonical_joules_per_identification:
+    convention: TOTAL_DEVICE_ENERGY_OVER_MEASUREMENT_WINDOW_DIVIDED_BY_COMPLETED_IDENTIFICATIONS
+    includes_idle_baseline_consumption: true
+  diagnostic_incremental_joules_per_identification:
+    convention: INTEGRAL_OF_POWER_MINUS_MATCHED_IDLE_BASELINE_DIVIDED_BY_COMPLETED_IDENTIFICATIONS
+    role: diagnostic_only
+    negative_values_due_to_measurement_noise_must_not_be_clamped: true
+  required_report:
+    - idle_power_W
+    - total_average_power_W
+    - peak_power_W
+    - total_joules_per_identification
+    - incremental_joules_per_identification_diagnostic
+    - joules_per_burst
+    - raw_power_trace_or_immutable_reference
+  guard: "75 percent fewer coordinates MUST NOT be reported as 75 percent lower power or energy."
+
+battery_model:
+  inputs_from_materialized_environment_lock:
+    - nominal_capacity_Wh
+    - usable_fraction
+    - reserve_fraction
+    - conversion_efficiency
+    - recharge_or_swap_policy
+  required_conditioning:
+    - named_load_profile
+    - measured_total_average_power_W
+    - duty_cycle_definition
+  formulas:
+    usable_Wh: nominal_capacity_Wh_times_usable_fraction_times_conversion_efficiency_times_one_minus_reserve_fraction
+    autonomy_h: usable_Wh_divided_by_total_average_power_W_under_named_profile
+  rule: >-
+    Every autonomy figure MUST name the workload/duty-cycle profile on which it is conditioned. Incremental compute-only
+    energy MUST NOT be used for battery autonomy.
+
+engineering_axes_later_phases:
+  datatypes: [FP32, FP16, INT8]
+  compute_platforms: [CPU, GPU, NPU_OR_OTHER_ACCELERATOR]
+  phase_b_compute_platform:
+    scope: selected_G1_G2_G3 x FP32 x {CPU,GPU,NPU_if_available} x {512D,128D}
+    objective: determine_lowest_total_cost_platform_meeting_prospectively_declared_operational_envelope
+  phase_c_encoding:
+    scope: Pareto_relevant_platforms x {FP32,FP16,INT8}
+    returned_top1_change_vs_fp32_must_be_recorded_as_diagnostic: true
+    caveat: >-
+      Quantization is a separate intervention. Engineering speed/energy gains do not establish biometric interchangeability.
+  phase_d_energy_battery:
+    scope: Pareto_relevant_configs
+    objective: measured device-level energy under named idle/steady/peak/burst duty cycles
+  phase_e_indexed_or_ann:
+    status: SEPARATE_FUTURE_METHOD
+    allowed_in_phase_a: false
+    caveat: >-
+      Any index or approximate search capable of changing returned identities is not a pure engineering optimization and
+      requires a separate qualification contract before substitution.
+
+operational_thresholds:
+  acceptable_p95_latency_ms: null
+  acceptable_p99_latency_ms: null
+  minimum_peak_qps_per_device: null
+  maximum_queue_recovery_s: null
+  required_battery_autonomy_h: null
+  required_RAM_headroom_fraction: null
+  threshold_mode_if_null: CHARACTERIZATION_ONLY_NO_PASS_FAIL
+  prospective_binding_rule: >-
+    A threshold MAY be supplied and frozen before a future execution, or the benchmark MAY remain characterization-only.
+    A threshold MUST NOT be chosen after inspecting Phase A results and then applied retroactively to that same execution.
+    Any post-result threshold can govern only a new prospectively identified execution.
+
+reproducibility_and_environment:
+  environment_lock_contract: protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_ENVIRONMENT_LOCK_V0_1_2026-09-08.yaml
+  environment_must_be_materialized_before_canonical_execution: true
+  required_result_identity:
+    - repository_commit_sha
+    - benchmark_contract_commit_sha
+    - materialized_environment_lock_commit_sha
+    - generator_root_seed
+    - generator_code_sha256
+    - complete_command_line
+  canonical_execution_blocked_until_environment_bound: true
+
+current_execution_gates:
+  independent_rereview_acceptance: REQUIRED_NOT_YET_OBTAINED
+  materialized_environment_lock: REQUIRED_NOT_YET_OBTAINED
+  canonical_phase_a_execution: BLOCKED
+
+interpretation_rules:
+  - "512D/raw512 remains the engineering representation reference."
+  - "Phase A exact top1 uses fixed work and no threshold gating."
+  - "75 percent fewer coordinates does not imply 75 percent less device energy."
+  - "CPU is admissible if it satisfies a prospectively declared operational envelope at lower total cost/power."
+  - "GPU/NPU is not assumed superior without benchmark evidence."
+  - "Device count D scales fleet consequences only after per-device effects are measured; D does not define local flow."
+  - "G0/G2 are sensitivity scenarios, not observed event facts."
+  - "No engineering result is evidence that 128D is biometrically acceptable."
+  - "No protected Study 1B outcome may be opened to select or tune an engineering configuration."
+
+review_gate:
+  independent_rereview_required_before_canonical_execution: true
+  acceptable_verdicts: [ACCEPT_ENGINEERING_BENCHMARK, ACCEPT_WITH_CHANGES, REJECT_OR_REDESIGN]
+  reviewer_must_check:
+    - corrected immutable review navigation
+    - complete environment-lock mechanism
+    - exact fixed-work top1 semantics
+    - G2 RAM-infeasibility rule
+    - external energy measurement and baseline convention
+    - post-hoc operational-threshold guard
+    - measurement statistics and percentile support
+    - off-device load generator placement
+    - per-scenario provenance markers
+    - S4 shared-population and t19 clarification
+
+next_action: >-
+  Complete independent re-review on the corrected PR head. Even after benchmark-design acceptance, canonical Phase A remains
+  blocked until an actual edge platform and measurement setup populate and freeze the environment-lock artifact. Do not open
+  protected biometric outcomes and do not launch S4N3.
