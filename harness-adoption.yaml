@@ -40,13 +40,14 @@ artifacts:
   handoff: null
 
 execution:
-  environment_lock: protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_ENVIRONMENT_LOCK_V0_1_2026-09-08.yaml
+  environment_lock: protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_ENVIRONMENT_LOCK_V0_2_2026-09-08.yaml
   environment_lock_status: >-
-    The referenced contract defines the required benchmark environment but is currently
-    BLOCKED_PENDING_PLATFORM_BINDING. Canonical Jungle Championship Phase A execution is prohibited until
-    engineering authority supplies the target edge platform and measurement equipment, every required field
-    is materialized non-null in an immutable execution-specific lock, and independent re-review accepts the
-    corrected benchmark head.
+    The referenced contract defines the required benchmark environment and the provenance of lock-defining
+    configuration choices, but is currently BLOCKED_PENDING_PLATFORM_BINDING. Canonical Jungle Championship
+    Phase A execution is prohibited until engineering authority supplies the target edge platform and measurement
+    equipment with provenance for every lock-defining choice, every required field is materialized non-null in an
+    immutable execution-specific lock, no undeclared target-workload preview has informed the configuration, and
+    independent re-review accepts the corrected benchmark head.
   replay_commands:
     - "PYTHONPATH=src python -m unittest tests.test_harness_adoption tests.test_scientific_harness tests.test_coverage_execution tests.test_coverage_execution_vectorized tests.test_study1b_engineering_benchmark_contract -v"
   engineering_care:
@@ -82,7 +83,10 @@ adoption:
     contract requiring direct repository, pull-request, immutable harness and relevant artifact
     URLs. This upgrade changes review/navigation method only; it does not change Study 1
     scientific meaning or Gate A thresholds. Historical Study 0 artifacts remain bound to the
-    harness refs under which they were produced. On 2026-09-08, the previously null execution.environment_lock
-    was resolved to the Jungle Championship engineering environment-lock contract after independent PR #50
-    review. This adds an engineering pre-execution gate only and does not alter Study 1B scientific gates or
+    harness refs under which they were produced. On 2026-09-08, execution.environment_lock was first
+    bound to a complete engineering lock schema and was then prospectively advanced to v0.2 after
+    supplemental independent review identified a pre-lock configuration-choice provenance gap.
+    The v0.2 guard is label-independent: smoke tests, pilots, Phase 0 or equivalent target-workload
+    measurements may not silently choose or tune canonical hardware/backend/threading/energy settings.
+    This adds an engineering pre-execution gate only and does not alter Study 1B scientific gates or
     authorize protected outcome opening.
