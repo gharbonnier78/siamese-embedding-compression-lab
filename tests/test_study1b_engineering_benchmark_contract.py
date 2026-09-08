@@ -6,8 +6,8 @@ from pathlib import Path
 import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
-BENCHMARK = ROOT / "protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_BENCHMARK_V0_2_2026-09-08.yaml"
-ENV_LOCK = ROOT / "protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_ENVIRONMENT_LOCK_V0_1_2026-09-08.yaml"
+BENCHMARK = ROOT / "protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_BENCHMARK_V0_3_2026-09-08.yaml"
+ENV_LOCK = ROOT / "protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_ENVIRONMENT_LOCK_V0_2_2026-09-08.yaml"
 CLARIFICATION = ROOT / "protocol/decisions/STUDY1B_S4N1_S4N2_SHARED_POPULATION_AND_T19_CLARIFICATION_2026-09-08.yaml"
 
 
@@ -75,6 +75,7 @@ class Study1BEngineeringBenchmarkContractTests(unittest.TestCase):
     def test_canonical_execution_remains_blocked_until_environment_is_bound(self) -> None:
         gates = self.benchmark["current_execution_gates"]
         self.assertEqual(gates["canonical_phase_a_execution"], "BLOCKED")
+        self.assertEqual(gates["configuration_choice_provenance"], "REQUIRED_NOT_YET_OBTAINED")
         self.assertTrue(
             self.benchmark["reproducibility_and_environment"]["environment_must_be_materialized_before_canonical_execution"]
         )
@@ -82,6 +83,39 @@ class Study1BEngineeringBenchmarkContractTests(unittest.TestCase):
         self.assertTrue(
             self.environment["binding_rule"]["canonical_execution_permitted_only_if_all_required_values_non_null"]
         )
+
+    def test_prelock_target_workload_cannot_choose_configuration_under_any_label(self) -> None:
+        guard = self.benchmark["prelock_selection_guard"]
+        self.assertFalse(guard["target_workload_may_inform_lock_choices"])
+        self.assertTrue(guard["configuration_choice_provenance_required"])
+        self.assertFalse(guard["undeclared_prior_target_workload_information_permitted"])
+        self.assertIn("smoke test", guard["label_independent_rule"])
+        self.assertIn("Phase 0", guard["label_independent_rule"])
+
+        firewall = self.environment["prelock_information_firewall"]
+        self.assertTrue(firewall["label_independent"])
+        self.assertFalse(firewall["target_workload_measurement_may_select_hardware"])
+        self.assertFalse(firewall["target_workload_measurement_may_select_backend"])
+        self.assertFalse(firewall["target_workload_measurement_may_select_thread_count_or_affinity"])
+        self.assertFalse(firewall["target_workload_measurement_may_select_energy_meter_or_measurement_plane"])
+        self.assertFalse(firewall["target_workload_measurement_may_select_frequency_or_power_mode"])
+
+    def test_lock_defining_choices_require_provenance(self) -> None:
+        provenance = self.environment["configuration_choice_provenance"]
+        self.assertTrue(provenance["required_for_each_lock_defining_choice"])
+        required = set(provenance["required_fields_per_choice"])
+        self.assertTrue({
+            "choice_name",
+            "selected_value",
+            "decision_authority_or_source",
+            "source_type",
+            "source_reference_or_identifier",
+            "target_benchmark_workload_used_to_inform_choice",
+            "rationale",
+        }.issubset(required))
+        result_requirements = set(self.environment["result_provenance_requirements"])
+        self.assertIn("configuration_choice_provenance_record", result_requirements)
+        self.assertIn("declaration_of_any_prelock_target_workload_information", result_requirements)
 
     def test_s4_clarification_records_shared_population_and_t19(self) -> None:
         shared = self.clarification["shared_synthetic_population"]
