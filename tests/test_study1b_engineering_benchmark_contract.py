@@ -7,7 +7,8 @@ import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 BENCHMARK = ROOT / "protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_BENCHMARK_V0_3_2026-09-08.yaml"
-ENV_LOCK = ROOT / "protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_ENVIRONMENT_LOCK_V0_2_2026-09-08.yaml"
+ADDENDUM = ROOT / "protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_BENCHMARK_V0_3_D1_D3_ADDENDUM_2026-09-08.yaml"
+ENV_LOCK = ROOT / "protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_ENVIRONMENT_LOCK_V0_3_2026-09-08.yaml"
 CLARIFICATION = ROOT / "protocol/decisions/STUDY1B_S4N1_S4N2_SHARED_POPULATION_AND_T19_CLARIFICATION_2026-09-08.yaml"
 
 
@@ -15,6 +16,7 @@ class Study1BEngineeringBenchmarkContractTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls) -> None:
         cls.benchmark = yaml.safe_load(BENCHMARK.read_text(encoding="utf-8"))
+        cls.addendum = yaml.safe_load(ADDENDUM.read_text(encoding="utf-8"))
         cls.environment = yaml.safe_load(ENV_LOCK.read_text(encoding="utf-8"))
         cls.clarification = yaml.safe_load(CLARIFICATION.read_text(encoding="utf-8"))
 
@@ -72,50 +74,69 @@ class Study1BEngineeringBenchmarkContractTests(unittest.TestCase):
         self.assertEqual(stats["percentile_support_rules"]["p99_min_completed_samples_per_restart"], 1000)
         self.assertEqual(self.benchmark["load_generation"]["canonical_placement"], "OFF_DEVICE")
 
-    def test_canonical_execution_remains_blocked_until_environment_is_bound(self) -> None:
-        gates = self.benchmark["current_execution_gates"]
-        self.assertEqual(gates["canonical_phase_a_execution"], "BLOCKED")
-        self.assertEqual(gates["configuration_choice_provenance"], "REQUIRED_NOT_YET_OBTAINED")
-        self.assertTrue(
-            self.benchmark["reproducibility_and_environment"]["environment_must_be_materialized_before_canonical_execution"]
-        )
-        self.assertEqual(self.environment["status"], "BLOCKED_PENDING_PLATFORM_BINDING")
-        self.assertTrue(
-            self.environment["binding_rule"]["canonical_execution_permitted_only_if_all_required_values_non_null"]
-        )
+    def test_d1_provenance_has_accountable_attester(self) -> None:
+        provenance = self.environment["configuration_choice_provenance"]
+        required = set(provenance["required_fields_per_choice"])
+        self.assertIn("provenance_attested_by", required)
+        self.assertIn("attestation_timestamp", required)
+        self.assertIn("attestation_statement", required)
+        attestation = provenance["attestation_requirements"]
+        self.assertTrue(attestation["provenance_attested_by_must_identify_human_or_accountable_role"])
+        self.assertFalse(attestation["system_only_attester_permitted"])
 
-    def test_prelock_target_workload_cannot_choose_configuration_under_any_label(self) -> None:
-        guard = self.benchmark["prelock_selection_guard"]
-        self.assertFalse(guard["target_workload_may_inform_lock_choices"])
-        self.assertTrue(guard["configuration_choice_provenance_required"])
-        self.assertFalse(guard["undeclared_prior_target_workload_information_permitted"])
-        self.assertIn("smoke test", guard["label_independent_rule"])
-        self.assertIn("Phase 0", guard["label_independent_rule"])
+    def test_d2_measurement_evidence_timestamp_and_generator_anchor(self) -> None:
+        measurement = self.environment["measurement_source_requirements"]
+        self.assertTrue(measurement["evidence_timestamp_required"])
+        anchor = self.environment["target_workload_temporal_anchor"]
+        self.assertEqual(anchor["synthetic_root_seed"], 20260908)
+        self.assertEqual(anchor["benchmark_specification_commit_sha"], "56eb46d085868c18bd74455aba941d0e706f8660")
+        self.assertEqual(anchor["benchmark_specification_commit_timestamp_utc"], "2026-09-08T15:29:02Z")
+        self.assertTrue(anchor["generator_code_identity_required_before_execution"])
+        self.assertFalse(anchor["structural_impossibility_claim_available_now"])
+        self.assertIsNone(anchor["synthetic_generator_code_commit_timestamp_utc"])
 
+    def test_d3_firewall_is_information_based_not_intent_based(self) -> None:
+        measurement = self.environment["measurement_source_requirements"]
+        overlap = measurement["informational_overlap_rule"]
+        self.assertEqual(overlap["target_vector_dimensions"], [128, 512])
+        self.assertEqual(overlap["target_search_family"], "EXACT_DENSE_DOT_PRODUCT_TOP1")
+        self.assertEqual(overlap["target_index_mode"], "none")
+        self.assertFalse(overlap["intended_purpose_is_a_classifier_input"])
+        self.assertFalse(overlap["label_is_a_classifier_input"])
         firewall = self.environment["prelock_information_firewall"]
         self.assertTrue(firewall["label_independent"])
-        self.assertFalse(firewall["target_workload_measurement_may_select_hardware"])
-        self.assertFalse(firewall["target_workload_measurement_may_select_backend"])
-        self.assertFalse(firewall["target_workload_measurement_may_select_thread_count_or_affinity"])
-        self.assertFalse(firewall["target_workload_measurement_may_select_energy_meter_or_measurement_plane"])
-        self.assertFalse(firewall["target_workload_measurement_may_select_frequency_or_power_mode"])
+        self.assertTrue(firewall["intent_independent"])
+        self.assertIn("vector dimensionality", firewall["rule"])
+        self.assertIn("hardware class", firewall["rule"])
 
-    def test_lock_defining_choices_require_provenance(self) -> None:
-        provenance = self.environment["configuration_choice_provenance"]
-        self.assertTrue(provenance["required_for_each_lock_defining_choice"])
-        required = set(provenance["required_fields_per_choice"])
-        self.assertTrue({
-            "choice_name",
-            "selected_value",
-            "decision_authority_or_source",
-            "source_type",
-            "source_reference_or_identifier",
-            "target_benchmark_workload_used_to_inform_choice",
-            "rationale",
-        }.issubset(required))
-        result_requirements = set(self.environment["result_provenance_requirements"])
-        self.assertIn("configuration_choice_provenance_record", result_requirements)
-        self.assertIn("declaration_of_any_prelock_target_workload_information", result_requirements)
+    def test_benchmark_addendum_supersedes_intent_based_prelock_semantics(self) -> None:
+        self.assertEqual(
+            self.addendum["prelock_selection_guard_v2"]["classification_basis"],
+            "INFORMATIONAL_OVERLAP_NOT_INTENT",
+        )
+        guard = self.addendum["prelock_selection_guard_v2"]
+        self.assertFalse(guard["intent_is_classifier_input"])
+        self.assertFalse(guard["label_is_classifier_input"])
+        self.assertIn("smoke_test", guard["labels_with_no_exemption"])
+        self.assertIn("phase_0", guard["labels_with_no_exemption"])
+
+    def test_execution_has_two_independent_blockers(self) -> None:
+        admissibility = self.environment["execution_admissibility"]
+        self.assertFalse(admissibility["canonical_phase_a_execution_permitted"])
+        blockers = set(admissibility["independent_blockers"])
+        self.assertEqual(
+            blockers,
+            {
+                "PLATFORM_AND_MEASUREMENT_ENVIRONMENT_NOT_MATERIALIZED",
+                "CONFIGURATION_CHOICE_PROVENANCE_NOT_MATERIALIZED",
+            },
+        )
+
+    def test_new_local_artifact_schemas_use_family_id_and_integer_version(self) -> None:
+        self.assertEqual(self.environment["schema_id"], "study1b.engineering.environment_lock")
+        self.assertIsInstance(self.environment["schema_version"], int)
+        self.assertEqual(self.addendum["schema_id"], "study1b.engineering.benchmark_addendum")
+        self.assertIsInstance(self.addendum["schema_version"], int)
 
     def test_s4_clarification_records_shared_population_and_t19(self) -> None:
         shared = self.clarification["shared_synthetic_population"]

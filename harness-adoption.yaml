@@ -40,14 +40,16 @@ artifacts:
   handoff: null
 
 execution:
-  environment_lock: protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_ENVIRONMENT_LOCK_V0_2_2026-09-08.yaml
+  environment_lock: protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_ENVIRONMENT_LOCK_V0_3_2026-09-08.yaml
   environment_lock_status: >-
-    The referenced contract defines the required benchmark environment and the provenance of lock-defining
-    configuration choices, but is currently BLOCKED_PENDING_PLATFORM_BINDING. Canonical Jungle Championship
-    Phase A execution is prohibited until engineering authority supplies the target edge platform and measurement
-    equipment with provenance for every lock-defining choice, every required field is materialized non-null in an
-    immutable execution-specific lock, no undeclared target-workload preview has informed the configuration, and
-    independent re-review accepts the corrected benchmark head.
+    The referenced contract defines the required benchmark environment, attributable provenance for every
+    lock-defining configuration choice, mandatory timestamps for measurement evidence, and an information-based
+    pre-lock firewall. It is currently BLOCKED_PENDING_PLATFORM_BINDING_AND_PROVENANCE. Canonical Jungle Championship
+    Phase A execution is prohibited until engineering authority supplies the actual target edge platform and measurement
+    equipment, configuration-choice provenance and attestation are materialized, the exact synthetic-generator code
+    identity/timestamp is frozen, both independent execution blockers are cleared, and independent re-review accepts the
+    corrected design. Hardware materialization alone does not satisfy provenance, and provenance alone does not substitute
+    for a bound platform.
   replay_commands:
     - "PYTHONPATH=src python -m unittest tests.test_harness_adoption tests.test_scientific_harness tests.test_coverage_execution tests.test_coverage_execution_vectorized tests.test_study1b_engineering_benchmark_contract -v"
   engineering_care:
@@ -71,6 +73,7 @@ local_extensions:
   - protocol/
   - pedagogy/
   - tests/
+  - protocol/schemas/STUDY1B_LOCAL_ARTIFACT_SCHEMA_POLICY_V0_1_2026-09-08.md
 
 deviations: []
 
@@ -84,9 +87,10 @@ adoption:
     URLs. This upgrade changes review/navigation method only; it does not change Study 1
     scientific meaning or Gate A thresholds. Historical Study 0 artifacts remain bound to the
     harness refs under which they were produced. On 2026-09-08, execution.environment_lock was first
-    bound to a complete engineering lock schema and was then prospectively advanced to v0.2 after
-    supplemental independent review identified a pre-lock configuration-choice provenance gap.
-    The v0.2 guard is label-independent: smoke tests, pilots, Phase 0 or equivalent target-workload
-    measurements may not silently choose or tune canonical hardware/backend/threading/energy settings.
-    This adds an engineering pre-execution gate only and does not alter Study 1B scientific gates or
-    authorize protected outcome opening.
+    bound to a complete engineering lock schema, advanced to v0.2 after supplemental independent review
+    identified a pre-lock configuration-choice provenance gap, and advanced prospectively to v0.3 after
+    final design review required D1-D3: accountable attestation, timestamped measurement provenance with
+    a checkable temporal-order mechanism, and an information-based rather than intent-based overlap rule.
+    This adds engineering pre-execution gates only and does not alter Study 1B scientific gates or authorize
+    protected outcome opening. Historical schema declarations remain unchanged; new local Study 1B artifacts
+    use the prospective local schema-id policy without silently retyping this upstream harness manifest family.
