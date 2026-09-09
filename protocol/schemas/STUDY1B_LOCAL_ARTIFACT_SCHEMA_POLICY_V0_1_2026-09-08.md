@@ -29,8 +29,8 @@ families from `schema_version` alone.
 
 ## Historical compatibility
 
-Historical S4N1/S4N2 results, benchmark v0.3, environment lock v0.2, Chronicle 041, and other already-recorded
-artifacts retain their original schema declarations. This policy does not authorize retrospective rewrites.
+Historical S4N1/S4N2 results, the append-only S4N1/S4N2 shared-population/t19 clarification, benchmark v0.3,
+environment lock v0.2, Chronicle 041, and other already-recorded artifacts retain their original schema declarations. This policy does not authorize retrospective rewrites.
 
 `harness-adoption.yaml` follows the pinned harness repository's manifest family and is not silently retyped by
 this local policy. If the upstream harness changes that schema, the consumer should adopt it through an explicit

@@ -40,11 +40,12 @@ artifacts:
   handoff: null
 
 execution:
-  environment_lock: protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_ENVIRONMENT_LOCK_V0_3_2026-09-08.yaml
+  environment_lock: protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_ENVIRONMENT_LOCK_V0_4_2026-09-09.yaml
   environment_lock_status: >-
     The referenced contract defines the required benchmark environment, attributable provenance for every
-    lock-defining configuration choice, mandatory timestamps for measurement evidence, and an information-based
-    pre-lock firewall. It is currently BLOCKED_PENDING_PLATFORM_BINDING_AND_PROVENANCE. Canonical Jungle Championship
+    lock-defining configuration choice, mandatory timestamps for measurement evidence, an information-based
+    pre-lock firewall, and the corrected earliest-workload structural-impossibility anchor. It is currently
+    BLOCKED_PENDING_PLATFORM_BINDING_AND_PROVENANCE. Canonical Jungle Championship
     Phase A execution is prohibited until engineering authority supplies the actual target edge platform and measurement
     equipment, configuration-choice provenance and attestation are materialized, the exact synthetic-generator code
     identity/timestamp is frozen, both independent execution blockers are cleared, and independent re-review accepts the
@@ -90,7 +91,10 @@ adoption:
     bound to a complete engineering lock schema, advanced to v0.2 after supplemental independent review
     identified a pre-lock configuration-choice provenance gap, and advanced prospectively to v0.3 after
     final design review required D1-D3: accountable attestation, timestamped measurement provenance with
-    a checkable temporal-order mechanism, and an information-based rather than intent-based overlap rule.
+    a checkable temporal-order mechanism, and an information-based rather than intent-based overlap rule. A focused
+    re-review then closed D1/D3 but found the D2 impossibility anchor too late; v0.4 therefore anchors impossibility to
+    the earliest workload-defining commit 878bfe2a64b34cce474a627d04b30233e2356958 (2026-09-07T06:33:05Z), while
+    retaining generator identity only for replay/result provenance.
     This adds engineering pre-execution gates only and does not alter Study 1B scientific gates or authorize
     protected outcome opening. Historical schema declarations remain unchanged; new local Study 1B artifacts
     use the prospective local schema-id policy without silently retyping this upstream harness manifest family.

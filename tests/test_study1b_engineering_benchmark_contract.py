@@ -8,7 +8,7 @@ import yaml
 ROOT = Path(__file__).resolve().parents[1]
 BENCHMARK = ROOT / "protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_BENCHMARK_V0_3_2026-09-08.yaml"
 ADDENDUM = ROOT / "protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_BENCHMARK_V0_3_D1_D3_ADDENDUM_2026-09-08.yaml"
-ENV_LOCK = ROOT / "protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_ENVIRONMENT_LOCK_V0_3_2026-09-08.yaml"
+ENV_LOCK = ROOT / "protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_ENVIRONMENT_LOCK_V0_4_2026-09-09.yaml"
 CLARIFICATION = ROOT / "protocol/decisions/STUDY1B_S4N1_S4N2_SHARED_POPULATION_AND_T19_CLARIFICATION_2026-09-08.yaml"
 
 
@@ -84,16 +84,30 @@ class Study1BEngineeringBenchmarkContractTests(unittest.TestCase):
         self.assertTrue(attestation["provenance_attested_by_must_identify_human_or_accountable_role"])
         self.assertFalse(attestation["system_only_attester_permitted"])
 
-    def test_d2_measurement_evidence_timestamp_and_generator_anchor(self) -> None:
+    def test_d2_measurement_evidence_timestamp_and_earliest_workload_anchor(self) -> None:
         measurement = self.environment["measurement_source_requirements"]
         self.assertTrue(measurement["evidence_timestamp_required"])
-        anchor = self.environment["target_workload_temporal_anchor"]
-        self.assertEqual(anchor["synthetic_root_seed"], 20260908)
-        self.assertEqual(anchor["benchmark_specification_commit_sha"], "56eb46d085868c18bd74455aba941d0e706f8660")
-        self.assertEqual(anchor["benchmark_specification_commit_timestamp_utc"], "2026-09-08T15:29:02Z")
-        self.assertTrue(anchor["generator_code_identity_required_before_execution"])
-        self.assertFalse(anchor["structural_impossibility_claim_available_now"])
-        self.assertIsNone(anchor["synthetic_generator_code_commit_timestamp_utc"])
+        anchor = self.environment["structural_impossibility_anchor"]
+        self.assertEqual(
+            anchor["earliest_workload_defining_commit_sha"],
+            "878bfe2a64b34cce474a627d04b30233e2356958",
+        )
+        self.assertEqual(
+            anchor["earliest_workload_defining_commit_timestamp_utc"],
+            "2026-09-07T06:33:05Z",
+        )
+        self.assertTrue(
+            anchor["evidence_timestamp_must_be_strictly_earlier_than_anchor_for_structural_impossibility"]
+        )
+        self.assertTrue(anchor["structural_impossibility_claim_available_for_qualifying_pre_anchor_evidence"])
+        replay = self.environment["target_workload_replay_identity"]
+        self.assertEqual(replay["synthetic_root_seed"], 20260908)
+        self.assertTrue(replay["generator_code_identity_required_before_execution"])
+        self.assertEqual(
+            replay["generator_identity_role"],
+            "REPLAY_AND_RESULT_PROVENANCE_NOT_STRUCTURAL_IMPOSSIBILITY_BOUND",
+        )
+        self.assertIsNone(replay["synthetic_generator_code_commit_timestamp_utc"])
 
     def test_d3_firewall_is_information_based_not_intent_based(self) -> None:
         measurement = self.environment["measurement_source_requirements"]
@@ -103,6 +117,7 @@ class Study1BEngineeringBenchmarkContractTests(unittest.TestCase):
         self.assertEqual(overlap["target_index_mode"], "none")
         self.assertFalse(overlap["intended_purpose_is_a_classifier_input"])
         self.assertFalse(overlap["label_is_a_classifier_input"])
+        self.assertEqual(overlap["hardware_class_source"], "required_environment.device_under_test.hardware_class")
         firewall = self.environment["prelock_information_firewall"]
         self.assertTrue(firewall["label_independent"])
         self.assertTrue(firewall["intent_independent"])
