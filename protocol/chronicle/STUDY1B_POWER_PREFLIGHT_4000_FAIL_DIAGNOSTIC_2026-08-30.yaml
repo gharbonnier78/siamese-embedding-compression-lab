@@ -1,0 +1,159 @@
+entry_id: STUDY1B_POWER_PREFLIGHT_4000_FAIL_DIAGNOSTIC_2026-08-30
+entry_type: statistical_preflight_result_and_diagnostic
+study_id: study_1b_matched_compression
+date: 2026-08-30
+status: POWER_PREFLIGHT_FAILED_DELTA_0_01
+
+scope:
+  scientific_outcomes_opened: false
+  screen_authorized: false
+  test_authorized: false
+  geometry_authorized: false
+  protocol_changed: false
+  purpose: >-
+    Record the preregistered power preflight result and analyse why the
+    all-five-seed non-inferiority rule lacks the required power at delta=0.01,
+    without changing the frozen Study 1B decision rule.
+
+source_run:
+  workflow: Study 1B Power Preflight 4000
+  run_id: 33299151340
+  head_sha: 8b005717c5e8566f3ebe898fdac66965191d1dd5
+  run_conclusion: failure
+  interpretation: scientific_gate_failure_not_infrastructure_failure
+  summary_artifact:
+    name: study1b-power-preflight-4000-summary
+    artifact_id: 9733239954
+    digest: sha256:6daf4d3fe22573a33269bb1ff48a0b6a7bc3778c3a751e38a51399a4778b5d4e
+  execution_integrity:
+    prepare_test_graph: success
+    power_shards_completed: 80
+    expected_datasets_per_scenario: 4000
+    bootstrap_replicates_per_dataset: 10000
+    seed_labels: [11, 29, 47, 71, 101]
+    shared_raw_reference_per_dataset: true
+
+frozen_gate:
+  estimand: delta_fnmr = FNMR_candidate - FNMR_raw512
+  noninferiority_margin: 0.03
+  one_sided_ucb_level: 0.975
+  per_seed_pass_rule: ucb_97_5 < 0.03
+  joint_rule: all_five_seeds_must_pass
+  required_power: 0.90
+  simulated_effects: [0.0, 0.01]
+  rule_changed_after_observation: false
+
+results:
+  delta_0:
+    simulated_datasets: 4000
+    all_five_seed_passes: 3738
+    estimated_power: 0.9345
+    required_power: 0.90
+    verdict: PASS
+  delta_0_01:
+    simulated_datasets: 4000
+    all_five_seed_passes: 1549
+    estimated_power: 0.38725
+    required_power: 0.90
+    verdict: FAIL
+  overall_verdict: FAIL
+  important_non_interpretation: >-
+    These are operating characteristics of the statistical decision procedure
+    under synthetic known-truth worlds. They are not observed compression
+    performance and do not report random128, PCA128 or Siamese128 versus raw512.
+
+causal_diagnostic:
+  status: EXPLANATORY_DIAGNOSTIC_NOT_A_NEW_GATE
+  conclusion: >-
+    The failure is primarily consistent with the stacking of three conservative
+    ingredients: a one-sided 97.5% UCB, only 0.02 of headroom between true
+    delta=0.01 and the 0.03 margin, and the intersection rule requiring every
+    one of five seed-specific UCBs to remain below the margin. Seed-to-seed
+    heterogeneity further makes the worst seed materially closer to the margin.
+  mechanisms:
+    - id: reduced_margin_headroom
+      explanation: >-
+        At delta=0 the nominal distance to the NI margin is 0.03. At delta=0.01
+        it is only 0.02 before seed effects and estimation uncertainty are added.
+    - id: ucb_uncertainty_cost
+      explanation: >-
+        A diagnostic sample of the first 300 delta=0.01 simulated datasets
+        showed the 97.5% UCB about 0.014 above the seed-specific true delta on
+        average across the five seeds. This number is diagnostic, not a frozen
+        gate statistic, but it explains why 0.02 headroom is fragile.
+      diagnostic_sample:
+        datasets: 300
+        source_shards: [0, 1, 2]
+        mean_ucb_minus_true_delta_approx: 0.0143
+    - id: five_seed_intersection
+      explanation: >-
+        In the same 300-dataset diagnostic sample, individual seed pass rates
+        were approximately 0.76 to 0.82 while the all-five pass rate was 0.37,
+        close to the final 4000-dataset joint estimate of 0.38725. Requiring an
+        intersection across five imperfectly correlated decisions compounds
+        otherwise moderate per-seed failure probabilities.
+      diagnostic_sample:
+        individual_seed_pass_rate_range: [0.76, 0.8166666667]
+        all_five_pass_rate: 0.37
+        pairwise_pass_indicator_correlations: weak_positive_in_sample
+    - id: worst_seed_effect
+      explanation: >-
+        Seed effects are drawn with SD 0.005 and clipped to [-0.02, 0.02]. With
+        five seeds, the largest positive seed effect is often several thousandths.
+        In the 300-dataset diagnostic sample its median was about 0.0059, moving
+        the weakest seed from nominal delta=0.01 to roughly delta=0.0159 before
+        sampling uncertainty. That leaves only about 0.0141 to the 0.03 margin,
+        similar to the observed average UCB uplift.
+      diagnostic_sample:
+        median_max_positive_seed_effect: 0.00591773
+        median_max_ucb_97_5: 0.03211405
+        correlation_max_seed_effect_vs_max_ucb: 0.4919
+
+scientific_interpretation:
+  what_is_supported:
+    - The implemented power design has adequate joint power at true delta=0.
+    - The implemented power design does not have adequate joint power at true delta=0.01.
+    - The loss of power is compatible with compounded uncertainty and the all-five-seed intersection rule.
+  what_is_not_supported:
+    - That the real compressed models are inferior or non-inferior to raw512.
+    - That changing the NI margin, confidence level, seed count or all-five rule after this result is justified.
+    - That the 300-dataset diagnostic sample replaces the preregistered 4000-dataset gate.
+
+next_actions:
+  - Preserve the failed power result as evidence; do not rerun unchanged expecting a different verdict.
+  - Add a non-outcome diagnostic that aggregates marginal per-seed pass probabilities and the distribution of the worst-seed UCB across all 4000 datasets.
+  - Quantify which design lever drives power loss by prospective sensitivity analysis only: sample size/pair count, uncertainty width, seed-effect SD, and joint decision rule.
+  - Treat any proposed protocol modification as a new amendment requiring independent review and explicit human authorization before outcomes are opened.
+  - Keep SCREEN and TEST outcomes closed.
+
+pedagogical_reading:
+  en_francais_dans_le_texte: >-
+    Le thermometre statistique est bien calibre, mais notre experience est trop
+    exigeante pour garantir 90% de reussite quand la vraie degradation vaut
+    deja +0,01. Chaque seed doit non seulement rester sous la marge +0,03, mais
+    sa borne haute d'incertitude doit elle aussi rester sous +0,03. Puis les cinq
+    seeds doivent toutes reussir en meme temps. A delta=0 il reste beaucoup de
+    marge et cela passe 93,45% du temps. A delta=0,01, l'incertitude et le seed
+    le moins favorable consomment une grande partie des 0,02 restant: la regle
+    complete ne passe plus que 38,725% du temps.
+  lecture_ingenieur: >-
+    Le systeme de decision est une chaine serie: estimation par seed -> UCB 97,5%
+    -> comparaison a la marge NI -> intersection des cinq seeds. La fiabilite
+    de la chaine est donc pilotee par le maillon le plus defavorable. Le monde
+    delta=0.01 reduit de 33% le budget nominal entre l'effet et la marge par
+    rapport a delta=0 (0,02 contre 0,03). La variabilite seed ajoute ensuite un
+    worst-case local et l'UCB ajoute le budget d'incertitude. Le FAIL est donc
+    un resultat de dimensionnement experimental, pas une panne de calcul.
+  lecture_12_ans: >-
+    Imagine cinq eleves qui doivent tous sauter une barre. Quand la barre est
+    loin de leur limite, presque tout le groupe reussit. Si on rapproche la
+    barre, chaque eleve peut encore souvent la passer, mais il suffit qu'un seul
+    des cinq rate pour que le groupe entier soit compte comme rate. Ici notre
+    regle demande justement cinq reussites sur cinq, avec en plus une marge de
+    securite pour chaque saut.
+
+provenance_note: >-
+  Full-gate numbers come from the 4000-dataset workflow summary artifact. The
+  300-dataset quantities are explicitly labelled exploratory diagnostics derived
+  from shards 0, 1 and 2 of the delta=0.01 run and are not substituted for the
+  preregistered power gate.

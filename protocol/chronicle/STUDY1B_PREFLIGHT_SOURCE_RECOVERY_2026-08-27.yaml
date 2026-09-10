@@ -1,0 +1,75 @@
+schema_version: "1.0"
+event_id: STUDY1B_PREFLIGHT_SOURCE_RECOVERY_2026-08-27
+timestamp_local: "2026-08-27T22:35:00+02:00"
+study_id: study_1b_matched_compression
+phase: nonoutcome_preflight
+scientific_outcomes_opened: false
+human_authority:
+  source: "2026-08-27 project conversation"
+  scope:
+    - LFW_preflight
+    - coverage_power_simulation
+    - Study1B_execution_code
+  outcome_bearing_screen_or_test_authorized: false
+
+trigger:
+  workflow: Study 1B Non-outcome Preflight
+  failed_run: 33110714932
+  failed_job: lfw-metadata-graph-and-cost-pilot
+  failure_class: source_materialization
+  error: "missing required LFW metadata file: peopleDevTrain.txt"
+  interpretation: >-
+    The recorded Kaggle package materialized image data but not the two View-1 people metadata
+    files required by the frozen identity-role contract. This is a provenance/infrastructure
+    blocker, not a biometric or compression outcome.
+
+decision:
+  reconstruct_missing_identities_from_pair_files: false
+  reason: >-
+    Pair files do not guarantee enumeration of every identity in peopleDevTrain/peopleDevTest;
+    reconstructing the split from pairs could silently omit identities and violate the frozen
+    4038/1711 View-1 identity boundary.
+  source_policy:
+    metadata_primary: "Original UMass LFW endpoint"
+    metadata_integrity_authority: "torchvision.datasets.lfw published checksums"
+    image_operational_mirror: "jessicali9530/lfw-dataset/versions/4"
+    fail_closed_on_checksum_mismatch: true
+
+trusted_references:
+  - id: lfw_umass_technical_report
+    title: "Labeled Faces in the Wild: A Database for Studying Face Recognition in Unconstrained Environments"
+    authors: ["Gary B. Huang", "Manu Ramesh", "Tamara Berg", "Erik Learned-Miller"]
+    institution: "University of Massachusetts Amherst"
+    report: "Technical Report 07-49"
+    year: 2007
+    project_url: "http://vis-www.cs.umass.edu/lfw/"
+    evidence_role: dataset_and_protocol_authority
+  - id: torchvision_lfw_dataset_source
+    organization: PyTorch
+    url: "https://docs.pytorch.org/vision/0.25/_modules/torchvision/datasets/lfw.html"
+    evidence_role: independent_integrity_reference
+    published_md5:
+      peopleDevTrain.txt: "54eaac34beb6d042ed3a7d883e247a21"
+      peopleDevTest.txt: "e4bf5be0a43b5dcd9dc5ccfcb8fb19c5"
+      pairsDevTrain.txt: "4f27cbf15b2da4a85c1907eb4181ad21"
+      pairsDevTest.txt: "5132f7440eb68cf58910c8a45a2ac10b"
+
+implementation_change:
+  metadata_download: "official UMass bytes, verified before use"
+  metadata_retention: "copied into workflow evidence artifact"
+  heavy_lfw_extra_removed_from_preflight: true
+  replacement_install: "base package + kagglehub"
+  expected_effect: >-
+    Avoid unnecessary torch/torchvision/CUDA downloads in the metadata/image preflight while
+    retaining Kaggle only as the image-byte operational mirror.
+
+next_required_evidence:
+  - rerun_current_head_workflows
+  - verify_both_metadata_checksums
+  - verify_exact_4038_1711_identity_counts
+  - verify_pair_graph_capacity_and_hashes
+  - review_near_duplicate_candidates_if_any
+  - run_non_gating_cost_pilot
+  - only_then_schedule_full_coverage_and_power_shards
+
+state: SOURCE_RECOVERY_IMPLEMENTED_PENDING_CI_EVIDENCE

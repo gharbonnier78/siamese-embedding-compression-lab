@@ -1,0 +1,59 @@
+schema_version: "1.0"
+date: "2026-08-29"
+entry_id: CHRON-20260829-S1B-COVERAGE-1000-RETRY
+kind: coverage_checkpoint_retry
+study: Study1B
+status: RETRY_LAUNCHED_NONOUTCOME
+scientific_outcomes_opened: false
+
+previous_run:
+  workflow: Study 1B Coverage Checkpoint 1000
+  run_id: 33213423211
+  conclusion: failure
+  datasets_simulated: 0
+  failure_class: INFRASTRUCTURE_INPUT_MATERIALIZATION
+  failure_detail: >-
+    The Kaggle LFW image archive does not contain the canonical View 1 peopleDevTrain.txt
+    and peopleDevTest.txt metadata files. The active-boundary materializer therefore stopped
+    before any coverage dataset was simulated.
+
+correction:
+  commit: ddec7b5b85eceab73e26b90c5277164b78363a8c
+  method: >-
+    Reuse the already validated Study 1B metadata bootstrap before materializing the active
+    amended boundary: prefer original UMass metadata, fall back to the commit-pinned HTTPS
+    mirror, and accept bytes only when canonical torchvision MD5 values match.
+  scientific_contract_changed: false
+  data_boundary_changed: false
+  pair_graph_rules_changed: false
+  rng_or_seed_lineage_changed: false
+  bootstrap_replicates_changed: false
+  coverage_gate_changed: false
+
+retry:
+  checkpoint_datasets_per_scenario: 1000
+  scenarios: 5
+  shards_per_scenario: 10
+  datasets_per_shard: 100
+  total_shards: 50
+  bootstrap_replicates_per_dataset: 10000
+  max_parallel: 20
+  expected_next_state: >-
+    First prepare the checksum-verified canonical metadata and amended TEST pair graph; then
+    launch the 50 resumable coverage shards. Aggregate only after every shard succeeds.
+
+pedagogical_reading:
+  en_francais_dans_le_texte: >-
+    Le calcul statistique n'avait pas encore commencé. Il manquait deux petits fichiers qui
+    disent quelles personnes appartiennent aux jeux de développement LFW. Nous réutilisons
+    maintenant la méthode déjà validée pour récupérer ces fichiers et vérifier leur empreinte
+    avant de relancer exactement la même expérience.
+  lecture_ingenieur: >-
+    Il s'agit d'une défaillance de provisioning d'entrée, pas d'un échec de l'estimateur.
+    L'entrée est maintenant reconstruite par une chaîne de provenance checksum-guarded déjà
+    qualifiée. Aucun paramètre scientifique n'est modifié; le replay reste comparable au plan
+    préenregistré.
+  lecture_12_ans: >-
+    On voulait faire une grande série de tests, mais il manquait la liste qui dit quels élèves
+    sont dans quelle classe. On a trouvé la bonne liste, on vérifie qu'elle est exactement la
+    bonne, puis on recommence les tests sans changer les règles du jeu.

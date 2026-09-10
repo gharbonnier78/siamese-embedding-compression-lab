@@ -1,0 +1,135 @@
+schema_version: "1.0"
+decision_input_id: STUDY1B-OPERATIONAL-INPUTS-V0.1-2026-09-06
+study_id: study_1b_matched_compression
+date: 2026-09-06
+status: AWAITING_HUMAN_ENGINEERING_INPUTS
+kind: nonoutcome_operational_decision_input_contract
+
+purpose: >-
+  Turn the residual S4 power question into explicit engineering inputs. This artifact records
+  what can already be stated from the study design, separates those statements from unresolved
+  operational assumptions, and prevents unavailable product economics or real Study 1B outcomes
+  from being guessed.
+
+scientific_boundary:
+  real_study_outcomes_opened: false
+  screen_opened: false
+  qualification_test_opened: false
+  real_route_performance_opened: false
+  representation_geometry_opened: false
+  amendment_activated: false
+  s4n1_status: CLOSED_NEGATIVE
+  s4n2_status: CLOSED_NEGATIVE
+  s4n3_launched: false
+
+questions:
+  - id: Q1_PASS_AUTHORITY
+    question: "What exactly does a Study 1B PASS authorize?"
+    current_supported_answer: >-
+      At minimum, a PASS would support the bounded Study 1B scientific claim defined by the frozen
+      protocol for one selected artifact: non-inferiority of the candidate representation relative
+      to raw512 for the frozen estimand and operating point. A statistical PASS alone must not be
+      interpreted as unilateral production-release authorization unless an external engineering or
+      governance policy explicitly grants that authority.
+    human_input_needed: >-
+      Confirm the concrete downstream action enabled by PASS: research conclusion only, candidate
+      promotion, qualification package input, implementation decision, release gate input, or other.
+    provisional_classification: PARTIALLY_ANSWERED
+
+  - id: Q2_NOT_DEMONSTRATED_ACTION
+    question: "What happens after NOT DEMONSTRATED?"
+    current_supported_answer: >-
+      The conservative evidential interpretation is that the bounded non-inferiority claim has not
+      been established. This is not evidence of inferiority. The decision framework currently supports
+      either retaining the reference route or acquiring additional independent evidence; deploying the
+      compressed route while ignoring NOT_DEMONSTRATED is not supported by the S4 analysis.
+    human_input_needed: >-
+      Select the actual operational policy: retain raw512, collect more evidence, stop the change,
+      escalate to a separate risk authority, or another explicitly governed action.
+    provisional_classification: PARTIALLY_ANSWERED
+
+  - id: Q3_RAW512_FALLBACK
+    question: "Does raw512 remain a valid fallback?"
+    current_supported_answer: >-
+      raw512 is the frozen scientific reference for Study 1B. That makes it the natural comparison and
+      conservative fallback in the decision analysis, but scientific-reference status does not by itself
+      prove current operational deployability, supportability, capacity, licensing, latency or lifecycle
+      acceptability.
+    human_input_needed: >-
+      Confirm whether raw512 is operationally available and acceptable over the intended decision horizon,
+      and identify any cost/capacity constraints that make fallback non-neutral.
+    provisional_classification: REQUIRES_CONFIRMATION
+
+  - id: Q4_VALUE_OF_128D
+    question: "What is the real value of an acceptable 128D route?"
+    current_supported_answer: >-
+      The study establishes no monetary or operational value because real compression benefits and
+      deployment economics have not been opened or supplied. Candidate benefit categories that may be
+      relevant include representation memory/storage, transfer bandwidth, cache/memory pressure,
+      compute/latency/throughput, hardware capacity, and enabling constrained deployments.
+    human_input_needed: >-
+      Provide either measured or engineering-estimated benefit over a defined horizon, with units and
+      provenance. Separate one-time engineering benefit from per-transaction or per-device benefit.
+    provisional_classification: OPEN
+
+  - id: Q5_COST_OF_MORE_EVIDENCE
+    question: "How much would genuinely independent additional evidence cost?"
+    current_supported_answer: >-
+      Unknown. More bootstrap/jackknife repetitions are not additional independent biometric information.
+      A future higher-power design must identify what new independent subjects, captures, sessions,
+      devices, sites or other decision-relevant information would actually increase information.
+    human_input_needed: >-
+      Estimate acquisition, curation, lab, compute, review and schedule costs for the smallest credible
+      increment of independent evidence; also estimate expected information gain or planned sample-size
+      increase prospectively.
+    provisional_classification: OPEN
+
+  - id: Q6_FALSE_QUALIFICATION_SEVERITY
+    question: "How severe is false qualification?"
+    current_supported_answer: >-
+      Statistically, false qualification means declaring non-inferiority when the true degradation is at
+      or beyond the unacceptable side of the frozen margin. The operational consequence cannot be inferred
+      from power alone and must not be equated directly with person-level FMR/FNMR harm.
+    human_input_needed: >-
+      Classify consequence for the intended use case (for example negligible/minor/major/critical) and
+      explain the causal path from false qualification to system-level cost, security, user impact,
+      compliance or operational burden. Quantify where possible.
+    provisional_classification: OPEN
+
+  - id: Q7_REVERSIBILITY
+    question: "Is deployment easily reversible?"
+    current_supported_answer: >-
+      Unknown from Study 1B. Reversibility materially changes decision consequence: a controlled pilot with
+      rapid rollback can make missed/false decisions less costly than an irreversible fleet, database or
+      protocol migration.
+    human_input_needed: >-
+      Describe rollback mechanism, time-to-rollback, data/model compatibility, dual-run capability,
+      monitoring needed to trigger rollback, and any irreversible migration or ecosystem coupling.
+    provisional_classification: OPEN
+
+minimum_decision_table_inputs:
+  pass_authorizes: null
+  not_demonstrated_action: null
+  raw512_fallback_operationally_valid: null
+  raw512_fallback_constraints: null
+  value_128d_amount: null
+  value_128d_unit: null
+  value_128d_horizon: null
+  extra_independent_evidence_cost: null
+  extra_evidence_delay: null
+  false_qualification_severity: null
+  false_qualification_cost_or_loss_model: null
+  deployment_reversibility_class: null
+  rollback_time: null
+  decision_owner: null
+
+next_analysis_after_human_inputs: >-
+  Populate the value-of-information model and a scenario/sensitivity table. Compare the expected value
+  of obtaining more independent evidence against the missed-demonstration cost and false-qualification
+  consequence. Any future power target or design change must be prospective and may not reclassify S4N1
+  or S4N2.
+
+references:
+  framework: protocol/decisions/STUDY1B_S4_RESIDUAL_DECISION_RISK_FRAMEWORK_2026-09-06.yaml
+  value_of_information_note: docs/research-notes/STUDY1B_S4_VALUE_OF_INFORMATION_DECISION_TABLE_2026-09-06.md
+  ademp_mapping: docs/research-notes/STUDY1B_ADEMP_SIMULATION_STUDY_MAPPING_2026-09-06.md

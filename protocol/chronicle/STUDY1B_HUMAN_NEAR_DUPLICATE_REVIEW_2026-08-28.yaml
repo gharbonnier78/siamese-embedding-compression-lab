@@ -1,0 +1,57 @@
+date: 2026-08-28
+study: Study1B
+status: HUMAN_REVIEW_RECORDED_NON_ACTIVE
+scientific_outcomes_opened: false
+source_artifact:
+  workflow_run_id: 33167438052
+  artifact_id: 9684191300
+  artifact_sha256: 77e445c01fe31fd369b8216a032c6f603cc1275f74e1f19c4e2871be981f26d0
+  review_sheet: quarantine-dry-run/human_review_contact_sheet.png
+review_scope:
+  question: >-
+    Determine only whether each pair is visually the same photograph or an image derived
+    from the same photograph. This is not an identity-recognition or biometric matching judgement.
+  reviewer: human_project_owner
+  thresholds_changed_after_observation: false
+pairs:
+  - pair_status_before_human_review: BLOCK_DUPLICATE_LIKE
+    roles: [SCREEN, TRAIN]
+    subjects:
+      - subject_1070cf723eb7b93398de
+      - subject_97df35f042b9b8c49b8e
+    automated_evidence:
+      dhash_hamming: 1
+      criteria_satisfied: 3
+      criteria_total: 3
+    human_observation: >-
+      Les 2 images du haut sont identiques visuellement.
+    human_decision: CONFIRMED_SAME_PHOTOGRAPH_OR_DERIVATIVE
+  - pair_status_before_human_review: AMBIGUOUS_REVIEW
+    roles: [TEST, TRAIN]
+    subjects:
+      - subject_fb92b5fb0163ff4b3751
+      - subject_815e0549ed1f8d0514b4
+    automated_evidence:
+      dhash_hamming: 1
+      criteria_satisfied: 2
+      criteria_total: 3
+    human_observation: >-
+      Pareil pour les 2 du bas: les deux images sont identiques visuellement.
+    human_decision: CONFIRMED_SAME_PHOTOGRAPH_OR_DERIVATIVE
+consequence:
+  proposed_identity_quarantine:
+    - subject_1070cf723eb7b93398de
+    - subject_97df35f042b9b8c49b8e
+    - subject_fb92b5fb0163ff4b3751
+    - subject_815e0549ed1f8d0514b4
+  rationale: >-
+    Both cross-role candidate pairs are now supported by independent deterministic image
+    similarity evidence and a human visual review limited to same-photograph/derivative assessment.
+    Identity-level quarantine remains the conservative proposal.
+  amendment_active: false
+  requires_independent_review: true
+  requires_explicit_human_go_for_activation: true
+notes:
+  - No automated threshold was modified after seeing the images.
+  - The human observation resolves the previously ambiguous pair in favor of duplicate-like contamination.
+  - This record does not authorize SCREEN, TEST, or full coverage/power simulations.

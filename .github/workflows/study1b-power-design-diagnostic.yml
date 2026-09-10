@@ -1,0 +1,53 @@
+name: Study 1B Power Design Diagnostic
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/study1b-power-design-diagnostic.yml'
+      - 'scripts/study1b_power_design_diagnostic.py'
+      - 'protocol/amendments/STUDY1B_POWER_DESIGN_AMENDMENT_V0_1_2026-08-31.yaml'
+      - 'protocol/chronicle/STUDY1B_POWER_DESIGN_AMENDMENT_OPEN_2026-08-31.yaml'
+
+permissions:
+  actions: read
+  contents: read
+
+jobs:
+  diagnostic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: Install package
+        run: |
+          python -m pip install --upgrade pip 'setuptools>=83.0.0'
+          python -m pip install -e .
+      - name: Download canonical power shards from run 33299151340
+        uses: actions/download-artifact@v5
+        with:
+          github-token: ${{ github.token }}
+          run-id: 33299151340
+          pattern: study1b-power-delta-*
+          path: artifacts/study1b/canonical-power-shards
+      - name: Reanalyse canonical 4000-dataset power rows
+        env:
+          PYTHONPATH: src
+        run: |
+          mkdir -p artifacts/study1b/power-design-diagnostic
+          python scripts/study1b_power_design_diagnostic.py \
+            --input-root artifacts/study1b/canonical-power-shards \
+            --effect 0.0 --expected 4000 \
+            --output artifacts/study1b/power-design-diagnostic/s1_delta_0.json
+          python scripts/study1b_power_design_diagnostic.py \
+            --input-root artifacts/study1b/canonical-power-shards \
+            --effect 0.01 --expected 4000 \
+            --output artifacts/study1b/power-design-diagnostic/s1_delta_0_01.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: study1b-power-design-diagnostic-s1
+          path: artifacts/study1b/power-design-diagnostic/*.json
+          if-no-files-found: error

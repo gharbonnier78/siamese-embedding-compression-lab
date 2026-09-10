@@ -1,0 +1,151 @@
+schema_version: "1.0"
+amendment_id: STUDY1B_POWER_DESIGN_AMENDMENT_V0_1_2026-08-31
+study_id: study_1b_matched_compression
+date: 2026-08-31
+status: DRAFT_PROSPECTIVE_ANALYSIS_ONLY
+activation: NOT_AUTHORIZED
+
+trigger:
+  canonical_power_run_id: 33299151340
+  canonical_power_head_sha: 8b005717c5e8566f3ebe898fdac66965191d1dd5
+  evidence_closure: protocol/chronicle/STUDY1B_POWER_PREFLIGHT_4000_EVIDENCE_CLOSURE_2026-08-31.yaml
+  observed_gate:
+    delta_0: {passed: 3738, total: 4000, estimated_power: 0.9345, verdict: PASS}
+    delta_0_01: {passed: 1549, total: 4000, estimated_power: 0.38725, verdict: FAIL}
+  reason: >-
+    The preregistered all-five-seed power requirement fails at true delta=0.01.
+    The frozen failure policy therefore blocks outcomes and requires an amendment
+    before any SCREEN or TEST result may be opened.
+
+scientific_boundary:
+  scientific_outcomes_opened: false
+  screen_authorized: false
+  test_authorized: false
+  representation_geometry_authorized: false
+  real_random128_pca128_siamese128_vs_raw512_results_permitted: false
+  frozen_power_result_may_be_overwritten: false
+  purpose: >-
+    Evaluate experimental-design alternatives under synthetic/non-outcome evidence
+    only. This amendment is not a mechanism for changing a rule merely because the
+    preregistered result failed.
+
+unchanged_scientific_objects:
+  primary_estimand: delta_fnmr_equal_fmr
+  definition: FNMR_candidate_at_alpha_minus_FNMR_raw512_at_alpha
+  target_fmr: 0.01
+  noninferiority_margin: 0.03
+  one_sided_ucb_level: 0.975
+  identity_aware_bootstrap: subject_slot_identity_bootstrap
+  bootstrap_replicates: 10000
+  paired_raw_candidate_draw: true
+  stage_b_seed_labels: [11, 29, 47, 71, 101]
+  active_data_boundary_unchanged: true
+
+question_to_resolve: >-
+  What decision rule and information structure provide a scientifically defensible
+  method-level statement about compression non-inferiority while retaining explicit
+  visibility of model-seed instability, and while achieving at least 0.90 power at
+  true delta=0.01 without weakening the 0.03 NI margin or the 97.5% UCB after seeing
+  real Study 1B outcomes?
+
+candidate_designs:
+  A_frozen_all_five:
+    description: Keep the current intersection rule: every one of five seed UCBs < 0.03.
+    role: reference_design_and_status_quo
+    known_power_delta_0_01: 0.38725
+    advantage: strongest worst-seed robustness semantics
+    drawback: very low method-level power at delta=0.01 under current seed model
+  B_k_of_five:
+    description: Require at least k of five predeclared seed UCBs < 0.03, with all five reported.
+    k_values_for_sensitivity: [3, 4, 5]
+    role: candidate_only_not_authorized
+    concern: claim semantics change from worst-seed robustness to frequency-of-seed robustness
+  C_method_level_seed_distribution:
+    description: >-
+      Model seed-to-seed variability explicitly and make the primary claim on a
+      predeclared method-level functional of the seed distribution; retain worst-seed
+      UCB as a robustness secondary endpoint.
+    role: candidate_only_not_authorized
+    concern: requires a new estimator, calibration study, and independent review
+  D_more_information_same_rule:
+    description: >-
+      Keep the all-five rule and investigate whether additional independent information
+      (more genuine pairs/captures/identities where actually available) can narrow UCBs
+      enough to restore power.
+    role: candidate_only_not_authorized
+    concern: LFW identity/capture structure is finite; duplicated/resampled pair counts
+      must not be mistaken for new independent information
+  E_accept_low_power:
+    description: >-
+      Keep the frozen design unchanged and explicitly accept that Study 1B cannot
+      support the planned non-inferiority claim at delta=0.01.
+    role: scientifically_valid_stop_option
+
+sensitivity_plan:
+  contract: protocol/simulations/STUDY1B_POWER_DESIGN_SENSITIVITY_V0_1_2026-08-31.yaml
+  phases:
+    - id: S1_REANALYSE_EXISTING_SYNTHETIC_POWER_ROWS
+      purpose: >-
+        Use only canonical synthetic power rows to quantify marginal seed pass rates,
+        k-of-five rules, worst-seed UCB distributions, and dependence. No new model
+        outcomes and no replacement of the canonical gate.
+    - id: S2_PROSPECTIVE_SEED_VARIABILITY_SWEEP
+      purpose: >-
+        Generate new synthetic non-outcome simulations across predeclared seed-effect
+        SD values to test sensitivity to the modelling assumption itself.
+    - id: S3_INFORMATION_SENSITIVITY
+      purpose: >-
+        Examine whether increasing truly independent information, rather than merely
+        adding dependent pairs, can recover power while preserving the frozen NI rule.
+    - id: S4_METHOD_LEVEL_ESTIMATOR_CALIBRATION_IF_RETAINED
+      purpose: >-
+        If a method-level seed-distribution rule remains a candidate, define and
+        calibrate it from known-truth simulations before any amendment activation.
+
+selection_principles:
+  - Do not change the noninferiority margin because the power result failed.
+  - Do not lower the confidence level because the power result failed.
+  - Do not choose a rule from real SCREEN or TEST performance; those outcomes remain sealed.
+  - Prefer a decision rule whose scientific claim matches the intended object: a compression method, while exposing seed instability rather than hiding it.
+  - Distinguish new independent information from duplicated/dependent pair counts.
+  - Any candidate replacing the all-five rule requires fresh known-truth coverage and power calibration.
+  - Preserve the original failed rule and result permanently in provenance.
+
+provisional_recommendation:
+  state: NOT_YET_SELECTED
+  direction: >-
+    First quantify B, C and D under synthetic evidence. Do not activate an amendment
+    until the sensitivity results show which loss of power is caused by the all-five
+    decision semantics, which by seed-effect assumptions, and which by finite TEST
+    information. The status-quo option A and stop option E remain valid controls.
+
+required_before_activation:
+  - sensitivity_evidence_complete
+  - explicit_assumptions_and_estimand_semantics_for_selected_design
+  - known_truth_coverage_revalidated_if_estimator_or_rule_changes
+  - power_at_delta_0_and_delta_0_01_at_or_above_0_90_for_selected_design
+  - independent_scientific_review_ACCEPT
+  - independent_technical_review_ACCEPT
+  - CI_and_Research_Assurance_green_on_unchanged_final_head
+  - explicit_human_authorization_of_amendment
+
+pedagogical_reading:
+  en_francais_dans_le_texte: >-
+    Le test de puissance nous a appris que notre regle est trop difficile a satisfaire
+    quand la vraie degradation vaut +0,01. On ne change pas la regle pour faire passer
+    le resultat. On ouvre d'abord une etude de conception: est-ce la bonne facon de
+    representer la robustesse aux seeds, manque-t-il de l'information independante,
+    ou notre hypothese de variabilite entre seeds est-elle trop pessimiste? Les vraies
+    performances 128D contre raw512 restent cachees pendant cette decision.
+  lecture_ingenieur: >-
+    Le gate actuel est un systeme serie pilote par le pire seed. L'amendement v0.1
+    traite le FAIL comme un probleme de dimensionnement et de semantique de decision.
+    Les leviers sont separes: regle d'agregation des seeds, modele de variabilite,
+    largeur de l'incertitude et quantite d'information independante. Aucun levier ne
+    sera choisi sur la base des outcomes reels.
+  lecture_12_ans: >-
+    Cinq eleves doivent tous reussir le meme saut pour que le groupe gagne. On vient
+    de voir que cette regle fait souvent perdre le groupe meme si chaque eleve reussit
+    souvent seul. Avant de changer le jeu, on va comparer plusieurs regles sur des
+    essais inventes ou l'on connait deja la bonne reponse. On ne regarde toujours pas
+    le vrai concours.

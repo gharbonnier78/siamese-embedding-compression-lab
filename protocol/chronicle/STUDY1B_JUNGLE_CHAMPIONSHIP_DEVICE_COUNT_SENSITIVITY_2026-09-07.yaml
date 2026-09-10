@@ -1,0 +1,127 @@
+schema_version: "1.0"
+entry_type: study1b_jungle_championship_device_count_sensitivity
+chronicle_entry_id: CHRON-20260907-033
+study_id: study_1b_matched_compression
+date: 2026-09-07
+kind: append_only_nonoutcome_engineering_analysis
+status: DEVICE_COUNT_ESTIMATED_AS_SCENARIO_AWAITING_HARDWARE_INPUTS
+outcome_evidence_seen: false
+
+summary: >-
+  Archive the engineering conclusion that edge-device count is primarily a fleet-level replication,
+  synchronization and hardware-cost multiplier rather than a direct per-device biometric-performance
+  parameter. Preserve device count and local observation flow as separate variables. Introduce a bounded
+  Jungle Championship sensitivity estimate D={25,50,100}, central 50, without asserting an actual deployment count.
+
+human_authority:
+  source: "2026-09-07 project conversation"
+  instruction: >-
+    Estimate the number of edge devices and assess whether it matters mainly for measuring memory/economic
+    cost reduction across the device fleet.
+
+provenance_classes:
+  USER_PROVIDED: direct clarification from human authority
+  DERIVED: arithmetic from already archived scenario values
+  SCENARIO: sensitivity assumptions introduced for analysis only
+
+device_count_conclusion:
+  per_device_biometric_parameter: false
+  fleet_level_cost_multiplier: true
+  affects:
+    - replicated gallery RAM/storage payload
+    - synchronization/update transfer volume
+    - fleet BOM or hardware-tier impact
+    - aggregate capacity/energy only if measured
+    - architectural freedom for offline/local replication
+  does_not_by_itself_determine:
+    - unique event population
+    - local observation flow v_i
+    - how many cameras a person traverses
+    - per-device latency
+    - biometric accuracy or non-inferiority
+  important_separation: "D (device count) != v_i (local observation flow)"
+
+sensitivity_device_counts:
+  low:
+    D: 25
+    provenance: SCENARIO
+  central:
+    D: 50
+    provenance: SCENARIO
+    note: "retained as a plausible distributed-stadium planning point, not an event fact"
+  high:
+    D: 100
+    provenance: SCENARIO
+
+central_structural_point_not_event_fact:
+  whitelist_N: 500000
+  blacklist_B: 10000
+  templates_T: 3
+  datatype: FP32
+  full_replication_per_device:
+    d512_GB: 3.13344
+    d128_GB: 0.78336
+    avoided_GB: 2.35008
+  hybrid_quarter_whitelist_per_device:
+    d512_GB: 0.82944
+    d128_GB: 0.20736
+    avoided_GB: 0.62208
+
+fleet_payload_sensitivity:
+  full_replication:
+    D25: {d512_GB: 78.336, d128_GB: 19.584, avoided_GB: 58.752}
+    D50: {d512_GB: 156.672, d128_GB: 39.168, avoided_GB: 117.504}
+    D100: {d512_GB: 313.344, d128_GB: 78.336, avoided_GB: 235.008}
+  hybrid_quarter_whitelist:
+    D25: {d512_GB: 20.736, d128_GB: 5.184, avoided_GB: 15.552}
+    D50: {d512_GB: 41.472, d128_GB: 10.368, avoided_GB: 31.104}
+    D100: {d512_GB: 82.944, d128_GB: 20.736, avoided_GB: 62.208}
+  caveat: >-
+    Values are exact vector-payload arithmetic for the scenario assumptions only. They exclude portraits,
+    metadata, index/database overhead, OS/application memory and device-internal redundancy.
+
+economic_interpretation:
+  key_point: >-
+    Device count matters most economically when the 512D-vs-128D resource difference crosses a hardware
+    or architecture threshold. If both fit in the same device SKU with adequate headroom, direct memory BOM
+    saving may be near zero despite structural byte reduction. If 512D forces a higher RAM/storage tier or
+    prevents desired offline replication, the fleet value can scale approximately with D.
+  candidate_terms:
+    edge_payload_value: "D * avoided_payload_per_device * attributable_resource_rate"
+    hardware_tier_value: "D * hardware_tier_delta, only if a real tier threshold is crossed"
+    synchronization_value: "D * update_frequency * avoided_gallery_transfer_bytes * attributable_transfer_rate"
+
+C_miss_link:
+  interpretation: >-
+    D is secondary to the statistical power calculation but can materially scale C_miss by multiplying the
+    engineering value of an acceptable 128D route over the device fleet. No monetary value is assigned yet.
+
+required_next_inputs:
+  - actual/design-target device count and topology
+  - device RAM/storage tiers and available headroom
+  - whether gallery vectors must reside in RAM, local persistent storage, or both
+  - per-device hardware-tier delta if relevant
+  - gallery synchronization/update cadence
+  - whether 512D blocks a desired offline/full-or-partial replication design
+  - local flow and peak load for compute analysis, separately from D
+
+scientific_boundary:
+  real_study_outcomes_opened: false
+  screen_opened: false
+  qualification_test_opened: false
+  real_route_performance_opened: false
+  representation_geometry_opened: false
+  amendment_activated: false
+  s4n1_status: CLOSED_NEGATIVE
+  s4n2_status: CLOSED_NEGATIVE
+  s4n3_launched: false
+
+references:
+  analysis_note: docs/research-notes/STUDY1B_JUNGLE_CHAMPIONSHIP_DEVICE_COUNT_AND_COST_SENSITIVITY_2026-09-07.md
+  scenario_matrix: docs/research-notes/STUDY1B_JUNGLE_CHAMPIONSHIP_EDGE_SCENARIO_MATRIX_2026-09-07.md
+  previous_chronicle: protocol/chronicle/STUDY1B_JUNGLE_CHAMPIONSHIP_EDGE_SCENARIO_MATRIX_RESULT_2026-09-07.yaml
+
+next_action: >-
+  Use D=50 as the central planning sensitivity and D={25,100} as low/high bounds until an engineering
+  topology is supplied. Prioritize determining whether 512D versus 128D crosses a real device RAM/storage
+  or offline-architecture threshold before assigning an economic memory value.

@@ -1,0 +1,129 @@
+schema_version: "1.0"
+entry_id: STUDY1B_POWER_DESIGN_S1_DISPOSITION_AND_S2_LAUNCH_2026-08-31
+study_id: study_1b_matched_compression
+date: 2026-08-31
+kind: NONOUTCOME_DESIGN_SENSITIVITY_MILESTONE
+status: S1_CLOSED_S2_PILOT_LAUNCHED
+
+scientific_boundary:
+  scientific_outcomes_opened: false
+  screen_opened: false
+  test_opened: false
+  representation_geometry_authorized: false
+  real_random128_pca128_siamese128_vs_raw512_results_permitted: false
+  canonical_failed_power_gate_replaced: false
+
+source_evidence:
+  canonical_power_run_id: 33299151340
+  canonical_power_verdict: FAIL
+  s1_diagnostic_run_id: 33349531521
+  s1_head_sha: e8158eb8b02a68cba79943596c3157f3a51a4b23
+  s1_artifact:
+    id: 9743122297
+    name: study1b-power-design-diagnostic-s1
+    digest: sha256:ce5208b10d1f25542fd2db42553151403a7b8b8c8413a8fb6860e671e49e8ac1
+
+s1_full_4000_disposition:
+  delta_0:
+    per_seed_pass_probability:
+      "11": 0.983
+      "29": 0.98625
+      "47": 0.98775
+      "71": 0.9845
+      "101": 0.9875
+    decision_rate:
+      all_5_of_5: 0.9345
+      at_least_4_of_5: 0.9955
+      at_least_3_of_5: 0.999
+    max_ucb_97_5_median: 0.021207743987272716
+  delta_0_01:
+    per_seed_pass_probability:
+      "11": 0.78825
+      "29": 0.77975
+      "47": 0.79125
+      "71": 0.78875
+      "101": 0.80025
+    decision_rate:
+      all_5_of_5: 0.38725
+      at_least_4_of_5: 0.7055
+      at_least_3_of_5: 0.8885
+    max_ucb_97_5_median: 0.031656965538087
+    max_ucb_97_5_q975: 0.04366278999876746
+  dependence_interpretation: >-
+    Seed-level pass indicators are only weakly positively correlated at delta=0.01
+    (roughly 0.08 to 0.13 pairwise), so failures are not redundant enough for the
+    intersection rule to retain high power.
+
+candidate_space_narrowing:
+  A_frozen_all_five:
+    disposition: RETAIN_AS_REFERENCE_ONLY
+    reason: >-
+      It preserves strongest worst-seed semantics but canonical power at delta=0.01
+      is 0.38725, so it cannot be activated unchanged for the intended >=0.90 power claim.
+  B_k_of_five:
+    disposition: RETAIN_FOR_SEED_VARIABILITY_SENSITIVITY_ONLY
+    reason: >-
+      At the original seed-effect SD=0.005, 4/5 gives 0.7055 and 3/5 gives 0.8885.
+      Neither satisfies the >=0.90 selection gate. The 3/5 rule is close enough to
+      justify prospective sensitivity to the seed-variability assumption, but this
+      post-failure reanalysis does not authorize it.
+  C_method_level_seed_distribution:
+    disposition: DEFER_UNTIL_AFTER_S2
+    reason: >-
+      A new estimator should not be introduced unless S2 shows that explicit
+      seed-distribution modelling is needed and defensible.
+  D_more_information_same_rule:
+    disposition: DEFER_TO_S3_AFTER_S2
+    reason: >-
+      Information expansion is potentially valid only if genuinely independent or
+      meaningfully distinct observations exist; S2 first isolates the seed-model effect.
+  E_accept_low_power:
+    disposition: RETAIN_AS_VALID_STOP_CONTROL
+
+s2_launch:
+  contract: protocol/simulations/STUDY1B_POWER_DESIGN_SENSITIVITY_V0_1_2026-08-31.yaml
+  workflow: .github/workflows/study1b-power-design-s2.yml
+  purpose: >-
+    Prospectively isolate sensitivity to the seed-effect SD assumption without
+    changing target FMR, NI margin, UCB level, bootstrap semantics, active data
+    boundary, or opening real Study 1B outcomes.
+  seed_effect_sd_values: [0.0, 0.0025, 0.005, 0.0075, 0.01]
+  true_delta_scenarios: [0.0, 0.01]
+  pilot_datasets_per_cell: 500
+  decision_rules_reported: [all_5_of_5, at_least_4_of_5, at_least_3_of_5]
+  bootstrap_replicates_per_dataset: 10000
+  total_simulated_datasets_planned: 5000
+  shard_design: 5_shards_of_100_per_sd_effect_cell
+  pilot_screening_floor: 0.80
+  final_selection_power_target: 0.90
+  execution_semantics:
+    one_shot_push_trigger: true
+    trigger_file_is_this_append_only_entry: true
+    manual_replay_available: true
+    ordinary_future_documentation_commits_do_not_retrigger: true
+
+interpretation_guardrails:
+  - S2 is prospective synthetic design analysis, not a Study 1B performance result.
+  - S2 cannot replace the canonical failed power run.
+  - A pilot cell below 0.80 is not expanded to 4000 under the frozen sensitivity contract.
+  - A pilot cell at or above 0.80 is only eligible for further calibration; it is not accepted automatically.
+  - Any changed decision rule or estimator requires fresh known-truth coverage validation before activation.
+  - No SCREEN or TEST outcome may be opened from this milestone.
+
+pedagogical_reading:
+  en_francais_dans_le_texte: >-
+    Le diagnostic complet confirme que le probleme vient en grande partie de la
+    combinaison de cinq seeds: chacun passe souvent seul, mais demander que les cinq
+    passent ensemble fait chuter fortement la probabilite de succes. La regle 3/5
+    arrive a 88,85% a delta=0,01, donc meme elle ne franchit pas notre seuil de 90%.
+    On ne la choisit pas pour autant. On teste maintenant, sur des donnees simulees,
+    a quel point cette conclusion depend de notre hypothese de variabilite entre seeds.
+  lecture_ingenieur: >-
+    S1 ferme une premiere branche de conception: aucun simple k-of-5 observe au
+    SD=0,005 ne satisfait le gate >=0,90 a delta=0,01. S2 devient donc une analyse de
+    sensibilite d'hypothese, pas une optimisation de seuil. Elle maintient constants
+    FMR, marge NI, UCB 97,5%, bootstrap et graphe TEST, et ne varie que le SD de l'effet seed.
+  lecture_12_ans: >-
+    On a essaye de compter combien d'eleves doivent reussir sur cinq. Meme trois sur
+    cinq n'atteignent pas tout a fait notre objectif. Avant de changer la regle du jeu,
+    on verifie maintenant si on avait imagine les eleves trop differents les uns des autres.

@@ -1,0 +1,79 @@
+schema_version: "1.0"
+decision_id: STUDY1B-OPERATIONAL-POLICY-BASELINE-V0.1-2026-09-07
+study_id: study_1b_matched_compression
+date: 2026-09-07
+status: WORKING_BASELINE_FOR_NONOUTCOME_DECISION_ANALYSIS
+kind: nonoutcome_operational_policy_baseline
+
+purpose: >-
+  Record the human-approved working baseline to continue the Study 1B value-of-information analysis
+  without opening any real outcome. This baseline is an engineering decision-analysis assumption,
+  not a production-release policy and not a scientific-gate amendment.
+
+human_authority:
+  source: "2026-09-07 project conversation"
+  instruction: "Ok"
+  interpretation: >-
+    Approval to proceed with the proposed working baseline: PASS promotes the bounded claim/candidate
+    to a controlled next engineering or qualification stage; NOT_DEMONSTRATED retains raw512 by
+    default; additional evidence is sought only when its expected value justifies its cost.
+
+scientific_boundary:
+  real_study_outcomes_opened: false
+  screen_opened: false
+  qualification_test_opened: false
+  real_route_performance_opened: false
+  representation_geometry_opened: false
+  amendment_activated: false
+  s4n1_status: CLOSED_NEGATIVE
+  s4n2_status: CLOSED_NEGATIVE
+  s4n3_launched: false
+
+working_policy:
+  pass:
+    action: PROMOTE_TO_CONTROLLED_NEXT_ENGINEERING_OR_QUALIFICATION_STAGE
+    does_not_mean:
+      - automatic production release
+      - proof of superiority
+      - proof of all operational requirements
+      - waiver of downstream engineering, security, capacity, lifecycle, or deployment qualification
+  not_demonstrated:
+    action: RETAIN_RAW512_BY_DEFAULT
+    interpretation: >-
+      The bounded non-inferiority claim is not demonstrated; this is not evidence that the candidate
+      is inferior. Additional independent evidence may be considered only through an explicit
+      value-of-information analysis.
+  raw512_fallback:
+    status: WORKING_ASSUMPTION_PENDING_OPERATIONAL_CONFIRMATION
+    note: >-
+      raw512 is the frozen scientific reference and is used as the conservative analytical fallback.
+      Its actual deployability, supportability, capacity, licensing, latency, lifecycle and cost remain
+      operational inputs rather than facts established by Study 1B.
+  reversibility:
+    desired_design_property: true
+    current_operational_fact_established: false
+    preferred_controls:
+      - preserve raw512 compatibility where feasible
+      - support controlled dual-run or shadow comparison where feasible
+      - define rollback trigger and owner before broad deployment
+      - avoid irreversible representation migration before sufficient evidence
+
+false_qualification_consequence:
+  current_classification: BOUNDED_BY_CONTROLLED_PROMOTION_BUT_NOT_YET_QUANTIFIED
+  rationale: >-
+    Under this working policy a statistical PASS does not directly authorize broad production use,
+    so a false statistical qualification need not immediately become person-level operational harm.
+    Its actual severity depends on the controls, evidence and decision gates in the downstream stage.
+
+next_analysis:
+  action: QUANTIFY_STRUCTURAL_512D_TO_128D_BENEFIT_ENVELOPE
+  constraints:
+    - use only dimensional arithmetic and explicitly hypothetical deployment scales
+    - do not infer unopened real matcher latency, throughput, accuracy or geometry
+    - separate exact representation-size savings from implementation-dependent system savings
+    - keep monetary rates symbolic unless supplied by engineering authority
+
+references:
+  operational_input_contract: protocol/decisions/STUDY1B_OPERATIONAL_DECISION_INPUTS_V0_1_2026-09-06.yaml
+  residual_risk_framework: protocol/decisions/STUDY1B_S4_RESIDUAL_DECISION_RISK_FRAMEWORK_2026-09-06.yaml
+  value_of_information_note: docs/research-notes/STUDY1B_S4_VALUE_OF_INFORMATION_DECISION_TABLE_2026-09-06.md

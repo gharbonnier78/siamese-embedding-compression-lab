@@ -1,0 +1,109 @@
+schema_version: "1.0"
+construction_id: STUDY1B_POWER_DESIGN_S3_EXPANDED_GRAPH_CONSTRUCTION_V0_1_2026-09-01
+study_id: study_1b_matched_compression
+date: 2026-09-01
+status: FROZEN_PROSPECTIVE_NONOUTCOME_CONSTRUCTION
+scientific_outcomes_permitted: false
+replaces_canonical_power_gate: false
+amendment_activated: false
+
+source_evidence:
+  s3_feasibility_run_id: 33558337504
+  s3_feasibility_artifact_id: 9820264761
+  s3_feasibility_artifact_digest: sha256:c4cf677f9c4987333dc4d72a4666f7ebe787cb34ecd1b3a7f3166e67248aa962
+  feasibility_result:
+    base_genuine_pairs: 10000
+    base_impostor_pairs: 100000
+    unused_distinct_genuine_capture_pairs: 14620
+    unused_distinct_impostor_identity_pairs: 1362346
+    multiplier_1_5_feasible: true
+    multiplier_2_0_feasible: true
+
+fixed_source_boundary:
+  capture_manifest_sha256: 767f9fe8d1d8466a0e722f826b26875a0e852f525f7413a9658a307a9639366e
+  base_test_graph_sha256: 08c86ca9a641fc96b74014ae1974f713cd00e558dd98946ac32ff440c4666f85
+  test_identities: 1710
+  test_captures: 3707
+  screen_opened: false
+  test_outcomes_opened: false
+
+candidate_graphs:
+  - id: s3_x1_5
+    multiplier: 1.5
+    target_genuine_pairs: 15000
+    target_impostor_pairs: 150000
+    additional_genuine_pairs: 5000
+    additional_impostor_pairs: 50000
+  - id: s3_x2_0
+    multiplier: 2.0
+    target_genuine_pairs: 20000
+    target_impostor_pairs: 200000
+    additional_genuine_pairs: 10000
+    additional_impostor_pairs: 100000
+
+construction_rule:
+  nesting_required: true
+  base_graph_rows_preserved_verbatim: true
+  genuine_unit_of_distinct_information: unordered_capture_pair_within_same_identity
+  impostor_unit_of_distinct_information: unordered_identity_pair
+  genuine_candidate_pool: >-
+    Enumerate every unordered pair of TEST capture IDs belonging to the same subject,
+    remove every unordered capture pair already present as genuine in the frozen TEST graph,
+    then rank remaining candidates by SHA256 of the literal UTF-8 string
+    "study1b-s3-genuine-v1|<subject_id>|<capture_id_1>|<capture_id_2>" with capture IDs sorted.
+  genuine_selection: >-
+    Sort by (sha256_hex, subject_id, capture_id_1, capture_id_2). The first 5000 additions
+    define x1.5; the first 10000 additions define x2.0.
+  impostor_candidate_pool: >-
+    Enumerate every unordered pair of TEST subject IDs, remove every unordered identity pair
+    already represented by any impostor row in the frozen TEST graph, then rank remaining
+    identity pairs by SHA256 of the literal UTF-8 string
+    "study1b-s3-impostor-v1|<subject_id_1>|<subject_id_2>" with subject IDs sorted.
+  impostor_capture_selection: >-
+    For each selected identity pair, choose one capture from each subject independently by
+    minimum (SHA256("study1b-s3-capture-v1|<other_subject_id>|<capture_id>"), capture_id)
+    over that subject's TEST captures. This fixes a reproducible capture realization while
+    the distinct-information unit remains the previously unused identity pair.
+  impostor_selection: >-
+    Sort identity-pair candidates by (sha256_hex, subject_id_1, subject_id_2). The first
+    50000 additions define x1.5; the first 100000 additions define x2.0.
+  pair_ids:
+    x1_5_genuine_prefix: test_s3x15_g_
+    x1_5_impostor_prefix: test_s3x15_i_
+    x2_0_genuine_prefix: test_s3x20_g_
+    x2_0_impostor_prefix: test_s3x20_i_
+  note_on_pair_ids: >-
+    Pair IDs for newly appended rows are graph-specific labels. Scientific nesting is defined
+    by the unordered capture/identity information units, not equality of graph-specific pair IDs.
+
+required_audits:
+  - active_boundary_hashes_match_frozen_values
+  - exact_target_pair_counts
+  - no_duplicate_genuine_capture_pair_within_each_graph
+  - no_duplicate_impostor_identity_pair_among_new_rows
+  - no_new_genuine_pair_overlaps_base_genuine_pairs
+  - no_new_impostor_identity_pair_overlaps_base_impostor_identity_pairs
+  - x1_5_new_genuine_information_is_subset_of_x2_0
+  - x1_5_new_impostor_information_is_subset_of_x2_0
+  - graph_sha256_recorded
+
+prohibitions:
+  - use_biometric_scores_or_embeddings_to_select_pairs
+  - optimize_pair_selection_after_power_results
+  - duplicate_existing_pairs_and_call_them_new_information
+  - alter_target_fmr
+  - alter_noninferiority_margin
+  - alter_ucb_level
+  - open_screen_or_test_outcomes
+  - activate_power_amendment
+
+next_gate:
+  after_construction: KNOWN_TRUTH_REVALIDATION_ON_FROZEN_X1_5_AND_X2_0_INFORMATION_DESIGNS
+  only_after_coverage_pass: PROSPECTIVE_POWER_CALIBRATION
+  power_target_both_delta_scenarios: 0.90
+
+provenance:
+  append_only: true
+  construction_frozen_before_expanded_graph_hashes_are_observed: true
+  canonical_failed_power_result_preserved: true
+  s2_final_failure_preserved: true

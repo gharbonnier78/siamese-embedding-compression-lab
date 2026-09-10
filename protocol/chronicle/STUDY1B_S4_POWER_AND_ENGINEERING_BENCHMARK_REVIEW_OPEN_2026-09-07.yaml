@@ -1,0 +1,87 @@
+schema_version: "1.0"
+entry_type: study1b_s4_power_and_engineering_benchmark_review_open
+chronicle_entry_id: CHRON-20260907-035
+study_id: study_1b_matched_compression
+date: 2026-09-07
+kind: append_only_review_gate
+status: AWAITING_INDEPENDENT_REVIEW
+outcome_evidence_seen: false
+
+summary: >-
+  Open an independent review of the closed S4N1/S4N2 synthetic power-calibration record and the proposed
+  Jungle Championship non-outcome engineering benchmark. The benchmark may later produce openly inspectable
+  engineering results using deterministic synthetic vectors, but it must not open or use protected Study 1B
+  biometric SCREEN/TEST outcomes or representation geometry.
+
+human_authority:
+  source: "2026-09-07 project conversation"
+  instruction: >-
+    Create a PR around the power results and opening of engineering benchmark results, and include a reviewer.
+
+review_scope:
+  s4n1_power_result: CLOSED_NEGATIVE
+  s4n2_power_result: CLOSED_NEGATIVE
+  power_target: 0.90
+  decision_relevant_true_delta: 0.01
+  s4n1_best_power: 0.8690
+  s4n2_best_power: 0.8490
+  no_posthoc_rescue: true
+  engineering_benchmark_contract: protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_BENCHMARK_V0_1_2026-09-07.yaml
+  reviewer_request: protocol/reviews/STUDY1B_S4_POWER_AND_ENGINEERING_BENCHMARK_REVIEW_REQUEST_2026-09-07.md
+
+engineering_result_opening_policy:
+  canonical_execution_before_review_acceptance: false
+  results_may_be_opened_after_accepted_review_and_execution: true
+  allowed_result_class: NONOUTCOME_ENGINEERING_EVIDENCE
+  allowed_examples:
+    - RAM working set
+    - latency and throughput
+    - saturation and queue behavior
+    - power and energy
+    - battery/autonomy calculations
+    - hardware SKU and BOM comparisons
+  prohibited_promotions:
+    - biometric non_inferiority evidence
+    - biometric superiority evidence
+    - SCREEN evidence
+    - qualification TEST evidence
+    - real route geometry/performance evidence
+
+first_benchmark_after_review:
+  phase: A_DIMENSION_ONLY
+  gallery: G2_CENTRAL_FULL_SCENARIO
+  representations: [512, 128]
+  datatype: FP32
+  compute: CPU
+  search: EXACT_DENSE
+  data: DETERMINISTIC_SYNTHETIC_NORMALIZED_VECTORS
+  purpose: >-
+    Isolate the engineering effect of embedding dimension while holding hardware, datatype, search semantics,
+    gallery cardinality and workload fixed.
+
+review_required_checks:
+  - negative S4 results preserved without posthoc tuning
+  - study-level non-demonstration risk not confused with person-level biometric harm
+  - no S4N3 method shopping
+  - fair 512D-vs-128D pairing
+  - no protected biometric data/outcomes required by engineering benchmark
+  - RAM residency and full working-set accounting
+  - peak-flow saturation and queue behavior
+  - energy/battery measurement validity
+  - quantization and ANN kept separate from dimension-only Phase A
+  - reproducibility and provenance
+
+scientific_boundary:
+  screen_opened: false
+  qualification_test_opened: false
+  real_route_performance_opened: false
+  representation_geometry_opened: false
+  amendment_activated: false
+  s4n1_status: CLOSED_NEGATIVE
+  s4n2_status: CLOSED_NEGATIVE
+  s4n3_launched: false
+
+next_action: >-
+  Present the current PR head and direct review-navigation links to an independent reviewer. Do not execute the
+  canonical engineering benchmark until the reviewer returns ACCEPT_ENGINEERING_BENCHMARK or accepted blocking
+  changes are incorporated. After acceptance, Phase A engineering results may be opened and archived.

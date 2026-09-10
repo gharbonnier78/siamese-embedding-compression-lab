@@ -1,0 +1,64 @@
+schema_version: "1.0"
+entry_type: prospective_s3_information_feasibility_launch
+study_id: study_1b_matched_compression
+date: 2026-09-01
+status: S3_INFORMATION_FEASIBILITY_LAUNCHED
+
+scientific_authorization:
+  scientific_outcomes_opened: false
+  screen_opened: false
+  test_outcomes_opened: false
+  representation_geometry_opened: false
+  canonical_gate_replaced: false
+  amendment_activated: false
+
+basis:
+  s2_final_run_id: 33380332732
+  s2_final_summary_artifact_id: 9762938795
+  s2_final_summary_digest: sha256:3ca9f8fe5b623182d212c97f8e90a52eaf0e5a4fa47d1b2af3c4d8d5197c5175
+  candidate_rule: at_least_3_of_5
+  delta_0_power: 0.99975
+  delta_0_01_power: 0.8835
+  required_power_each_scenario: 0.90
+  disposition: S2_SIMPLE_K_OF_FIVE_CANDIDATES_NOT_ADMISSIBLE
+
+s3_scope:
+  phase: S3_INFORMATION_FEASIBILITY_ONLY
+  contract: protocol/simulations/STUDY1B_POWER_DESIGN_SENSITIVITY_V0_1_2026-08-31.yaml
+  candidate_information_multipliers: [1.0, 1.5, 2.0]
+  purpose: >-
+    Determine whether the active LFW TEST source boundary contains enough previously unused,
+    structurally distinct capture-pair and identity-pair information to justify S3 power
+    simulations. This launch authorizes feasibility auditing only, not an information-expanded
+    power simulation and not real compression outcomes.
+  genuine_distinctness_rule: >-
+    Additional genuine rows must correspond to previously unused genuine capture pairs.
+  impostor_distinctness_rule: >-
+    Additional impostor rows must correspond to previously unused identity pairs; additional
+    capture combinations for an already used identity pair do not count as new S3 information.
+  prohibited_shortcuts:
+    - duplicate_existing_pairs
+    - count_additional_bootstrap_replicates_as_information
+    - lower_target_fmr
+    - increase_noninferiority_margin
+    - lower_ucb_level
+    - open_screen_or_test_outcomes
+
+execution_binding:
+  workflow: .github/workflows/study1b-power-design-s3-feasibility.yml
+  executor: scripts/study1b_s3_information_feasibility.py
+  trigger_note: >-
+    This append-only launch entry was amended only to bind the already-authorized feasibility
+    audit to its implementation after the workflow file was added. Scientific scope and gates
+    are unchanged.
+
+next_gate:
+  if_no_multiplier_above_1_is_feasible: MOVE_TO_S4_METHOD_LEVEL_SPECIFICATION_OR_STOP
+  if_multiplier_above_1_is_feasible: >-
+    Freeze exact deterministic expanded-pair construction and run known-truth coverage/power
+    calibration before any amendment activation or real outcomes.
+
+provenance:
+  append_only: true
+  canonical_failed_power_result_preserved: true
+  s2_final_failure_preserved: true

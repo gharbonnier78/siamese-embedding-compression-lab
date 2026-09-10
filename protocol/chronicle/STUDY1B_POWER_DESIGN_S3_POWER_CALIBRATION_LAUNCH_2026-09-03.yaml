@@ -1,0 +1,128 @@
+schema_version: "1.0"
+entry_type: prospective_s3_power_calibration_launch
+chronicle_entry_id: CHRON-20260903-013
+study_id: study_1b_matched_compression
+scope: study_1b_s3_power_design_information_expansion
+date: 2026-09-03
+recorded_at_utc: "2026-09-03T05:10:00Z"
+kind: power_calibration_launch
+status: OPEN
+outcome_evidence_seen: false
+
+summary: >-
+  Launch the prospectively frozen S3 power calibration for the x1.5 and x2.0 expanded
+  information graphs after both designs passed known-truth coverage revalidation. The
+  calibration keeps the original all-five-seed non-inferiority rule and all frozen
+  statistical thresholds unchanged. It is synthetic non-outcome design evidence only.
+
+harness:
+  repository: gharbonnier78/scientific-research-harness
+  pinned_ref: 3b109adcdd9a8cba4df029d3803ee0e5cb5bdf98
+  pinned_url: https://github.com/gharbonnier78/scientific-research-harness/blob/3b109adcdd9a8cba4df029d3803ee0e5cb5bdf98/HARNESS.md
+  manifest: harness-adoption.yaml
+  local_instructions: AGENTS.md
+  local_chronicle_policy: docs/SCIENTIFIC_HARNESS.md
+  task_id: STUDY1B_S3_POWER_CALIBRATION_4000
+
+human_authority:
+  source: "2026-09-03 project conversation"
+  instruction: "S3 Power Calibration"
+  authorization_scope: synthetic_nonoutcome_s3_power_calibration_only
+
+basis:
+  source_head_before_launch: 8d9a67a00e1916edf07653b386494af04c3beaac
+  contract: protocol/simulations/STUDY1B_POWER_DESIGN_S3_POWER_CALIBRATION_V0_1_2026-09-03.yaml
+  workflow: .github/workflows/study1b-power-design-s3-power.yml
+  known_truth_result: protocol/chronicle/STUDY1B_POWER_DESIGN_S3_KNOWN_TRUTH_REVALIDATION_RESULT_2026-09-03.yaml
+  known_truth_run_id: 33675518924
+  known_truth_status: PASS_BOTH_DESIGNS_AT_CHECKPOINT_1000
+  graph_construction_result: protocol/chronicle/STUDY1B_POWER_DESIGN_S3_GRAPH_CONSTRUCTION_RESULT_2026-09-02.yaml
+  canonical_failed_power_result: protocol/chronicle/STUDY1B_POWER_PREFLIGHT_4000_EVIDENCE_CLOSURE_2026-08-31.yaml
+  s2_final_negative_result_preserved: true
+
+frozen_scientific_question: >-
+  Does adding genuinely distinct pair information at x1.5 or x2.0 restore at least 0.90
+  power under the unchanged all-five-seed Study 1B non-inferiority rule for both true
+  delta FNMR = 0.00 and 0.01?
+
+frozen_designs:
+  x1_5:
+    graph_sha256: 57dd4a3b2db26220ea8e29f5a4d218b50883cdac456f18e73691c1d26afdebc0
+    genuine_pairs: 15000
+    impostor_pairs: 150000
+  x2_0:
+    graph_sha256: 85cd8b04d768ca035cf76184bb1f4547b9c25349803681be9af16be5b65cda58
+    genuine_pairs: 20000
+    impostor_pairs: 200000
+
+frozen_power_semantics:
+  effect_scenarios: [0.0, 0.01]
+  datasets_per_scenario_per_design: 4000
+  target_power: 0.90
+  decision_rule: all_five_seed_ucb_below_margin
+  seed_labels: [11, 29, 47, 71, 101]
+  seed_effect_sd: 0.005
+  seed_effect_clip: [-0.02, 0.02]
+  target_fmr: 0.01
+  noninferiority_margin_delta_fnmr: 0.03
+  one_sided_ucb_level: 0.975
+  bootstrap_replicates_per_dataset: 10000
+  sampling_unit: identity_slot
+  shared_reference_across_seeds: true
+
+selection_rule:
+  x1_5_passes_both: select_x1_5_as_minimum_predeclared_information_increase
+  x1_5_fails_x2_0_passes: select_x2_0_as_only_passing_s3_candidate
+  both_fail: close_s3_negative_and_move_to_s4_or_stop
+  note: >-
+    Selection here means candidate design disposition only. It does not activate the draft
+    amendment or authorize real Study 1B outcomes.
+
+scientific_authorization_boundary:
+  scientific_outcomes_opened: false
+  screen_opened: false
+  qualification_test_outcomes_opened: false
+  representation_geometry_opened: false
+  power_design_amendment_activated: false
+  canonical_failed_power_result_replaced: false
+  s2_final_negative_result_replaced: false
+  human_go_for_real_study1b_outcomes_admissible_from_this_launch: false
+
+execution_plan:
+  design_effect_cells: 4
+  datasets_total: 16000
+  datasets_per_shard: 100
+  shards_total: 160
+  maximum_parallel_jobs: 20
+  graph_hash_verification_before_simulation: true
+  scientific_fail_is_not_runtime_fail: true
+  progress_jsonl: true
+
+prohibited_inferences:
+  - infer_real_compression_noninferiority
+  - infer_real_compression_superiority
+  - infer_real_raw512_random128_pca128_siamese128_fnmr
+  - authorize_screen_or_test_outcomes
+  - inspect_or_infer_representation_geometry
+  - modify_thresholds_after_calibration_result
+  - replace_canonical_original_power_failure
+  - replace_s2_final_negative_result
+
+next_action: >-
+  Let the frozen 4000-dataset-per-cell calibration complete. Archive all design/effect
+  results and artifact digests append-only. If at least one design passes both scenarios,
+  retain the smallest passing design as the S3 amendment candidate and request independent
+  scientific and technical review before any amendment activation. If neither passes, close
+  S3 negatively and move to S4 method-level specification or STOP.
+
+blocks:
+  - study1b_power_design_amendment_activation
+  - study1b_screen_outcomes
+  - study1b_test_outcomes
+  - study1b_representation_geometry
+
+provenance:
+  append_only: true
+  known_truth_pass_preserved: true
+  canonical_failed_power_result_preserved: true
+  s2_final_failure_preserved: true

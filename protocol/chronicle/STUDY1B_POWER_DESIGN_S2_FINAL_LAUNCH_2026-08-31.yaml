@@ -1,0 +1,61 @@
+kind: study1b_power_design_s2_final_launch
+schema_version: 1
+date: 2026-08-31
+status: S2_FINAL_REFERENCE_SD_CONFIRMATION_LAUNCHED
+
+study: Study 1B matched compression
+scientific_outcomes_opened: false
+screen_opened: false
+test_opened: false
+geometry_opened: false
+amendment_activated: false
+canonical_gate_replaced: false
+
+basis:
+  s2_pilot_result: protocol/chronicle/STUDY1B_POWER_DESIGN_S2_PILOT_RESULT_2026-08-31.yaml
+  s2_pilot_run_id: 33350245983
+  s2_pilot_summary_artifact_id: 9746993621
+  s2_pilot_summary_digest: sha256:bda4d2d4087933aa74c44679fa3903b6a578054dcdf0ca69f9d0e40f289e146a
+
+selection_for_confirmation:
+  decision_rule: at_least_3_of_5
+  justification: sole_simple_k_of_five_rule_surviving_predeclared_pilot_screen_at_reference_sd
+  reference_seed_effect_sd: 0.005
+  pilot_power:
+    delta_0_0: 1.0
+    delta_0_01: 0.896
+  pilot_screening_floor: 0.80
+  final_power_target: 0.90
+  note: pilot_0_896_is_below_final_target_and_is_not_a_pass
+
+final_confirmation_contract:
+  effect_scenarios: [0.0, 0.01]
+  datasets_per_scenario: 4000
+  shards_per_scenario: 40
+  datasets_per_shard: 100
+  bootstrap_replicates_per_dataset: 10000
+  seed_labels: [11, 29, 47, 71, 101]
+  seed_effect_sd: 0.005
+  ni_margin: 0.03
+  ucb_level: 0.975
+  required_power_each_scenario: 0.90
+  test_graph_and_data_boundary: unchanged
+
+execution:
+  workflow: .github/workflows/study1b-power-design-s2-final.yml
+  workflow_name: Study 1B Power Design S2 Final Reference SD
+  trigger: this_append_only_chronicle_entry
+
+post_result_gate:
+  automatic_amendment_activation: false
+  automatic_outcome_opening: false
+  if_power_fails: retain_block_and_reconsider_method_level_or_information_design
+  if_power_passes:
+    - define_exact_3_of_5_method_level_claim_semantics
+    - revalidate_known_truth_coverage_for_changed_decision_rule
+    - obtain_independent_scientific_review
+    - obtain_independent_technical_review
+    - require_green_assurance
+    - require_explicit_human_authorization_before_any_real_outcome
+
+provenance_policy: append_only

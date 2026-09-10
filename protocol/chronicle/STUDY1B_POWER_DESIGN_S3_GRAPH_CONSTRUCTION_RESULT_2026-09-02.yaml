@@ -1,0 +1,70 @@
+schema_version: "1.0"
+entry_type: s3_expanded_graph_construction_result
+study_id: study_1b_matched_compression
+date: 2026-09-02
+status: S3_EXPANDED_GRAPH_CONSTRUCTION_CLOSED_PASS
+
+scientific_authorization:
+  scientific_outcomes_opened: false
+  screen_opened: false
+  test_outcomes_opened: false
+  representation_geometry_opened: false
+  canonical_gate_replaced: false
+  amendment_activated: false
+
+execution:
+  workflow: Study 1B Power Design S3 Build Expanded Graphs
+  run_id: 33559589404
+  run_head_sha: 68f1945e8a06add9ec9f88127e5beb2aee5f3bd5
+  conclusion: success
+  artifact_name: study1b-s3-expanded-information-graphs
+  artifact_id: 9820736535
+  artifact_digest: sha256:2d0089722c0d065a53a3c51282f69254bb03a0cc012054bbad259e0bad17861d
+
+frozen_source:
+  capture_manifest_sha256: 767f9fe8d1d8466a0e722f826b26875a0e852f525f7413a9658a307a9639366e
+  base_test_graph_sha256: 08c86ca9a641fc96b74014ae1974f713cd00e558dd98946ac32ff440c4666f85
+  test_identities: 1710
+  test_captures: 3707
+
+graphs:
+  x1_5:
+    genuine_pairs: 15000
+    impostor_pairs: 150000
+    additional_genuine_pairs: 5000
+    additional_impostor_identity_pairs: 50000
+    sha256: 57dd4a3b2db26220ea8e29f5a4d218b50883cdac456f18e73691c1d26afdebc0
+  x2_0:
+    genuine_pairs: 20000
+    impostor_pairs: 200000
+    additional_genuine_pairs: 10000
+    additional_impostor_identity_pairs: 100000
+    sha256: 85cd8b04d768ca035cf76184bb1f4547b9c25349803681be9af16be5b65cda58
+
+audits:
+  base_rows_preserved_verbatim: true
+  new_genuine_disjoint_from_base: true
+  new_impostor_identity_pairs_disjoint_from_base: true
+  x1_5_nested_in_x2_0_genuine_information: true
+  x1_5_nested_in_x2_0_impostor_information: true
+  status: PASS
+
+interpretation:
+  construction_only: true
+  note: >-
+    The x1.5 and x2.0 graph hashes are now frozen as append-only design evidence.
+    This closes construction only. It does not validate statistical coverage or power,
+    does not activate an amendment, and does not open SCREEN, TEST, or representation geometry.
+
+next_gate:
+  phase: S3_KNOWN_TRUTH_REVALIDATION
+  status: NOT_LAUNCHED_BY_THIS_ENTRY
+  requirement: >-
+    Revalidate known-truth coverage for the frozen expanded information designs before any S3 power run.
+
+provenance:
+  append_only: true
+  graph_hashes_frozen: true
+  canonical_failed_power_result_preserved: true
+  s2_final_failure_preserved: true
+  s3_construction_launch_entry_preserved: true

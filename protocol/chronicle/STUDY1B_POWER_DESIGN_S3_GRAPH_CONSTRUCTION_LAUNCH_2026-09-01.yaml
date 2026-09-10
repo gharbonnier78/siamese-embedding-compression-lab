@@ -1,0 +1,56 @@
+schema_version: "1.0"
+entry_type: prospective_s3_expanded_graph_construction_launch
+study_id: study_1b_matched_compression
+date: 2026-09-01
+status: S3_EXPANDED_GRAPH_CONSTRUCTION_LAUNCHED
+
+scientific_authorization:
+  scientific_outcomes_opened: false
+  screen_opened: false
+  test_outcomes_opened: false
+  representation_geometry_opened: false
+  canonical_gate_replaced: false
+  amendment_activated: false
+
+basis:
+  feasibility_run_id: 33558337504
+  feasibility_artifact_id: 9820264761
+  feasibility_artifact_digest: sha256:c4cf677f9c4987333dc4d72a4666f7ebe787cb34ecd1b3a7f3166e67248aa962
+  feasibility_conclusion: PASS_X1_5_AND_X2_0_STRUCTURALLY_FEASIBLE
+  frozen_construction_contract: protocol/simulations/STUDY1B_POWER_DESIGN_S3_EXPANDED_GRAPH_CONSTRUCTION_V0_1_2026-09-01.yaml
+  construction_contract_commit: 7fac402ab6f4aef4516f3845985a46786ea6f2d0
+  builder_commit: fb915d759e7a8dffab3eb437c40ae03c6fc09836
+  workflow_commit: fce7a7efb61f44889758510898b71e6413b6f000
+
+construction_scope:
+  source_boundary_unchanged: true
+  base_test_graph_preserved: true
+  candidates:
+    x1_5:
+      genuine_pairs: 15000
+      impostor_pairs: 150000
+    x2_0:
+      genuine_pairs: 20000
+      impostor_pairs: 200000
+  selection_uses_biometric_outcomes: false
+  deterministic_hash_ranked_selection: true
+  nesting_required: true
+
+required_before_next_phase:
+  - workflow_completed_successfully
+  - active_boundary_hashes_reproduced
+  - exact_pair_counts_verified
+  - distinctness_and_nesting_audits_passed
+  - expanded_graph_sha256_values_recorded_in_append_only_chronicle
+
+next_gate_if_pass:
+  phase: S3_KNOWN_TRUTH_REVALIDATION
+  note: >-
+    Construction success alone does not authorize power calibration or real outcomes.
+    Known-truth coverage must be revalidated for the frozen expanded information designs first.
+
+provenance:
+  append_only: true
+  canonical_failed_power_result_preserved: true
+  s2_final_failure_preserved: true
+  feasibility_result_preserved: true

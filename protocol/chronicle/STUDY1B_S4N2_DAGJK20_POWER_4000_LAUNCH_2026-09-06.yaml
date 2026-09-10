@@ -1,0 +1,147 @@
+schema_version: "1.0"
+entry_type: s4n2_dagjk20_power_4000_launch
+chronicle_entry_id: CHRON-20260906-025
+study_id: study_1b_matched_compression
+scope: study_1b_s4n2_dagjk20_known_truth_core_power_4000
+date: 2026-09-06
+kind: append_only_nonoutcome_synthetic_launch
+status: LAUNCHED
+outcome_evidence_seen: false
+
+summary: >-
+  Launch the separately frozen S4N2 DAGJK20 core known-truth power calibration at exactly 4000
+  simulated datasets per truth cell after the prospectively required coverage checkpoint passed
+  at 1000 in all twelve selector-by-truth cells. This launch does not redesign S4N2 in response to
+  the observed checkpoint. It retains FMR 0.01, Delta_FNMR non-inferiority margin 0.03, one-sided
+  UCB level 0.975, DAGJK20 inference, and the frozen selector preference order. It opens no Study
+  1B SCREEN, qualification TEST outcomes, real route performance, representation geometry,
+  amendment, or real-study artifact selection.
+
+harness:
+  repository: gharbonnier78/scientific-research-harness
+  pinned_ref: 3b109adcdd9a8cba4df029d3803ee0e5cb5bdf98
+  manifest: harness-adoption.yaml
+  local_instructions: AGENTS.md
+
+human_authority:
+  source: "2026-09-06 project conversation"
+  instruction: "Ok"
+  interpretation: >-
+    Proceed with the previously stated next gated actions: archive the S4N2 coverage PASS and then
+    launch the prospectively frozen S4N2 core power 4000 calibration without changing the plan.
+  synthetic_power_launch_authorized: true
+  scientific_outcome_opening_authorized: false
+  screen_authorized: false
+  qualification_test_authorized: false
+  real_route_performance_authorized: false
+  geometry_authorized: false
+  amendment_activation_authorized: false
+
+basis:
+  frozen_s4n2_contract: protocol/simulations/STUDY1B_S4N2_DAGJK20_CALIBRATION_V0_1_2026-09-06.yaml
+  coverage_launch_chronicle: protocol/chronicle/STUDY1B_S4N2_DAGJK20_COVERAGE_1000_LAUNCH_2026-09-06.yaml
+  coverage_result_chronicle: protocol/chronicle/STUDY1B_S4N2_DAGJK20_COVERAGE_1000_RESULT_2026-09-06.yaml
+  implementation: src/siamese_compression_lab/study1b_s4n2_dagjk.py
+  shard_runner: scripts/study1b_s4n2_run_shard.py
+  aggregate: scripts/study1b_s4n2_aggregate.py
+  workflow: .github/workflows/study1b-s4n2-core-power.yml
+  prelaunch_head: 6da3b430ed2b583d3436dd74b1131192a46c9c7d
+
+coverage_prerequisite:
+  workflow_name: Study 1B S4N2 DAGJK20 Coverage 1000
+  run_id: 34034315151
+  source_commit: 0987fb9f3454f688a5331dd0ab50938d200dcd47
+  infrastructure_conclusion: success
+  scientific_coverage_gate_pass: true
+  all_12_selector_truth_cells_pass: true
+  checkpoint_stop_at: 1000
+  degenerate_fraction_all_cells: 0.0
+  canonical_artifact_id: 9989798621
+  canonical_artifact_digest: sha256:2b6dd6895fad702ba04a91ccb9d23cdffb8de8f207e42dd012adef5bb068726c
+  extracted_summary_sha256: 84633522079a10f436479dd1a532e1da644c2096f5005f422e4a804f2343dbe3
+
+secondary_checkpoint_signal_not_used_for_design:
+  true_delta_0_01_estimated_power_at_coverage_1000:
+    S4N_FIXED_SEED: 0.847
+    S4N_VALIDATION_BEST: 0.849
+    S4N_VALIDATION_MEDIAN: 0.861
+  interpretation: >-
+    These descriptive checkpoint fields were archived before this launch but are not the frozen
+    power gate and were not used to change the estimator, confidence level, operating point,
+    non-inferiority margin, selector semantics, dataset count, truth cells, or preference order.
+
+frozen_source_boundary:
+  capture_manifest_sha256: 767f9fe8d1d8466a0e722f826b26875a0e852f525f7413a9658a307a9639366e
+  validation_graph_sha256: fb849558e0b09b0fa7ff301991af010815f0b4ee98ab62faa1c585477f9f8601
+  test_graph_sha256: 08c86ca9a641fc96b74014ae1974f713cd00e558dd98946ac32ff440c4666f85
+  validation_identities: 606
+  test_identities: 1710
+  test_genuine_edges: 10000
+  test_impostor_edges: 100000
+  new_real_data_used: false
+
+frozen_power_contract:
+  inference_candidate: S4N2_DAGJK20_T975
+  estimand: delta_fnmr_equal_fmr
+  target_fmr: 0.01
+  noninferiority_margin_delta_fnmr: 0.03
+  one_sided_upper_confidence_level: 0.975
+  identity_delete_group_count: 20
+  datasets_per_selector_truth_cell: 4000
+  truth_delta_fnmr_cells: [0.0, 0.01]
+  decision_rule: S4N2_DAGJK20_T975_UCB_le_0_03
+  minimum_estimated_power_each_truth_cell: 0.90
+  candidate_must_pass_both_truth_cells: true
+  selection_rules:
+    - S4N_FIXED_SEED
+    - S4N_VALIDATION_BEST
+    - S4N_VALIDATION_MEDIAN
+  prospective_preference_order:
+    - S4N_VALIDATION_BEST
+    - S4N_VALIDATION_MEDIAN
+    - S4N_FIXED_SEED
+    - STOP_NO_ADMISSIBLE_S4N2_RULE
+
+unchanged_after_coverage_observation:
+  target_fmr: true
+  noninferiority_margin: true
+  confidence_level: true
+  dagjk_group_count: true
+  dataset_count: true
+  truth_cells: true
+  selector_preference_order: true
+  power_gate: true
+
+launch_semantics:
+  power_calibration_only: true
+  coverage_result_reopened: false
+  coverage_gate_may_be_reinterpreted: false
+  next_action_if_pass: >-
+    Archive the S4N2 power result append-only and perform the previously planned residual
+    decision-risk / operational-impact analysis before any real outcome opening. Power PASS alone
+    does not activate an amendment.
+  next_action_if_fail: >-
+    Archive the negative S4N2 result append-only and stop this estimator candidate. Do not tune
+    S4N2 from the failed result.
+  redesign_from_power_result_permitted: false
+  posthoc_gate_change_permitted: false
+
+scientific_boundary:
+  scientific_outcomes_opened: false
+  screen_opened: false
+  qualification_test_outcomes_opened: false
+  real_route_performance_opened: false
+  representation_geometry_opened: false
+  amendment_activated: false
+  original_5_of_5_rule_replaced: false
+  artifact_selector_activated_for_real_study: false
+  s4n1_negative_result_reopened: false
+  s4n1_closed_negative_preserved: true
+
+provenance:
+  append_only: true
+  frozen_s4n2_contract_not_modified: true
+  coverage_launch_not_rewritten: true
+  coverage_result_not_rewritten: true
+  secondary_checkpoint_power_signal_preserved: true
+  real_outcome_data_not_read: true

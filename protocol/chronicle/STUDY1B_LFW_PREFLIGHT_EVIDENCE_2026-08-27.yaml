@@ -1,0 +1,80 @@
+schema_version: "1.0"
+event_id: STUDY1B_LFW_PREFLIGHT_EVIDENCE_2026-08-27
+timestamp_local: "2026-08-27T22:45:00+02:00"
+study_id: study_1b_matched_compression
+phase: nonoutcome_preflight
+scientific_outcomes_opened: false
+
+workflow_evidence:
+  head_sha: "4313a85a666b4551d1b9f2a414864d38cf436c1e"
+  workflow: "Study 1B Non-outcome Preflight"
+  run_id: 33114432446
+  conclusion: success
+  artifact:
+    id: 9663926018
+    name: study1b-nonoutcome-preflight
+    digest: "sha256:10fd5b7b9b570a2db9e20d276077d14ab2d3064c8d2a22057ced72579b22c0eb"
+
+metadata_provenance:
+  preferred_authority_endpoint: "http://vis-www.cs.umass.edu/lfw/"
+  preferred_endpoint_status_on_runner: unavailable_DNS
+  selected_fallback:
+    repository: "charlesreid1/in-your-face"
+    commit: "00d3f2e4bdcc3ef8a851e5e133cde29d2f574f15"
+    integrity_authority: torchvision.datasets.lfw
+  canonical_checks:
+    peopleDevTrain.txt:
+      md5: "54eaac34beb6d042ed3a7d883e247a21"
+      result: MATCH
+    peopleDevTest.txt:
+      md5: "e4bf5be0a43b5dcd9dc5ccfcb8fb19c5"
+      result: MATCH
+  retained_source_sha256:
+    peopleDevTrain.txt: "2e58df13ba4cc143189336e001cc2c195f1dfa5b29a6475c02857be353c2a2fa"
+    peopleDevTest.txt: "c3ed1f90499473401542101a56c14c1d82396bb8218c67a356d7460601047555"
+
+role_and_graph_evidence:
+  capture_manifest_sha256: "a07371070c619b1b50f8647736a816ff4faa69753602938baf1a1c58f775a03e"
+  roles:
+    TRAIN: {identities: 2827, captures: 6523, eligible_genuine_identities: 806, genuine_pairs: 20000, impostor_pairs: 20000}
+    VALIDATION: {identities: 606, captures: 1620, eligible_genuine_identities: 194, genuine_pairs: 5000, impostor_pairs: 20000}
+    SCREEN: {identities: 605, captures: 1382, eligible_genuine_identities: 184, genuine_pairs: 5000, impostor_pairs: 50000}
+    TEST: {identities: 1711, captures: 3708, eligible_genuine_identities: 496, genuine_pairs: 10000, impostor_pairs: 100000}
+  graph_sha256:
+    TRAIN: "60cad5f66289109d438668a9c758a1784aab0ee3624adbd75966249f8e7b9b37"
+    VALIDATION: "fb849558e0b09b0fa7ff301991af010815f0b4ee98ab62faa1c585477f9f8601"
+    SCREEN: "eb24440de9020b712eb9492dabe2d3c7db34c93f3dc5564ec8726346d1a23372"
+    TEST: "f6d50abccabebe9d27ad84979011a8ece59848a314854207620d955b6e3a5a64"
+
+leakage_audit:
+  exact_cross_role_duplicates: 0
+  exact_duplicate_result: PASS
+  dhash64_cross_role_candidates_hamming_lte_4: 18
+  near_duplicate_review_required: true
+  state: PENDING_REVIEW
+  note: >-
+    dHash proximity is a candidate-generation signal, not proof of duplicate leakage. The 18
+    candidates require deterministic adjudication before the LFW preflight blocker is fully closed.
+
+cost_pilot:
+  scientific_gate_authority: false
+  datasets: 2
+  bootstrap_replicates_per_dataset: 100
+  wall_seconds: [5.393044098000004, 5.457088599999992]
+  mean_wall_seconds_per_100_bootstrap_dataset: 5.425066349
+  degenerate_fraction: 0.0
+  implication: >-
+    The current scalar bootstrap path would be too expensive for the frozen 10,000-replicate /
+    4,000-dataset coverage-power plan without further algorithmic acceleration and sharding.
+    No scientific design parameter is reduced by this observation.
+
+assurance_snapshot_on_same_head:
+  CI: success
+  Research_assurance: pending_at_capture
+  Study1B_Engineering_Assurance: failed_Bandit_B310
+  engineering_failure_interpretation: >-
+    Bandit flagged urllib.request.urlopen even though URLs were constant. A subsequent commit
+    adds an explicit filename allowlist and a scoped nosec B310 justification; fresh assurance
+    evidence remains required.
+
+state: PREFLIGHT_DATA_AND_GRAPH_PASS_PENDING_NEAR_DUPLICATE_REVIEW_AND_FRESH_ENGINEERING_ASSURANCE

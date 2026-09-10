@@ -1,0 +1,55 @@
+schema_version: "1.0"
+entry_type: prospective_s3_information_feasibility_retry
+study_id: study_1b_matched_compression
+date: 2026-09-01
+status: RETRY2_LAUNCH_AUTHORIZED
+
+scientific_authorization:
+  scientific_outcomes_opened: false
+  screen_opened: false
+  test_outcomes_opened: false
+  representation_geometry_opened: false
+  canonical_gate_replaced: false
+  amendment_activated: false
+
+basis:
+  prior_failed_run_id: 33516198836
+  prior_failure_class: infrastructure_metadata_availability
+  prior_scientific_result_available: false
+  correction_record: protocol/chronicle/STUDY1B_POWER_DESIGN_S3_INFORMATION_FEASIBILITY_RETRY_2026-09-01.yaml
+  corrected_workflow_commit: 20baa1cc0946343316cd592f63747354764b02e1
+  pinned_metadata_provenance: protocol/sources/lfw_view1/PROVENANCE.yaml
+
+retry_scope:
+  phase: S3_INFORMATION_FEASIBILITY_ONLY
+  purpose: >-
+    Relaunch the distinct-information capacity audit after staging the pinned LFW View 1
+    development metadata that was absent from the Kaggle image mirror.
+  candidate_information_multipliers: [1.0, 1.5, 2.0]
+  genuine_distinctness: previously_unused_genuine_capture_pairs
+  impostor_distinctness: previously_unused_identity_pairs
+  frozen_requirements:
+    - reproduce active amended boundary hashes before audit
+    - no duplicate existing pairs counted as new information
+    - no additional bootstrap replicates counted as information
+    - target FMR unchanged
+    - noninferiority margin unchanged
+    - UCB level unchanged
+    - SCREEN remains sealed
+    - TEST remains sealed
+    - representation geometry remains sealed
+
+interpretation_gate:
+  success_requires:
+    - workflow completed successfully
+    - capacity artifact study1b-s3-information-feasibility exists
+    - exact multiplier feasibility is read from artifact
+  if_no_multiplier_above_1_is_feasible: MOVE_TO_S4_METHOD_LEVEL_SPECIFICATION_OR_STOP
+  if_multiplier_above_1_is_feasible: >-
+    Freeze deterministic expanded-pair construction and perform prospective known-truth
+    coverage/power calibration before any amendment activation or real outcomes.
+
+provenance:
+  append_only: true
+  does_not_supersede_prior_failure_record: true
+  scientific_design_changed: false

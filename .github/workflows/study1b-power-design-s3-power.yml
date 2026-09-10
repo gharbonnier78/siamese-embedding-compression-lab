@@ -1,0 +1,234 @@
+name: Study 1B S3 Power Calibration 4000
+
+on:
+  push:
+    branches:
+      - agent/study1b-preregistration-20260827
+    paths:
+      - 'protocol/chronicle/STUDY1B_POWER_DESIGN_S3_POWER_CALIBRATION_LAUNCH_2026-09-03.yaml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  prepare-expanded-graphs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: Install package and LFW access
+        run: |
+          python -m pip install --upgrade pip 'setuptools>=83.0.0'
+          python -m pip install -e . kagglehub
+      - name: Resolve LFW dataset root
+        id: lfw
+        run: |
+          python - <<'PY'
+          import contextlib, os, sys, kagglehub
+          with contextlib.redirect_stdout(sys.stderr):
+              root = kagglehub.dataset_download('jessicali9530/lfw-dataset/versions/4')
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as handle:
+              handle.write(f'root={root}\n')
+          PY
+      - name: Stage pinned LFW View 1 metadata
+        run: |
+          cp protocol/sources/lfw_view1/peopleDevTrain.txt '${{ steps.lfw.outputs.root }}/peopleDevTrain.txt'
+          cp protocol/sources/lfw_view1/peopleDevTest.txt '${{ steps.lfw.outputs.root }}/peopleDevTest.txt'
+      - name: Materialize frozen active amended boundary
+        env:
+          PYTHONPATH: src
+        run: |
+          python scripts/study1b_apply_active_data_boundary.py \
+            --dataset-root '${{ steps.lfw.outputs.root }}' \
+            --output-dir artifacts/study1b/s3-power-source
+      - name: Rebuild frozen expanded graphs
+        run: |
+          python scripts/study1b_s3_build_expanded_graphs.py \
+            --manifest artifacts/study1b/s3-power-source/capture_manifest.csv \
+            --base-test-graph artifacts/study1b/s3-power-source/graphs/test_pairs.csv \
+            --output-dir artifacts/study1b/s3-power-input
+      - name: Verify frozen graph hashes
+        working-directory: artifacts/study1b/s3-power-input
+        run: |
+          printf '%s  %s\n' \
+            '57dd4a3b2db26220ea8e29f5a4d218b50883cdac456f18e73691c1d26afdebc0' \
+            'test_pairs_s3_x1_5.csv' | sha256sum -c -
+          printf '%s  %s\n' \
+            '85cd8b04d768ca035cf76184bb1f4547b9c25349803681be9af16be5b65cda58' \
+            'test_pairs_s3_x2_0.csv' | sha256sum -c -
+      - uses: actions/upload-artifact@v4
+        with:
+          name: study1b-s3-power-input
+          path: artifacts/study1b/s3-power-input/
+          if-no-files-found: error
+
+  power-shards:
+    needs: prepare-expanded-graphs
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix:
+        design: [x1_5, x2_0]
+        effect: ['0.0', '0.01']
+        shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: Install package
+        run: |
+          python -m pip install --upgrade pip 'setuptools>=83.0.0'
+          python -m pip install -e .
+      - uses: actions/download-artifact@v5
+        with:
+          name: study1b-s3-power-input
+          path: artifacts/study1b/s3-power-input
+      - name: Execute S3 power shard
+        env:
+          PYTHONPATH: src
+          DESIGN: ${{ matrix.design }}
+          EFFECT: ${{ matrix.effect }}
+          SHARD: ${{ matrix.shard }}
+        run: |
+          START=$((SHARD * 100))
+          STOP=$((START + 100))
+          if [ "$DESIGN" = 'x1_5' ]; then
+            TEST_GRAPH='artifacts/study1b/s3-power-input/test_pairs_s3_x1_5.csv'
+          else
+            TEST_GRAPH='artifacts/study1b/s3-power-input/test_pairs_s3_x2_0.csv'
+          fi
+          mkdir -p artifacts/study1b/s3-power-shards
+          python scripts/study1b_run_simulation_shard.py \
+            --contract protocol/simulations/STUDY1B_POWER_DESIGN_S3_POWER_CALIBRATION_V0_1_2026-09-03.yaml \
+            --test-graph "$TEST_GRAPH" \
+            --mode power \
+            --scenario "$EFFECT" \
+            --start "$START" --stop "$STOP" \
+            --output "artifacts/study1b/s3-power-shards/${DESIGN}_delta_${EFFECT}_${SHARD}.jsonl"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: study1b-s3-power-${{ matrix.design }}-delta-${{ matrix.effect }}-shard-${{ matrix.shard }}
+          path: artifacts/study1b/s3-power-shards/
+          if-no-files-found: error
+
+  aggregate-design:
+    needs: power-shards
+    if: always() && needs.power-shards.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        design: [x1_5, x2_0]
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: Install package
+        run: |
+          python -m pip install --upgrade pip 'setuptools>=83.0.0'
+          python -m pip install -e .
+      - uses: actions/download-artifact@v5
+        with:
+          pattern: study1b-s3-power-${{ matrix.design }}-delta-*
+          path: artifacts/study1b/s3-power-downloaded
+          merge-multiple: true
+      - name: Aggregate design without conflating scientific FAIL with execution failure
+        env:
+          PYTHONPATH: src
+          DESIGN: ${{ matrix.design }}
+        run: |
+          mkdir -p artifacts/study1b/s3-power-summary
+          set +e
+          python scripts/study1b_aggregate_simulation.py \
+            --input-root artifacts/study1b/s3-power-downloaded \
+            --mode power \
+            --expected-per-scenario 4000 \
+            --output "artifacts/study1b/s3-power-summary/${DESIGN}_power_4000.json"
+          RC=$?
+          set -e
+          test -s "artifacts/study1b/s3-power-summary/${DESIGN}_power_4000.json" || exit "$RC"
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          design = os.environ['DESIGN']
+          p = Path(f'artifacts/study1b/s3-power-summary/{design}_power_4000.json')
+          data = json.loads(p.read_text(encoding='utf-8'))
+          if data.get('mode') != 'power' or set(data.get('scenarios', {})) != {'delta_0', 'delta_0.01'}:
+              raise SystemExit('invalid power aggregate summary')
+          print(json.dumps({'design': design, 'scientific_pass': bool(data.get('pass'))}, sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: study1b-s3-power-${{ matrix.design }}-summary
+          path: artifacts/study1b/s3-power-summary/${{ matrix.design }}_power_4000.json
+          if-no-files-found: error
+
+  combine-calibration:
+    needs: aggregate-design
+    if: always() && needs.aggregate-design.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/download-artifact@v5
+        with:
+          pattern: study1b-s3-power-*-summary
+          path: artifacts/study1b/s3-power-combined-input
+          merge-multiple: true
+      - name: Combine design verdicts and apply frozen S3 selection rule
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root = Path('artifacts/study1b/s3-power-combined-input')
+          designs = {}
+          for design in ('x1_5', 'x2_0'):
+              p = root / f'{design}_power_4000.json'
+              designs[design] = json.loads(p.read_text(encoding='utf-8'))
+          if bool(designs['x1_5'].get('pass')):
+              selected = 'x1_5'
+              disposition = 'S3_CANDIDATE_X1_5_MINIMUM_SUFFICIENT_INFORMATION'
+          elif bool(designs['x2_0'].get('pass')):
+              selected = 'x2_0'
+              disposition = 'S3_CANDIDATE_X2_0_ONLY_PASSING_INFORMATION_EXPANSION'
+          else:
+              selected = None
+              disposition = 'S3_NEGATIVE_MOVE_TO_S4_OR_STOP'
+          out = {
+              'schema_version': 1,
+              'kind': 'study1b_s3_power_calibration_4000_summary',
+              'scientific_outcomes_opened': False,
+              'datasets_per_scenario_per_design': 4000,
+              'required_power': 0.90,
+              'decision_rule': 'all_five_seed_ucb_below_margin',
+              'designs': designs,
+              'selected_s3_candidate': selected,
+              'disposition': disposition,
+              'amendment_activated': False,
+              'screen_authorized': False,
+              'test_authorized': False,
+              'representation_geometry_authorized': False,
+          }
+          target = Path('artifacts/study1b/s3-power-combined/s3_power_calibration_4000.json')
+          target.parent.mkdir(parents=True, exist_ok=True)
+          target.write_text(json.dumps(out, indent=2, sort_keys=True) + '\n', encoding='utf-8')
+          print(json.dumps({'selected_s3_candidate': selected, 'disposition': disposition}, sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: study1b-s3-power-calibration-4000-summary
+          path: artifacts/study1b/s3-power-combined/s3_power_calibration_4000.json
+          if-no-files-found: error

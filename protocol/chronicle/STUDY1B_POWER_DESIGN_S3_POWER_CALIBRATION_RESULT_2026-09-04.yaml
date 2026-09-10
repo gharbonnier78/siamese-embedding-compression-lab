@@ -1,0 +1,161 @@
+schema_version: "1.0"
+entry_type: s3_power_calibration_result
+chronicle_entry_id: CHRON-20260904-014
+study_id: study_1b_matched_compression
+scope: study_1b_s3_power_design_information_expansion
+date: 2026-09-04
+recorded_at_utc: "2026-09-04T05:30:00Z"
+kind: power_calibration_result
+status: RESOLVED
+outcome_evidence_seen: false
+
+summary: >-
+  The prospectively frozen S3 power calibration completed successfully as an execution but
+  closed scientifically negative. Neither x1.5 nor x2.0 additional-information design reached
+  the required 0.90 power in both preregistered true-delta scenarios under the unchanged
+  all-five-seed non-inferiority rule. S3 therefore selects no information-expansion candidate
+  and moves the design question to S4 method-level specification or STOP. No real Study 1B
+  compression outcome was opened.
+
+harness:
+  repository: gharbonnier78/scientific-research-harness
+  pinned_ref: 3b109adcdd9a8cba4df029d3803ee0e5cb5bdf98
+  pinned_url: https://github.com/gharbonnier78/scientific-research-harness/blob/3b109adcdd9a8cba4df029d3803ee0e5cb5bdf98/HARNESS.md
+  manifest: harness-adoption.yaml
+  local_instructions: AGENTS.md
+  task_id: STUDY1B_S3_POWER_CALIBRATION_4000
+
+basis:
+  contract: protocol/simulations/STUDY1B_POWER_DESIGN_S3_POWER_CALIBRATION_V0_1_2026-09-03.yaml
+  launch_chronicle: protocol/chronicle/STUDY1B_POWER_DESIGN_S3_POWER_CALIBRATION_LAUNCH_2026-09-03.yaml
+  source_head_sha: 32c2c4f0dcd92cc56a32732db6ee5b34b2db7183
+  workflow: .github/workflows/study1b-power-design-s3-power.yml
+  workflow_run_id: 33718300703
+  workflow_run_url: https://github.com/gharbonnier78/siamese-embedding-compression-lab/actions/runs/33718300703
+  workflow_id: 349034970
+  workflow_run_number: 1
+  event: push
+  started_at_utc: "2026-09-03T05:18:21Z"
+  completed_at_utc: "2026-09-03T19:43:40Z"
+  runtime_conclusion: success
+
+execution:
+  designs: [x1_5, x2_0]
+  true_delta_scenarios: [0.0, 0.01]
+  datasets_per_scenario_per_design: 4000
+  total_synthetic_datasets: 16000
+  datasets_per_shard: 100
+  simulation_shards: 160
+  total_artifacts: 164
+  bootstrap_replicates_per_dataset: 10000
+  decision_rule: all_five_seed_ucb_below_margin
+  seed_labels: [11, 29, 47, 71, 101]
+  target_power: 0.90
+  target_fmr: 0.01
+  noninferiority_margin_delta_fnmr: 0.03
+  one_sided_ucb_level: 0.975
+  sampling_unit: identity_slot
+  graph_hashes_verified_before_execution: true
+
+results:
+  x1_5:
+    graph_sha256: 57dd4a3b2db26220ea8e29f5a4d218b50883cdac456f18e73691c1d26afdebc0
+    delta_0:
+      all_five_seed_passes: 3900
+      simulated_datasets: 4000
+      estimated_power: 0.975
+      required_power: 0.90
+      verdict: PASS
+    delta_0_01:
+      all_five_seed_passes: 2260
+      simulated_datasets: 4000
+      estimated_power: 0.565
+      required_power: 0.90
+      verdict: FAIL
+    design_verdict: FAIL
+  x2_0:
+    graph_sha256: 85cd8b04d768ca035cf76184bb1f4547b9c25349803681be9af16be5b65cda58
+    delta_0:
+      all_five_seed_passes: 3950
+      simulated_datasets: 4000
+      estimated_power: 0.9875
+      required_power: 0.90
+      verdict: PASS
+    delta_0_01:
+      all_five_seed_passes: 2594
+      simulated_datasets: 4000
+      estimated_power: 0.6485
+      required_power: 0.90
+      verdict: FAIL
+    design_verdict: FAIL
+
+machine_disposition:
+  selected_s3_candidate: null
+  disposition: S3_NEGATIVE_MOVE_TO_S4_OR_STOP
+  interpretation: >-
+    Increasing genuinely distinct pair information improves synthetic power at true delta=0.01
+    from 0.565 at x1.5 to 0.6485 at x2.0, but remains materially below the frozen 0.90 target.
+    This is evidence about the calibration of the frozen decision design, not evidence about
+    actual raw512 or compressed-route accuracy.
+
+artifacts:
+  combined_summary:
+    id: 9909967126
+    name: study1b-s3-power-calibration-4000-summary
+    digest: sha256:3da7ed174d41d34ec870ed98186e49ffd371a9e7a5cb1bedcb56b32245a6c5d6
+    size_bytes: 640
+    url: https://github.com/gharbonnier78/siamese-embedding-compression-lab/actions/runs/33718300703/artifacts/9909967126
+  x1_5_summary:
+    id: 9909959696
+    name: study1b-s3-power-x1_5-summary
+    digest: sha256:497830ab8fbf7fea04eec56737cf9e4283f7fba3aee66582765fa96877e429c6
+    size_bytes: 391
+    url: https://github.com/gharbonnier78/siamese-embedding-compression-lab/actions/runs/33718300703/artifacts/9909959696
+  x2_0_summary:
+    id: 9909959073
+    name: study1b-s3-power-x2_0-summary
+    digest: sha256:d3808070828703eb9034e57234153b33fdb9aad96f72cadf43234e6c994dbd1b
+    size_bytes: 394
+    url: https://github.com/gharbonnier78/siamese-embedding-compression-lab/actions/runs/33718300703/artifacts/9909959073
+
+verification:
+  infrastructure_failure: false
+  scientific_failure: true
+  canonical_original_power_failure_preserved: true
+  s2_final_negative_result_preserved: true
+  s3_known_truth_coverage_pass_preserved: true
+  independent_review_of_this_result_archive: NOT_PERFORMED
+
+scientific_authorization_boundary:
+  scientific_outcomes_opened: false
+  screen_opened: false
+  qualification_test_outcomes_opened: false
+  representation_geometry_opened: false
+  amendment_activated: false
+  human_go_for_real_outcomes_admissible_from_this_entry: false
+
+prohibited_inferences:
+  - infer_real_compression_noninferiority
+  - infer_real_compression_superiority
+  - infer_real_raw512_random128_pca128_siamese128_fnmr
+  - change_margin_or_confidence_level_because_s3_failed
+  - treat_more_bootstrap_replicates_as_more_independent_information
+  - authorize_screen_or_test
+  - inspect_representation_geometry
+
+next_action: >-
+  Resolve whether the original S4 method-level seed-distribution question is the correct
+  scientific object for the primary Study 1B biometric technology comparison. If not, record
+  the perspective change and authoritative external basis before specifying any replacement
+  non-outcome design. Outcomes remain sealed.
+
+blocks:
+  - study1b_power_design_amendment_activation
+  - study1b_screen_outcomes
+  - study1b_test_outcomes
+  - study1b_representation_geometry
+
+provenance:
+  append_only: true
+  s3_closed_negative: true
+  no_result_overwritten: true

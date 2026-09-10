@@ -1,0 +1,63 @@
+schema_id: study1b.chronicle.review_housekeeping
+schema_version: 1
+artifact_version: "0.1"
+entry_type: study1b_pr50_d2_self_reference_housekeeping
+chronicle_entry_id: CHRON-20260910-044
+study_id: study_1b_matched_compression
+date: 2026-09-10
+kind: append_only_nonoutcome_review_housekeeping
+status: SELF_REFERENCE_CORRECTED_AWAITING_ASSURANCE_AND_IMMUTABLE_BINDING
+outcome_evidence_seen: false
+
+summary: >-
+  After the D2 structural-impossibility anchor correction on head 90626743, a consistency audit found that
+  environment lock v0.4 still contained one stale internal code-identity reference to the superseded v0.3 lock path.
+  Correct that self-reference prospectively to v0.4 and add a focused regression assertion. This is housekeeping only:
+  it does not change D1-D3 semantics, S4 closure, protected scientific boundaries, or execution admissibility.
+
+basis:
+  prior_head: 90626743a82140e073ae7c18b88fac68551cdc93
+  reviewed_head_before_d2_correction: f5d748006bdde7ab6e71fa4396d5e1a5e09d6aaa
+  d2_anchor_commit: 878bfe2a64b34cce474a627d04b30233e2356958
+  d2_anchor_timestamp_utc: "2026-09-07T06:33:05Z"
+  prior_review_chronicle: protocol/chronicle/STUDY1B_PR50_F5D748_FOCUSED_REREVIEW_RESULT_2026-09-09.yaml
+  active_environment_lock: protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_ENVIRONMENT_LOCK_V0_4_2026-09-09.yaml
+
+correction:
+  stale_value: protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_ENVIRONMENT_LOCK_V0_3_2026-09-08.yaml
+  corrected_value: protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_ENVIRONMENT_LOCK_V0_4_2026-09-09.yaml
+  field: required_environment.code_identity.environment_lock_path
+  semantic_effect: NONE_HOUSEKEEPING_ONLY
+  regression_test_added: test_environment_lock_code_identity_self_reference_is_current
+
+preserved_review_state:
+  D1_CLOSED: true
+  D2_review_verdict_before_anchor_correction: false
+  D2_anchor_correction_applied_prospectively: true
+  D3_CLOSED: true
+  CONSTRUCT_VALIDITY_REVIEWED: false
+  construct_validity_claimed: false
+
+s4_boundary:
+  s4n1_status: CLOSED_NEGATIVE
+  s4n2_status: CLOSED_NEGATIVE
+  s4n3_launched: false
+  clarification_rewritten: false
+  protected_outcomes_opened: false
+
+execution_gate:
+  target_edge_hardware_bound: false
+  external_power_meter_bound: false
+  off_device_load_generator_bound: false
+  configuration_choice_provenance_materialized: false
+  provenance_attestation_materialized: false
+  execution_specific_environment_lock_materialized: false
+  canonical_phase_a_execution_permitted: false
+  independent_blockers:
+    - PLATFORM_AND_MEASUREMENT_ENVIRONMENT_NOT_MATERIALIZED
+    - CONFIGURATION_CHOICE_PROVENANCE_NOT_MATERIALIZED
+
+next_action: >-
+  Run bounded assurance on the exact new head containing this housekeeping correction. If all required checks pass,
+  publish a new immutable binding for that SHA and prepare the minimal focused D2-closure review package. Do not execute
+  canonical Phase A and do not infer construct validity from D1-D3 closure.

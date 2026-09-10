@@ -1,0 +1,44 @@
+date: 2026-08-29
+study: Study1B
+status: COVERAGE_CHECKPOINT_1000_RELAUNCHED
+scientific_outcomes_opened: false
+incident:
+  workflow_run_id: 33256150926
+  stage: coverage_shards
+  classification: INFRASTRUCTURE_ARTIFACT_PATH_FAILURE_BEFORE_DATASET_SIMULATION
+  observed_error: >-
+    The downloaded GitHub Actions artifact did not expose test_pairs.csv at the hard-coded
+    artifacts/study1b/coverage-input/graphs/test_pairs.csv path expected by the shard runner.
+  datasets_completed: 0
+  scientific_parameters_changed: false
+correction:
+  workflow: .github/workflows/study1b-coverage-checkpoint.yml
+  method: >-
+    Resolve test_pairs.csv deterministically inside the downloaded artifact tree using find,
+    fail closed if exactly no candidate is found, print the resolved path, and pass that path
+    to the unchanged Study 1B simulation runner.
+  changes_to_protocol: none
+  changes_to_rng_or_seeds: none
+  changes_to_bootstrap: none
+  changes_to_scenarios: none
+  changes_to_statistical_thresholds: none
+  changes_to_data_boundary: none
+pedagogical_reading:
+  en_francais_dans_le_texte: >-
+    Les donnees etaient bien preparees et telechargees, mais le fichier de paires TEST n'etait
+    pas range exactement la ou le script le cherchait. On ne change donc ni l'experience ni les
+    statistiques: on apprend au workflow a retrouver ce fichier dans l'artefact telecharge, puis
+    on relance les memes calculs.
+  lecture_ingenieur: >-
+    Le producer et le consumer de l'artefact n'avaient pas le meme contrat de chemin relatif.
+    Le producer etait valide; le consumer utilisait un chemin absolu dans l'arborescence de travail.
+    La correction rend le binding de l'artefact robuste tout en restant fail-closed et sans toucher
+    aux invariants scientifiques.
+  lecture_12_ans: >-
+    Imagine qu'on a bien mis le bon cahier dans un carton, mais qu'apres livraison le carton a ete
+    range dans une autre etagere. Au lieu de refaire le cahier, on cherche ou il est dans le carton,
+    on verifie qu'on l'a trouve, puis on continue exactement le meme exercice.
+next_gate:
+  requirement: >-
+    At least one coverage shard must reach the simulation loop and produce JSONL dataset rows
+    before any statistical progress is claimed.

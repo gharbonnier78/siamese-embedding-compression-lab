@@ -1,0 +1,311 @@
+schema_id: study1b.engineering.environment_lock
+schema_version: 3
+artifact_version: "0.4"
+environment_lock_id: STUDY1B-JUNGLE-CHAMPIONSHIP-ENGINEERING-ENVIRONMENT-LOCK-V0.4-2026-09-09
+study_id: study_1b_matched_compression
+date: 2026-09-09
+kind: nonoutcome_engineering_environment_lock_contract
+status: BLOCKED_PENDING_PLATFORM_BINDING_AND_PROVENANCE
+supersedes_for_future_execution: protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_ENVIRONMENT_LOCK_V0_3_2026-09-08.yaml
+review_basis: protocol/reviews/PR50_F5D748_D1_D3_FOCUSED_REREVIEW_VERDICT_2026-09-09.md
+
+purpose: >-
+  Define the complete hardware, software, measurement and decision-provenance environment that MUST be
+  materialized and frozen before any canonical Jungle Championship Phase A engineering benchmark execution.
+  This revision preserves the accepted D1 and D3 mechanisms and corrects the remaining D2 temporal-anchor defect
+  identified in the focused review of head f5d748: structural impossibility is anchored to the earliest published
+  workload-defining commit, not to the necessarily later synthetic-generator implementation commit.
+
+scientific_boundary:
+  protected_biometric_inputs_required: false
+  screen_opened: false
+  qualification_test_opened: false
+  real_route_performance_opened: false
+  representation_geometry_opened: false
+  amendment_activated: false
+  s4n1_status: CLOSED_NEGATIVE
+  s4n2_status: CLOSED_NEGATIVE
+  s4n3_launched: false
+
+binding_rule:
+  canonical_execution_permitted_only_if_all_required_values_non_null: true
+  materialized_lock_must_be_committed_before_execution: true
+  materialized_lock_commit_sha_must_be_recorded_in_result: true
+  benchmark_contract_commit_sha_must_be_recorded_in_result: true
+  benchmark_addendum_commit_sha_must_be_recorded_in_result: true
+  no_runtime_hardware_substitution: true
+  no_runtime_backend_substitution: true
+  no_runtime_thread_count_tuning: true
+  no_runtime_power_mode_tuning: true
+  any_material_change_requires_new_lock_and_new_execution_identity: true
+  platform_materialization_gate: REQUIRED_NOT_YET_OBTAINED
+  configuration_choice_provenance_gate: REQUIRED_NOT_YET_OBTAINED
+  canonical_execution_gate: BLOCKED
+
+configuration_choice_provenance:
+  required_for_each_lock_defining_choice: true
+  lock_defining_choices:
+    - device_under_test
+    - cpu_or_accelerator_platform
+    - system_ram_capacity_and_type
+    - search_backend_and_blas_runtime
+    - benchmark_thread_count_and_affinity
+    - frequency_governor_and_boost_policy
+    - load_generator_host_and_link
+    - external_power_meter_and_measurement_plane
+    - battery_capacity_and_operational_policy_if_used
+  required_fields_per_choice:
+    - choice_name
+    - selected_value
+    - decision_authority_or_source
+    - source_type
+    - source_reference_or_identifier
+    - evidence_timestamp
+    - provenance_attested_by
+    - attester_role
+    - attestation_timestamp
+    - attestation_statement
+    - measurement_workload_signature_if_applicable
+    - informational_overlap_assessment_if_applicable
+    - target_or_informative_workload_evidence_used_to_inform_choice
+    - rationale
+  attestation_requirements:
+    provenance_attested_by_must_identify_human_or_accountable_role: true
+    system_only_attester_permitted: false
+    attestation_timestamp_required: true
+    attestation_statement_required: true
+    canonical_statement: >-
+      I attest that the provenance record is complete to the best of my knowledge for this lock-defining choice,
+      including any prior measurement that was materially informative about the frozen Phase A comparison.
+  allowed_source_types:
+    - engineering_requirement
+    - preexisting_architecture_constraint
+    - vendor_datasheet
+    - procurement_constraint
+    - preexisting_measurement
+    - explicit_human_engineering_decision
+  prohibited_undeclared_source_type: true
+
+measurement_source_requirements:
+  applies_when_source_type: preexisting_measurement
+  evidence_timestamp_required: true
+  required_measurement_workload_signature_fields:
+    - vector_dimensions
+    - search_family
+    - index_mode
+    - hardware_class
+    - hardware_model_if_known
+    - datatype_if_known
+    - gallery_scale_if_known
+    - measurement_reference
+  informational_overlap_rule:
+    criterion: >-
+      A prior measurement is MATERIAL_INFORMATIONAL_OVERLAP when its workload shares a vector dimensionality
+      under evaluation (128 or 512), the same search/index computational family used by Phase A, and the same
+      hardware class under consideration. Classification is based on observable workload attributes, not on
+      the stated purpose, label or intent of the prior measurement.
+    target_vector_dimensions: [128, 512]
+    target_search_family: EXACT_DENSE_DOT_PRODUCT_TOP1
+    target_index_mode: none
+    hardware_class_source: required_environment.device_under_test.hardware_class
+    intended_purpose_is_a_classifier_input: false
+    label_is_a_classifier_input: false
+  overlap_consequence: >-
+    A measurement classified MATERIAL_INFORMATIONAL_OVERLAP MUST be declared as informative evidence. It MAY NOT
+    silently select or tune an untouched prospective canonical lock. If it informed a lock-defining choice, create
+    a newly identified prospective design/execution identity, freeze it, and obtain independent review before any
+    canonical result-bearing execution.
+
+prelock_information_firewall:
+  rule: >-
+    No prior measurement with MATERIAL_INFORMATIONAL_OVERLAP may silently choose or tune any lock-defining
+    configuration. This prohibition is determined from vector dimensionality, search/index family and hardware
+    class overlap, not from the measurement's stated intent. It applies regardless of labels such as smoke test,
+    pilot, Phase 0, exploratory run, dry run, preview, capacity check or tuning pass.
+  label_independent: true
+  intent_independent: true
+  target_or_informative_measurement_may_silently_select_hardware: false
+  target_or_informative_measurement_may_silently_select_backend: false
+  target_or_informative_measurement_may_silently_select_thread_count_or_affinity: false
+  target_or_informative_measurement_may_silently_select_energy_meter_or_measurement_plane: false
+  target_or_informative_measurement_may_silently_select_frequency_or_power_mode: false
+  diagnostic_execution_after_lock_is_frozen: allowed_if_separately_identified_and_does_not_modify_lock
+  if_prior_informative_measurement_already_informed_a_choice: >-
+    Declare the measurement, workload signature, evidence timestamp and affected choice explicitly. The resulting
+    configuration is not treated as an untouched prospective Phase A lock. Create a new prospective design/execution
+    identity and obtain independent review before any canonical result-bearing execution.
+
+structural_impossibility_anchor:
+  rule: >-
+    The impossibility bound is the EARLIEST immutable commit timestamp at which the workload attributes used by
+    the informational-overlap classifier were sufficiently published to construct a materially informative prior
+    measurement. It MUST NOT use the later generator-code commit timestamp as the bound.
+  earliest_workload_defining_commit_sha: 878bfe2a64b34cce474a627d04b30233e2356958
+  earliest_workload_defining_commit_timestamp_utc: "2026-09-07T06:33:05Z"
+  earliest_workload_defining_artifact: protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_BENCHMARK_V0_1_2026-09-07.yaml
+  immutable_source_url: https://github.com/gharbonnier78/siamese-embedding-compression-lab/blob/878bfe2a64b34cce474a627d04b30233e2356958/protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_BENCHMARK_V0_1_2026-09-07.yaml
+  attributes_published_at_anchor:
+    vector_dimensions: [512, 128]
+    datatype: FP32
+    compute_family: CPU
+    search_family: EXACT_DENSE
+    primary_scenario: G2_central_full
+  evidence_timestamp_must_be_strictly_earlier_than_anchor_for_structural_impossibility: true
+  structural_impossibility_claim_available_for_qualifying_pre_anchor_evidence: true
+  conservative_interpretation: >-
+    This anchor may reject some genuinely uninformed evidence produced after the anchor, but it cannot create the
+    permissive [specification_commit, generator_commit) window identified by independent review. Conservative rejection
+    is preferable to accepting evidence that could have been informed by an already-published workload definition.
+  hardware_class_note: >-
+    The current D3 classifier also uses hardware class. That field is resolved from
+    required_environment.device_under_test.hardware_class when the execution-specific lock is materialized. The
+    2026-09-07 anchor remains the conservative public-workload bound for dimensionality/search-family information.
+
+target_workload_replay_identity:
+  synthetic_root_seed: 20260908
+  synthetic_generator_code_sha256: null
+  synthetic_generator_code_commit_sha: null
+  synthetic_generator_code_commit_timestamp_utc: null
+  generator_code_identity_required_before_execution: true
+  generator_identity_role: REPLAY_AND_RESULT_PROVENANCE_NOT_STRUCTURAL_IMPOSSIBILITY_BOUND
+  note: >-
+    Exact generator-code identity and timestamp remain mandatory before execution for replay and result provenance.
+    They are deliberately not used as the structural-impossibility temporal anchor.
+
+required_environment:
+  device_under_test:
+    manufacturer: null
+    model: null
+    hardware_class: null
+    hardware_revision: null
+    firmware_or_bios_version: null
+    power_mode: null
+    cooling_configuration: null
+    ambient_temperature_C: null
+  cpu:
+    model: null
+    microcode_or_firmware: null
+    physical_cores: null
+    logical_threads: null
+    benchmark_threads_used: null
+    affinity_policy: null
+    numa_topology: null
+    frequency_governor: null
+    turbo_or_boost_policy: null
+  memory:
+    system_ram_capacity_bytes: null
+    memory_type: null
+    rated_speed: null
+    channel_configuration: null
+    ecc_status: null
+    swap_enabled: null
+    swap_capacity_bytes: null
+    requirement: >-
+      Canonical Phase A requires the gallery working set to remain RAM-resident. Swap MUST be disabled,
+      or measurement evidence MUST demonstrate zero swap activity throughout the run; otherwise the run
+      is not admissible for RAM-residency claims.
+  accelerator:
+    present: null
+    type: null
+    model: null
+    driver_version: null
+    runtime_version: null
+    dedicated_or_shared_memory_bytes: null
+    note: Phase A CPU comparison records accelerator absence or disabled state; later phases bind it explicitly.
+  storage:
+    device_type: null
+    model: null
+    filesystem: null
+  operating_system:
+    distribution: null
+    version: null
+    kernel: null
+  runtime:
+    python_version: null
+    numpy_version: null
+    scipy_version: null
+    blas_backend: null
+    blas_backend_version: null
+    compiler_or_runtime_build_info: null
+    thread_environment:
+      OMP_NUM_THREADS: null
+      MKL_NUM_THREADS: null
+      OPENBLAS_NUM_THREADS: null
+      other_relevant_thread_controls: null
+  code_identity:
+    repository_commit_sha: null
+    benchmark_contract_path: protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_BENCHMARK_V0_3_2026-09-08.yaml
+    benchmark_addendum_path: protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_BENCHMARK_V0_3_D1_D3_ADDENDUM_2026-09-08.yaml
+    environment_lock_path: protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_ENVIRONMENT_LOCK_V0_4_2026-09-09.yaml
+    synthetic_generator_code_sha256: null
+    synthetic_generator_code_commit_sha: null
+    synthetic_generator_code_commit_timestamp_utc: null
+    synthetic_root_seed: 20260908
+  load_generator:
+    canonical_placement: OFF_DEVICE
+    host_model: null
+    cpu_model: null
+    ram_capacity_bytes: null
+    operating_system: null
+    runtime_version: null
+    network_link_type: null
+    nominal_link_rate: null
+    measured_round_trip_baseline_ms: null
+    clock_or_timestamp_method: null
+    rule: >-
+      Canonical load generation runs off-device so its compute and power do not contaminate device measurement.
+      Device-side latency MUST be measured at the server boundary in addition to client round-trip latency.
+  power_measurement:
+    canonical_plane: EXTERNAL_DEVICE_INPUT_OR_WALL
+    meter_manufacturer: null
+    meter_model: null
+    meter_serial_or_asset_id: null
+    measurement_location: null
+    sampling_rate_hz: null
+    calibration_or_accuracy_reference: null
+    timestamp_synchronization_method: null
+    minimum_sampling_rate_hz: 10
+    on_chip_telemetry_role: SUPPORTING_DIAGNOSTIC_ONLY
+  battery_model:
+    nominal_capacity_Wh: null
+    usable_fraction: null
+    reserve_fraction: null
+    conversion_efficiency: null
+    recharge_or_swap_policy: null
+
+result_provenance_requirements:
+  - materialized_environment_lock_path_and_commit
+  - repository_commit_sha
+  - benchmark_contract_path_and_commit
+  - benchmark_addendum_path_and_commit
+  - complete_command_line
+  - process_environment_relevant_to_threads_and_backends
+  - configuration_choice_provenance_record
+  - provenance_attestation_record
+  - declaration_of_any_prelock_informative_measurement
+  - measurement_workload_signatures_and_overlap_assessments
+  - target_workload_generator_commit_timestamp
+  - structural_impossibility_anchor_commit_sha_and_timestamp
+  - raw_latency_samples_or_immutable_reference
+  - raw_power_samples_or_immutable_reference
+  - failure_and_exclusion_log
+  - device_temperature_and_throttling_log_if_available
+
+execution_admissibility:
+  target_edge_hardware_bound: false
+  external_power_meter_bound: false
+  off_device_load_generator_bound: false
+  configuration_choice_provenance_materialized: false
+  provenance_attestation_materialized: false
+  generator_code_identity_materialized: false
+  execution_specific_environment_lock_materialized: false
+  canonical_phase_a_execution_permitted: false
+  independent_blockers:
+    - PLATFORM_AND_MEASUREMENT_ENVIRONMENT_NOT_MATERIALIZED
+    - CONFIGURATION_CHOICE_PROVENANCE_NOT_MATERIALIZED
+
+next_action: >-
+  Obtain a focused independent re-review of the D2 anchor correction. If D2 is closed, engineering authority supplies
+  the actual platform and measurement setup plus attributable provenance for every lock-defining choice. Materialize
+  the exact generator-code identity for replay, freeze an immutable execution-specific lock, separately check that lock,
+  and only then permit canonical Phase A execution.

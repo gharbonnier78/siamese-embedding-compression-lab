@@ -1,0 +1,78 @@
+chronicle_version: 1
+study: Study 1B
+date: 2026-08-28
+kind: non_outcome_data_boundary_dry_run
+status: IN_PROGRESS_FAIL_CLOSED
+scientific_outcomes_opened: false
+active_boundary_modified: false
+
+context:
+  trigger: >-
+    The frozen second-stage near-duplicate adjudication classified 18 cross-role dHash
+    candidates as 16 CLEAR_NOT_DUPLICATE_LIKE, 1 AMBIGUOUS_REVIEW and
+    1 BLOCK_DUPLICATE_LIKE.
+  rule_integrity: >-
+    Image-similarity thresholds were frozen before observing the 18 classifications and
+    are not changed after observing the blocker.
+
+proposed_identity_quarantine:
+  policy: >-
+    Quarantine at identity level, not capture level, and do not insert replacement identities.
+    This is a DRAFT dry run only; activation requires independent review and explicit human GO.
+  identities:
+    - subject_id: subject_1070cf723eb7b93398de
+      role: SCREEN
+      reason: BLOCK_DUPLICATE_LIKE with TRAIN; 3/3 frozen checks passed
+      paired_with: subject_97df35f042b9b8c49b8e
+    - subject_id: subject_97df35f042b9b8c49b8e
+      role: TRAIN
+      reason: BLOCK_DUPLICATE_LIKE with SCREEN; 3/3 frozen checks passed
+      paired_with: subject_1070cf723eb7b93398de
+    - subject_id: subject_fb92b5fb0163ff4b3751
+      role: TEST
+      reason: AMBIGUOUS_REVIEW with TRAIN; 2/3 frozen checks passed
+      paired_with: subject_815e0549ed1f8d0514b4
+    - subject_id: subject_815e0549ed1f8d0514b4
+      role: TRAIN
+      reason: AMBIGUOUS_REVIEW with TEST; 2/3 frozen checks passed
+      paired_with: subject_fb92b5fb0163ff4b3751
+
+human_review:
+  artifact: quarantine-dry-run/human_review_contact_sheet.png
+  purpose: >-
+    Allow a human reviewer to judge whether each cross-role pair is visually the same
+    underlying photograph/crop or a clear perceptual-hash false positive.
+  allowed_question: >-
+    Is this visually the same underlying photograph/crop, or clearly not the same image?
+  prohibited_use:
+    - identify or name the people shown
+    - inspect biometric/compression performance
+    - retroactively tune the frozen thresholds to obtain a desired result
+  decision_policy: >-
+    Human review can resolve a false-positive/ambiguous image-duplication question, but it
+    cannot retroactively erase a deterministic BLOCK_DUPLICATE_LIKE result. Any decision to
+    retain a blocked identity would require a documented protocol amendment and independent review.
+
+implementation:
+  script: scripts/study1b_quarantine_dry_run.py
+  workflow: .github/workflows/study1b-nonoutcome-preflight.yml
+  head_commit: 0de2095fc4894aa836a836aa4d76d17804836d60
+  workflow_run: 33167438052
+  outputs_planned:
+    - quarantine_dry_run_report.json
+    - capture_manifest_quarantine_dry_run.csv
+    - post_quarantine_overlap_audit.json
+    - graphs/train_pairs.csv
+    - graphs/validation_pairs.csv
+    - graphs/screen_pairs.csv
+    - graphs/test_pairs.csv
+    - human_review_contact_sheet.png
+
+next_gate:
+  required_before_coverage_power:
+    - dry run completes and preserves preregistered pair counts
+    - post-quarantine overlap audit is inspected
+    - human review of disputed pairs is recorded
+    - independent review of any data-boundary amendment
+    - explicit human GO if the amendment is to become active
+  coverage_power_full_shards_authorized: false

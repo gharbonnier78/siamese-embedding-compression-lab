@@ -1,0 +1,126 @@
+schema_version: "1.0"
+decision_id: STUDY1B-S4N1-S4N2-SHARED-POPULATION-T19-CLARIFICATION-2026-09-08
+study_id: study_1b_matched_compression
+date: 2026-09-08
+kind: append_only_nonoutcome_methodological_clarification
+status: CLARIFIED_NO_CHANGE_TO_NEGATIVE_CLOSURE
+
+purpose: >-
+  Close independent-review finding BLOCKING-10 without rewriting either archived negative result. Explicitly record
+  that S4N1 and S4N2 evaluate two uncertainty procedures on the same deterministic synthetic known-truth population,
+  state the exact S4N2 Student-t multiplier, restate the estimator-stop rationale, and attach uncertainty/label hygiene
+  to the summary-facing power figures.
+
+scientific_boundary:
+  protected_biometric_outcomes_opened: false
+  screen_opened: false
+  qualification_test_opened: false
+  real_route_performance_opened: false
+  representation_geometry_opened: false
+  amendment_activated: false
+  s4n1_status: CLOSED_NEGATIVE
+  s4n2_status: CLOSED_NEGATIVE
+  s4n3_launched: false
+
+shared_synthetic_population:
+  statement: >-
+    S4N2 did NOT draw an independent synthetic population from S4N1. It intentionally regenerated the same deterministic
+    known-truth worlds for the same graph inputs, truth value and dataset_index, and changed the TEST uncertainty estimator
+    from the S4N1 subject bootstrap to S4N2 DAGJK20. This paired reuse isolates uncertainty-estimator behavior.
+  independent_lines_of_evidence_count: 1
+  uncertainty_procedures_compared: 2
+  implication: >-
+    The two negative power results are not two independent replications of generator validity. They are two prospectively
+    frozen uncertainty procedures evaluated on one synthetic generator/population. Neither result tests generator misspecification.
+  implementation_basis:
+    s4n1_runner: scripts/study1b_s4n1_run_shard.py
+    s4n2_runner: scripts/study1b_s4n2_run_shard.py
+    s4n2_core: src/siamese_compression_lab/study1b_s4n2_dagjk.py
+    shared_mechanism: same_graphs_truth_dataset_index_and_S4N1_compatible_role_distance_generation
+
+s4n2_confidence_multiplier:
+  candidate: S4N2_DAGJK20_T975
+  distribution: Student_t
+  one_sided_level: 0.975
+  group_count: 20
+  degrees_of_freedom: 19
+  critical_value_t_0_975_df19: 2.0930240544083087
+  comparison_normal_0_975: 1.959963984540054
+  t_to_normal_multiplier_ratio: 1.0678890382261181
+  note: >-
+    The t19 critical value is about 6.79 percent larger than the normal 0.975 quantile. This is a documented component
+    of S4N2 interval width; it does not by itself explain the full observed power difference.
+
+summary_label_hygiene:
+  rule: >-
+    Summary-facing text MUST use PROSPECTIVELY_PREFERRED for S4N_VALIDATION_BEST. The token BEST is a selector name,
+    not a statement that its realized power is the maximum among selectors.
+  delta_0_01:
+    S4N1:
+      prospectively_preferred_selector: S4N_VALIDATION_BEST
+      prospectively_preferred_power: 0.8690
+      maximum_observed_selector: S4N_VALIDATION_MEDIAN
+      maximum_observed_power: 0.8695
+    S4N2:
+      prospectively_preferred_selector: S4N_VALIDATION_BEST
+      prospectively_preferred_power: 0.8490
+      maximum_observed_selector: S4N_VALIDATION_MEDIAN
+      maximum_observed_power: 0.8535
+
+monte_carlo_uncertainty_on_power_at_delta_0_01:
+  method: exact_Clopper_Pearson_95_interval_plus_binomial_MCSE
+  simulated_datasets_per_cell: 4000
+  note: >-
+    These intervals quantify Monte Carlo uncertainty in the synthetic power estimate only. They do not validate the
+    real-world generator or change the frozen 0.90 gate.
+  S4N1:
+    S4N_FIXED_SEED: {passes: 3462, power: 0.8655, mcse: 0.005394667505972911, cp95_low: 0.8545344753633395, cp95_high: 0.8759285396977926}
+    S4N_VALIDATION_BEST: {passes: 3476, power: 0.8690, mcse: 0.005334768036194264, cp95_low: 0.8581491628663056, cp95_high: 0.8793086173491454}
+    S4N_VALIDATION_MEDIAN: {passes: 3478, power: 0.8695, mcse: 0.005326109039439579, cp95_low: 0.8586657460972525, cp95_high: 0.8797912858100906}
+  S4N2:
+    S4N_FIXED_SEED: {passes: 3388, power: 0.8470, mcse: 0.005691902142517912, cp95_low: 0.835466161853388, cp95_high: 0.8580244387294095}
+    S4N_VALIDATION_BEST: {passes: 3396, power: 0.8490, mcse: 0.00566124986200044, cp95_low: 0.837524704347885, cp95_high: 0.8599629201025936}
+    S4N_VALIDATION_MEDIAN: {passes: 3414, power: 0.8535, mcse: 0.005591013995689869, cp95_low: 0.8421589054240152, cp95_high: 0.8643220176990298}
+  gate_robustness_statement: >-
+    Even the upper 95 percent Monte Carlo interval endpoints remain below 0.90 for all delta=0.01 selector cells;
+    simulation noise does not plausibly rescue either closed campaign.
+
+estimator_stop_rationale_restated:
+  previous_short_form_risk: >-
+    Saying that two procedures failed can be misread as two independent evidence populations. That reading is prohibited.
+  canonical_rationale: >-
+    Two prospectively frozen uncertainty procedures were tested on the same frozen synthetic population and neither met
+    the 0.90 power gate. Because continuing to introduce estimators after observing each failure would create escalating
+    post-hoc optimization risk, S4N3 remains stopped unless a new estimator is independently motivated by a new prospective
+    methodological question. The stop rationale is protection against estimator shopping, not accumulation of independent
+    generator evidence.
+
+unresolved_methodological_question_from_review:
+  finding: >-
+    S4N2 has a smaller median SE-to-point-error-SD ratio than S4N1 yet lower realized power. The current record therefore
+    does not support a simple causal story that median uncertainty spread alone explains the plateau.
+  admissible_future_diagnostic_if_authorized:
+    - compare full SE distributions across archived S4N1/S4N2 shards
+    - inspect point-estimate and SE joint behavior near the UCB decision boundary
+    - decompose the role of the t19 critical multiplier versus SE dispersion
+  status: NON_BLOCKING_FOR_NEGATIVE_CLOSURE_AND_ENGINEERING_BENCHMARK_CONTRACT
+  no_new_simulation_required: true
+  no_protected_outcome_required: true
+
+value_of_power_limitation:
+  statement: >-
+    The illustrative 0.0310 and 0.0510 target-gap terms are local to the synthetic acceptable truth Delta_FNMR=0.01.
+    Power varies across the acceptable region and is much higher at Delta=0 in the archived campaigns. These terms MUST
+    NOT be presented as expected value over the whole acceptable state distribution unless a prospective distribution over
+    acceptable effects is explicitly supplied.
+
+references:
+  s4n1_result: protocol/chronicle/STUDY1B_S4N1_CORE_POWER_CALIBRATION_RESULT_2026-09-06.yaml
+  s4n2_result: protocol/chronicle/STUDY1B_S4N2_DAGJK20_POWER_4000_RESULT_2026-09-06.yaml
+  s4n2_frozen_contract: protocol/simulations/STUDY1B_S4N2_DAGJK20_CALIBRATION_V0_1_2026-09-06.yaml
+  residual_framework: protocol/decisions/STUDY1B_S4_RESIDUAL_DECISION_RISK_FRAMEWORK_2026-09-06.yaml
+  independent_review: protocol/reviews/PR50_INDEPENDENT_REVIEW_2026-09-08.md
+
+next_action: >-
+  Preserve S4N1/S4N2 as CLOSED_NEGATIVE, do not launch S4N3, use the corrected summary terminology, and proceed only
+  with independent re-review of the non-outcome engineering benchmark corrections.

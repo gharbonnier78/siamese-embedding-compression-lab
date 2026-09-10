@@ -1,0 +1,28 @@
+schema_version: "1.0"
+source_id: lfw_view1_development_metadata
+status: PINNED_REPLAY_INPUT
+purpose: >-
+  Provide the LFW View 1 development split metadata required by the preregistered
+  Study 1B role assignment when the Kaggle image mirror does not bundle those files.
+
+files:
+  peopleDevTrain.txt:
+    declared_identity_count: 4038
+    git_blob_sha1: 9eb441640161b3c87b5cfab81481eb5543955249
+  peopleDevTest.txt:
+    declared_identity_count: 1711
+    git_blob_sha1: 9e7d5ccd3ace0420250849825b86ebd89b91de66
+
+pinned_public_mirror:
+  repository: charlesreid1/in-your-face
+  commit: 00d3f2e4bdcc3ef8a851e5e133cde29d2f574f15
+  train_path: data/peopleDevTrain.txt
+  test_path: data/peopleDevTest.txt
+
+scientific_boundary:
+  changes_role_assignment_semantics: false
+  changes_pair_graph_semantics: false
+  opens_scientific_outcomes: false
+  note: >-
+    These files supply metadata absent from the Kaggle image archive. The active
+    amended boundary still must reproduce its frozen manifest and pair-graph hashes.
