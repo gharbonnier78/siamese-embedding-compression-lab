@@ -179,7 +179,7 @@ class Study1BEngineeringBenchmarkContractTests(unittest.TestCase):
         open_item = self.environment["preexecution_open_items"]["R1_N2_portable_choice_overlap_classifier"]
         self.assertEqual(open_item["status"], "OPEN_REQUIRES_SEPARATE_PROSPECTIVE_HARDENING_AND_REVIEW")
         self.assertTrue(open_item["must_close_before_execution_specific_lock_freeze"])
-        self.assertIn("BLAS/backend", open_item["note"])
+        self.assertIn("backend/BLAS", open_item["note"])
         self.assertIn("threading/affinity", open_item["note"])
         self.assertIn("energy-measurement", open_item["note"])
 
