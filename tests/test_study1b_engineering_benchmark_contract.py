@@ -109,6 +109,12 @@ class Study1BEngineeringBenchmarkContractTests(unittest.TestCase):
         )
         self.assertIsNone(replay["synthetic_generator_code_commit_timestamp_utc"])
 
+    def test_environment_lock_code_identity_self_reference_is_current(self) -> None:
+        self.assertEqual(
+            self.environment["required_environment"]["code_identity"]["environment_lock_path"],
+            "protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_ENVIRONMENT_LOCK_V0_4_2026-09-09.yaml",
+        )
+
     def test_d3_firewall_is_information_based_not_intent_based(self) -> None:
         measurement = self.environment["measurement_source_requirements"]
         overlap = measurement["informational_overlap_rule"]
