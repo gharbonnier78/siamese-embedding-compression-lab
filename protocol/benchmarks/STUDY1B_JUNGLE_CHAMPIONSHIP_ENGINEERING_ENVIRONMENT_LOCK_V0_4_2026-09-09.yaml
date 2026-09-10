@@ -236,7 +236,7 @@ required_environment:
     repository_commit_sha: null
     benchmark_contract_path: protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_BENCHMARK_V0_3_2026-09-08.yaml
     benchmark_addendum_path: protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_BENCHMARK_V0_3_D1_D3_ADDENDUM_2026-09-08.yaml
-    environment_lock_path: protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_ENVIRONMENT_LOCK_V0_3_2026-09-08.yaml
+    environment_lock_path: protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_ENVIRONMENT_LOCK_V0_4_2026-09-09.yaml
     synthetic_generator_code_sha256: null
     synthetic_generator_code_commit_sha: null
     synthetic_generator_code_commit_timestamp_utc: null
