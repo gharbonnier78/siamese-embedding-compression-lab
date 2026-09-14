@@ -1,0 +1,388 @@
+schema_id: study1b.engineering.environment_lock
+schema_version: 5
+artifact_version: "0.6"
+environment_lock_id: STUDY1B-JUNGLE-CHAMPIONSHIP-ENGINEERING-ENVIRONMENT-LOCK-V0.6-2026-09-14
+study_id: study_1b_matched_compression
+date: 2026-09-14
+kind: nonoutcome_engineering_environment_lock_contract
+status: BLOCKED_PENDING_PREEXECUTION_SEMANTIC_REREVIEW_PLATFORM_BINDING_AND_PROVENANCE
+supersedes_for_future_execution: protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_ENVIRONMENT_LOCK_V0_5_2026-09-10.yaml
+benchmark_contract: protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_BENCHMARK_V0_3_2026-09-08.yaml
+benchmark_addendum: protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_BENCHMARK_V0_3_D1_D3_ADDENDUM_V0_2_2026-09-14.yaml
+review_basis:
+  accepted_d2_v0_5_verdict: protocol/reviews/PR50_CB124244_D2_V05_FOCUSED_REREVIEW_VERDICT_2026-09-10.md
+  accepted_d2_v0_5_chronicle: protocol/chronicle/STUDY1B_PR50_CB124244_D2_V05_ACCEPT_2026-09-14.yaml
+
+purpose: >-
+  Preserve the accepted D1-D3 provenance/firewall design while prospectively hardening the remaining pre-execution
+  semantic items N4, N5 and R1/N2. This revision restores an operative D2 scope for genuinely pre-existing external
+  evidence by distinguishing creation/framing influence from mere possession; states exactly which D2 component is
+  mechanically checkable; and evaluates prior evidence against the lock-defining choice it can inform rather than
+  requiring one global hardware-class conjunction. It does not establish construct validity or authorize Phase A.
+
+scientific_boundary:
+  protected_biometric_inputs_required: false
+  screen_opened: false
+  qualification_test_opened: false
+  real_route_performance_opened: false
+  representation_geometry_opened: false
+  amendment_activated: false
+  s4n1_status: CLOSED_NEGATIVE
+  s4n2_status: CLOSED_NEGATIVE
+  s4n3_launched: false
+
+binding_rule:
+  canonical_execution_permitted_only_if_all_required_values_non_null: true
+  materialized_lock_must_be_committed_before_execution: true
+  materialized_lock_commit_sha_must_be_recorded_in_result: true
+  benchmark_contract_commit_sha_must_be_recorded_in_result: true
+  benchmark_addendum_commit_sha_must_be_recorded_in_result: true
+  no_runtime_hardware_substitution: true
+  no_runtime_backend_substitution: true
+  no_runtime_thread_count_tuning: true
+  no_runtime_power_mode_tuning: true
+  any_material_change_requires_new_lock_and_new_execution_identity: true
+  platform_materialization_gate: REQUIRED_NOT_YET_OBTAINED
+  configuration_choice_provenance_gate: REQUIRED_NOT_YET_OBTAINED
+  preexecution_semantic_hardening_review_gate: REQUIRED_NOT_YET_OBTAINED
+  canonical_execution_gate: BLOCKED
+
+configuration_choice_provenance:
+  required_for_each_lock_defining_choice: true
+  lock_defining_choices:
+    - device_under_test
+    - cpu_or_accelerator_platform
+    - system_ram_capacity_and_type
+    - search_backend_and_blas_runtime
+    - benchmark_thread_count_and_affinity
+    - frequency_governor_and_boost_policy
+    - load_generator_host_and_link
+    - external_power_meter_and_measurement_plane
+    - battery_capacity_and_operational_policy_if_used
+  required_fields_per_choice:
+    - choice_name
+    - selected_value
+    - decision_authority_or_source
+    - source_type
+    - source_reference_or_identifier
+    - evidence_timestamp
+    - provenance_attested_by
+    - attester_role
+    - attestation_timestamp
+    - attestation_statement
+    - measurement_signature_if_applicable
+    - per_choice_informational_overlap_assessment_if_applicable
+    - target_or_informative_evidence_used_to_inform_choice
+    - creation_or_framing_influence_assessment_if_applicable
+    - rationale
+  attestation_requirements:
+    provenance_attested_by_must_identify_human_or_accountable_role: true
+    system_only_attester_permitted: false
+    attestation_timestamp_required: true
+    attestation_statement_required: true
+    canonical_statement: >-
+      I attest that the provenance record is complete to the best of my knowledge for this lock-defining choice,
+      including materially informative prior evidence and any influence by the attesting party over its creation,
+      framing, commissioning, requesting or specification.
+    public_ordering_does_not_substitute_for_attestation_for_attester_influenced_evidence: true
+  allowed_source_types:
+    - engineering_requirement
+    - preexisting_architecture_constraint
+    - vendor_datasheet
+    - procurement_constraint
+    - preexisting_measurement
+    - explicit_human_engineering_decision
+  prohibited_undeclared_source_type: true
+
+negative_fact_responsibility_split:
+  D2_public_ordering:
+    role: TEMPORAL_PUBLIC_ORDERING_FOR_EXTERNAL_PREEXISTING_EVIDENCE
+    may_discharge_negative_only_for:
+      - genuinely_third_party_evidence
+      - preexisting_external_evidence
+    mechanically_checkable_component: >-
+      The evidence timestamp is strictly earlier than the immutable repository-public information bound.
+    provenance_backed_conditions:
+      - source_is_genuinely_external_or_preexisting
+      - attesting_party_did_not_influence_creation_or_framing
+    mere_receipt_possession_citation_or_review_is_not_creation_influence: true
+    may_remain_applicable_after_attester_receives_or_reviews_preexisting_external_evidence: true
+    cannot_substitute_for_D1_attestation: true
+    rule: >-
+      D2 can establish only a bounded public-ordering fact for external/pre-existing evidence. It does not certify
+      the entire independence story as objective. A pre-existing vendor datasheet or external measurement does not lose
+      D2 eligibility merely because the attester later receives, reviews or cites it. If the attester produced,
+      commissioned, requested, specified, directed or materially framed the evidence, D1 treatment is required.
+
+  D1_accountable_attestation:
+    role: ACCOUNTABLE_NEGATIVE_FACT_FOR_ATTESTER_KNOWLEDGE_AND_INFLUENCE
+    required_for_evidence_that_was:
+      - produced_by_attesting_party
+      - commissioned_by_attesting_party
+      - requested_by_attesting_party
+      - specified_or_directed_by_attesting_party
+      - materially_framed_by_attesting_party
+    completeness_backstop_applies_to_all_lock_defining_choices: true
+    applies_even_if_evidence_predates_public_commit_time: true
+    public_anchor_does_not_discharge_creation_or_framing_influence: true
+    rule: >-
+      D1 accountable attestation carries the negative-fact burden for evidence whose creation or framing was under
+      the attesting party's influence and remains the completeness backstop for all lock-defining choices. Mere later
+      possession/review of genuinely pre-existing external evidence is disclosed in provenance but is not itself proof
+      that the attester influenced its creation.
+
+  conflict_rule: >-
+    If provenance is ambiguous, creation/framing influence cannot be ruled out, or the evidence could fall under both
+    cases, require D1 and classify the evidence as potentially informative. Do not use D2 ordering alone to certify an
+    untouched prospective lock.
+
+public_ordering_anchor:
+  bound_type: CONSERVATIVE_REPOSITORY_ROOT_PUBLIC_INFORMATION_BOUND
+  repository_root_commit_sha: 4b40e7254bff1b88a44d13fb55b366bc7d3fc263
+  repository_root_commit_timestamp_utc: "2026-08-07T08:23:56Z"
+  repository_root_artifact: README.md
+  immutable_source_url: https://github.com/gharbonnier78/siamese-embedding-compression-lab/blob/4b40e7254bff1b88a44d13fb55b366bc7d3fc263/README.md
+  repository_root_parent_count: 0
+  evidence_timestamp_must_be_strictly_earlier_than_anchor_for_public_ordering_claim: true
+  label_scope_note: >-
+    Only the temporal ordering against this immutable root bound is mechanically checkable from repository history.
+    External/pre-existing source classification and absence of attester influence over creation/framing are provenance
+    claims subject to accountable attestation and fail-closed conflict handling. Downstream users MUST NOT cite
+    'structural impossibility' as if the whole D1/D2 mechanism were objective.
+
+measurement_source_requirements:
+  evidence_timestamp_required_for_measurement_sources: true
+  minimum_signature_fields_when_applicable:
+    - measurement_reference
+    - evidence_timestamp
+    - source_type
+    - hardware_class
+    - vector_dimensions
+    - search_family
+    - datatype_or_precision
+    - backend_or_blas
+    - threading_or_affinity
+    - measurement_plane
+    - load_generation_method
+    - choices_potentially_informed
+    - attributable_overlap_assessment
+  choice_specific_information_firewall:
+    classification_basis: CHOICE_SPECIFIC_INFORMATIONAL_OVERLAP
+    intent_is_classifier_input: false
+    label_is_classifier_input: false
+    uncertainty_defaults_to_informative: true
+    not_informative_requires_attributable_rationale: true
+
+    platform_specific:
+      choices:
+        - device_under_test
+        - cpu_or_accelerator_platform
+        - system_ram_capacity_and_type
+        - frequency_governor_and_boost_policy
+      hardware_class_may_be_required: true
+      rule: >-
+        Hardware class or a materially comparable platform normally matters for platform-specific choices. Evidence
+        from a different class may still be informative if an attributable engineering rationale shows transferability.
+
+    search_runtime_portable:
+      choices:
+        - search_backend_and_blas_runtime
+      hardware_class_required: false
+      rule: >-
+        Prior dense-search/kernel evidence may be informative across hardware classes when search family, precision,
+        vector shape or runtime characteristics are materially comparable. Hardware mismatch alone cannot discharge
+        informational relevance for backend or BLAS/runtime selection.
+
+    concurrency_portable:
+      choices:
+        - benchmark_thread_count_and_affinity
+      hardware_class_required: false
+      rule: >-
+        Thread-count, affinity, oversubscription, NUMA and runtime-parallelism studies may be informative across hardware
+        classes when they concern the same backend/search execution family or a materially comparable threading model.
+
+    measurement_method_portable:
+      choices:
+        - load_generator_host_and_link
+        - external_power_meter_and_measurement_plane
+        - battery_capacity_and_operational_policy_if_used
+      hardware_class_required: false
+      vector_dimension_required: false
+      search_family_required: false
+      rule: >-
+        Evidence about measurement-plane design, power-meter placement, sampling, synchronization, load-generation
+        contamination, joules-per-identification accounting or battery reserve policy can transfer across hardware and
+        workload classes. Classify against the measurement-method choice itself rather than the compute platform.
+
+  allowed_per_choice_classification:
+    - INFORMATIVE
+    - NOT_INFORMATIVE_WITH_RATIONALE
+    - UNCERTAIN_TREAT_AS_INFORMATIVE
+
+  consequence_if_informative_evidence_already_informed_choice: >-
+    Declare the evidence, timestamp, observable signature, affected choice and attributable rationale. The resulting
+    configuration is not represented as an untouched prospective lock. Assign a new prospective design/execution
+    identity, freeze it, and obtain independent review before canonical result-bearing execution.
+
+target_workload_replay_identity:
+  synthetic_root_seed: 20260908
+  synthetic_generator_code_sha256: null
+  synthetic_generator_code_commit_sha: null
+  synthetic_generator_code_commit_timestamp_utc: null
+  generator_code_identity_required_before_execution: true
+  generator_identity_role: REPLAY_AND_RESULT_PROVENANCE_NOT_PUBLIC_ORDERING_BOUND
+
+required_environment:
+  device_under_test:
+    manufacturer: null
+    model: null
+    hardware_class: null
+    hardware_revision: null
+    firmware_or_bios_version: null
+    power_mode: null
+    cooling_configuration: null
+    ambient_temperature_C: null
+  cpu:
+    model: null
+    microcode_or_firmware: null
+    physical_cores: null
+    logical_threads: null
+    benchmark_threads_used: null
+    affinity_policy: null
+    numa_topology: null
+    frequency_governor: null
+    turbo_or_boost_policy: null
+  memory:
+    system_ram_capacity_bytes: null
+    memory_type: null
+    rated_speed: null
+    channel_configuration: null
+    ecc_status: null
+    swap_enabled: null
+    swap_capacity_bytes: null
+    requirement: >-
+      Canonical Phase A requires the gallery working set to remain RAM-resident. Swap MUST be disabled, or measurement
+      evidence MUST demonstrate zero swap activity throughout the run; otherwise the run is not admissible for
+      RAM-residency claims.
+  accelerator:
+    present: null
+    type: null
+    model: null
+    driver_version: null
+    runtime_version: null
+    dedicated_or_shared_memory_bytes: null
+    note: Phase A CPU comparison records accelerator absence or disabled state; later phases bind it explicitly.
+  storage:
+    device_type: null
+    model: null
+    filesystem: null
+  operating_system:
+    distribution: null
+    version: null
+    kernel: null
+  runtime:
+    python_version: null
+    numpy_version: null
+    scipy_version: null
+    blas_backend: null
+    blas_backend_version: null
+    compiler_or_runtime_build_info: null
+    thread_environment:
+      OMP_NUM_THREADS: null
+      MKL_NUM_THREADS: null
+      OPENBLAS_NUM_THREADS: null
+      other_relevant_thread_controls: null
+  code_identity:
+    repository_commit_sha: null
+    benchmark_contract_path: protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_BENCHMARK_V0_3_2026-09-08.yaml
+    benchmark_addendum_path: protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_BENCHMARK_V0_3_D1_D3_ADDENDUM_V0_2_2026-09-14.yaml
+    environment_lock_path: protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_ENVIRONMENT_LOCK_V0_6_2026-09-14.yaml
+    synthetic_generator_code_sha256: null
+    synthetic_generator_code_commit_sha: null
+    synthetic_generator_code_commit_timestamp_utc: null
+    synthetic_root_seed: 20260908
+  load_generator:
+    canonical_placement: OFF_DEVICE
+    host_model: null
+    cpu_model: null
+    ram_capacity_bytes: null
+    operating_system: null
+    runtime_version: null
+    network_link_type: null
+    nominal_link_rate: null
+    measured_round_trip_baseline_ms: null
+    clock_or_timestamp_method: null
+  power_measurement:
+    canonical_plane: EXTERNAL_DEVICE_INPUT_OR_WALL
+    meter_manufacturer: null
+    meter_model: null
+    meter_serial_or_asset_id: null
+    measurement_location: null
+    sampling_rate_hz: null
+    calibration_or_accuracy_reference: null
+    timestamp_synchronization_method: null
+    minimum_sampling_rate_hz: 10
+    on_chip_telemetry_role: SUPPORTING_DIAGNOSTIC_ONLY
+  battery_model:
+    nominal_capacity_Wh: null
+    usable_fraction: null
+    reserve_fraction: null
+    conversion_efficiency: null
+    recharge_or_swap_policy: null
+
+result_provenance_requirements:
+  - materialized_environment_lock_path_and_commit
+  - repository_commit_sha
+  - benchmark_contract_path_and_commit
+  - benchmark_addendum_path_and_commit
+  - complete_command_line
+  - process_environment_relevant_to_threads_and_backends
+  - configuration_choice_provenance_record
+  - provenance_attestation_record
+  - declaration_of_prior_informative_evidence_by_choice
+  - per_choice_informational_overlap_assessments
+  - target_workload_generator_commit_timestamp
+  - public_ordering_anchor_commit_sha_and_timestamp
+  - raw_latency_samples_or_immutable_reference
+  - raw_power_samples_or_immutable_reference
+  - failure_and_exclusion_log
+  - device_temperature_and_throttling_log_if_available
+
+preexecution_review_state:
+  accepted_history_preserved:
+    D1_CLOSED: true
+    D2_CLOSED: true
+    D3_CLOSED: true
+    v0_5_accept_rewritten: false
+  n4_possession_vs_influence:
+    status: CORRECTED_PROSPECTIVELY_AWAITING_INDEPENDENT_REVIEW
+  n5_structural_impossibility_label_scope:
+    status: CORRECTED_PROSPECTIVELY_AWAITING_INDEPENDENT_REVIEW
+  r1_n2_portable_choice_overlap:
+    status: CORRECTED_PROSPECTIVELY_AWAITING_INDEPENDENT_REVIEW
+  n6_review_transport:
+    status: PROCESS_RULE_ADOPTED_FOR_NEXT_PACKAGE
+    rule: >-
+      Subsequent review packages include exact normative artifacts and expected Git blob SHA-1 values. Reviewer-side
+      instructions require recomputation of SHA1('blob ' + byte_length + NUL + content) for each shipped normative file.
+  construct_validity:
+    status: NOT_REVIEWED
+
+execution_admissibility:
+  target_edge_hardware_bound: false
+  external_power_meter_bound: false
+  off_device_load_generator_bound: false
+  configuration_choice_provenance_materialized: false
+  provenance_attestation_materialized: false
+  generator_code_identity_materialized: false
+  execution_specific_environment_lock_materialized: false
+  preexecution_semantic_hardening_independent_review_accepted: false
+  canonical_phase_a_execution_permitted: false
+  independent_blockers:
+    - PLATFORM_AND_MEASUREMENT_ENVIRONMENT_NOT_MATERIALIZED
+    - CONFIGURATION_CHOICE_PROVENANCE_NOT_MATERIALIZED
+
+next_action: >-
+  Run bounded assurance and independently review N4, N5 and R1/N2 on the exact prospective head. If accepted, perform
+  a separate construct-validity review before selecting and freezing the real execution platform. Do not execute Phase A,
+  open protected outcomes or infer construct validity from provenance/firewall acceptance.
