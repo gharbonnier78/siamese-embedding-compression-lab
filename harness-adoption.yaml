@@ -40,20 +40,23 @@ artifacts:
   handoff: null
 
 execution:
-  environment_lock: protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_ENVIRONMENT_LOCK_V0_5_2026-09-10.yaml
+  environment_lock: protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_ENVIRONMENT_LOCK_V0_6_2026-09-14.yaml
   environment_lock_status: >-
-    The referenced prospective v0.5 contract preserves the attributable D1 provenance mechanism and the
-    information-based D3 firewall, replaces the disproven v0.4 D2 anchor with the conservative repository-root
-    public-information bound 4b40e7254bff1b88a44d13fb55b366bc7d3fc263 (2026-08-07T08:23:56Z), and explicitly
-    separates D2 ordering for genuinely third-party/pre-existing external evidence from D1 accountable attestation
-    for evidence produced, commissioned, requested, reviewed, received or otherwise known by the attesting party.
-    The lock is BLOCKED_PENDING_PLATFORM_BINDING_PROVENANCE_AND_FOCUSED_REREVIEW. Canonical Jungle Championship
-    Phase A execution remains prohibited. Actual edge hardware, external power meter, off-device load generator,
-    configuration-choice provenance/attestation and exact synthetic-generator identity are not materialized.
-    R1/N2 portable-choice overlap semantics also remain an explicit pre-execution hardening item and must close
-    prospectively before the execution-specific lock is frozen. Construct validity remains unreviewed.
+    The referenced prospective v0.6 contract preserves the independently accepted D1-D3 design history and the
+    conservative repository-root public-information bound while addressing the reviewer-recorded pre-execution items
+    N4, N5 and R1/N2. N4 separates influence over evidence creation/framing from mere receipt, possession, citation or
+    review so D2 remains usable for genuinely pre-existing external evidence while D1 remains the accountable
+    completeness backstop. N5 states that only temporal ordering against the immutable public bound is mechanically
+    checkable; source independence and attester influence remain provenance/attestation claims. R1/N2 is hardened with
+    choice-specific informational-overlap classification so hardware mismatch alone cannot discharge relevance for
+    portable backend/BLAS, threading/affinity or measurement-method choices. N6 is adopted as a review-process rule:
+    subsequent packages ship exact normative artifacts with expected Git blob SHA-1 values for reviewer-side local
+    recomputation. The lock is BLOCKED_PENDING_PREEXECUTION_SEMANTIC_REREVIEW_PLATFORM_BINDING_AND_PROVENANCE.
+    Canonical Jungle Championship Phase A execution remains prohibited. Actual edge hardware, external power meter,
+    off-device load generator, configuration-choice provenance/attestation and exact synthetic-generator identity are
+    not materialized. Construct validity remains unreviewed and is a separate review step after semantic hardening.
   replay_commands:
-    - "PYTHONPATH=src python -m unittest tests.test_harness_adoption tests.test_scientific_harness tests.test_coverage_execution tests.test_coverage_execution_vectorized tests.test_study1b_engineering_benchmark_contract -v"
+    - "PYTHONPATH=src python -m unittest tests.test_harness_adoption tests.test_scientific_harness tests.test_coverage_execution tests.test_coverage_execution_vectorized tests.test_study1b_engineering_benchmark_contract tests.test_study1b_engineering_benchmark_contract_v06 -v"
   engineering_care:
     profile: POC
     rationale: >-
@@ -100,9 +103,12 @@ adoption:
     then reached the repository root 4b40e7254bff1b88a44d13fb55b366bc7d3fc263, whose README already publishes the
     512D-versus-128D intervention and future 1:N retrieval, gallery-indexing and latency-measurement family. v0.5
     therefore uses the repository root as a deliberately conservative, mechanically terminal D2 public-information
-    bound and records the D1/D2 responsibility split requested by the reviewer. D2 is not considered re-closed until
-    this prospective exact head receives focused independent review. R1/N2 remains separate and open before execution
-    lock freeze. These changes add engineering pre-execution gates only and do not alter Study 1B scientific gates,
+    bound and records the D1/D2 responsibility split requested by the reviewer. Focused independent review on head
+    cb124244ecdc285c1c711dd28cc1a074ff645ddc accepted D2, the root bound and the D1/D2 split while keeping execution
+    inadmissible and construct validity unreviewed. That reviewer also recorded N4, N5, N6 and R1/N2 as non-blocking
+    current-verdict items, with N4/N5/R1-N2 requiring pre-execution closure and N6 requiring package-process hardening.
+    v0.6 addresses N4/N5/R1-N2 prospectively and adopts N6 for the next package without rewriting the accepted v0.5
+    artifacts. These changes add engineering pre-execution gates only and do not alter Study 1B scientific gates,
     authorize protected outcome opening, launch S4N3, or establish construct validity. Historical schema declarations
     remain unchanged; new local Study 1B artifacts use the prospective local schema-id policy without silently retyping
     this upstream harness manifest family.
