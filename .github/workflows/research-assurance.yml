@@ -2,7 +2,9 @@ name: Research assurance
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
+      - agent/study1b-preregistration-20260827
   pull_request:
     paths:
       - "AGENTS.md"
