@@ -45,7 +45,6 @@ jobs:
         run: |
           python - <<'PY'
           from __future__ import annotations
-
           import hashlib
           import json
           import os
@@ -89,8 +88,9 @@ jobs:
           ]
 
           def git_blob_sha1(data: bytes) -> str:
-              header = b'blob ' + str(len(data)).encode('ascii') + b'\0'
-              return hashlib.sha1(header + data).hexdigest()
+              return hashlib.sha1(
+                  b'blob ' + str(len(data)).encode('ascii') + b'\0' + data
+              ).hexdigest()
 
           manifest_entries = []
           for rel in source_files:
@@ -130,7 +130,8 @@ jobs:
               'entries': manifest_entries,
           }
           (out / '01_SOURCE_MANIFEST.json').write_text(
-              json.dumps(source_manifest, indent=2, sort_keys=True) + '\n', encoding='utf-8'
+              json.dumps(source_manifest, indent=2, sort_keys=True) + '\n',
+              encoding='utf-8',
           )
 
           harness = {
@@ -142,145 +143,154 @@ jobs:
               'transport_note': 'External immutable authority reference; not copied into the consumer package.',
           }
           (out / '02_PINNED_HARNESS.json').write_text(
-              json.dumps(harness, indent=2, sort_keys=True) + '\n', encoding='utf-8'
+              json.dumps(harness, indent=2, sort_keys=True) + '\n',
+              encoding='utf-8',
           )
 
           repo_url = 'https://github.com/gharbonnier78/siamese-embedding-compression-lab'
-          prompt = f'''# Independent focused v0.6 semantic re-review — PR #50
+          prompt_lines = [
+              '# Independent focused v0.6 semantic re-review — PR #50',
+              '',
+              '## Immutable basis',
+              '',
+              f'- Repository: {repo_url}',
+              f'- Pull request: {repo_url}/pull/{pr_number}',
+              f'- Head under review: `{head}`',
+              f'- Head commit: {repo_url}/commit/{head}',
+              f'- Base: `{base}`',
+              f'- Base commit: {repo_url}/commit/{base}',
+              '- Pinned harness: https://github.com/gharbonnier78/scientific-research-harness/blob/3b109adcdd9a8cba4df029d3803ee0e5cb5bdf98/HARNESS.md',
+              '',
+              'This is a focused semantic re-review of the prospective v0.6 hardening. It is not a construct-validity review and it is not an execution authorization.',
+              '',
+              '## Mandatory package verification',
+              '',
+              '1. Run `python review_tools/verify_package.py` from the package root.',
+              '2. Independently recompute Git object identity for every source in `01_SOURCE_MANIFEST.json` using `SHA1("blob " + byte_length + NUL + content)`.',
+              f'3. Confirm every recomputed value equals both the packaged expected value and the repository blob on `{head}` if repository access is available.',
+              '4. Run `python -m unittest tests.test_study1b_engineering_benchmark_contract_v06 -v` after installing PyYAML.',
+              '5. If a normative artifact is missing or any byte/hash check fails, report the transport failure and do not substitute author summaries.',
+              '',
+              '## Normative objects to inspect first',
+              '',
+              '- `protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_ENVIRONMENT_LOCK_V0_6_2026-09-14.yaml`',
+              '- `protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_BENCHMARK_V0_3_D1_D3_ADDENDUM_V0_2_2026-09-14.yaml`',
+              '- `protocol/reviews/PR50_CB124244_D2_V05_FOCUSED_REREVIEW_VERDICT_2026-09-10.md`',
+              '- `protocol/chronicle/STUDY1B_PR50_PREEXECUTION_SEMANTIC_HARDENING_V0_6_OPEN_2026-09-14.yaml`',
+              '- `tests/test_study1b_engineering_benchmark_contract_v06.py`',
+              '',
+              'The v0.5 lock and v0.1 addendum are also shipped so the correction can be checked against the accepted historical basis rather than against excerpts.',
+              '',
+              '## Questions the reviewer must decide',
+              '',
+              '### N4 — possession versus creation/framing influence',
+              'Does v0.6 preserve D2 for genuinely pre-existing external evidence after mere receipt/possession/citation/review, while requiring D1 for evidence produced, commissioned, requested, specified, directed or materially framed by the attesting party, with ambiguity failing closed to D1?',
+              '',
+              '### N5 — scope of what is mechanically checkable',
+              'Does v0.6 make clear that only temporal ordering against the immutable repository-root public-information bound is mechanically checkable, while external/pre-existing source classification, absence of attester influence and completeness remain provenance/attestation claims?',
+              '',
+              '### R1/N2 — portable-choice informational overlap',
+              'Does the choice-specific classifier avoid one global hardware-class conjunction, preserve platform-specific relevance, and allow backend/BLAS, threading/affinity and measurement-method evidence to remain informative across hardware classes where transferable? Is uncertainty conservatively treated as informative and is `NOT_INFORMATIVE` rationale-backed?',
+              '',
+              '### N6 — review transport',
+              'Is this package self-contained for the focused review, does it ship exact normative artifacts rather than excerpts, and are expected Git blob SHA-1 values locally recomputable from the shipped bytes?',
+              '',
+              '## Required verdict fields',
+              '',
+              '```text',
+              'VERDICT: ACCEPT | CHANGES_REQUIRED',
+              'N4_CLOSED: yes | no',
+              'N5_CLOSED: yes | no',
+              'R1_N2_PORTABLE_CHOICE_OVERLAP_CLOSED: yes | no',
+              'N6_PACKAGE_RULE_SATISFIED: yes | no',
+              'CANONICAL_EXECUTION_CURRENTLY_ADMISSIBLE: no',
+              'CONSTRUCT_VALIDITY_REVIEWED: no',
+              '```',
+              '',
+              'Any additional finding must state whether it blocks this focused semantic verdict, a later construct-validity review, or only future execution materialization.',
+              '',
+              '## Hard boundary',
+              '',
+              'Do not open Study 1B SCREEN, qualification TEST, real raw512/random128/PCA128/Siamese128 protected performance, or protected representation geometry. Do not launch S4N3 and do not execute canonical Phase A. S4N1/S4N2 remain historical `CLOSED_NEGATIVE` results and are not being re-litigated here.',
+              '',
+              '## Assurance prerequisite for issuing the independent verdict',
+              '',
+              'Verify that PR #50 contains a later immutable binding comment for this same head recording the five bounded workflows as successful. Workflow success is technical/repository assurance only and must not be treated as semantic acceptance.',
+          ]
+          (out / '03_REVIEWER_PROMPT.md').write_text(
+              '\n'.join(prompt_lines) + '\n', encoding='utf-8'
+          )
 
-## Immutable basis
-
-- Repository: {repo_url}
-- Pull request: {repo_url}/pull/{pr_number}
-- Head under review: `{head}`
-- Head commit: {repo_url}/commit/{head}
-- Base: `{base}`
-- Base commit: {repo_url}/commit/{base}
-- Pinned harness: https://github.com/gharbonnier78/scientific-research-harness/blob/3b109adcdd9a8cba4df029d3803ee0e5cb5bdf98/HARNESS.md
-
-This is a focused semantic re-review of the prospective v0.6 hardening. It is not a construct-validity review and it is not an execution authorization.
-
-## Mandatory package verification
-
-1. Run `python review_tools/verify_package.py` from the package root.
-2. Independently recompute Git object identity for every source in `01_SOURCE_MANIFEST.json` using `SHA1("blob " + byte_length + NUL + content)`.
-3. Confirm every recomputed value equals both the packaged expected value and the repository blob on `{head}` if repository access is available.
-4. Run `python -m unittest tests.test_study1b_engineering_benchmark_contract_v06 -v` after installing PyYAML.
-5. If a normative artifact is missing or any byte/hash check fails, report the transport failure and do not substitute author summaries.
-
-## Normative objects to inspect first
-
-- `protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_ENVIRONMENT_LOCK_V0_6_2026-09-14.yaml`
-- `protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_BENCHMARK_V0_3_D1_D3_ADDENDUM_V0_2_2026-09-14.yaml`
-- `protocol/reviews/PR50_CB124244_D2_V05_FOCUSED_REREVIEW_VERDICT_2026-09-10.md`
-- `protocol/chronicle/STUDY1B_PR50_PREEXECUTION_SEMANTIC_HARDENING_V0_6_OPEN_2026-09-14.yaml`
-- `tests/test_study1b_engineering_benchmark_contract_v06.py`
-
-The v0.5 lock and v0.1 addendum are also shipped so the prospective correction can be checked against the accepted historical basis rather than against excerpts.
-
-## Questions the reviewer must decide
-
-### N4 — possession versus creation/framing influence
-Does v0.6 correctly preserve D2 for genuinely pre-existing external evidence after mere receipt/possession/citation/review, while requiring D1 for evidence produced, commissioned, requested, specified, directed or materially framed by the attesting party, with ambiguity failing closed to D1?
-
-### N5 — scope of what is mechanically checkable
-Does v0.6 make clear that only temporal ordering against the immutable repository-root public-information bound is mechanically checkable, while external/pre-existing source classification, absence of attester influence and completeness remain provenance/attestation claims?
-
-### R1/N2 — portable-choice informational overlap
-Does the choice-specific classifier avoid using one global hardware-class conjunction, preserve platform-specific relevance, and correctly allow backend/BLAS, threading/affinity and measurement-method evidence to remain informative across hardware classes where transferable? Is uncertainty conservatively treated as informative and is `NOT_INFORMATIVE` rationale-backed?
-
-### N6 — review transport
-Is this package self-contained for the focused review, does it ship exact normative artifacts rather than excerpts, and are expected Git blob SHA-1 values locally recomputable from the shipped bytes?
-
-## Required verdict fields
-
-```text
-VERDICT: ACCEPT | CHANGES_REQUIRED
-N4_CLOSED: yes | no
-N5_CLOSED: yes | no
-R1_N2_PORTABLE_CHOICE_OVERLAP_CLOSED: yes | no
-N6_PACKAGE_RULE_SATISFIED: yes | no
-CANONICAL_EXECUTION_CURRENTLY_ADMISSIBLE: no
-CONSTRUCT_VALIDITY_REVIEWED: no
-```
-
-Any additional finding must state whether it blocks this focused semantic verdict, a later construct-validity review, or only future execution materialization.
-
-## Hard boundary
-
-Do not open Study 1B SCREEN, qualification TEST, real raw512/random128/PCA128/Siamese128 protected performance, or protected representation geometry. Do not launch S4N3 and do not execute canonical Phase A. S4N1/S4N2 remain historical `CLOSED_NEGATIVE` results and are not being re-litigated here.
-
-## Assurance prerequisite for starting the independent review
-
-The package is built from the exact head above. Before issuing the independent verdict, verify that the PR contains a later immutable binding comment for this same head recording the five bounded workflows as successful. Workflow success is technical/repository assurance only and must not be treated as semantic acceptance.
-'''
-          (out / '03_REVIEWER_PROMPT.md').write_text(prompt, encoding='utf-8')
-
-          verifier = r'''from __future__ import annotations
-
-import hashlib
-import json
-from pathlib import Path
-
-ROOT = Path(__file__).resolve().parents[1]
-
-
-def git_blob_sha1(data: bytes) -> str:
-    return hashlib.sha1(b"blob " + str(len(data)).encode("ascii") + b"\0" + data).hexdigest()
-
-
-source = json.loads((ROOT / "01_SOURCE_MANIFEST.json").read_text(encoding="utf-8"))
-for entry in source["entries"]:
-    path = ROOT / entry["path"]
-    if not path.is_file():
-        raise SystemExit(f"missing source file: {entry['path']}")
-    data = path.read_bytes()
-    blob = git_blob_sha1(data)
-    sha256 = hashlib.sha256(data).hexdigest()
-    if len(data) != entry["byte_length"]:
-        raise SystemExit(f"byte-length mismatch: {entry['path']}")
-    if blob != entry["git_blob_sha1_expected"]:
-        raise SystemExit(f"Git blob mismatch: {entry['path']}")
-    if blob != entry["git_blob_sha1_recomputed_from_packaged_bytes"]:
-        raise SystemExit(f"packaged blob record mismatch: {entry['path']}")
-    if sha256 != entry["sha256"]:
-        raise SystemExit(f"SHA-256 mismatch: {entry['path']}")
-
-contents = json.loads((ROOT / "04_PACKAGE_CONTENTS_SHA256.json").read_text(encoding="utf-8"))
-for entry in contents["entries"]:
-    path = ROOT / entry["path"]
-    if not path.is_file():
-        raise SystemExit(f"missing package file: {entry['path']}")
-    data = path.read_bytes()
-    if len(data) != entry["byte_length"]:
-        raise SystemExit(f"package byte-length mismatch: {entry['path']}")
-    if hashlib.sha256(data).hexdigest() != entry["sha256"]:
-        raise SystemExit(f"package SHA-256 mismatch: {entry['path']}")
-
-print(f"N6 package verification PASS: {len(source['entries'])} exact Git sources; {len(contents['entries'])} package files")
-'''
+          verifier_lines = [
+              'from __future__ import annotations',
+              '',
+              'import hashlib',
+              'import json',
+              'from pathlib import Path',
+              '',
+              'ROOT = Path(__file__).resolve().parents[1]',
+              '',
+              'def git_blob_sha1(data: bytes) -> str:',
+              '    return hashlib.sha1(b"blob " + str(len(data)).encode("ascii") + b"\\0" + data).hexdigest()',
+              '',
+              'source = json.loads((ROOT / "01_SOURCE_MANIFEST.json").read_text(encoding="utf-8"))',
+              'for entry in source["entries"]:',
+              '    path = ROOT / entry["path"]',
+              '    if not path.is_file():',
+              '        raise SystemExit(f"missing source file: {entry[\'path\']}")',
+              '    data = path.read_bytes()',
+              '    blob = git_blob_sha1(data)',
+              '    sha256 = hashlib.sha256(data).hexdigest()',
+              '    if len(data) != entry["byte_length"]:',
+              '        raise SystemExit(f"byte-length mismatch: {entry[\'path\']}")',
+              '    if blob != entry["git_blob_sha1_expected"]:',
+              '        raise SystemExit(f"Git blob mismatch: {entry[\'path\']}")',
+              '    if blob != entry["git_blob_sha1_recomputed_from_packaged_bytes"]:',
+              '        raise SystemExit(f"packaged blob record mismatch: {entry[\'path\']}")',
+              '    if sha256 != entry["sha256"]:',
+              '        raise SystemExit(f"SHA-256 mismatch: {entry[\'path\']}")',
+              '',
+              'contents = json.loads((ROOT / "04_PACKAGE_CONTENTS_SHA256.json").read_text(encoding="utf-8"))',
+              'for entry in contents["entries"]:',
+              '    path = ROOT / entry["path"]',
+              '    if not path.is_file():',
+              '        raise SystemExit(f"missing package file: {entry[\'path\']}")',
+              '    data = path.read_bytes()',
+              '    if len(data) != entry["byte_length"]:',
+              '        raise SystemExit(f"package byte-length mismatch: {entry[\'path\']}")',
+              '    if hashlib.sha256(data).hexdigest() != entry["sha256"]:',
+              '        raise SystemExit(f"package SHA-256 mismatch: {entry[\'path\']}")',
+              '',
+              'print(f"N6 package verification PASS: {len(source[\'entries\'])} exact Git sources; {len(contents[\'entries\'])} package files")',
+          ]
           verifier_path = out / 'review_tools/verify_package.py'
           verifier_path.parent.mkdir(parents=True, exist_ok=True)
-          verifier_path.write_text(verifier, encoding='utf-8')
+          verifier_path.write_text('\n'.join(verifier_lines) + '\n', encoding='utf-8')
 
-          assurance_note = f'''# Assurance binding rule
-
-Package head: `{head}`
-
-This package intentionally does not manufacture an assurance verdict. The independent reviewer must use the PR's immutable binding comment published after the exact head is green to verify the five bounded workflows:
-
-- CI
-- Research assurance
-- Study 1B Engineering Assurance
-- Study 1B Non-outcome Preflight
-- Study 1B Power Design Diagnostic
-
-A green workflow is technical/repository assurance only. It does not close N4, N5 or R1/N2, satisfy construct validity, or authorize Phase A.
-'''
-          (out / '05_ASSURANCE_BINDING_RULE.md').write_text(assurance_note, encoding='utf-8')
+          assurance_lines = [
+              '# Assurance binding rule',
+              '',
+              f'Package head: `{head}`',
+              '',
+              "This package intentionally does not manufacture an assurance verdict. The independent reviewer must use the PR's immutable binding comment published after the exact head is green to verify the five bounded workflows:",
+              '',
+              '- CI',
+              '- Research assurance',
+              '- Study 1B Engineering Assurance',
+              '- Study 1B Non-outcome Preflight',
+              '- Study 1B Power Design Diagnostic',
+              '',
+              'A green workflow is technical/repository assurance only. It does not close N4, N5 or R1/N2, satisfy construct validity, or authorize Phase A.',
+          ]
+          (out / '05_ASSURANCE_BINDING_RULE.md').write_text(
+              '\n'.join(assurance_lines) + '\n', encoding='utf-8'
+          )
 
           content_entries = []
-          for path in sorted(p for p in out.rglob('*') if p.is_file() and p.name != '04_PACKAGE_CONTENTS_SHA256.json'):
+          for path in sorted(
+              p for p in out.rglob('*')
+              if p.is_file() and p.name != '04_PACKAGE_CONTENTS_SHA256.json'
+          ):
               data = path.read_bytes()
               content_entries.append({
                   'path': path.relative_to(out).as_posix(),
@@ -288,15 +298,23 @@ A green workflow is technical/repository assurance only. It does not close N4, N
                   'sha256': hashlib.sha256(data).hexdigest(),
               })
           (out / '04_PACKAGE_CONTENTS_SHA256.json').write_text(
-              json.dumps({'schema_version': 1, 'entries': content_entries}, indent=2, sort_keys=True) + '\n',
+              json.dumps(
+                  {'schema_version': 1, 'entries': content_entries},
+                  indent=2,
+                  sort_keys=True,
+              ) + '\n',
               encoding='utf-8',
           )
 
           bundle_dir = root / 'artifacts/study1b/v06-n6-review-bundle'
           bundle_dir.mkdir(parents=True, exist_ok=True)
-          zip_name = f'PR50_{head[:8].upper()}_V06_N6_FOCUSED_REREVIEW_PACKAGE_2026-09-15.zip'
+          zip_name = (
+              f'PR50_{head[:8].upper()}_V06_N6_FOCUSED_REREVIEW_PACKAGE_2026-09-15.zip'
+          )
           zip_path = bundle_dir / zip_name
-          with zipfile.ZipFile(zip_path, 'w', compression=zipfile.ZIP_DEFLATED, compresslevel=9) as zf:
+          with zipfile.ZipFile(
+              zip_path, 'w', compression=zipfile.ZIP_DEFLATED, compresslevel=9
+          ) as zf:
               for path in sorted(p for p in out.rglob('*') if p.is_file()):
                   rel = path.relative_to(out).as_posix()
                   info = zipfile.ZipInfo(rel, date_time=(1980, 1, 1, 0, 0, 0))
@@ -304,7 +322,9 @@ A green workflow is technical/repository assurance only. It does not close N4, N
                   info.external_attr = 0o100644 << 16
                   zf.writestr(info, path.read_bytes())
           digest = hashlib.sha256(zip_path.read_bytes()).hexdigest()
-          (bundle_dir / f'{zip_name}.sha256').write_text(f'{digest}  {zip_name}\n', encoding='utf-8')
+          (bundle_dir / f'{zip_name}.sha256').write_text(
+              f'{digest}  {zip_name}\n', encoding='utf-8'
+          )
           (bundle_dir / 'PACKAGE_METADATA.json').write_text(
               json.dumps({
                   'head_sha': head,
