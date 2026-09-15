@@ -12,6 +12,7 @@ on:
       - 'protocol/simulations/STUDY1B_*'
       - 'protocol/chronicle/STUDY1B_*'
       - '.github/workflows/study1b-nonoutcome-preflight.yml'
+      - '.github/workflows/study1b-v06-n6-review-package.yml'
   workflow_dispatch:
 
 permissions:

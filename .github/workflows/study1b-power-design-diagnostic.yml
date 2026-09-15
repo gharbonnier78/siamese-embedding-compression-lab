@@ -4,6 +4,7 @@ on:
   pull_request:
     paths:
       - '.github/workflows/study1b-power-design-diagnostic.yml'
+      - '.github/workflows/study1b-v06-n6-review-package.yml'
       - 'scripts/study1b_power_design_diagnostic.py'
       - 'protocol/amendments/STUDY1B_POWER_DESIGN_AMENDMENT_V0_1_2026-08-31.yaml'
       - 'protocol/chronicle/STUDY1B_POWER_DESIGN_AMENDMENT_OPEN_2026-08-31.yaml'
