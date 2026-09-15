@@ -1,0 +1,63 @@
+schema_version: "1.0"
+entry_type: study1b_pr50_independent_rereview_open
+chronicle_entry_id: CHRON-20260908-038
+study_id: study_1b_matched_compression
+date: 2026-09-08
+kind: append_only_nonoutcome_review_gate
+status: AWAITING_INDEPENDENT_REREVIEW
+outcome_evidence_seen: false
+
+summary: >-
+  Open independent re-review after applying the PR #50 ACCEPT_WITH_CHANGES corrections. The corrected benchmark
+  design may be reviewed now, but canonical Phase A execution remains separately blocked until the actual edge
+  hardware, external power meter and off-device load-generator environment are materialized in an immutable lock.
+
+review_history:
+  original_reviewed_head: ab7f3d099ba0bd26dd1158afa8f80e5b66bf801d
+  original_verdict: ACCEPT_WITH_CHANGES
+  archived_review: protocol/reviews/PR50_INDEPENDENT_REVIEW_2026-09-08.md
+  corrections_chronicle: protocol/chronicle/STUDY1B_PR50_INDEPENDENT_REVIEW_CORRECTIONS_2026-09-08.yaml
+  rereview_request: protocol/reviews/STUDY1B_S4_POWER_AND_ENGINEERING_BENCHMARK_REREVIEW_REQUEST_2026-09-08.md
+
+corrected_artifacts:
+  benchmark: protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_BENCHMARK_V0_2_2026-09-08.yaml
+  environment_lock_contract: protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_ENVIRONMENT_LOCK_V0_1_2026-09-08.yaml
+  s4_method_clarification: protocol/decisions/STUDY1B_S4N1_S4N2_SHARED_POPULATION_AND_T19_CLARIFICATION_2026-09-08.yaml
+  focused_test: tests/test_study1b_engineering_benchmark_contract.py
+  harness_manifest: harness-adoption.yaml
+
+review_gate:
+  acceptable_verdicts:
+    - ACCEPT_ENGINEERING_BENCHMARK
+    - ACCEPT_WITH_CHANGES
+    - REJECT_OR_REDESIGN
+  benchmark_design_acceptance_required_before_execution: true
+  current_design_verdict: PENDING
+  current_execution_admissibility: false
+
+execution_gate:
+  target_edge_hardware_bound: false
+  external_power_meter_bound: false
+  off_device_load_generator_bound: false
+  materialized_environment_lock_exists: false
+  canonical_phase_a_execution_permitted: false
+
+scientific_boundary:
+  screen_opened: false
+  qualification_test_opened: false
+  real_route_performance_opened: false
+  representation_geometry_opened: false
+  amendment_activated: false
+  s4n1_status: CLOSED_NEGATIVE
+  s4n2_status: CLOSED_NEGATIVE
+  s4n3_launched: false
+
+binding_rule: >-
+  The exact corrected PR head used for the re-review is published in the PR #50 body and a dedicated PR comment
+  after this Chronicle entry is committed. If the repository head changes afterward, the prior re-review binding
+  does not automatically carry forward.
+
+next_action: >-
+  Wait for green assurance on the corrected head, obtain independent re-review of benchmark design, and only then
+  collect real engineering platform values for the execution-specific environment lock. Do not execute canonical
+  Phase A and do not open protected biometric outcomes before both gates are satisfied.

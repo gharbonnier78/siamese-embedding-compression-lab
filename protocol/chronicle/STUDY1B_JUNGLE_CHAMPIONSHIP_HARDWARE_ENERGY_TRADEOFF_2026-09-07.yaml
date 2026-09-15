@@ -1,0 +1,137 @@
+schema_version: "1.0"
+entry_type: study1b_jungle_championship_hardware_energy_tradeoff
+chronicle_entry_id: CHRON-20260907-034
+study_id: study_1b_matched_compression
+date: 2026-09-07
+kind: append_only_nonoutcome_engineering_analysis
+status: HARDWARE_ENERGY_MODEL_DEFINED_AWAITING_BENCHMARK_VALUES
+outcome_evidence_seen: false
+
+summary: >-
+  Archive the user-provided Jungle Championship constraints that local galleries must reside in RAM,
+  CPU and GPU/NPU plus associated memory remain engineering alternatives, CPU is admissible when peak-flow
+  response remains compatible with the operational requirement, raw512/512D remains the embedding reference,
+  and electrical consumption/battery autonomy are explicit decision variables. Extend the cost/value model
+  without opening protected Study 1B outcomes.
+
+human_authority:
+  source: "2026-09-07 project conversation"
+  instructions_and_clarifications:
+    - "Local biometric galleries must fit in RAM."
+    - >-
+      CPU/GPU and associated RAM remain parameters; a cheaper CPU is a valid option when response time under
+      peak traffic is compatible with the use case.
+    - >-
+      Keep multiple engineering comparison options while retaining raw512/512D as the embedding reference.
+    - "Include electrical consumption and battery/autonomy impact."
+
+preserved_scientific_reference:
+  embedding_reference: raw512_512D
+  compressed_candidate: 128D
+  note: >-
+    Hardware, datatype and execution choices are engineering axes. They do not silently redefine the frozen
+    Study 1B biometric claim or convert closed S4N1/S4N2 results into PASS.
+
+hard_engineering_constraints:
+  gallery_in_RAM: REQUIRED
+  cpu_allowed_if_peak_SLA_met: true
+  gpu_npu_optional: true
+  memory_capacity_type_bandwidth_are_parameters: true
+  peak_flow_must_be_benchmarked: true
+  energy_and_battery_are_decision_variables: true
+
+comparison_matrix:
+  representation: [raw512_512D_reference, 128D_candidate]
+  datatype: [FP32, FP16, INT8]
+  compute: [CPU, GPU, NPU_OR_OTHER_ACCELERATOR]
+  memory:
+    - system_RAM_capacity
+    - accelerator_VRAM_or_shared_RAM
+    - usable_headroom
+    - memory_bandwidth
+    - memory_power
+  traffic:
+    - local_observation_rate
+    - peak_observation_rate
+    - burst_duration
+    - queueing
+  response:
+    - throughput
+    - p95_latency
+    - p99_latency
+    - queue_recovery
+  energy:
+    - idle_power_W
+    - active_power_W
+    - joules_per_identification
+    - joules_per_peak_burst
+    - Wh_per_match
+    - Wh_per_day
+  battery:
+    - nominal_capacity_Wh
+    - usable_fraction
+    - reserve_fraction
+    - conversion_efficiency
+    - autonomy_hours
+    - recharge_or_swap_policy
+
+energy_reasoning:
+  exact_dimension_fact: >-
+    128D has 75% fewer vector coordinates than 512D for the same datatype, and fixed dense comparison has
+    75% fewer coordinate contributions.
+  prohibited_inference: >-
+    Do not infer a 75% power or energy reduction from the 75% coordinate reduction. Device energy also depends
+    on compute architecture, RAM/memory traffic, camera/sensor/NIR, network, storage, duty cycle and burst behavior.
+  formulas:
+    energy_Wh: "integral(P_W dt) / 3600"
+    usable_battery_Wh: "capacity_Wh * usable_fraction * conversion_efficiency * (1 - reserve_fraction)"
+    autonomy_h: "usable_battery_Wh / average_power_W"
+
+engineering_decision_logic:
+  - >-
+    First test RAM feasibility including gallery/index plus OS/application and safety headroom.
+  - >-
+    Then benchmark CPU against peak-flow throughput/latency/queueing; keep CPU when it meets the requirement
+    and has lower total cost/power.
+  - >-
+    Evaluate GPU/NPU when CPU fails the service envelope or when accelerator total cost/energy is superior.
+  - >-
+    Evaluate battery/energy using representative duty-cycle and burst traces, not only instantaneous TDP.
+  - >-
+    Apply fleet count D only after per-device feasibility and savings are known; D multiplies BOM, gallery
+    replication/synchronization and energy/battery effects but does not itself define local flow.
+
+C_miss_extension:
+  candidate_value_components:
+    - RAM_or_VRAM_tier_avoided
+    - CPU_instead_of_accelerator_if_feasible
+    - smaller_or_lower_cost_accelerator_tier
+    - battery_capacity_or_autonomy_improvement
+    - recharge_or_swap_operational_reduction
+    - thermal_or_power_system_reduction
+    - gallery_synchronization_reduction
+    - broader_offline_replication
+  caveat: >-
+    These become numerical value terms only after benchmark/vendor/engineering values with provenance are supplied.
+
+artifacts:
+  input_sheet_v0_2: protocol/decisions/STUDY1B_ENGINEERING_COST_INPUT_SHEET_V0_2_2026-09-07.yaml
+  analysis_note: docs/research-notes/STUDY1B_JUNGLE_CHAMPIONSHIP_EDGE_HARDWARE_ENERGY_TRADEOFF_2026-09-07.md
+  previous_device_sensitivity: protocol/chronicle/STUDY1B_JUNGLE_CHAMPIONSHIP_DEVICE_COUNT_SENSITIVITY_2026-09-07.yaml
+
+scientific_boundary:
+  real_study_outcomes_opened: false
+  screen_opened: false
+  qualification_test_opened: false
+  real_route_performance_opened: false
+  representation_geometry_opened: false
+  amendment_activated: false
+  s4n1_status: CLOSED_NEGATIVE
+  s4n2_status: CLOSED_NEGATIVE
+  s4n3_launched: false
+
+next_action: >-
+  Define a bounded benchmark plan that uses 512D as the representation reference and measures RAM feasibility,
+  CPU/GPU/NPU peak-flow response and energy/battery behavior for 128D and 512D across selected gallery sizes and
+  datatypes. Keep approximate/indexed search separate if it can alter returned identities. Do not open protected
+  Study 1B biometric outcomes.

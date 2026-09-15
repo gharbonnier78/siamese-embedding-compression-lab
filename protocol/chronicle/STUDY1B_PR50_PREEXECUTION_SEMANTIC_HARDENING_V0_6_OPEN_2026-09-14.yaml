@@ -1,0 +1,94 @@
+schema_id: study1b.chronicle.preexecution_semantic_hardening
+schema_version: 1
+artifact_version: "0.1"
+entry_type: study1b_pr50_preexecution_semantic_hardening_v0_6_open
+chronicle_entry_id: CHRON-20260914-048
+study_id: study_1b_matched_compression
+date: 2026-09-14
+kind: append_only_nonoutcome_preexecution_design_change
+status: AWAITING_BOUNDED_ASSURANCE_AND_INDEPENDENT_REREVIEW
+outcome_evidence_seen: false
+
+accepted_history_preserved:
+  reviewed_head: cb124244ecdc285c1c711dd28cc1a074ff645ddc
+  verdict: ACCEPT
+  D1_CLOSED: true
+  D2_CLOSED: true
+  D3_CLOSED: true
+  PRIOR_DESIGN_CONDITIONS_SATISFIED: true
+  CANONICAL_EXECUTION_CURRENTLY_ADMISSIBLE: false
+  CONSTRUCT_VALIDITY_REVIEWED: false
+  accepted_verdict: protocol/reviews/PR50_CB124244_D2_V05_FOCUSED_REREVIEW_VERDICT_2026-09-10.md
+  accepted_chronicle: protocol/chronicle/STUDY1B_PR50_CB124244_D2_V05_ACCEPT_2026-09-14.yaml
+  historical_artifacts_rewritten: false
+
+reason_for_new_cycle: >-
+  The accepted reviewer recorded N4, N5 and R1/N2 as non-blocking for the v0.5 verdict but requiring closure before an
+  execution-specific lock is frozen. This cycle addresses those items prospectively without re-opening or rewriting
+  the accepted D1-D3 history.
+
+prospective_changes:
+  N4_possession_vs_influence:
+    prior_finding: >-
+      D2's prior disqualifier list conflated creation/framing influence with mere possession, receipt or review and could
+      therefore collapse D2's practical scope into D1 even for genuinely pre-existing external evidence.
+    v0_6_rule: >-
+      Mere receipt, possession, citation or review does not by itself establish influence over evidence creation or
+      framing. Production, commissioning, requesting, specifying, directing or materially framing evidence requires D1.
+      D1 completeness attestation remains mandatory and ambiguity defaults to D1.
+    status: CORRECTED_PROSPECTIVELY_AWAITING_REVIEW
+  N5_structural_impossibility_label_scope:
+    prior_finding: >-
+      Only temporal ordering is mechanically checkable; external-origin and attester-influence negatives are
+      provenance/attestation-backed and should not be described as though the entire mechanism were objective.
+    v0_6_rule: >-
+      Public ordering against the repository-root timestamp is the mechanically checkable D2 component. Source origin,
+      absence of creation/framing influence and completeness of disclosed evidence remain accountable provenance claims.
+    status: CORRECTED_PROSPECTIVELY_AWAITING_REVIEW
+  R1_N2_portable_choice_overlap:
+    prior_finding: >-
+      The global dimension AND search-family AND hardware-class conjunction under-classified cross-hardware evidence
+      that may inform portable backend/BLAS, threading/affinity and measurement-method choices.
+    v0_6_rule: >-
+      Informational overlap is classified per lock-defining choice. Hardware class may matter for platform-specific
+      choices but is not required for portable backend/BLAS, concurrency or measurement-method evidence. Uncertainty
+      defaults to informative and NOT_INFORMATIVE requires attributable rationale.
+    status: CORRECTED_PROSPECTIVELY_AWAITING_REVIEW
+  N6_review_transport:
+    prior_finding: >-
+      Reference-only packages regressed reviewability because normative artifacts were not locally inspectable or
+      independently Git-blob-verifiable by the reviewer.
+    adopted_process_rule: >-
+      Future packages ship exact normative artifacts together with expected Git blob SHA-1 values and instructions for
+      local recomputation of SHA1('blob ' + byte_length + NUL + content). The package must remain self-contained for the
+      focused tests it asks the reviewer to execute.
+    status: ADOPTED_FOR_NEXT_REVIEW_PACKAGE
+
+new_artifacts:
+  benchmark_addendum_v0_2: protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_BENCHMARK_V0_3_D1_D3_ADDENDUM_V0_2_2026-09-14.yaml
+  environment_lock_v0_6: protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_ENVIRONMENT_LOCK_V0_6_2026-09-14.yaml
+
+scientific_boundary:
+  screen_opened: false
+  qualification_test_opened: false
+  real_route_performance_opened: false
+  representation_geometry_opened: false
+  amendment_activated: false
+  s4n1_status: CLOSED_NEGATIVE
+  s4n2_status: CLOSED_NEGATIVE
+  s4n3_launched: false
+
+execution_gate:
+  canonical_phase_a_execution_permitted: false
+  target_edge_hardware_bound: false
+  external_power_meter_bound: false
+  off_device_load_generator_bound: false
+  configuration_choice_provenance_materialized: false
+  provenance_attestation_materialized: false
+  execution_specific_environment_lock_materialized: false
+  preexecution_semantic_hardening_independent_review_accepted: false
+
+next_action: >-
+  Bind focused assurance tests and harness adoption to v0.6, run the five bounded workflows, publish an immutable review
+  binding only after the exact head is green, and build a self-contained review package following N6. If N4/N5/R1-N2
+  are accepted, perform a separate construct-validity review before selecting or freezing the real execution platform.

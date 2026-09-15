@@ -1,0 +1,62 @@
+schema_version: "1.0"
+entry_type: study1b_pr50_final_rereview_open
+chronicle_entry_id: CHRON-20260908-041
+study_id: study_1b_matched_compression
+date: 2026-09-08
+kind: append_only_nonoutcome_review_gate
+status: AWAITING_FINAL_INDEPENDENT_REREVIEW
+outcome_evidence_seen: false
+
+summary: >-
+  Open final independent re-review after prospectively correcting the last material gap identified on
+  head a00de7bf: provenance for lock-defining engineering configuration choices and a label-independent
+  prohibition on using target-workload previews to choose or tune the canonical environment before freeze.
+
+review_history:
+  original_reviewed_head: ab7f3d099ba0bd26dd1158afa8f80e5b66bf801d
+  original_verdict: ACCEPT_WITH_CHANGES
+  previous_corrected_head: a00de7bf4e6a6c7d108ec8e36430581e0b559b0f
+  supplemental_v3_review_confirmed_transport_and_remaining_provenance_gap: true
+  supplemental_review: protocol/reviews/PR50_SUPPLEMENTAL_REVIEW_V3_CONFIRMATION_2026-09-08.md
+  correction_chronicle: protocol/chronicle/STUDY1B_PR50_SUPPLEMENTAL_REVIEW_AND_PROVENANCE_GUARD_2026-09-08.yaml
+  final_rereview_request: protocol/reviews/STUDY1B_ENGINEERING_BENCHMARK_FINAL_REREVIEW_REQUEST_2026-09-08.md
+
+final_design_artifacts:
+  benchmark: protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_BENCHMARK_V0_3_2026-09-08.yaml
+  environment_lock: protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_ENVIRONMENT_LOCK_V0_2_2026-09-08.yaml
+  schema_crosswalk: protocol/schemas/STUDY1B_S4_POWER_RESULT_SCHEMA_CROSSWALK_V0_1_2026-09-08.md
+  harness_manifest: harness-adoption.yaml
+  focused_assurance: tests/test_study1b_engineering_benchmark_contract.py
+
+review_gate:
+  acceptable_verdicts:
+    - ACCEPT_ENGINEERING_BENCHMARK
+    - ACCEPT_WITH_CHANGES
+    - REJECT_OR_REDESIGN
+  current_design_verdict: PENDING
+  final_head_binding_published_in_pr_comment_after_this_commit: true
+  prior_head_verdicts_do_not_carry_forward: true
+
+execution_gate:
+  target_edge_hardware_bound: false
+  external_power_meter_bound: false
+  off_device_load_generator_bound: false
+  configuration_choice_provenance_materialized: false
+  execution_specific_environment_lock_materialized: false
+  canonical_phase_a_execution_permitted: false
+
+scientific_boundary:
+  screen_opened: false
+  qualification_test_opened: false
+  real_route_performance_opened: false
+  representation_geometry_opened: false
+  amendment_activated: false
+  s4n1_status: CLOSED_NEGATIVE
+  s4n2_status: CLOSED_NEGATIVE
+  s4n3_launched: false
+
+next_action: >-
+  Bind the exact commit containing this Chronicle entry in PR #50 without changing the repository head, wait for
+  bounded assurance checks, and obtain a fresh independent final verdict. Even if benchmark design is accepted,
+  do not execute canonical Phase A until the real target platform, measurement setup and configuration-choice
+  provenance are materialized and frozen in an immutable execution-specific environment lock.

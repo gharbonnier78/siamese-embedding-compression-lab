@@ -1,0 +1,199 @@
+schema_version: "1.0"
+environment_lock_id: STUDY1B-JUNGLE-CHAMPIONSHIP-ENGINEERING-ENVIRONMENT-LOCK-V0.2-2026-09-08
+study_id: study_1b_matched_compression
+date: 2026-09-08
+kind: nonoutcome_engineering_environment_lock_contract
+status: BLOCKED_PENDING_PLATFORM_BINDING
+supersedes_for_future_execution: protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_ENVIRONMENT_LOCK_V0_1_2026-09-08.yaml
+
+purpose: >-
+  Define the complete hardware/software/measurement environment that MUST be materialized and frozen
+  before any canonical Jungle Championship Phase A engineering benchmark execution, including provenance
+  for the decisions that select hardware, backend, threading and energy-measurement configuration.
+
+scientific_boundary:
+  protected_biometric_inputs_required: false
+  screen_opened: false
+  qualification_test_opened: false
+  real_route_performance_opened: false
+  representation_geometry_opened: false
+  amendment_activated: false
+  s4n3_launched: false
+
+binding_rule:
+  canonical_execution_permitted_only_if_all_required_values_non_null: true
+  materialized_lock_must_be_committed_before_execution: true
+  materialized_lock_commit_sha_must_be_recorded_in_result: true
+  benchmark_contract_commit_sha_must_be_recorded_in_result: true
+  no_runtime_hardware_substitution: true
+  no_runtime_backend_substitution: true
+  no_runtime_thread_count_tuning: true
+  any_material_change_requires_new_lock_and_new_execution_identity: true
+  current_gate: WAITING_FOR_TARGET_EDGE_PLATFORM_AND_MEASUREMENT_EQUIPMENT
+
+configuration_choice_provenance:
+  required_for_each_lock_defining_choice: true
+  lock_defining_choices:
+    - device_under_test
+    - cpu_or_accelerator_platform
+    - system_ram_capacity_and_type
+    - search_backend_and_blas_runtime
+    - benchmark_thread_count_and_affinity
+    - frequency_governor_and_boost_policy
+    - load_generator_host_and_link
+    - external_power_meter_and_measurement_plane
+    - battery_capacity_and_operational_policy_if_used
+  required_fields_per_choice:
+    - choice_name
+    - selected_value
+    - decision_authority_or_source
+    - source_type
+    - source_reference_or_identifier
+    - evidence_date_if_known
+    - target_benchmark_workload_used_to_inform_choice
+    - rationale
+  allowed_source_types:
+    - engineering_requirement
+    - preexisting_architecture_constraint
+    - vendor_datasheet
+    - procurement_constraint
+    - independent_non_target_workload_benchmark
+    - prior_operational_measurement_unrelated_to_this_target_workload
+    - explicit_human_engineering_decision
+  prohibited_undeclared_source_type: true
+
+prelock_information_firewall:
+  rule: >-
+    No measurement produced from the target Jungle Championship Phase A workload, or from a materially
+    equivalent workload intended to answer the same 512D-versus-128D hardware/backend/threading/energy question,
+    may be used to choose or tune any lock-defining configuration before that configuration is frozen, regardless
+    of whether the measurement is labelled smoke test, pilot, Phase 0, exploratory run, dry run, benchmark preview,
+    capacity check, tuning pass or any other name.
+  label_independent: true
+  target_workload_measurement_may_select_hardware: false
+  target_workload_measurement_may_select_backend: false
+  target_workload_measurement_may_select_thread_count_or_affinity: false
+  target_workload_measurement_may_select_energy_meter_or_measurement_plane: false
+  target_workload_measurement_may_select_frequency_or_power_mode: false
+  diagnostic_execution_after_lock_is_frozen: allowed_if_separately_identified_and_does_not_modify_lock
+  if_prior_target_workload_information_already_informed_a_choice: >-
+    Declare that information and the affected choice explicitly. The resulting configuration is not treated as an
+    untouched prospective Phase A lock. Create a new prospective design/execution identity, freeze the configuration,
+    and obtain independent review before any canonical result-bearing execution.
+
+required_environment:
+  device_under_test:
+    manufacturer: null
+    model: null
+    hardware_revision: null
+    firmware_or_bios_version: null
+    power_mode: null
+    cooling_configuration: null
+    ambient_temperature_C: null
+  cpu:
+    model: null
+    microcode_or_firmware: null
+    physical_cores: null
+    logical_threads: null
+    benchmark_threads_used: null
+    affinity_policy: null
+    numa_topology: null
+    frequency_governor: null
+    turbo_or_boost_policy: null
+  memory:
+    system_ram_capacity_bytes: null
+    memory_type: null
+    rated_speed: null
+    channel_configuration: null
+    ecc_status: null
+    swap_enabled: null
+    swap_capacity_bytes: null
+    requirement: >-
+      Canonical Phase A requires the gallery working set to remain RAM-resident. Swap MUST be disabled,
+      or measurement evidence MUST demonstrate zero swap activity throughout the run; otherwise the run
+      is not admissible for RAM-residency claims.
+  accelerator:
+    present: null
+    type: null
+    model: null
+    driver_version: null
+    runtime_version: null
+    dedicated_or_shared_memory_bytes: null
+    note: Phase A CPU comparison records accelerator absence or disabled state; later phases bind it explicitly.
+  storage:
+    device_type: null
+    model: null
+    filesystem: null
+  operating_system:
+    distribution: null
+    version: null
+    kernel: null
+  runtime:
+    python_version: null
+    numpy_version: null
+    scipy_version: null
+    blas_backend: null
+    blas_backend_version: null
+    compiler_or_runtime_build_info: null
+    thread_environment:
+      OMP_NUM_THREADS: null
+      MKL_NUM_THREADS: null
+      OPENBLAS_NUM_THREADS: null
+      other_relevant_thread_controls: null
+  code_identity:
+    repository_commit_sha: null
+    benchmark_contract_path: protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_BENCHMARK_V0_3_2026-09-08.yaml
+    benchmark_contract_commit_sha: null
+    synthetic_generator_code_sha256: null
+    synthetic_root_seed: 20260908
+  load_generator:
+    canonical_placement: OFF_DEVICE
+    host_model: null
+    cpu_model: null
+    ram_capacity_bytes: null
+    operating_system: null
+    runtime_version: null
+    network_link_type: null
+    nominal_link_rate: null
+    measured_round_trip_baseline_ms: null
+    clock_or_timestamp_method: null
+    rule: >-
+      The canonical load generator runs off-device so its CPU/RAM/power does not contaminate the device
+      measurement. Device-side latency MUST be measured at the server boundary in addition to any client
+      round-trip latency. If off-device placement is impossible, the run is diagnostic only until a
+      replacement lock is independently reviewed.
+  power_measurement:
+    canonical_plane: EXTERNAL_DEVICE_INPUT_OR_WALL
+    meter_manufacturer: null
+    meter_model: null
+    meter_serial_or_asset_id: null
+    measurement_location: null
+    sampling_rate_hz: null
+    calibration_or_accuracy_reference: null
+    timestamp_synchronization_method: null
+    minimum_sampling_rate_hz: 10
+    on_chip_telemetry_role: SUPPORTING_DIAGNOSTIC_ONLY
+  battery_model:
+    nominal_capacity_Wh: null
+    usable_fraction: null
+    reserve_fraction: null
+    conversion_efficiency: null
+    recharge_or_swap_policy: null
+
+result_provenance_requirements:
+  - materialized_environment_lock_path_and_commit
+  - repository_commit_sha
+  - benchmark_contract_path_and_commit
+  - complete_command_line
+  - process_environment_relevant_to_threads_and_backends
+  - configuration_choice_provenance_record
+  - declaration_of_any_prelock_target_workload_information
+  - raw_latency_samples_or_immutable_reference
+  - raw_power_samples_or_immutable_reference
+  - failure_and_exclusion_log
+  - device_temperature_and_throttling_log_if_available
+
+next_action: >-
+  Engineering authority supplies the actual edge device and measurement-equipment values together with provenance
+  for every lock-defining choice. Materialize all required values in a new immutable execution-specific lock,
+  independently review the final benchmark head and the materialized lock, and only then permit canonical Phase A execution.

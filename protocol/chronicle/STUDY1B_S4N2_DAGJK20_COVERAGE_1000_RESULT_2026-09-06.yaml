@@ -1,0 +1,237 @@
+schema_version: "1.0"
+entry_type: s4n2_dagjk20_coverage_1000_result
+chronicle_entry_id: CHRON-20260906-024
+study_id: study_1b_matched_compression
+scope: study_1b_s4n2_dagjk20_known_truth_coverage_checkpoint_1000
+date: 2026-09-06
+kind: append_only_nonoutcome_synthetic_result
+status: CLOSED_PASS
+outcome_evidence_seen: false
+
+summary: >-
+  The prospectively frozen S4N2 DAGJK20 known-truth coverage checkpoint at 1000 simulated
+  datasets per truth cell completed successfully and passed the frozen coverage gate in all
+  twelve selector-by-truth cells. Two-sided 95 percent coverage lower confidence bounds all
+  exceeded 0.93, one-sided 97.5 percent upper-coverage lower confidence bounds all exceeded
+  0.95, and degeneracy was zero. Coverage therefore stops at the first frozen checkpoint.
+  This PASS authorizes only the separately defined synthetic S4N2 core power calibration; it
+  does not activate an amendment or open Study 1B SCREEN, qualification TEST outcomes, real
+  route performance, representation geometry, or real-study artifact selection.
+
+harness:
+  repository: gharbonnier78/scientific-research-harness
+  pinned_ref: 3b109adcdd9a8cba4df029d3803ee0e5cb5bdf98
+  manifest: harness-adoption.yaml
+  local_instructions: AGENTS.md
+
+human_authority:
+  source: "2026-09-06 project conversation"
+  instruction: "Ok"
+  interpretation: >-
+    Proceed with the previously stated next gated actions: archive the completed S4N2 coverage
+    PASS append-only and, because the frozen first-checkpoint rule passed, launch the separate
+    prospectively defined S4N2 core power calibration without changing the scientific contract.
+  scientific_outcome_opening_authorized: false
+  screen_authorized: false
+  qualification_test_authorized: false
+  real_route_performance_authorized: false
+  geometry_authorized: false
+  amendment_activation_authorized: false
+
+basis:
+  frozen_s4n2_contract: protocol/simulations/STUDY1B_S4N2_DAGJK20_CALIBRATION_V0_1_2026-09-06.yaml
+  launch_chronicle: protocol/chronicle/STUDY1B_S4N2_DAGJK20_COVERAGE_1000_LAUNCH_2026-09-06.yaml
+  source_commit: 0987fb9f3454f688a5331dd0ab50938d200dcd47
+  workflow: .github/workflows/study1b-s4n2-core-coverage.yml
+
+execution:
+  workflow_name: Study 1B S4N2 DAGJK20 Coverage 1000
+  run_id: 34034315151
+  run_number: 1
+  event: push
+  infrastructure_conclusion: success
+  started_at_utc: "2026-09-06T12:50:52Z"
+  completed_at_utc: "2026-09-06T13:00:31Z"
+
+canonical_artifact:
+  id: 9989798621
+  name: study1b-s4n2-dagjk20-coverage-checkpoint-1000-summary
+  github_digest: sha256:2b6dd6895fad702ba04a91ccb9d23cdffb8de8f207e42dd012adef5bb068726c
+  independently_verified_zip_sha256: 2b6dd6895fad702ba04a91ccb9d23cdffb8de8f207e42dd012adef5bb068726c
+  extracted_summary_file: checkpoint_1000.json
+  extracted_summary_sha256: 84633522079a10f436479dd1a532e1da644c2096f5005f422e4a804f2343dbe3
+
+frozen_gate:
+  inference_candidate: S4N2_DAGJK20_T975
+  checkpoint: 1000
+  datasets_per_selector_truth_cell: 1000
+  truth_delta_fnmr_cells: [0.0, 0.01, 0.03, 0.05]
+  selectors:
+    - S4N_FIXED_SEED
+    - S4N_VALIDATION_BEST
+    - S4N_VALIDATION_MEDIAN
+  target_fmr: 0.01
+  noninferiority_margin_delta_fnmr: 0.03
+  one_sided_upper_confidence_level: 0.975
+  two_sided_coverage_exact_clopper_pearson_95_lower_bound_gte: 0.93
+  one_sided_upper_coverage_exact_clopper_pearson_95_lower_bound_gte: 0.95
+  degenerate_fraction_lte: 0.001
+  stop_rule: first_checkpoint_where_all_selector_truth_cells_pass
+
+results:
+  delta_0_00:
+    S4N_FIXED_SEED:
+      two_sided_empirical_coverage: 0.984
+      two_sided_cp95_lower: 0.9741467509186107
+      one_sided_upper_empirical_coverage: 0.989
+      one_sided_upper_cp95_lower: 0.98040337177798
+      degenerate_fraction: 0.0
+      coverage_pass: true
+      secondary_non_gate_estimated_power: 0.997
+      median_se_to_point_error_sd_ratio: 1.2973631460854353
+    S4N_VALIDATION_BEST:
+      two_sided_empirical_coverage: 0.981
+      two_sided_cp95_lower: 0.9704875983748871
+      one_sided_upper_empirical_coverage: 0.993
+      one_sided_upper_cp95_lower: 0.9856308050207305
+      degenerate_fraction: 0.0
+      coverage_pass: true
+      secondary_non_gate_estimated_power: 0.998
+      median_se_to_point_error_sd_ratio: 1.2346647072196617
+    S4N_VALIDATION_MEDIAN:
+      two_sided_empirical_coverage: 0.987
+      two_sided_cp95_lower: 0.9778721963632198
+      one_sided_upper_empirical_coverage: 0.992
+      one_sided_upper_cp95_lower: 0.9842979508239253
+      degenerate_fraction: 0.0
+      coverage_pass: true
+      secondary_non_gate_estimated_power: 0.995
+      median_se_to_point_error_sd_ratio: 1.2460208104009902
+  delta_0_01:
+    S4N_FIXED_SEED:
+      two_sided_empirical_coverage: 0.986
+      two_sided_cp95_lower: 0.9766218439896855
+      one_sided_upper_empirical_coverage: 0.996
+      one_sided_upper_cp95_lower: 0.9897903353160701
+      degenerate_fraction: 0.0
+      coverage_pass: true
+      secondary_non_gate_estimated_power: 0.847
+      median_se_to_point_error_sd_ratio: 1.2918758811914082
+    S4N_VALIDATION_BEST:
+      two_sided_empirical_coverage: 0.983
+      two_sided_cp95_lower: 0.9729205031351928
+      one_sided_upper_empirical_coverage: 0.993
+      one_sided_upper_cp95_lower: 0.9856308050207305
+      degenerate_fraction: 0.0
+      coverage_pass: true
+      secondary_non_gate_estimated_power: 0.849
+      median_se_to_point_error_sd_ratio: 1.2807043385784034
+    S4N_VALIDATION_MEDIAN:
+      two_sided_empirical_coverage: 0.983
+      two_sided_cp95_lower: 0.9729205031351928
+      one_sided_upper_empirical_coverage: 0.993
+      one_sided_upper_cp95_lower: 0.9856308050207305
+      degenerate_fraction: 0.0
+      coverage_pass: true
+      secondary_non_gate_estimated_power: 0.861
+      median_se_to_point_error_sd_ratio: 1.2751541558222546
+  delta_0_03:
+    S4N_FIXED_SEED:
+      two_sided_empirical_coverage: 0.985
+      two_sided_cp95_lower: 0.9753802999029655
+      one_sided_upper_empirical_coverage: 0.993
+      one_sided_upper_cp95_lower: 0.9856308050207305
+      degenerate_fraction: 0.0
+      coverage_pass: true
+      median_se_to_point_error_sd_ratio: 1.2443946467079727
+    S4N_VALIDATION_BEST:
+      two_sided_empirical_coverage: 0.986
+      two_sided_cp95_lower: 0.9766218439896855
+      one_sided_upper_empirical_coverage: 0.994
+      one_sided_upper_cp95_lower: 0.9869865767290255
+      degenerate_fraction: 0.0
+      coverage_pass: true
+      median_se_to_point_error_sd_ratio: 1.2508428186681042
+    S4N_VALIDATION_MEDIAN:
+      two_sided_empirical_coverage: 0.976
+      two_sided_cp95_lower: 0.9644993614686604
+      one_sided_upper_empirical_coverage: 0.988
+      one_sided_upper_cp95_lower: 0.9791323204089633
+      degenerate_fraction: 0.0
+      coverage_pass: true
+      median_se_to_point_error_sd_ratio: 1.2221431308976451
+  delta_0_05:
+    S4N_FIXED_SEED:
+      two_sided_empirical_coverage: 0.972
+      two_sided_cp95_lower: 0.959785112626505
+      one_sided_upper_empirical_coverage: 0.978
+      one_sided_upper_cp95_lower: 0.9668803354850122
+      degenerate_fraction: 0.0
+      coverage_pass: true
+      median_se_to_point_error_sd_ratio: 1.1676378403008394
+    S4N_VALIDATION_BEST:
+      two_sided_empirical_coverage: 0.967
+      two_sided_cp95_lower: 0.9539660181827113
+      one_sided_upper_empirical_coverage: 0.978
+      one_sided_upper_cp95_lower: 0.9668803354850122
+      degenerate_fraction: 0.0
+      coverage_pass: true
+      median_se_to_point_error_sd_ratio: 1.1540140275867141
+    S4N_VALIDATION_MEDIAN:
+      two_sided_empirical_coverage: 0.973
+      two_sided_cp95_lower: 0.9609582531940863
+      one_sided_upper_empirical_coverage: 0.98
+      one_sided_upper_cp95_lower: 0.9692799673173909
+      degenerate_fraction: 0.0
+      coverage_pass: true
+      median_se_to_point_error_sd_ratio: 1.2053744596119802
+
+scientific_decision:
+  overall_coverage_gate_pass: true
+  all_12_selector_truth_cells_pass: true
+  stop_at_checkpoint: 1000
+  checkpoint_2000_required: false
+  checkpoint_4000_required_for_coverage: false
+  amendment_activated: false
+  artifact_selector_activated_for_real_study: false
+  interpretation: >-
+    S4N2 DAGJK20 is adequately calibrated for the frozen coverage screen under the known-truth
+    generator at the first prospectively specified checkpoint. The secondary power fields in this
+    coverage run are descriptive only and do not substitute for the separately frozen 4000-dataset
+    core power calibration.
+
+secondary_non_gate_signal:
+  true_delta_0_01_estimated_power_at_checkpoint_1000:
+    S4N_FIXED_SEED: 0.847
+    S4N_VALIDATION_BEST: 0.849
+    S4N_VALIDATION_MEDIAN: 0.861
+  interpretation: >-
+    These values are not the prospective power gate and cannot be used to alter the estimator,
+    selector order, margin, confidence level, operating point, or power-run design. They are
+    archived to avoid selective reporting.
+
+next_action:
+  action: LAUNCH_SEPARATELY_FROZEN_S4N2_DAGJK20_CORE_POWER_4000
+  conditions_satisfied: true
+  redesign_before_power_permitted: false
+
+scientific_boundary:
+  scientific_outcomes_opened: false
+  screen_opened: false
+  qualification_test_outcomes_opened: false
+  real_route_performance_opened: false
+  representation_geometry_opened: false
+  amendment_activated: false
+  original_5_of_5_rule_replaced: false
+  artifact_selector_activated_for_real_study: false
+  s4n1_negative_result_reopened: false
+  s4n1_closed_negative_preserved: true
+
+provenance:
+  append_only: true
+  coverage_launch_record_not_rewritten: true
+  frozen_s4n2_contract_not_modified: true
+  s4n1_negative_result_not_rewritten: true
+  s4n1_diagnostic_not_rewritten: true
+  secondary_non_gate_power_signal_preserved: true
+  real_outcome_data_not_read: true

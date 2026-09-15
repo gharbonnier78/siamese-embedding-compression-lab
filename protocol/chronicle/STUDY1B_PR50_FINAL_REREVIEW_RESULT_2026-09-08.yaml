@@ -1,0 +1,109 @@
+schema_id: study1b.chronicle.review_result
+schema_version: 1
+artifact_version: "0.1"
+entry_type: study1b_pr50_final_design_rereview_result
+chronicle_entry_id: CHRON-20260908-042
+study_id: study_1b_matched_compression
+date: 2026-09-08
+kind: append_only_nonoutcome_review_result
+status: ACCEPT_WITH_CHANGES_D1_D3_CORRECTED_AWAITING_REREVIEW
+outcome_evidence_seen: false
+
+summary: >-
+  Archive the independent design re-review of PR #50 head 12827b23. The reviewer returned ACCEPT_WITH_CHANGES:
+  benchmark v0.3 design accepted conditionally on required D1-D3 corrections to the environment-lock/provenance
+  mechanism; canonical execution remains NO. Apply D1-D3 prospectively without rewriting the reviewed artifacts.
+
+review_basis:
+  reviewed_head: 12827b23295608f7fdb1b986cd8f6414a818fd67
+  reviewed_package: PR50_12827B23_FINAL_DESIGN_REREVIEW_PACKAGE_2026-09-08.zip
+  reviewed_package_sha256: 27942c4135a3a07cd512f552da13abc29fa21a06c92056270988acb08e3175b7
+  archived_verdict: protocol/reviews/PR50_FINAL_DESIGN_REREVIEW_VERDICT_2026-09-08.md
+  verdict: ACCEPT_WITH_CHANGES
+  benchmark_design_accepted: true
+  acceptance_condition: D1_D2_D3_REQUIRED
+  canonical_execution_currently_admissible: false
+  negative_provenance_mechanism_sufficient_on_reviewed_head: false
+
+reviewer_verification_scope:
+  verified_by_reviewer:
+    - transport_package_sha256_and_internal_checksums
+    - package_arithmetic_and_reading_notes_from_prior_cycle
+    - focused_assurance_test_after_reviewer_supplied_missing_clarification_input
+    - benchmark_v0_3_and_environment_lock_v0_2_text_review
+  not_independently_verified_by_reviewer:
+    - repository_blob_sha1_correspondence
+    - repository_compare_claim
+    - github_ci_conclusions
+  assurance_test_interpretation: CONTRACT_TEXT_DRIFT_DETECTOR_NOT_BEHAVIORAL_PROOF
+  construct_validity_reviewed: false
+  scope_warning: >-
+    Prior reviewer confirmations MUST NOT be accumulated into an implied scientific or construct-validity approval.
+    This review explicitly does not establish that Phase A answers the 512D-versus-128D construct-validity question.
+
+required_changes:
+  D1:
+    finding: provenance_record_has_no_accountable_owner
+    correction:
+      - require provenance_attested_by identifying a human or accountable role
+      - require attestation_timestamp and attestation_statement
+    disposition: CORRECTED_PROSPECTIVELY_IN_ENVIRONMENT_LOCK_V0_3
+  D2:
+    finding: measurement_evidence_date_optional_and_generator_commit_timestamp_missing
+    correction:
+      - evidence_timestamp mandatory for measurement sources
+      - record benchmark specification timestamp now
+      - require exact generator-code commit SHA and timestamp before execution
+      - allow structural-impossibility claim only when checkable temporal ordering exists
+    disposition: CORRECTED_PROSPECTIVELY_IN_ENVIRONMENT_LOCK_V0_3
+    current_structural_impossibility_evidence_available: false
+  D3:
+    finding: firewall_uses_intent_instead_of_information
+    correction:
+      - classify prior measurement from observable vector_dimension_search_index_hardware_class overlap
+      - make intent and run label irrelevant to classification
+      - declare informative prior evidence and require new prospective identity if it informed a choice
+    disposition: CORRECTED_PROSPECTIVELY_IN_ENVIRONMENT_LOCK_V0_3_AND_BENCHMARK_ADDENDUM
+  D4:
+    finding: schema_versioning_inconsistency
+    required: false
+    disposition: ADOPTED_PROSPECTIVELY_WITH_LOCAL_SCHEMA_ID_POLICY
+  D5:
+    finding: transport_package_missing_clarification_dependency_for_test
+    required: false
+    disposition: NEXT_REREVIEW_PACKAGE_MUST_PRESERVE_REPO_PATHS_AND_INCLUDE_ALL_TEST_DEPENDENCIES
+
+prospective_corrected_artifacts:
+  environment_lock_v0_3: protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_ENVIRONMENT_LOCK_V0_3_2026-09-08.yaml
+  benchmark_v0_3_d1_d3_addendum: protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_BENCHMARK_V0_3_D1_D3_ADDENDUM_2026-09-08.yaml
+  local_schema_policy: protocol/schemas/STUDY1B_LOCAL_ARTIFACT_SCHEMA_POLICY_V0_1_2026-09-08.md
+  focused_assurance: tests/test_study1b_engineering_benchmark_contract.py
+  harness_manifest: harness-adoption.yaml
+
+execution_gate:
+  target_edge_hardware_bound: false
+  external_power_meter_bound: false
+  off_device_load_generator_bound: false
+  configuration_choice_provenance_materialized: false
+  provenance_attestation_materialized: false
+  generator_code_identity_materialized: false
+  execution_specific_environment_lock_materialized: false
+  canonical_phase_a_execution_permitted: false
+  independent_blockers:
+    - PLATFORM_AND_MEASUREMENT_ENVIRONMENT_NOT_MATERIALIZED
+    - CONFIGURATION_CHOICE_PROVENANCE_NOT_MATERIALIZED
+
+scientific_boundary:
+  screen_opened: false
+  qualification_test_opened: false
+  real_route_performance_opened: false
+  representation_geometry_opened: false
+  amendment_activated: false
+  s4n1_status: CLOSED_NEGATIVE
+  s4n2_status: CLOSED_NEGATIVE
+  s4n3_launched: false
+
+next_action: >-
+  Commit the D1-D3 corrections prospectively, run bounded assurance on the new exact head, publish immutable review
+  navigation without further branch mutation, and obtain a fresh independent check of the corrected design. Do not
+  execute Phase A until both independent execution blockers are satisfied in a separately checked immutable lock.

@@ -2,7 +2,9 @@ name: CI
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
+      - agent/study1b-preregistration-20260827
   pull_request:
 
 permissions:

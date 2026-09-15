@@ -1,0 +1,59 @@
+name: Study 1B Power Design S3 Build Expanded Graphs
+
+on:
+  push:
+    branches:
+      - agent/study1b-preregistration-20260827
+    paths:
+      - 'protocol/chronicle/STUDY1B_POWER_DESIGN_S3_GRAPH_CONSTRUCTION_LAUNCH_2026-09-01.yaml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-expanded-graphs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: Install package and LFW access
+        run: |
+          python -m pip install --upgrade pip 'setuptools>=83.0.0'
+          python -m pip install -e . kagglehub
+      - name: Resolve LFW dataset root
+        id: lfw
+        run: |
+          python - <<'PY'
+          import contextlib, os, sys, kagglehub
+          with contextlib.redirect_stdout(sys.stderr):
+              root = kagglehub.dataset_download('jessicali9530/lfw-dataset/versions/4')
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as handle:
+              handle.write(f'root={root}\n')
+          PY
+      - name: Stage pinned LFW View 1 metadata
+        run: |
+          cp protocol/sources/lfw_view1/peopleDevTrain.txt '${{ steps.lfw.outputs.root }}/peopleDevTrain.txt'
+          cp protocol/sources/lfw_view1/peopleDevTest.txt '${{ steps.lfw.outputs.root }}/peopleDevTest.txt'
+      - name: Materialize frozen active amended boundary
+        env:
+          PYTHONPATH: src
+        run: |
+          python scripts/study1b_apply_active_data_boundary.py \
+            --dataset-root '${{ steps.lfw.outputs.root }}' \
+            --output-dir artifacts/study1b/s3-input
+      - name: Build frozen x1.5 and x2.0 information graphs
+        run: |
+          python scripts/study1b_s3_build_expanded_graphs.py \
+            --manifest artifacts/study1b/s3-input/capture_manifest.csv \
+            --base-test-graph artifacts/study1b/s3-input/graphs/test_pairs.csv \
+            --output-dir artifacts/study1b/s3-expanded-graphs
+      - uses: actions/upload-artifact@v4
+        with:
+          name: study1b-s3-expanded-information-graphs
+          path: artifacts/study1b/s3-expanded-graphs/
+          if-no-files-found: error

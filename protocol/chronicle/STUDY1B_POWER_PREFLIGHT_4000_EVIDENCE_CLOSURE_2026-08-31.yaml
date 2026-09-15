@@ -1,0 +1,131 @@
+entry_id: STUDY1B_POWER_PREFLIGHT_4000_EVIDENCE_CLOSURE_2026-08-31
+entry_type: nonoutcome_evidence_package_closure
+study_id: study_1b_matched_compression
+date: 2026-08-31
+status: CLOSED_FAIL_AMENDMENT_REQUIRED
+
+scope:
+  scientific_outcomes_opened: false
+  screen_authorized: false
+  test_authorized: false
+  geometry_authorized: false
+  frozen_decision_rule_changed: false
+  purpose: >-
+    Close the preregistered Study 1B power-preflight evidence package, designate
+    the canonical run and artifact, preserve the failed scientific gate as the
+    authoritative result, and prevent documentation changes from implicitly
+    creating further scientific attempts.
+
+canonical_evidence:
+  workflow: Study 1B Power Preflight 4000
+  run_id: 33299151340
+  run_number: 1
+  head_sha: 8b005717c5e8566f3ebe898fdac66965191d1dd5
+  conclusion: failure
+  failure_class: SCIENTIFIC_GATE_FAILURE
+  infrastructure_failure: false
+  summary_artifact:
+    name: study1b-power-preflight-4000-summary
+    artifact_id: 9733239954
+    digest: sha256:6daf4d3fe22573a33269bb1ff48a0b6a7bc3778c3a751e38a51399a4778b5d4e
+  execution_evidence:
+    prepare_test_graph: success
+    power_shards_expected: 80
+    power_shards_completed: 80
+    datasets_per_effect: 4000
+    effects: [0.0, 0.01]
+    bootstrap_replicates_per_dataset: 10000
+    seed_labels: [11, 29, 47, 71, 101]
+    shared_raw_reference_per_dataset: true
+
+frozen_gate:
+  estimand: delta_fnmr = FNMR_candidate - FNMR_raw512
+  noninferiority_margin: 0.03
+  ucb_level: 0.975
+  per_seed_rule: ucb_97_5 < 0.03
+  joint_rule: all_five_seeds_must_pass
+  required_power: 0.90
+
+canonical_results:
+  delta_0:
+    all_five_seed_passes: 3738
+    simulated_datasets: 4000
+    estimated_power: 0.9345
+    verdict: PASS
+  delta_0_01:
+    all_five_seed_passes: 1549
+    simulated_datasets: 4000
+    estimated_power: 0.38725
+    verdict: FAIL
+  overall_verdict: FAIL
+
+interpretation_boundary:
+  supported:
+    - The frozen decision procedure has adequate simulated joint power at true delta=0.
+    - The frozen decision procedure lacks the required simulated joint power at true delta=0.01.
+    - The preregistered power gate therefore fails and the Study 1B outcome path remains blocked.
+  not_supported:
+    - Any statement about observed random128, PCA128 or Siamese128 performance versus raw512.
+    - Any claim that a compressed route is inferior or non-inferior in real Study 1B data.
+    - Retuning the margin, confidence level, seed count or joint rule using this failed result as justification.
+
+related_evidence:
+  diagnostic_entry: protocol/chronicle/STUDY1B_POWER_PREFLIGHT_4000_FAIL_DIAGNOSTIC_2026-08-30.yaml
+  diagnostic_role: explanatory_only_not_a_replacement_gate
+  coverage_closure: protocol/chronicle/STUDY1B_COVERAGE_CHECKPOINT_1000_PASS_AND_POWER_LAUNCH_2026-08-30.yaml
+
+rerun_governance:
+  canonical_attempt: 1
+  automatic_reruns_authoritative: false
+  known_noncanonical_rerun:
+    run_id: 33329999184
+    run_number: 2
+    trigger_reason: pull_request_diff_retrigger_after_documentation_update
+    disposition: NON_AUTHORITATIVE_REPLAY_IGNORE_FOR_SCIENTIFIC_DECISION
+  workflow_policy_after_closure:
+    power_preflight: workflow_dispatch_only
+    coverage_checkpoint: workflow_dispatch_only
+    rationale: >-
+      Heavy synthetic preflights are evidence-generating experiments. Once their
+      canonical result is closed, routine PR or Chronicle changes must not launch
+      new attempts. Explicit manual replay remains available for technical
+      verification, but a replay cannot silently replace the canonical evidence.
+
+preoutcome_state:
+  coverage_gate: CLOSED_PASS_AT_1000
+  power_gate: CLOSED_FAIL
+  next_required_state_transition: PREOUTCOME_DESIGN_AMENDMENT
+  outcome_execution: BLOCKED
+  independent_accept_review: BLOCKED_PENDING_AMENDMENT_AND_REVALIDATION
+  explicit_human_go: NOT_ADMISSIBLE_YET
+
+next_actions:
+  - Create a prospective Power Failure -> Design Amendment v0.1 package.
+  - Run sensitivity analyses as non-outcome design diagnostics only.
+  - Freeze any selected amendment before any SCREEN or TEST outcome is opened.
+  - Revalidate coverage/power components affected by the amendment.
+  - Obtain independent scientific and technical review on the amended unchanged head.
+
+pedagogical_reading:
+  en_francais_dans_le_texte: >-
+    Le dossier de puissance est maintenant ferme. Le calcul a ete execute
+    completement et son resultat officiel est conserve, meme s'il est negatif.
+    Il passe quand la vraie degradation vaut 0, mais il ne donne que 38,725%
+    de chances de faire passer simultanement les cinq seeds quand la vraie
+    degradation vaut +0,01, alors que nous avions exige au moins 90%. Nous ne
+    recommencons donc pas le meme calcul jusqu'a obtenir un vert: nous gardons
+    le rouge comme information scientifique et nous revenons au dimensionnement
+    de l'experience avant d'ouvrir les vrais resultats.
+  lecture_ingenieur: >-
+    Le gate de puissance est une qualification du dispositif de decision, pas
+    du produit compresse. L'evidence package fixe run, commit, artefact, digest,
+    parametres et verdict. Un FAIL reproductible devient un input de conception:
+    il impose une boucle d'amendement pre-outcome, avec analyse de sensibilite,
+    revue independante et nouvelle freeze. Les workflows lourds passent en
+    replay manuel pour proteger l'unicite de la preuve de reference.
+  lecture_12_ans: >-
+    On avait decide avant le test la note minimale pour reussir. Le test a ete
+    fait correctement, mais une partie importante a rate. On garde cette copie
+    telle quelle: on ne refait pas le controle encore et encore pour esperer une
+    meilleure note. On cherche d'abord pourquoi l'exercice est mal dimensionne,
+    puis on prepare une nouvelle version avant de regarder les vraies reponses.

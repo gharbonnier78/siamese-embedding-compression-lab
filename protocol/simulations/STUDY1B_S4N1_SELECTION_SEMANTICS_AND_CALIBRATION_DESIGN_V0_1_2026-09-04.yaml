@@ -1,0 +1,367 @@
+schema_version: "1.0"
+contract_id: STUDY1B_S4N1_SELECTION_SEMANTICS_AND_CALIBRATION_DESIGN_V0_1_2026-09-04
+study_id: study_1b_matched_compression
+date: 2026-09-04
+status: FROZEN_PROSPECTIVE_NONOUTCOME_CALIBRATION_CONTRACT
+scientific_outcomes_permitted: false
+screen_opening_permitted: false
+test_opening_permitted: false
+representation_geometry_permitted: false
+amendment_activated: false
+
+harness:
+  repository: gharbonnier78/scientific-research-harness
+  pinned_ref: 3b109adcdd9a8cba4df029d3803ee0e5cb5bdf98
+  manifest: harness-adoption.yaml
+  local_instructions: AGENTS.md
+
+human_authority:
+  source: "2026-09-04 project conversation"
+  task_id: STUDY1B_S4N1_SELECTION_SEMANTICS_AND_CALIBRATION_DESIGN
+  authorization_scope: >-
+    Non-outcome S4N1 design, prospective rule freezing, POC implementation/testing, and
+    synthetic known-truth coverage/power calibration only after this contract is frozen.
+  prohibited_real_evidence:
+    - Study_1B_SCREEN_route_outcomes
+    - Study_1B_TEST_route_outcomes
+    - real_raw512_random128_pca128_siamese128_performance
+    - representation_geometry
+
+basis:
+  s3_negative_result: protocol/chronicle/STUDY1B_POWER_DESIGN_S3_POWER_CALIBRATION_RESULT_2026-09-04.yaml
+  s4_object_reframe: protocol/chronicle/STUDY1B_S4_METHOD_LEVEL_PERSPECTIVE_REFRAME_2026-09-04.yaml
+  s4new_parent: protocol/simulations/STUDY1B_S4NEW_ARTIFACT_LEVEL_QUALIFICATION_V0_1_2026-09-04.yaml
+  active_study_contract: protocol/studies/study_1b_matched_compression.yaml
+  original_preregistration: protocol/studies/STUDY1B_MATCHED_COMPRESSION_PREREGISTRATION_2026-08-27.md
+  original_method_level_amendment_draft: protocol/amendments/STUDY1B_POWER_DESIGN_AMENDMENT_V0_1_2026-08-31.yaml
+  source_note_selection_bias: docs/research-notes/STUDY1B_S4N1_SELECTION_BIAS_AND_INDEPENDENT_TEST_2026-09-04.md
+
+scientific_objects:
+  primary: frozen_route_artifact
+  secondary: training_procedure_seed_stability
+  separation_rule: >-
+    The primary claim is about the single artifact selected and frozen by a prospectively
+    specified route-neutral procedure. It is not a population statement about future
+    retrainings. Seed stability remains visible but is not silently substituted for artifact
+    qualification.
+
+unchanged_primary_estimand:
+  name: delta_fnmr_equal_fmr
+  definition: FNMR_candidate_at_alpha_minus_FNMR_raw512_at_alpha
+  target_fmr: 0.01
+  noninferiority_margin_delta_fnmr: 0.03
+  one_sided_ucb_level: 0.975
+  final_estimator: subject_slot_identity_bootstrap
+  bootstrap_replicates: 10000
+  paired_raw_candidate_draw: true
+  genuine_edge_weight: m_i
+  impostor_edge_weight: m_i_times_m_j
+  synthesize_unobserved_edges: false
+  degeneracy_limit_fraction: 0.001
+  active_data_boundary_unchanged: true
+  multiplicity_treatment_unchanged: true
+
+frozen_artifact_candidate_budget:
+  stochastic_routes: [random128, pca128, siamese128]
+  seed_labels: [11, 29, 47, 71, 101]
+  artifacts_per_route: 5
+  additional_seed_training_or_projection_search: prohibited
+  route_neutral_budget: true
+  raw512:
+    role: frozen_reference
+    seed_selection: none
+
+validation_selection_metric:
+  id: S4N1_VALIDATION_EQUAL_FMR_DELTA_POINT
+  permitted_role: VALIDATION_only
+  graph_sha256: fb849558e0b09b0fa7ff301991af010815f0b4ee98ab62faa1c585477f9f8601
+  graph_counts:
+    genuine: 5000
+    impostor: 20000
+  target_fmr: 0.01
+  score_definition: >-
+    For each route r and seed s, compute the unbootstrapped paired equal-FMR point estimate
+    score_s = FNMR_VALIDATION(r,s; alpha=0.01) - FNMR_VALIDATION(raw512; alpha=0.01).
+    Candidate and raw thresholds are each the largest distance threshold whose empirical FMR
+    is <= 0.01 under the frozen whole-tie-block/sentinel threshold semantics.
+  lower_is_better: true
+  bootstrap_used_for_ranking: false
+  reason_no_ranking_ucb: >-
+    Ranking is defined on the same route-neutral point estimand for every stochastic route.
+    The final TEST uncertainty remains the frozen identity-aware 97.5% UCB; a VALIDATION UCB
+    is not promoted into a second optimization objective.
+  tie_rule:
+    equality: exact_numeric_equality_of_the_deterministic_score
+    deterministic_order: [11, 29, 47, 71, 101]
+    action: choose_first_seed_in_order_among_exact_ties
+    tolerance_based_ties: prohibited
+  invalid_metric_policy: >-
+    Non-finite distances or an unresolvable VALIDATION statistic fail the affected artifact
+    closed. If the selection rule cannot return exactly one eligible artifact, that route is
+    INDETERMINATE and no SCREEN/TEST access follows.
+  no_screen_or_test_input: true
+
+existing_within_seed_training_boundary:
+  siamese128: >-
+    The already-frozen per-seed checkpoint rule (lowest VALIDATION contrastive loss satisfying
+    the minimum-improvement rule) remains part of construction of each seed artifact. S4N1 adds
+    only the cross-seed artifact-selection rule. This reuse of VALIDATION is declared rather than
+    hidden and is included as a limitation of the synthetic abstraction.
+  pca128: randomized_SVD_seed_is_part_of_the_seed_artifact
+  random128: random_projection_matrix_is_part_of_the_seed_artifact
+  hyperparameter_search_added_by_s4n1: false
+
+artifact_selection_candidates:
+  S4N_FIXED_SEED:
+    selection_function: "selected_seed = 11"
+    validation_metric_consumed_for_selection: false
+    claim_semantics: >-
+      Non-inferiority, if later demonstrated, applies only to the prospectively fixed seed-11
+      artifact of the route under the frozen Study 1B TEST protocol. It says nothing about a
+      typical, worst, best, or future retraining realization.
+    role_in_calibration: clean_artifact_level_reference
+    outcome_search_risk: minimal
+  S4N_VALIDATION_BEST:
+    selection_function: "selected_seed = argmin_seed validation_selection_metric"
+    validation_metric_consumed_for_selection: true
+    claim_semantics: >-
+      Non-inferiority, if later demonstrated, applies to the one delivered artifact produced by
+      the prospectively frozen best-of-five VALIDATION selection procedure and then evaluated on
+      untouched TEST. It is not a claim that the training procedure is generally non-inferior.
+    interpretation_boundary:
+      - do_not_report_VALIDATION_score_as_confirmatory_performance
+      - do_not_call_selected_seed_the_population_best_retraining
+      - do_not_reuse_SCREEN_or_TEST_for_selection
+  S4N_VALIDATION_MEDIAN:
+    selection_function: >-
+      Rank the five seeds by validation_selection_metric ascending with the frozen tie rule and
+      select rank 3 of 5.
+    validation_metric_consumed_for_selection: true
+    claim_semantics: >-
+      Non-inferiority, if later demonstrated, applies to the artifact selected by the frozen
+      median-of-five VALIDATION ranking procedure. The median rank is a construction rule, not
+      an estimator of a population median over all possible retrainings.
+    interpretation_boundary:
+      - do_not_claim_population_median_seed_performance
+      - do_not_reuse_SCREEN_or_TEST_for_selection
+
+prospective_semantic_preference:
+  preferred_if_all_calibration_gates_pass: S4N_VALIDATION_BEST
+  rationale: >-
+    The primary object is a delivered frozen artifact and a developer would ordinarily choose
+    that artifact using development/VALIDATION evidence before independent qualification.
+    This preference is frozen before calibration results so the project cannot choose whichever
+    rule later happens to produce the most favorable synthetic power. FIXED_SEED remains the
+    inferentially simplest control and VALIDATION_MEDIAN remains a lower-optimization fallback.
+  fallback_order_if_preferred_is_ineligible:
+    - S4N_VALIDATION_MEDIAN
+    - S4N_FIXED_SEED
+    - STOP_NO_ADMISSIBLE_S4N1_RULE
+  synthetic_power_alone_must_not_choose_rule: true
+
+validation_to_test_dependence_contract:
+  identity_overlap: prohibited_by_active_data_boundary
+  capture_overlap: prohibited_by_active_data_boundary
+  pair_graph_overlap: none_by_role_construction
+  test_used_in_selection: false
+  conditional_observation_assumption: >-
+    Conditional on a frozen artifact's latent role-specific performance parameters, VALIDATION
+    and TEST observation noise, subject effects and pair noise are generated independently
+    because the roles contain disjoint identity/capture sets.
+  shared_artifact_quality: >-
+    The same trained/projected artifact can have correlated latent quality across VALIDATION and
+    TEST. S4N1 must not assume that VALIDATION ranking transfers perfectly to TEST.
+  primary_inference_consequence: >-
+    The final TEST UCB is computed only after selection and only from untouched TEST data. Its
+    coverage target is the true TEST delta of the selected frozen artifact, not the observed
+    VALIDATION score and not the mean of the five seed artifacts.
+
+known_truth_generator:
+  generator_id: S4N1_TWO_ROLE_SELECTED_ARTIFACT_GENERATOR_V1
+  frozen_graphs:
+    VALIDATION:
+      sha256: fb849558e0b09b0fa7ff301991af010815f0b4ee98ab62faa1c585477f9f8601
+      identities: 606
+      genuine: 5000
+      impostor: 20000
+    TEST:
+      sha256: 08c86ca9a641fc96b74014ae1974f713cd00e558dd98946ac32ff440c4666f85
+      identities: 1710
+      genuine: 10000
+      impostor: 100000
+  within_role_structure:
+    subject_effect_sd_genuine: 0.08
+    subject_effect_sd_impostor: 0.05
+    candidate_reference_pair_noise_correlation: 0.7
+    raw_reference_shared_across_the_five_seed_candidates: true
+    candidate_seed_residual_pair_noise_independent_conditional_on_reference_and_latent_effects: true
+    threshold_uncertainty_generated: true
+    paired_raw_candidate_structure_generated: true
+  core_inference_calibration:
+    purpose: >-
+      Validate inference for a selected frozen artifact without turning seed-population
+      variability into the primary estimand.
+    test_truth_mode: all_five_seed_artifacts_share_the_declared_TEST_truth_delta
+    test_truth_delta_scenarios: [0.0, 0.01, 0.03, 0.05]
+    validation_seed_effect_sd: 0.005
+    validation_seed_effect_clip: [-0.02, 0.02]
+    validation_effects_do_not_change_declared_TEST_truth_in_core_mode: true
+    interpretation: >-
+      Selection can overfit finite VALIDATION noise, but under untouched TEST the final interval
+      must still cover the selected artifact's known TEST truth. Power is evaluated at exact TEST
+      truths 0.00 and 0.01.
+  cross_role_transport_sensitivity:
+    purpose: >-
+      Quantify how a best/median VALIDATION selector behaves when genuine seed-to-seed artifact
+      quality partially transfers across roles. This is secondary design sensitivity, not a
+      population-level biometric claim.
+    base_method_delta_scenarios: [0.0, 0.01]
+    seed_effect_sd_values: [0.0, 0.0025, 0.005, 0.0075, 0.01]
+    seed_effect_clip: [-0.02, 0.02]
+    validation_test_latent_seed_effect_correlation_values: [0.0, 0.5, 1.0]
+    construction: >-
+      For each seed draw a bivariate standard-normal latent pair with the declared correlation,
+      scale by seed_effect_sd, clip each role effect to the frozen bounds, and add the role
+      effect to the base delta before generating role-specific distances. Record the realized
+      cross-role correlation after clipping.
+    no_negative_correlation_primary_sweep: >-
+      Zero correlation is retained as the no-transfer stress case. Negative transport is not
+      assumed without an external mechanism and may be added only by a new prospective contract.
+  synthetic_truth_recorded_per_dataset:
+    - selected_seed
+    - validation_observed_score_by_seed
+    - validation_true_delta_by_seed
+    - test_true_delta_by_seed
+    - selected_test_true_delta
+    - selected_test_point_estimate
+    - selected_test_ucb_97_5
+
+selection_bias_and_transport_metrics:
+  inferential_validity:
+    - selected_TEST_interval_coverage
+    - selected_TEST_estimation_bias
+    - selected_TEST_degenerate_fraction
+  validation_selection_effects:
+    - validation_optimism_observed_minus_true_for_selected_seed
+    - selected_seed_frequency
+    - probability_selected_seed_is_true_best_on_TEST
+    - selected_TEST_truth_minus_mean_seed_TEST_truth
+    - selected_TEST_truth_minus_min_seed_TEST_truth_regret
+  stability_visibility:
+    - sd_of_true_seed_TEST_deltas
+    - range_of_true_seed_TEST_deltas
+    - worst_seed_true_TEST_delta
+  reporting_rule: >-
+    These metrics characterize the selection procedure and seed instability in synthetic
+    known-truth worlds. They do not become claims about the real five Study 1B seed outcomes.
+
+coverage_calibration:
+  candidates:
+    - S4N_FIXED_SEED
+    - S4N_VALIDATION_BEST
+    - S4N_VALIDATION_MEDIAN
+  core_truth_scenarios: [0.0, 0.01, 0.03, 0.05]
+  subject_dependence_required: true
+  dataset_checkpoints: [1000, 2000, 4000]
+  initial_checkpoint: 1000
+  stop_rule: first_checkpoint_where_all_candidate_scenario_cells_pass
+  nominal_interval: percentile_two_sided_95_with_97_5_upper_bound
+  gate:
+    exact_clopper_pearson_two_sided_95_lower_bound_gte: 0.93
+    degenerate_fraction_lte: 0.001
+  no_silent_redraw_or_scenario_deletion: true
+
+power_calibration:
+  candidates:
+    - S4N_FIXED_SEED
+    - S4N_VALIDATION_BEST
+    - S4N_VALIDATION_MEDIAN
+  core_test_truth_delta_scenarios: [0.0, 0.01]
+  simulated_datasets_per_candidate_scenario: 4000
+  decision_rule: selected_artifact_TEST_UCB_97_5_le_0_03
+  minimum_estimated_power_each_scenario: 0.90
+  power_gate_applies_to_core_exact_artifact_truth: true
+  transport_sensitivity_is_reported_separately: true
+
+candidate_eligibility:
+  required:
+    - exact_rule_returns_one_artifact_or_fails_closed
+    - no_SCREEN_or_TEST_input_to_selection
+    - route_neutral_five_artifact_budget
+    - all_core_coverage_cells_pass
+    - both_core_power_cells_pass
+    - seed_instability_metrics_reported
+    - deterministic_replay_tests_pass
+  failure_semantics: INELIGIBLE_FOR_AMENDMENT_PROPOSAL
+
+multiplicity_and_route_reporting:
+  primary_candidate_vs_raw_hypotheses_unchanged: true
+  no_omnibus_any_route_claim: true
+  selected_artifact_only_is_primary_per_route: true
+  all_five_validation_selection_scores_may_be_archived_after_authorized_execution: true
+  other_seed_TEST_outcomes_required_for_primary_claim: false
+  method_stability_population_claim: separate_future_study_only
+
+screen_downstream_boundary:
+  current_SCREEN_rule_is_not_modified_by_this_contract: true
+  issue_for_any_future_amendment: >-
+    If an S4N1 selector is activated, Stage A SCREEN semantics must be made artifact-level and
+    prospectively reconciled with selection occurring before SCREEN. The current two-seed SCREEN
+    rule cannot be silently reused as if it qualified the newly selected artifact.
+  screen_remains_sealed_now: true
+
+engineering_contract_before_synthetic_execution:
+  architecture_note_required: true
+  focused_tests_required:
+    - deterministic_best_and_median_selection
+    - exact_tie_break
+    - invalid_metric_fail_closed
+    - validation_only_data_boundary
+    - core_truth_targeting
+    - cross_role_correlation_replay
+    - selected_artifact_TEST_coverage_accounting
+    - selected_artifact_power_accounting
+    - worker_count_seed_lineage_invariance_if_parallelized
+  static_checks_required: true
+  secret_and_dependency_review_required: true
+  scientific_randomness:
+    root_entropy: 20260827
+    task_bound_seedsequence_lineage: true
+    worker_or_shard_id_must_not_define_scientific_randomness: true
+  runtime_telemetry_is_not_scientific_evidence: true
+
+external_source_boundary:
+  statistical:
+    - id: Cawley_Talbot_JMLR_2010
+      url: https://www.jmlr.org/papers/v11/cawley10a.html
+      use: >-
+        Supports explicit treatment of over-fitting to a finite model-selection criterion and
+        separation of model selection from subsequent performance evaluation.
+  biometric:
+    - id: NIST_FRTE_1_1
+      url: https://pages.nist.gov/frvt/html/frvt11.html
+      use: >-
+        Supports the fixed/submitted-implementation evaluation object and reporting of FNMR at
+        controlled FMR, without prescribing this project's stochastic artifact selector.
+  conformance_claim: none
+
+prohibited_inferences:
+  - infer_real_compression_noninferiority
+  - infer_real_compression_superiority
+  - infer_real_seed_stability
+  - infer_representation_geometry
+  - claim_selected_validation_best_is_population_best
+  - claim_validation_median_is_population_median
+  - change_target_fmr_due_to_prior_failure
+  - change_noninferiority_margin_due_to_prior_failure
+  - lower_ucb_level_due_to_prior_failure
+  - activate_amendment_from_synthetic_result_alone
+  - erase_or_replace_canonical_S2_or_S3_negative_results
+
+next_action:
+  state: IMPLEMENT_AND_VERIFY_NONOUTCOME_CALIBRATION_POC
+  instruction: >-
+    Implement the two-role selected-artifact generator and deterministic selectors against this
+    frozen contract, add focused tests and architecture note, then run synthetic core coverage
+    before core power. Only after those are archived may transport sensitivity be executed and
+    the three candidates compared. No real Study 1B outcomes may be opened.

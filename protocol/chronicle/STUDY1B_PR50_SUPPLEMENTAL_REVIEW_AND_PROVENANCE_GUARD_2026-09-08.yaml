@@ -1,0 +1,82 @@
+schema_version: "1.0"
+entry_type: study1b_pr50_supplemental_review_and_provenance_guard
+chronicle_entry_id: CHRON-20260908-040
+study_id: study_1b_matched_compression
+date: 2026-09-08
+kind: append_only_nonoutcome_review_response
+status: PROVENANCE_GAP_CORRECTED_AWAITING_FINAL_INDEPENDENT_REREVIEW
+outcome_evidence_seen: false
+
+summary: >-
+  Record the supplemental independent review of the PR #50 transport package v3, preserve the accepted
+  append-only and S4 closure findings, and prospectively correct the remaining pre-lock configuration-choice
+  provenance gap without rewriting S4N1/S4N2 results or opening protected biometric outcomes.
+
+review_basis:
+  previous_review_head: a00de7bf4e6a6c7d108ec8e36430581e0b559b0f
+  supplemental_review: protocol/reviews/PR50_SUPPLEMENTAL_REVIEW_V3_CONFIRMATION_2026-09-08.md
+  transport_package_sha256: 823709fb47decfb646bff23900f9348435b0df8e6540397fe1c0cc272182bffe
+  formal_new_verdict_issued: false
+
+accepted_findings:
+  append_only_path_history_verified: true
+  s4_negative_closure_independent_of_unresolved_causal_explanation: true
+  reviewer_side_power_intervals_not_archived_result_fields: true
+  s4n1_lower_95_clopper_pearson_is_coverage_bound: true
+  paired_comparison_required_for_s4n1_vs_s4n2_formal_pass_rate_test: true
+  paired_indicators_present_in_transport_package: false
+  historical_schema_collision_requires_prospective_fix_not_rewrite: true
+
+prospective_corrections:
+  environment_lock_v0_2: protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_ENVIRONMENT_LOCK_V0_2_2026-09-08.yaml
+  benchmark_v0_3: protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_BENCHMARK_V0_3_2026-09-08.yaml
+  schema_crosswalk: protocol/schemas/STUDY1B_S4_POWER_RESULT_SCHEMA_CROSSWALK_V0_1_2026-09-08.md
+  focused_assurance: tests/test_study1b_engineering_benchmark_contract.py
+
+configuration_provenance_guard:
+  lock_defining_choice_provenance_required: true
+  target_workload_may_silently_select_hardware: false
+  target_workload_may_silently_select_backend: false
+  target_workload_may_silently_select_threading: false
+  target_workload_may_silently_select_energy_measurement: false
+  guard_is_label_independent: true
+  prohibited_hidden_labels:
+    - smoke_test
+    - pilot
+    - phase_0
+    - exploratory_run
+    - benchmark_preview
+    - capacity_check
+    - tuning_pass
+  prior_target_workload_information_if_any_must_be_declared: true
+  contaminated_choice_requires_new_prospective_design_identity: true
+
+schema_governance:
+  historical_json_schema_version_value: 1
+  historical_json_schema_version_type: integer
+  package_side_discriminator: kind
+  s4n1_root_kind: study1b_s4n1_core_power_calibration_4000
+  s4n2_root_kind: study1b_s4n2_dagjk20_power_calibration_4000
+  closed_result_rewrite_permitted: false
+
+scientific_boundary:
+  screen_opened: false
+  qualification_test_opened: false
+  real_route_performance_opened: false
+  representation_geometry_opened: false
+  amendment_activated: false
+  s4n1_status: CLOSED_NEGATIVE
+  s4n2_status: CLOSED_NEGATIVE
+  s4n3_launched: false
+
+execution_gate:
+  independent_final_rereview_required: true
+  target_edge_hardware_bound: false
+  materialized_environment_lock_exists: false
+  canonical_phase_a_execution_permitted: false
+
+next_action: >-
+  Run the bounded assurance checks on the corrected benchmark/environment-lock head, then publish a new immutable
+  review request and final head binding. Obtain a fresh independent verdict. Even after design acceptance, canonical
+  Phase A remains blocked until the actual platform, measurement setup and configuration-choice provenance are
+  materialized and frozen in an execution-specific lock before any target-workload measurement informs those choices.

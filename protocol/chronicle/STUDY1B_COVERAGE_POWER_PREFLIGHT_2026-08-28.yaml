@@ -1,0 +1,160 @@
+schema_version: "1.0"
+date: "2026-08-28"
+entries:
+  - id: CHRON-20260828-S1B-COVERAGE-POWER-001
+    kind: study1b_nonoutcome_coverage_power_preflight
+    scope: study_1b_matched_compression
+    status: IN_PROGRESS_FAIL_CLOSED
+    scientific_outcomes_opened: false
+    screen_outcomes_opened: false
+    test_outcomes_opened: false
+    representation_geometry_authorized: false
+
+    prerequisites_closed:
+      active_data_boundary_amendment: true
+      active_identity_counts:
+        TRAIN: 2825
+        VALIDATION: 606
+        SCREEN: 604
+        TEST: 1710
+      latest_green_assurance_before_statistical_launch:
+        CI: PASS
+        research_assurance: PASS
+        study1b_engineering_assurance: PASS
+        study1b_nonoutcome_preflight: PASS
+
+    statistical_contract:
+      contract: protocol/simulations/STUDY1B_COVERAGE_POWER_PREFLIGHT_2026-08-27.yaml
+      target_fmr: 0.01
+      noninferiority_margin_delta_fnmr: 0.03
+      bootstrap_replicates_per_dataset: 10000
+      sampling_unit: identity_slot
+      bootstrap_edge_weights:
+        genuine: m_i
+        impostor: m_i_times_m_j
+      paired_draw_across_candidate_and_reference: true
+      degeneracy_fraction_limit: 0.001
+      coverage_gate:
+        nominal_interval: percentile_two_sided_95_with_97_5_upper_bound
+        exact_clopper_pearson_lower_95_minimum: 0.93
+        checkpoints: [1000, 2000, 4000]
+        stop_rule: first_checkpoint_where_all_cells_pass
+      coverage_scenarios:
+        - independent_pair_null
+        - subject_dependence_null
+        - subject_dependence_noninferior
+        - subject_dependence_boundary
+        - subject_dependence_inferior
+      power_gate:
+        simulated_datasets_per_effect_scenario: 4000
+        effect_scenarios: [0.0, 0.01]
+        method_seeds: [11, 29, 47, 71, 101]
+        required_probability_all_five_seed_ucb_below_margin: 0.90
+
+    power_pairing_correction:
+      status: IMPLEMENTED_PREOUTCOME
+      purpose: >-
+        Preserve the matched Study 1B design in planning simulations by using one common
+        synthetic raw/reference realization per simulated dataset across all five candidate
+        model seeds, while retaining seed-specific candidate residual variation.
+      rationale: >-
+        The reference route is one common comparator in the real matched experiment. Simulating
+        an independent reference world for each candidate seed would inject variance that does
+        not belong to the design and could distort the estimated all-five-seed power.
+      outcome_data_used_to_choose_change: false
+
+    coverage_checkpoint_1000:
+      workflow: .github/workflows/study1b-coverage-checkpoint.yml
+      first_run_id: 33213077035
+      first_run_head: d9ec081e445de2e5093a280a0498a28e0557e89f
+      first_run_result: INFRASTRUCTURE_FAILURE_BEFORE_SIMULATION
+      failure_stage: prepare-test-graph/materialize-active-amended-boundary
+      failure_reason: >-
+        The coverage workflow passed the KaggleHub archive root directly to the active-boundary
+        materializer, while that script expected peopleDevTrain.txt and peopleDevTest.txt at the
+        archive root. In the downloaded archive those metadata files are nested. No coverage
+        dataset was simulated and no statistical gate evidence was produced by this failed run.
+      scientific_interpretation: NONE
+      coverage_rows_produced: 0
+      shards_started: false
+      aggregation_started: false
+      corrective_commit: 5bab575301977fa2ea4a52d934810ef12b89e9c0
+      correction: >-
+        Reuse the validated deterministic recursive metadata resolver _find_named already used by
+        the canonical Study 1B non-outcome preflight. This is an infrastructure/path-resolution
+        correction only; it changes no data boundary, pair graph rule, RNG lineage, estimator,
+        threshold, checkpoint, bootstrap count, or statistical gate.
+
+    execution_model:
+      checkpoint_1000_planned_datasets_per_scenario: 1000
+      shard_size_datasets: 100
+      scenario_count: 5
+      total_shards_at_checkpoint_1000: 50
+      maximum_planned_shard_wall_time_hours: 4
+      resumable: true
+      append_only_progress_jsonl: true
+      no_silent_reduction: true
+      power_mass_execution_started: false
+
+    pedagogical_reading:
+      en_francais_dans_le_texte: >-
+        Avant de mesurer si la compression 512D vers 128D fonctionne vraiment, on vérifie d'abord
+        que notre outil statistique sait donner une réponse fiable. Pour cela, on fabrique beaucoup
+        de jeux de données synthétiques où la vérité est connue à l'avance. La couverture statistique
+        demande : quand on construit un intervalle de confiance censé contenir la vraie valeur dans
+        environ 95 % des cas, est-ce qu'il la contient réellement assez souvent ? Ici, on exige une
+        preuve prudente : la borne basse exacte de Clopper-Pearson sur cette fréquence doit être au
+        moins 0,93. La puissance statistique pose une autre question : si une méthode est réellement
+        non inférieure avec un écart vrai de 0 ou 0,01, notre procédure complète — y compris les cinq
+        graines de modèle — a-t-elle au moins 90 % de chances de conclure correctement que la borne
+        supérieure reste sous la marge de 0,03 ? Ces simulations n'utilisent aucun résultat biométrique
+        SCREEN ou TEST ; elles valident la règle de décision avant d'autoriser l'expérience réelle.
+
+      lecture_ingenieur: >-
+        On qualifie ici la chaîne de mesure avant de qualifier le produit scientifique. Le graphe TEST
+        figé fournit la topologie d'échantillonnage, mais les distances sont synthétiques et générées
+        sous des régimes dont le Delta_FNMR vrai est imposé. Le bootstrap par slots d'identités
+        reproduit la dépendance induite par les sujets : une arête genuine porte le poids m_i et une
+        arête imposteur m_i*m_j. Pour la couverture, on répète l'expérience synthétique 1000 fois au
+        premier checkpoint, puis éventuellement 2000 et 4000, et on contrôle à la fois la fréquence de
+        couverture et le taux de réplications dégénérées. Pour la puissance, un dataset simulé représente
+        un même monde de référence raw512 partagé par les cinq seeds candidats ; seules les réalisations
+        résiduelles des candidats varient avec les seeds. Cela correspond à un essai apparié avec un
+        comparateur commun, et évite d'ajouter artificiellement cinq réalisations indépendantes du même
+        système de référence. Tant que cette chaîne ne passe pas ses gates, SCREEN/TEST restent fermés.
+
+      lecture_12_ans: >-
+        Imagine un thermomètre qu'on veut utiliser pour une expérience importante. Avant de mesurer la
+        vraie expérience, on le teste avec des températures qu'on connaît déjà. Si on lui demande
+        beaucoup de fois de donner une zone où devrait être la bonne température, la bonne température
+        doit presque toujours tomber dans cette zone. C'est la couverture. Ensuite on vérifie qu'il est
+        assez sensible pour voir une petite différence quand elle existe vraiment : c'est la puissance.
+        Ici, on fait la même chose avec notre méthode statistique. On crée des faux jeux de données dont
+        on connaît la réponse, on vérifie que nos intervalles disent vrai assez souvent, puis qu'avec cinq
+        versions légèrement différentes du modèle on arrive encore à prendre la bonne décision au moins
+        9 fois sur 10. Ce n'est qu'après qu'on regardera les vraies performances réservées de Study 1B.
+
+    vocabulary_fr:
+      near_duplicate: quasi-doublon candidat
+      adjudication: examen déterministe conduisant à une décision documentée
+      bootstrap: rééchantillonnage bootstrap
+      vectorization: vectorisation du calcul
+      shard: lot d'exécution indépendant et reprenable
+      coverage: couverture statistique
+      power: puissance statistique
+
+    next_admissible_actions:
+      - rerun_checkpoint_1000_after_metadata_path_fix
+      - archive_shard_progress_and_results
+      - aggregate_all_five_coverage_cells_at_checkpoint_1000
+      - if_all_cells_pass_stop_coverage_according_to_frozen_rule
+      - otherwise_continue_to_checkpoint_2000_then_4000_without_method_change
+      - only_after_coverage_validation_launch_full_power_preflight
+
+    prohibited_actions:
+      - open_SCREEN_biometric_outcomes
+      - open_TEST_biometric_outcomes
+      - reduce_bootstrap_replicates_silently
+      - change_coverage_or_power_gate_after_observation
+      - tune_seed_effect_model_from_Study1B_outcomes
+      - start_representation_geometry

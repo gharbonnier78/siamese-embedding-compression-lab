@@ -1,0 +1,67 @@
+schema_version: 1
+study_id: study_1b_matched_compression
+date: "2026-08-28"
+event: NEAR_DUPLICATE_SECOND_STAGE_RESULT
+scope: NONOUTCOME_PREFLIGHT
+scientific_boundary:
+  biometric_screen_outcomes_opened: false
+  qualification_test_outcomes_opened: false
+  representation_geometry_opened: false
+  full_coverage_power_shards_started: false
+input_evidence:
+  workflow_run_id: 33150141532
+  artifact_id: 9677383979
+  artifact_sha256: "6652b32edce5a968a3869d093b00565f193c9de32e720d25c903a87a389edc34"
+  candidate_count: 18
+method_fr: >-
+  Examen déterministe de seconde étape des 18 quasi-doublons candidats signalés par dHash64.
+  Les pixels centraux en niveaux de gris sont comparés après redimensionnement 128x128 par
+  erreur quadratique moyenne normalisée (NRMSE), corrélation des pixels et corrélation de la
+  magnitude du gradient. Aucun embedding AdaFace ni score biométrique n'est lu.
+frozen_rule:
+  nrmse_max: 0.08
+  pixel_corr_min: 0.985
+  gradient_corr_min: 0.97
+  three_of_three: BLOCK_DUPLICATE_LIKE
+  two_of_three: AMBIGUOUS_REVIEW
+  zero_or_one_of_three: CLEAR_NOT_DUPLICATE_LIKE
+result:
+  clear_not_duplicate_like: 16
+  ambiguous_review: 1
+  block_duplicate_like: 1
+  overall_status: BLOCKED
+blocking_candidate:
+  roles: [SCREEN, TRAIN]
+  dhash_hamming: 1
+  nrmse: 0.01693819089247205
+  pixel_corr: 0.9968031157798097
+  gradient_corr: 0.9703273117470791
+  note_fr: >-
+    Les trois critères figés sont satisfaits. Conformément à la règle définie avant cette
+    observation, ce candidat bloque le preflight. Les seuils ne sont pas modifiés après coup.
+ambiguous_candidate:
+  roles: [TEST, TRAIN]
+  dhash_hamming: 1
+  nrmse: 0.018402740940493986
+  pixel_corr: 0.9966728201266358
+  gradient_corr: 0.9609386091771954
+  note_fr: >-
+    Deux critères sur trois sont satisfaits; le cas reste à examiner. Il n'est ni requalifié
+    en fuite ni écarté automatiquement.
+bootstrap_acceleration_evidence:
+  scalar_previous_cost_pilot_seconds_per_dataset_100_replicates_approx: 5.4
+  vectorized_current_seconds_per_dataset_100_replicates:
+    - 0.46
+    - 0.45
+  approximate_speedup_vs_previous: 12
+  oracle_equivalence_test: PASS
+  oracle_replicates: 257
+  note_fr: >-
+    L'accélération est réelle mais ne justifie aucune réduction du nombre de réplications ou de
+    jeux synthétiques. Les lots complets de couverture et de puissance restent bloqués jusqu'à
+    résolution du problème de quasi-doublon et validation du coût d'exécution complet.
+decision_fr: >-
+  Ne pas lancer les véritables lots complets de simulation de couverture statistique et de
+  puissance statistique. Conserver le résultat de l'examen déterministe, traiter le candidat
+  bloquant par amendement explicite de la frontière de données si nécessaire, examiner le cas
+  ambigu, et poursuivre l'accélération du bootstrap sans changer l'estimateur.

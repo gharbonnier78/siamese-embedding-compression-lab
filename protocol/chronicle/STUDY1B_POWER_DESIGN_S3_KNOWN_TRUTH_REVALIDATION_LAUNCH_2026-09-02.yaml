@@ -1,0 +1,56 @@
+schema_version: "1.0"
+entry_type: prospective_s3_known_truth_revalidation_launch
+study_id: study_1b_matched_compression
+date: 2026-09-02
+status: S3_KNOWN_TRUTH_REVALIDATION_CHECKPOINT_1000_LAUNCHED
+
+human_authority:
+  source: "2026-09-02 project conversation"
+  instruction: "revalidation known-truth des designs x1.5 et x2"
+
+scientific_authorization:
+  scientific_outcomes_opened: false
+  screen_opened: false
+  test_outcomes_opened: false
+  representation_geometry_opened: false
+  canonical_gate_replaced: false
+  amendment_activated: false
+
+harness:
+  manifest: harness-adoption.yaml
+  pinned_ref: 3b109adcdd9a8cba4df029d3803ee0e5cb5bdf98
+  task_id: STUDY1B_S3_KNOWN_TRUTH_REVALIDATION_1000
+
+basis:
+  construction_result: protocol/chronicle/STUDY1B_POWER_DESIGN_S3_GRAPH_CONSTRUCTION_RESULT_2026-09-02.yaml
+  construction_status: S3_EXPANDED_GRAPH_CONSTRUCTION_CLOSED_PASS
+  revalidation_contract: protocol/simulations/STUDY1B_POWER_DESIGN_S3_KNOWN_TRUTH_REVALIDATION_V0_1_2026-09-02.yaml
+  source_head_before_launch: 12ee7be7a5c93f2ed0aa15fdef71db24f2bb4ee0
+
+frozen_graphs:
+  x1_5_sha256: 57dd4a3b2db26220ea8e29f5a4d218b50883cdac456f18e73691c1d26afdebc0
+  x2_0_sha256: 85cd8b04d768ca035cf76184bb1f4547b9c25349803681be9af16be5b65cda58
+
+checkpoint:
+  datasets_per_scenario_per_design: 1000
+  scenarios_per_design: 5
+  bootstrap_replicates_per_dataset: 10000
+  designs: [x1_5, x2_0]
+  gate:
+    lower_95_clopper_pearson_gte: 0.93
+    degenerate_fraction_lte: 0.001
+  stop_rule: first_checkpoint_where_all_cells_pass
+  escalation_if_not_all_pass: [2000, 4000]
+
+interpretation:
+  note: >-
+    This launch validates synthetic known-truth interval behavior on the two frozen
+    expanded graphs. It does not estimate real compression performance and does not
+    authorize S3 power until both designs pass the coverage gate.
+
+provenance:
+  append_only: true
+  graph_hashes_frozen: true
+  original_coverage_result_preserved: true
+  canonical_failed_power_result_preserved: true
+  s2_final_failure_preserved: true

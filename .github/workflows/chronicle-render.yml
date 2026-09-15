@@ -1,0 +1,40 @@
+name: Chronicle Human View
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - agent/study1b-preregistration-20260827
+    paths:
+      - 'protocol/chronicle/**.yaml'
+      - 'scripts/render_chronicle.py'
+
+permissions:
+  contents: read
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+      - name: Install renderer dependencies
+        run: python -m pip install pyyaml
+      - name: Render Chronicle
+        run: python scripts/render_chronicle.py --source protocol/chronicle --out-dir artifacts/chronicle
+      - name: Compile PDF
+        uses: xu-cheng/latex-action@v4
+        with:
+          root_file: Chronicle.tex
+          working_directory: artifacts/chronicle
+      - uses: actions/upload-artifact@v4
+        with:
+          name: study1b-chronicle-human-view
+          path: |
+            artifacts/chronicle/Chronicle.md
+            artifacts/chronicle/Chronicle.tex
+            artifacts/chronicle/Chronicle.pdf
+          if-no-files-found: error

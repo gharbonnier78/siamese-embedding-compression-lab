@@ -1,4 +1,4 @@
-# Research programme v0.2.3
+# Research programme v0.3
 
 ## Purpose
 
@@ -6,161 +6,156 @@ This repository studies a bounded engineering-scientific question:
 
 > Can a learned projection reduce biometric embedding cost while preserving decision-relevant verification or identification performance relative to the uncompressed representation and matched compression controls?
 
-The programme is falsifiable by design. It separates:
+The programme is falsifiable by design and separates:
 
-1. **mechanism validity** — does supervision actually update the projection?
-2. **representation value** — does a compressed representation preserve the relevant operating point?
-3. **supervision value** — does learned pair supervision outperform ordinary compression controls?
-4. **threshold-transfer validity** — do thresholds selected away from TEST transfer credibly?
-5. **engineering value** — do storage, memory, latency or throughput improve under measured workloads?
-6. **claim admissibility** — is the evidence strong enough for the exact statement being proposed?
+1. mechanism validity;
+2. representation value;
+3. supervision value;
+4. threshold-transfer validity;
+5. uncertainty and decision-procedure validity;
+6. engineering value;
+7. claim admissibility.
 
-A failed gate is a valid result. It reduces the permitted claim level and may stop or redirect later work.
+A failed gate is a valid result. Later studies never overwrite earlier evidence.
 
-## Current state
+## Current state — 2026-09-15
 
-The initial experiment, called **Study 0** inside this repository, is closed after a corrected subject-level uncertainty reanalysis.
+Study 0 is closed after corrected identity-aware uncertainty reanalysis. None of the tested 128D routes demonstrated non-inferiority to raw512 under the frozen Study 0 rule.
 
-Study 0 used frozen ImageNet ResNet-18 embeddings on LFW and compared raw 512D, random 128D, PCA 128D and Siamese 128D routes. The corrected analysis found that none of the 128D routes demonstrated non-inferiority to raw 512D under the frozen all-seeds rule at empirical `FMR = 0.01` with `delta_FNMR = 0.03`.
+Study 1B is now the active design programme. It consumes the frozen face-specific AdaFace 512D substrate and preregisters matched `raw512`, `random128`, `pca128` and `siamese128` routes.
 
-The historical pair-level bootstrap was found to understate uncertainty because the declared identity-aware sampling unit had not been implemented. The correction used a preregistered weighted subject-slot bootstrap, passed a known-truth coverage study, was replayed on the immutable historical scores, and was independently checked at materialization and interpretation stages.
+Protected Study 1B outcomes remain sealed.
 
-Final bounded status:
+The Stage B uncertainty/power preflight has been calibrated prospectively using synthetic known-truth worlds. Both frozen calibration procedures, S4N1 and S4N2, remain `CLOSED_NEGATIVE`: at true `Delta_FNMR=0.01`, all declared selector power estimates remain below the frozen 0.90 target, and their exact 95% Monte-Carlo uncertainty upper endpoints remain below 0.90. S4N3 has not been launched.
 
-| Object | State |
+The programme therefore separates the unresolved biometric claim from a distinct non-outcome engineering-value question: what does the exact 512→128 structural reduction buy in RAM, dense-search compute, latency, throughput, queueing, energy and hardware-tier feasibility?
+
+A Jungle Championship Phase A benchmark contract exists for synthetic exact-dense FP32 CPU top-1 search. Canonical execution remains blocked. The real edge hardware, load generator, external power meter, configuration-choice provenance and execution-specific environment lock are not yet materialized.
+
+The v0.5 independent review accepted D1/D2/D3 provenance and information-firewall design while explicitly leaving execution inadmissible and construct validity unreviewed. The current v0.6 cycle prospectively hardens N4 (possession vs creation influence), N5 (scope of mechanically checkable temporal ordering), R1/N2 (choice-specific informational overlap across hardware classes) and N6 (self-contained review transport). v0.6 awaits independent re-review.
+
+| Object | Current state |
 | --- | --- |
-| Study 0 corrected reanalysis | closed |
-| E-STAT-001 | `REANALYZED` |
-| G2 estimator/statistical validity | `PASS` for corrected Study 0 reanalysis |
-| C-NI-001 | `NOT_DEMONSTRATED` |
-| C-SUP-001 | `NOT_DEMONSTRATED` |
-| Study 1 | draft design, not executed |
-| Geometry exploration | outside current scope |
+| Study 0 corrected reanalysis | CLOSED |
+| Study 1B SCREEN | SEALED |
+| Study 1B qualification TEST | SEALED |
+| S4N1 | CLOSED_NEGATIVE |
+| S4N2 | CLOSED_NEGATIVE |
+| S4N3 | NOT_LAUNCHED |
+| D1/D2/D3 v0.5 history | ACCEPTED |
+| v0.6 N4/N5/R1-N2 | CORRECTED_PROSPECTIVELY_AWAITING_REVIEW |
+| Construct validity of Phase A | NOT_REVIEWED |
+| Phase A target platform/measurement setup | NOT_BOUND |
+| Canonical Phase A execution | BLOCKED |
+| Representation geometry | OUTSIDE_CURRENT_OPEN_SCOPE |
 
-The reader-oriented closure is `STUDY0_FINAL_REPORT.md`; the self-contained English paper is `paper/main.tex` version 0.2.3.
+## Frozen Study 1B scientific core
 
-## Evidence escalation model
+Primary estimand:
 
-Study 0 exposed two distinct needs:
+`Delta_FNMR(m, alpha) = FNMR_m(alpha) - FNMR_raw512(alpha)`.
 
-- when a methodological defect affects evidence already used as a foundation, repair the full chain and replay it rigorously;
-- before a new direction has earned that cost, use explicitly exploratory evidence to decide whether full qualification is worth doing.
+Frozen values:
 
-Future work therefore uses **progressive evidence escalation**.
+- `alpha = 0.01`;
+- `delta_FNMR = 0.03`;
+- one-sided UCB = 0.975;
+- Stage B route seeds `[11,29,47,71,101]`;
+- 10,000 identity-aware bootstrap replicates;
+- all-seeds method-level non-inferiority rule.
 
-### Stage A — exploratory screening
+`NOT_DEMONSTRATED` is distinct from inferiority.
 
-Screening answers only whether a direction deserves further investment. It may use a dedicated SCREEN set, fewer predeclared screening seeds and a bounded compute budget. It must keep qualification TEST closed and must be marked non-claim-bearing.
+## Evidence escalation and boundaries
 
-Allowed decisions are `CONTINUE`, `STOP` or `REDIRECT`.
+### Protected scientific outcomes
 
-### Stage B — qualification
+SCREEN and qualification TEST route outcomes are outcome-bearing. They remain unopened.
 
-Only a promoted direction enters claim-bearing qualification. Qualification freezes the complete estimand, margin, multiplicity policy, qualification seeds, data roles, uncertainty method, provenance, replay and independent review burden.
+### Synthetic calibration evidence
 
-Screening results can never be silently relabelled as qualification evidence.
+S4 known-truth simulations evaluate procedure behavior, not real biometric performance.
+
+At `Delta=.01`:
+
+- S4N1 powers: FIXED 0.8655, prospectively preferred VALIDATION_BEST 0.8690, MEDIAN 0.8695;
+- S4N2 powers: FIXED 0.8470, prospectively preferred VALIDATION_BEST 0.8490, MEDIAN 0.8535.
+
+S4N1/S4N2 use the same deterministic synthetic population and compare two uncertainty procedures; they are not independent replications.
+
+### Engineering evidence
+
+Future Phase A engineering measurements use synthetic vectors and cannot establish biometric non-inferiority or superiority.
+
+### Structural facts
+
+At equal datatype/encoding, 512→128 reduces vector payload and direct dense coordinate contributions by exactly 75%. This does not imply 4× end-to-end speed or 75% lower power.
 
 ## Study sequence
 
-| Study | Current status | Purpose | Maximum present conclusion |
-| --- | --- | --- | --- |
-| Study 0 | completed and corrected | Audit 512→128 compression in the original ImageNet ResNet-18/LFW setting | Limited LFW result |
-| Study 1 | draft preregistration | Face-specific backbone, screening then 1:1 qualification | None until executed |
-| Study 2 | planned | Dimensions, projection families, supervision value and quantization | Compression ablation |
-| Study 3 | planned | External datasets and predeclared operational shifts | Bounded robustness |
-| Study 4 | planned | 1:N retrieval, indexing and engineering cost | Bounded engineering value |
-| Study 5 | planned | Independent replay and reproduction | Reproduction claim |
+| Study / workstream | Status | Purpose |
+| --- | --- | --- |
+| Study 0 | completed/corrected | original LFW/ImageNet compression audit |
+| Study 1A | frozen face-specific substrate | qualify source representation |
+| Study 1B scientific | preregistered, protected outcomes sealed | matched compression comparison |
+| Study 1B S4 | closed negative | calibrate uncertainty/power before TEST |
+| Study 1B engineering Phase A | design only, execution blocked | measure structural engineering consequences |
+| Construct-validity review | pending | verify benchmark answers intended engineering question |
+| Later dimension/index/quantization work | future | separate interventions requiring their own contracts |
 
-Later studies never overwrite earlier evidence.
+## Current engineering benchmark contract
 
-## Study 1 — current design direction
+Phase A freezes:
 
-Study 1 will replace the unsuitable ImageNet source extractor with a face-specific embedding. It is not yet authorized for execution.
+- exact dense dot-product top-1;
+- FP32 CPU;
+- L2-normalized synthetic vectors;
+- fixed work, no threshold gating;
+- no candidate pruning or ANN;
+- paired 512D/128D arms on the same bound tier;
+- G0 small-control and G2 large-gallery sensitivity;
+- external device-input/wall power for strong energy claims.
 
-The current draft introduces a dedicated non-claim-bearing screening stage before qualification:
+G2 is a scenario, not event fact:
 
-- separate TRAIN / VALIDATION / SCREEN / untouched qualification TEST roles;
-- raw/random/PCA/Siamese matched routes at 128D;
-- screening seeds `[11,29]` fixed before outcomes;
-- full qualification seeds `[11,29,47,71,101]` preserved regardless of screening outcomes;
-- raw backbone viability checked at the decision-relevant low-FMR endpoint before compression qualification;
-- numerical promotion and stop criteria frozen before SCREEN is opened;
-- negative screening preserved and allowed to stop or redirect work;
-- qualification TEST never used to rescue a failed screen.
+- 500,000 whitelist + 10,000 blacklist identities;
+- 3 templates/identity;
+- 1.53M templates;
+- FP32 payload 3,133,440,000 bytes at 512D versus 783,360,000 bytes at 128D.
 
-Before screening can execute, the design still needs independently reviewed and frozen choices for the backbone/weights/licence, datasets and overlap audit, target population/capture regime, screening promotion rule, qualification FMR and margin, sample size, multiplicity policy and compute budget. A separate research authorization is required for Stage A execution.
+## D1/D2/D3 and v0.6
 
-## Primary representation estimand
+D1 provides accountable provenance and attestation for lock-defining choices.
 
-For candidate route `m`, raw reference `b`, and target false-match rate `alpha`:
+D2 provides bounded public temporal ordering for genuinely pre-existing external evidence and cannot replace D1.
 
-```text
-delta_fnmr(m, alpha) = fnmr_m(alpha) - fnmr_b(alpha)
-```
+D3 classifies prior evidence by informational relevance, not by intent or labels.
 
-A non-inferiority claim requires the predeclared upper confidence bound for this paired difference to be at or below the predeclared margin. TEST equal-FMR thresholds are non-deployable representation benchmarks. Operational thresholds are selected on VALIDATION and frozen before TEST.
+v0.6 prospectively clarifies:
 
-## Study 0 correction — frozen subject-level uncertainty
+- N4: possession/review does not itself equal influence over evidence creation;
+- N5: only the temporal-ordering component is mechanically checkable;
+- R1/N2: relevance must be evaluated per lock-defining choice, allowing portable backend/threading/measurement-method information to transfer across hardware classes;
+- N6: future review packages ship exact normative artifacts and Git blob SHA-1 values for local recomputation.
 
-The corrected Study 0 analysis draws 963 subject slots with replacement on the observed LFW DevTest sparse graph:
+Canonical Phase A remains blocked until v0.6 re-review, construct-validity review, platform/measurement materialization, provenance attestation, execution-specific lock freeze and exact-head assurance.
 
-- genuine edge weight `m_i`;
-- impostor edge weight `m_i*m_j`;
-- same draw for candidate and raw;
-- no synthesized unobserved pairs;
-- 10,000 bootstrap replicates per seed;
-- PCG64 with frozen seed binding;
-- fail on degeneracy rather than redraw;
-- immutable historical score source.
+## Reader-facing documents
 
-Known-truth synthetic validation checked representation delta-FNMR, operational FNMR and operational FMR separately across five frozen dependence/effect regimes. The corrected historical result was then materialized and independently recalculated.
+- Current detailed narrative: `paper/study1_protocol_v0.4-preexecution-v06.md`
+- Current research monograph source: `paper/siamese_embedding_compression_research_program_v0.3.md`
+- Historical Study 0 closure: `STUDY0_FINAL_REPORT.md`
+- Historical PDFs remain versioned and are never overwritten.
 
-## Claim boundaries after Study 0
+## Main normative sources
 
-Study 0 establishes the training mechanism and exact payload arithmetic, but it does not establish:
+- `protocol/studies/STUDY1B_MATCHED_COMPRESSION_PREREGISTRATION_2026-08-27.md`
+- `protocol/decisions/STUDY1B_S4N1_S4N2_SHARED_POPULATION_AND_T19_CLARIFICATION_2026-09-08.yaml`
+- `protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_BENCHMARK_V0_3_2026-09-08.yaml`
+- `protocol/reviews/PR50_CB124244_D2_V05_FOCUSED_REREVIEW_VERDICT_2026-09-10.md`
+- `protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_BENCHMARK_V0_3_D1_D3_ADDENDUM_V0_2_2026-09-14.yaml`
+- `protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_ENVIRONMENT_LOCK_V0_6_2026-09-14.yaml`
+- `protocol/chronicle/STUDY1B_PR50_PREEXECUTION_SEMANTIC_HARDENING_V0_6_OPEN_2026-09-14.yaml`
+- `harness-adoption.yaml`
 
-- non-inferiority of any tested 128D route;
-- added Siamese supervision value over PCA/random;
-- industrial biometric validity;
-- very-low-FMR performance;
-- general failure of metric learning;
-- 1:N preservation or end-to-end latency benefit;
-- fairness, PAD, security or regulatory conformity.
-
-## Engineering decomposition
-
-The current post-extractor projection does not shrink or accelerate the frozen extractor. For workload `w`, future system studies should separate at least:
-
-```text
-C_total(w) = C_extract + C_project + C_store + C_index + C_search + C_postprocess + C_replicate
-```
-
-Study 0 establishes only route-specific template arithmetic. Study 4 is responsible for actual 1:N/index/latency measurements.
-
-## Evidence and sources of truth
-
-| Object | Source |
-| --- | --- |
-| Current reader-facing status | `README.md` |
-| Study 0 closure narrative | `STUDY0_FINAL_REPORT.md` |
-| Self-contained paper | `paper/main.tex` |
-| Claims and permitted wording | `claims/registry.yaml` |
-| Study protocols | `protocol/studies/*.yaml` |
-| Append-only execution decisions | `protocol/scientific_chronicle.yaml` |
-| Statistical erratum history | `ERRATA_STUDY_0.md` |
-| Corrected Study 0 evidence | `evidence/study_0_subject_bootstrap_v0.2.2/` |
-| Immutable historical replay | release-level MMALS replay bundle and recorded hashes |
-
-Machine checks establish internal consistency and replayability; they do not substitute for scientific validity or domain expertise.
-
-## Build and validation
-
-```bash
-python scripts/validate_research_program.py --root .
-python scripts/validate_scientific_harness.py
-python scripts/generate_research_figures.py
-python -m unittest discover -s tests -v
-latexmk -pdf -interaction=nonstopmode -halt-on-error -cd paper/main.tex
-```
-
-Historical PDFs and result artifacts remain versioned and are not overwritten by later papers or corrections.
+Machine checks establish internal consistency and replayability. They do not substitute for scientific validity, construct validity or domain expertise.

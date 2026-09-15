@@ -1,0 +1,26 @@
+schema_version: "1.0"
+entry_type: study1b_pr50_rereview_head_binding
+chronicle_entry_id: CHRON-20260908-039
+study_id: study_1b_matched_compression
+date: 2026-09-08
+kind: append_only_nonoutcome_review_binding
+status: REREVIEW_HEAD_BINDING_PENDING_PR_METADATA
+outcome_evidence_seen: false
+
+purpose: >-
+  Record that the final corrected PR head is bound externally in PR #50 metadata/comment after this entry commits.
+  The binding cannot self-encode its own commit SHA without changing that SHA, so the immutable PR head published
+  after this commit is the canonical re-review head. Any later repository commit invalidates that binding.
+
+protected_boundary:
+  screen_opened: false
+  qualification_test_opened: false
+  real_route_performance_opened: false
+  representation_geometry_opened: false
+  amendment_activated: false
+  s4n3_launched: false
+
+next_action: >-
+  Publish the resulting branch head SHA in the PR #50 body and dedicated comment, wait for assurance completion,
+  then obtain independent re-review against that exact SHA. Do not execute canonical Phase A before acceptance
+  and materialized environment binding.

@@ -1,0 +1,95 @@
+schema_version: "1.0"
+entry_type: s4n1_contract_freeze
+chronicle_entry_id: CHRON-20260904-016
+study_id: study_1b_matched_compression
+scope: study_1b_s4n1_selection_semantics_and_calibration
+date: 2026-09-04
+kind: prospective_nonoutcome_contract_freeze
+status: FROZEN_READY_FOR_NONOUTCOME_IMPLEMENTATION
+outcome_evidence_seen: false
+
+summary: >-
+  S4N1 artifact-selection semantics and the synthetic calibration design are now frozen
+  prospectively before any Study 1B SCREEN/TEST access. The route-neutral VALIDATION selector
+  uses paired equal-FMR Delta_FNMR point estimates at FMR 0.01 over exactly five predeclared
+  seed artifacts. Fixed-seed, validation-best and validation-median semantics are retained.
+  Validation-best is recorded as the semantic preference only if it passes the same prospective
+  known-truth coverage and power gates. The final inferential target remains the selected frozen
+  artifact's TEST Delta_FNMR; training-procedure seed stability stays secondary.
+
+harness:
+  repository: gharbonnier78/scientific-research-harness
+  pinned_ref: 3b109adcdd9a8cba4df029d3803ee0e5cb5bdf98
+  manifest: harness-adoption.yaml
+  local_instructions: AGENTS.md
+  task_id: STUDY1B_S4N1_SELECTION_SEMANTICS_AND_CALIBRATION_DESIGN
+
+human_authority:
+  source: "2026-09-04 project conversation"
+  explicit_go: S4N1_nonoutcome_work_only
+  synthetic_execution_after_contract_freeze: authorized
+  real_outcomes: prohibited
+
+basis:
+  source_head_before_freeze: cfb1bdb05c9cfab0da20d89ae251cdc17930e088
+  s3_result: protocol/chronicle/STUDY1B_POWER_DESIGN_S3_POWER_CALIBRATION_RESULT_2026-09-04.yaml
+  s4_reframe: protocol/chronicle/STUDY1B_S4_METHOD_LEVEL_PERSPECTIVE_REFRAME_2026-09-04.yaml
+  s4new_parent: protocol/simulations/STUDY1B_S4NEW_ARTIFACT_LEVEL_QUALIFICATION_V0_1_2026-09-04.yaml
+  frozen_s4n1_contract: protocol/simulations/STUDY1B_S4N1_SELECTION_SEMANTICS_AND_CALIBRATION_DESIGN_V0_1_2026-09-04.yaml
+  rationale_note: docs/research-notes/STUDY1B_S4N1_SELECTION_BIAS_AND_INDEPENDENT_TEST_2026-09-04.md
+
+frozen_selection_semantics:
+  validation_metric: paired_equal_fmr_delta_fnmr_point
+  target_fmr: 0.01
+  seed_labels: [11, 29, 47, 71, 101]
+  deterministic_tie_order: [11, 29, 47, 71, 101]
+  candidates:
+    - S4N_FIXED_SEED
+    - S4N_VALIDATION_BEST
+    - S4N_VALIDATION_MEDIAN
+  preferred_if_eligible: S4N_VALIDATION_BEST
+
+frozen_calibration:
+  coverage_exact_lower_95_cp_minimum: 0.93
+  degenerate_fraction_maximum: 0.001
+  power_minimum: 0.90
+  power_test_truth_scenarios: [0.0, 0.01]
+  target_fmr: 0.01
+  noninferiority_margin_delta_fnmr: 0.03
+  one_sided_ucb_level: 0.975
+  bootstrap_replicates: 10000
+  validation_test_transport_rho_sensitivity: [0.0, 0.5, 1.0]
+  seed_effect_sd_sensitivity: [0.0, 0.0025, 0.005, 0.0075, 0.01]
+
+scientific_authorization_boundary:
+  scientific_outcomes_opened: false
+  screen_opened: false
+  qualification_test_outcomes_opened: false
+  representation_geometry_opened: false
+  original_5_of_5_rule_replaced: false
+  amendment_activated: false
+  artifact_selector_activated_for_real_study: false
+  synthetic_poc_implementation_authorized: true
+  synthetic_known_truth_execution_authorized_after_implementation_checks: true
+
+preserved_negative_evidence:
+  original_power_failure: preserved
+  s2_negative_result: preserved
+  s3_negative_result: preserved
+
+next_action: >-
+  Implement the S4N1 two-role selected-artifact synthetic generator and deterministic selectors,
+  add the required architecture note and focused tests, verify code/static/seed-lineage
+  invariants, then execute core known-truth coverage before any core power simulation. Archive
+  every result append-only. SCREEN, TEST, geometry and amendment activation remain blocked.
+
+blocks:
+  - study1b_power_design_amendment_activation
+  - study1b_screen_outcomes
+  - study1b_test_outcomes
+  - study1b_representation_geometry
+
+provenance:
+  append_only: true
+  prior_s4new_not_rewritten: true
+  prior_s3_not_rewritten: true

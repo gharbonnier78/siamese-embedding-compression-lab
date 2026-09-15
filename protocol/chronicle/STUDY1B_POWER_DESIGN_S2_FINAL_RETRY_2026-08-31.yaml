@@ -1,0 +1,75 @@
+schema_version: "1.0"
+entry_id: STUDY1B_POWER_DESIGN_S2_FINAL_RETRY_2026-08-31
+study_id: study_1b_matched_compression
+date: 2026-08-31
+status: INFRASTRUCTURE_EXECUTION_GUARD_TRIGGERED_RETRY_AUTHORIZED
+
+scientific_boundary:
+  scientific_outcomes_opened: false
+  screen_opened: false
+  test_opened: false
+  geometry_opened: false
+  canonical_power_gate_replaced: false
+  amendment_activated: false
+
+failed_attempt:
+  workflow: Study 1B Power Design S2 Final Reference SD
+  run_id: 33365922826
+  head_sha: 4693ddb5ec115094c56e26ac05d44f96429692d1
+  conclusion: failure
+  failure_class: infrastructure_execution_guard
+  scientific_result_available: false
+  root_cause: >-
+    The final 4000-dataset workflow invoked the pilot-only shard executor. That
+    executor correctly rejected any shard with stop > pilot_datasets_per_cell=500,
+    raising 'S2 pilot shard exceeds predeclared pilot budget'. The failure therefore
+    carries no scientific interpretation.
+  successful_partial_shards_are_non_authoritative: true
+
+correction:
+  final_executor: scripts/study1b_power_sensitivity_final_shard.py
+  final_executor_commit: 7ac1c1a6521d09b12de2c9383c710dd2b21f42fe
+  workflow_fix_commit: dc01d53aeef8527a1f33e2de3f5a3e8040bf17f1
+  separation_of_roles:
+    pilot_executor_budget: 500
+    final_executor_budget: 4000
+  final_guard:
+    source_field: phase_S2_seed_variability_sweep.final_datasets_per_cell_if_candidate_survives_pilot
+    value: 4000
+  candidate_rule_locked_for_confirmation: at_least_3_of_5
+  seed_effect_sd_locked: 0.005
+  effects_locked: [0.0, 0.01]
+  bootstrap_replicates_per_dataset: 10000
+  noninferiority_margin_unchanged: 0.03
+  one_sided_ucb_level_unchanged: 0.975
+  seeds_unchanged: [11, 29, 47, 71, 101]
+
+retry_authorization:
+  authorized: true
+  reason: >-
+    Retry is authorized solely to execute the already-declared S2 final candidate
+    calibration after correcting the executor-role mismatch. No scientific threshold,
+    scenario, seed model, candidate rule, or data boundary is changed.
+  expected_datasets_per_effect: 4000
+  expected_total_datasets: 8000
+  workflow_trigger: this_append_only_chronicle_entry
+
+next_gate:
+  before_any_scientific_interpretation:
+    - workflow_must_complete
+    - aggregate_must_contain_exactly_4000_rows_per_effect
+    - summary_artifact_id_and_digest_must_be_recorded
+  if_candidate_at_least_3_of_5_reaches_0_90_in_both_effect_scenarios:
+    - calibrate_known_truth_coverage_for_changed_rule
+    - define_claim_semantics_for_3_of_5
+    - independent_scientific_review
+    - independent_technical_review
+    - explicit_human_amendment_authorization
+  if_candidate_fails_power_target:
+    - do_not_relax_to_2_of_5_opportunistically
+    - proceed_to_S3_information_sensitivity_or_S4_method_level_specification
+
+provenance:
+  append_only: true
+  canonical_failed_5_of_5_result_preserved: true
+  failed_final_attempt_preserved: true

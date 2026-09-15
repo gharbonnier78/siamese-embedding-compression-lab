@@ -1,0 +1,98 @@
+schema_id: study1b.chronicle.review_result
+schema_version: 2
+artifact_version: "0.2"
+entry_type: study1b_pr50_f5d748_focused_rereview_result
+chronicle_entry_id: CHRON-20260909-043
+study_id: study_1b_matched_compression
+date: 2026-09-09
+kind: append_only_nonoutcome_review_result
+status: ACCEPT_WITH_CHANGES_D2_ANCHOR_CORRECTED_AWAITING_FOCUSED_REREVIEW
+outcome_evidence_seen: false
+
+review_basis:
+  reviewed_head: f5d748006bdde7ab6e71fa4396d5e1a5e09d6aaa
+  package: PR50_F5D748_D1_D3_FOCUSED_REREVIEW_PACKAGE_2026-09-09.zip
+  package_sha256: 5d1949c82dfc38a808d0bfac4af07f03e5b9fe191104dab70a6ca8fbc0bd10a1
+  archived_verdict: protocol/reviews/PR50_F5D748_D1_D3_FOCUSED_REREVIEW_VERDICT_2026-09-09.md
+  verdict: ACCEPT_WITH_CHANGES
+  D1_CLOSED: true
+  D2_CLOSED: false
+  D3_CLOSED: true
+  PRIOR_DESIGN_CONDITIONS_SATISFIED: false
+  CANONICAL_EXECUTION_CURRENTLY_ADMISSIBLE: false
+  CONSTRUCT_VALIDITY_REVIEWED: false
+
+reviewer_verification_scope:
+  package_integrity: 18_of_18_manifest_entries_verified_zero_mismatch
+  focused_assurance_test: 14_of_14_pass_exit_0_from_package_as_shipped
+  s4_clopper_pearson_recomputed_from_raw_counts: true
+  s4_mcse_recomputed: true
+  s4_t19_recomputed: true
+  maximum_power_cp95_upper_endpoint: 0.8798
+  repository_blob_sha1_compare_ci_claims_independently_verified: false
+  construct_validity_reviewed: false
+
+blocking_finding_D2:
+  statement: >-
+    The structural-impossibility rule on the reviewed head used the later generator-code commit timestamp as its bound.
+    That is strictly more permissive than the D3 firewall because vector dimensionality and exact-dense search family were
+    already published in the benchmark specification before generator implementation existed.
+  corrected_anchor:
+    earliest_workload_defining_commit_sha: 878bfe2a64b34cce474a627d04b30233e2356958
+    earliest_workload_defining_commit_timestamp_utc: "2026-09-07T06:33:05Z"
+    artifact: protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_BENCHMARK_V0_1_2026-09-07.yaml
+    published_attributes:
+      - G2_central_full
+      - FP32
+      - CPU
+      - EXACT_DENSE
+      - 512D
+      - 128D
+    source: GitHub path-history verification performed after reviewer verdict
+  disposition: CORRECTED_PROSPECTIVELY_IN_ENVIRONMENT_LOCK_V0_4
+  generator_identity_role_after_correction: REPLAY_AND_RESULT_PROVENANCE_ONLY
+
+nonblocking_residuals:
+  R1:
+    statement: >-
+      The D3 overlap classifier is conjunctive and may under-classify evidence portable across hardware classes.
+    disposition: OPEN_NONBLOCKING_FUTURE_REFINEMENT
+  R2:
+    statement: >-
+      Reviewed v0.3 hardware_class_source referenced a non-existent model_or_declared_hardware_class field.
+    disposition: CORRECTED_PROSPECTIVELY_TO_required_environment.device_under_test.hardware_class
+  schema_policy_boundary:
+    statement: >-
+      The append-only S4 shared-population/t19 clarification uses historical string schema_version without schema_id.
+    disposition: NAMED_EXPLICITLY_AS_HISTORICAL_COMPATIBILITY_ARTIFACT_WITHOUT_REWRITE
+
+s4_boundary:
+  clarification_status: CLARIFIED_NO_CHANGE_TO_NEGATIVE_CLOSURE
+  s4n1_status: CLOSED_NEGATIVE
+  s4n2_status: CLOSED_NEGATIVE
+  s4n3_launched: false
+  no_change_required: true
+
+execution_gate:
+  target_edge_hardware_bound: false
+  external_power_meter_bound: false
+  off_device_load_generator_bound: false
+  configuration_choice_provenance_materialized: false
+  provenance_attestation_materialized: false
+  execution_specific_environment_lock_materialized: false
+  canonical_phase_a_execution_permitted: false
+  independent_blockers:
+    - PLATFORM_AND_MEASUREMENT_ENVIRONMENT_NOT_MATERIALIZED
+    - CONFIGURATION_CHOICE_PROVENANCE_NOT_MATERIALIZED
+
+scientific_boundary:
+  screen_opened: false
+  qualification_test_opened: false
+  real_route_performance_opened: false
+  representation_geometry_opened: false
+  amendment_activated: false
+
+next_action: >-
+  Commit the D2 anchor correction prospectively without rewriting reviewed artifacts, run bounded assurance on the new
+  exact head, publish a new immutable binding, and request a focused D2 closure review. Do not execute canonical Phase A
+  and do not infer construct validity from D1-D3 closure.

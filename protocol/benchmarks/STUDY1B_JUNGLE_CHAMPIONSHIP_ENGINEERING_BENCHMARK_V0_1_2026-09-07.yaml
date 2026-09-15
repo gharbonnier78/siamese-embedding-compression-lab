@@ -1,0 +1,202 @@
+schema_version: "1.0"
+benchmark_id: STUDY1B-JUNGLE-CHAMPIONSHIP-ENGINEERING-BENCHMARK-V0.1-2026-09-07
+study_id: study_1b_matched_compression
+date: 2026-09-07
+kind: nonoutcome_engineering_benchmark_contract
+status: PROPOSED_AWAITING_INDEPENDENT_REVIEW
+
+purpose: >-
+  Measure the engineering consequences of 512D versus 128D embeddings for the Jungle Championship
+  distributed-edge use case without opening or using protected Study 1B biometric outcomes. The benchmark
+  is intended to quantify RAM feasibility, peak-flow response, energy/battery behavior and hardware-cost
+  thresholds that may contribute to C_miss and the value of additional independent biometric evidence.
+
+scientific_boundary:
+  real_study_outcomes_opened: false
+  screen_opened: false
+  qualification_test_opened: false
+  real_route_performance_opened: false
+  representation_geometry_opened: false
+  amendment_activated: false
+  s4n1_status: CLOSED_NEGATIVE
+  s4n2_status: CLOSED_NEGATIVE
+  s4n3_launched: false
+  engineering_results_may_be_opened_after_execution: true
+  note: >-
+    Engineering benchmark outputs are not biometric-qualification outcomes. They may be inspected and
+    archived when produced, provided the benchmark uses synthetic or otherwise non-protected vectors and
+    does not infer biometric quality from engineering measurements.
+
+reference_and_candidate:
+  representation_reference:
+    name: raw512
+    dimension: 512
+  compression_candidate:
+    dimension: 128
+  first_comparison:
+    datatype: FP32
+    search: exact_dense_cosine_or_dot_product
+    compute: CPU
+    rule: >-
+      Compare 512D and 128D on the same hardware, datatype, search semantics, gallery cardinality and workload
+      before introducing quantization or accelerator changes.
+
+engineering_axes:
+  representations: [512, 128]
+  datatypes: [FP32, FP16, INT8]
+  compute_platforms: [CPU, GPU, NPU_OR_OTHER_ACCELERATOR]
+  search_phase_1: EXACT_DENSE
+  indexed_or_approximate_search: SEPARATE_LATER_PHASE
+  gallery_residency: RAM_REQUIRED
+
+synthetic_data_contract:
+  vectors: deterministic_synthetic_normalized_vectors
+  fixed_seed_required: true
+  no_real_biometric_embeddings: true
+  no_protected_match_scores: true
+  no_real_identity_labels: true
+  purpose: >-
+    Reproduce vector memory footprint, memory access, similarity computation, top-k/argmax mechanics,
+    concurrency and queueing without making any statement about face-recognition accuracy.
+
+scenario_galleries:
+  G0_blacklist:
+    whitelist_identities: 0
+    blacklist_identities: 10000
+    templates_per_identity: 3
+  G1_hybrid:
+    whitelist_global_identities: 500000
+    whitelist_local_fraction: 0.25
+    blacklist_identities: 10000
+    templates_per_identity: 3
+  G2_central_full:
+    whitelist_identities: 500000
+    blacklist_identities: 10000
+    templates_per_identity: 3
+    role: PRIMARY_FIRST_BENCHMARK
+  G3_stress:
+    whitelist_identities: 1000000
+    blacklist_identities: 100000
+    templates_per_identity: 5
+  provenance: SCENARIO_ONLY_NOT_EVENT_FACT
+
+load_profiles_per_device_qps:
+  steady: [0.25, 0.5, 1.0, 2.0, 4.0, 8.0]
+  burst:
+    qps: 16.0
+    duration_seconds: 30
+  extension_rule: >-
+    If saturation is not observed at the highest steady point, continue by powers of two while preserving
+    the same workload semantics and record the first stable saturation/queue-instability region.
+
+measurements:
+  memory:
+    - vector_payload_bytes
+    - process_RSS_or_equivalent
+    - peak_working_set
+    - index_or_auxiliary_memory_if_any
+    - usable_headroom_after_OS_and_application
+  response:
+    - throughput_qps
+    - latency_p50
+    - latency_p95
+    - latency_p99
+    - queue_depth
+    - queue_recovery_time_after_burst
+    - saturation_point
+  compute:
+    - CPU_utilization
+    - GPU_or_NPU_utilization_if_applicable
+    - frequency_or_throttling_if_observable
+  energy:
+    - idle_power_W
+    - steady_active_power_W
+    - peak_power_W
+    - joules_per_identification
+    - joules_per_burst
+    - Wh_per_match_profile
+    - Wh_per_day_profile
+  battery:
+    - nominal_capacity_Wh
+    - usable_capacity_Wh
+    - estimated_autonomy_hours
+    - recharge_or_swap_frequency
+  thermal:
+    - peak_temperature_if_available
+    - thermal_throttling_observed
+  economics:
+    - hardware_SKU
+    - RAM_or_VRAM_tier
+    - per_device_BOM_delta_if_known
+    - fleet_multiplier_D_sensitivity
+
+phases:
+  A_dimension_only:
+    required: true
+    scope: G2_central_full x FP32 x CPU x {512D,128D}
+    objective: isolate_dimension_effect
+  B_compute_platform:
+    required_after_A: true
+    scope: selected_G1_G2_G3 x FP32 x {CPU,GPU,NPU_if_available} x {512D,128D}
+    objective: determine_lowest_cost_platform_meeting_peak_envelope
+  C_encoding:
+    required_after_B: conditional
+    scope: Pareto_relevant_platforms x {FP32,FP16,INT8}
+    caveat: >-
+      Quantization is a separate intervention. Any claim of biometric interchangeability requires separate
+      qualification and must not be inferred from engineering benchmark results.
+  D_energy_battery:
+    required_after_B: true_for_Pareto_relevant_configs
+    objective: measure_real_device_energy_under_idle_steady_peak_and_burst_profiles
+  E_indexed_or_ANN:
+    required: false
+    status: SEPARATE_FUTURE_METHOD
+    caveat: >-
+      Any index or approximate search capable of changing returned identities is not treated as a pure
+      engineering optimization and requires a separate qualification contract before substitution.
+
+execution_hierarchy:
+  - RAM_FEASIBILITY
+  - PEAK_FLOW_RESPONSE
+  - ENERGY_AND_BATTERY
+  - HARDWARE_AND_FLEET_COST
+
+interpretation_rules:
+  - "75% fewer coordinates does not imply 75% less device energy."
+  - "A CPU configuration is preferred only if it meets the declared peak-flow envelope and has lower total cost/power."
+  - "A GPU/NPU is not assumed superior without benchmark evidence."
+  - "Device count D scales fleet consequences only after per-device effects are measured."
+  - "No engineering result may be presented as evidence that 128D is biometrically acceptable."
+  - "No protected Study 1B outcome may be opened to select or tune an engineering configuration."
+
+current_missing_thresholds:
+  acceptable_p95_latency_ms: null
+  acceptable_p99_latency_ms: null
+  minimum_peak_qps_per_device: null
+  minimum_queue_recovery_s: null
+  required_battery_autonomy_h: null
+  required_RAM_headroom_fraction: null
+  note: >-
+    These operational thresholds are intentionally left unset until supplied or prospectively justified.
+    Benchmark execution may characterize the envelope without converting it into PASS/FAIL.
+
+review_gate:
+  independent_review_required_before_canonical_execution: true
+  acceptable_verdicts:
+    - ACCEPT_ENGINEERING_BENCHMARK
+    - ACCEPT_WITH_CHANGES
+    - REJECT_OR_REDESIGN
+  reviewer_must_check:
+    - separation of engineering evidence from biometric evidence
+    - synthetic-data boundary
+    - fair 512D-vs-128D pairing
+    - workload realism and saturation search
+    - RAM-residency accounting
+    - energy measurement validity and battery model
+    - prevention of quantization/ANN confounding
+    - result provenance and reproducibility
+
+next_action: >-
+  Obtain independent review of this benchmark contract together with the archived S4N1/S4N2 power results.
+  After ACCEPT or accepted changes, implement the smallest Phase A benchmark first. Engineering outputs may
+  then be opened, archived and used in the non-outcome C_miss/value-of-information analysis.

@@ -1,0 +1,100 @@
+schema_version: "1.0"
+entry_type: study1b_pr50_independent_review_corrections
+chronicle_entry_id: CHRON-20260908-037
+study_id: study_1b_matched_compression
+date: 2026-09-08
+kind: append_only_nonoutcome_review_response
+status: CORRECTIONS_APPLIED_AWAITING_INDEPENDENT_REREVIEW_AND_HARDWARE_BINDING
+outcome_evidence_seen: false
+
+summary: >-
+  Apply the independent PR #50 ACCEPT_WITH_CHANGES corrections without opening protected Study 1B outcomes,
+  without altering S4N1/S4N2 negative closures, and without launching S4N3. The engineering benchmark contract
+  is corrected prospectively and remains blocked from canonical execution until independent re-review acceptance
+  and an actual edge-platform environment lock are both materialized.
+
+review_basis:
+  reviewed_head: ab7f3d099ba0bd26dd1158afa8f80e5b66bf801d
+  independent_review: protocol/reviews/PR50_INDEPENDENT_REVIEW_2026-09-08.md
+  verdict: ACCEPT_WITH_CHANGES
+
+correction_status:
+  BLOCKING_1_immutable_navigation:
+    status: CLOSED_FOR_REREVIEW
+    evidence: protocol/reviews/STUDY1B_S4_POWER_AND_ENGINEERING_BENCHMARK_REREVIEW_REQUEST_2026-09-08.md
+    note: New delegated review request uses immutable commit URLs; historical reviewed request is retained unchanged.
+  BLOCKING_2_environment_lock:
+    status: CONTRACT_CORRECTED_EXECUTION_GATE_STILL_UNSATISFIED
+    evidence:
+      - protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_ENVIRONMENT_LOCK_V0_1_2026-09-08.yaml
+      - harness-adoption.yaml
+    note: >-
+      Full lock schema is defined and harness-adoption no longer has execution.environment_lock=null. Actual target hardware,
+      meter and load-generator values are intentionally not invented; canonical execution remains blocked until materialized.
+  BLOCKING_3_phase_a_search_semantics:
+    status: CLOSED_FOR_REREVIEW
+    evidence: protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_BENCHMARK_V0_2_2026-09-08.yaml
+    note: Exact dense top1, no threshold gating, no index/ANN, fixed work.
+  BLOCKING_4_g2_ram_infeasibility:
+    status: CLOSED_FOR_REREVIEW
+    note: RAM_INFEASIBLE_ON_TIER is retained as a result; no swap, smaller-gallery substitution, datatype change or one-arm tier move.
+  BLOCKING_5_energy_plane_and_baseline:
+    status: CLOSED_FOR_REREVIEW
+    note: External device-input/wall measurement is canonical; on-chip telemetry diagnostic; total and idle-subtracted joules/query separated.
+  BLOCKING_6_posthoc_threshold_guard:
+    status: CLOSED_FOR_REREVIEW
+    note: Null thresholds imply characterization-only; post-result thresholds may govern only a new prospective execution.
+  BLOCKING_7_measurement_statistics:
+    status: CLOSED_FOR_REREVIEW
+    note: Five process restarts, 60 s warm-up, 600 s measurement, percentile support rules, raw-sample retention and dispersion reporting frozen.
+  BLOCKING_8_load_generator_placement:
+    status: CLOSED_FOR_REREVIEW
+    note: Canonical load generator is off-device; server-boundary latency and client RTT are separated.
+  BLOCKING_9_g2_provenance:
+    status: CLOSED_FOR_REREVIEW
+    note: G2 explicitly marked SCENARIO_ONLY_NOT_EVENT_FACT; G0 added as small-working-set control.
+  BLOCKING_10_s4_shared_population_and_t19:
+    status: CLOSED_FOR_REREVIEW
+    evidence: protocol/decisions/STUDY1B_S4N1_S4N2_SHARED_POPULATION_AND_T19_CLARIFICATION_2026-09-08.yaml
+    note: >-
+      S4N1/S4N2 are explicitly two uncertainty procedures on one deterministic synthetic population, not independent generator replications;
+      t0.975,df19=2.0930240544083087 is recorded; S4N3 stop rationale is estimator-shopping risk.
+
+nonblocking_recommendations_adopted:
+  - summary terminology distinguishes S4N_VALIDATION_BEST selector name from maximum observed power
+  - exact Monte Carlo 95 percent intervals and MCSE recorded for delta=0.01 power cells
+  - unresolved S4N2 SE-dispersion mechanism retained as a non-blocking methodological question
+  - G0 small-working-set Phase A control added
+  - vector payload marked analytically derived rather than measured finding
+  - synthetic generator finite-value guard and distribution declared
+  - battery autonomy conditioned on named duty cycle/load profile
+  - Phase C quantization records top1 changes versus FP32 as diagnostic
+  - 0.0310 and 0.0510 value-of-power terms explicitly limited to Delta_FNMR=0.01
+
+focused_assurance:
+  added_test: tests/test_study1b_engineering_benchmark_contract.py
+  purpose: >-
+    Machine-check protected boundary, fixed-work top1 semantics, scenario provenance, RAM infeasibility rule,
+    external energy measurement, post-hoc threshold guard, frozen measurement statistics, execution blocking,
+    and shared-population/t19 clarification.
+
+scientific_boundary:
+  screen_opened: false
+  qualification_test_opened: false
+  real_route_performance_opened: false
+  representation_geometry_opened: false
+  amendment_activated: false
+  s4n1_status: CLOSED_NEGATIVE
+  s4n2_status: CLOSED_NEGATIVE
+  s4n3_launched: false
+
+execution_state:
+  benchmark_design_rereview_required: true
+  target_edge_hardware_supplied: false
+  environment_lock_materialized: false
+  canonical_phase_a_execution_permitted: false
+
+next_action: >-
+  Bind the independent re-review to the exact corrected PR head and wait for assurance checks. If the benchmark design is accepted,
+  obtain the real target edge platform, meter and load-generator values and materialize the execution-specific environment lock.
+  Only after both gates are satisfied may canonical Phase A execute. Do not open protected biometric outcomes.

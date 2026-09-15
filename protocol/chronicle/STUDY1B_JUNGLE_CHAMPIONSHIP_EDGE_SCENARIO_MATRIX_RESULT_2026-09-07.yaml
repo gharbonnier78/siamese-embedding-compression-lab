@@ -1,0 +1,174 @@
+schema_version: "1.0"
+entry_type: study1b_jungle_championship_edge_scenario_matrix_result
+chronicle_entry_id: CHRON-20260907-032
+study_id: study_1b_matched_compression
+date: 2026-09-07
+kind: append_only_nonoutcome_engineering_analysis
+status: MATRIX_COMPLETED_AWAITING_REAL_ENGINEERING_TOPOLOGY_VALUES
+outcome_evidence_seen: false
+
+summary: >-
+  Quantify the archived Jungle Championship distributed-edge scenario without opening any protected
+  Study 1B biometric outcome. The matrix preserves the separation between logical event identities,
+  physical gallery copies, local observation flows and matching-work proxies. It calculates exact
+  512D-to-128D vector-payload reductions and selected sensitivity envelopes while explicitly keeping
+  device count, gallery routing, local flow, blacklist size, templates, datatype and economic values
+  as scenario parameters until supplied by engineering authority.
+
+human_authority:
+  source: "2026-09-07 project conversation"
+  instruction: "Ok"
+  interpretation: >-
+    Authorization to continue the previously declared next step: construct the Jungle Championship
+    edge scenario matrix and archive the resulting non-outcome engineering analysis.
+
+scenario_facts_preserved:
+  event_duration_days: 5
+  matches_per_day: 3
+  total_matches_derived: 15
+  stadium_capacity: 50000
+  max_spectator_admissions_if_full_derived: 750000
+  repeat_attendance_expected: true
+  whitelist_semantics: >-
+    authorized spectators, technical staff, organizing staff and numerous contractors/subcontractors
+  blacklist_semantics: >-
+    restricted stadium-ban list, potentially extended with nationally/internationally wanted persons
+  unmatched_semantics: >-
+    retain portrait, location and timestamp for later national offline 1:N identification
+  edge_distribution_semantics: >-
+    identities are not unique to one device and people do not pass in front of every device; local
+    flows are heterogeneous and physical gallery copies are distinct from logical identities.
+
+provenance_classes:
+  user_provided: direct scenario values and semantics from human authority
+  derived: arithmetic consequences of user-provided values
+  scenario: sensitivity values introduced only for bounded engineering analysis
+
+sensitivity_grid:
+  whitelist_unique_identities: [250000, 500000, 750000, 1000000]
+  blacklist_identities: [1000, 10000, 100000]
+  templates_per_identity: [1, 3, 5]
+  embedding_dimensions: [512, 128]
+  datatypes:
+    FP32_bytes_per_component: 4
+    FP16_bytes_per_component: 2
+    INT8_bytes_per_component: 1
+  device_counts_for_replication_sensitivity_only: [10, 50, 100]
+  hybrid_whitelist_fractions_for_sensitivity_only: [0.25, 0.10]
+
+exact_structural_results:
+  dimension_ratio_128_over_512: 0.25
+  vector_payload_reduction_same_dtype_encoding: 0.75
+  dense_coordinate_count_reduction_fixed_gallery: 0.75
+  per_vector_bytes:
+    FP32:
+      d512: 2048
+      d128: 512
+    FP16:
+      d512: 1024
+      d128: 256
+    INT8:
+      d512: 512
+      d128: 128
+
+central_sensitivity_point_not_event_fact:
+  whitelist_identities_N: 500000
+  blacklist_identities_B: 10000
+  templates_T: 3
+  datatype: FP32
+  bytes_per_component_b: 4
+  full_replication:
+    d512_payload_per_device_GB: 3.13344
+    d128_payload_per_device_GB: 0.78336
+    avoided_per_device_GB: 2.35008
+    local_templates: 1530000
+    d512_coordinate_contributions_per_observation: 783360000
+    d128_coordinate_contributions_per_observation: 195840000
+  hybrid_quarter_whitelist:
+    whitelist_fraction_g: 0.25
+    d512_payload_per_device_GB: 0.82944
+    d128_payload_per_device_GB: 0.20736
+    avoided_per_device_GB: 0.62208
+    local_templates: 405000
+    d512_coordinate_contributions_per_observation: 207360000
+    d128_coordinate_contributions_per_observation: 51840000
+  hybrid_tenth_whitelist:
+    whitelist_fraction_g: 0.10
+    d512_payload_per_device_GB: 0.36864
+    d128_payload_per_device_GB: 0.09216
+    avoided_per_device_GB: 0.27648
+
+physical_replication_sensitivity:
+  full_replication_50_devices:
+    d512_total_gallery_payload_GB: 156.672
+    d128_total_gallery_payload_GB: 39.168
+    avoided_GB: 117.504
+  hybrid_quarter_whitelist_50_devices:
+    d512_total_gallery_payload_GB: 41.472
+    d128_total_gallery_payload_GB: 10.368
+    avoided_GB: 31.104
+  note: >-
+    These are physical-copy sensitivity values, not an assertion that Jungle Championship deploys
+    50 devices or uses the stated gallery-routing fractions.
+
+matching_work_proxy:
+  local_gallery_payload_formula: "((N * g_i) + B) * T * d * b"
+  brute_force_coordinate_work_formula: "v_i * (((N * g_i) + B) * T) * d"
+  event_wide_proxy: "sum_i v_i * (((N * g_i) + B_i) * T_i) * d"
+  invalid_naive_model: "people * cameras"
+  caveat: >-
+    Coordinate counts are structural arithmetic proxies only. They do not predict measured latency,
+    throughput, energy or accelerator utilization when indexing, ANN search, batching, SIMD, memory
+    hierarchy or fixed overhead are material.
+
+C_miss_implication:
+  storage_only_interpretation_rejected: true
+  possible_engineering_value_categories:
+    - edge RAM/cache fit
+    - physical gallery replication footprint
+    - gallery synchronization payload
+    - dense coordinate-level matching work
+    - offline autonomy
+    - freedom to replicate security-relevant lists more broadly
+    - possible hardware/capacity headroom if demonstrated by engineering measurements
+  caveat: >-
+    These categories become numerical C_miss inputs only when measured or supplied with provenance.
+    The matrix itself does not claim financial, latency, energy or production benefit.
+
+open_engineering_inputs:
+  - actual edge-device count and topology by zone
+  - actual whitelist routing fractions g_i
+  - local observation flows v_i and peak loads
+  - actual templates per identity
+  - actual embedding datatype / encoding
+  - actual blacklist cardinality and update cadence
+  - whitelist registration and refresh cadence
+  - edge RAM/storage/compute constraints
+  - unmatched portrait format and retention policy
+  - network synchronization strategy
+  - representative permitted 512D-vs-128D edge benchmark
+  - cost and delay of genuinely independent additional biometric evidence
+
+scientific_boundary:
+  real_study_outcomes_opened: false
+  screen_opened: false
+  qualification_test_opened: false
+  real_route_performance_opened: false
+  representation_geometry_opened: false
+  amendment_activated: false
+  s4n1_status: CLOSED_NEGATIVE
+  s4n2_status: CLOSED_NEGATIVE
+  s4n3_launched: false
+
+references:
+  scenario_capitalisation: protocol/chronicle/STUDY1B_JUNGLE_CHAMPIONSHIP_EDGE_SCENARIO_CAPITALISATION_2026-09-07.yaml
+  scenario_matrix: docs/research-notes/STUDY1B_JUNGLE_CHAMPIONSHIP_EDGE_SCENARIO_MATRIX_2026-09-07.md
+  cost_input_sheet: protocol/decisions/STUDY1B_ENGINEERING_COST_INPUT_SHEET_V0_1_2026-09-07.yaml
+  structural_benefit: docs/research-notes/STUDY1B_512D_TO_128D_STRUCTURAL_BENEFIT_ENVELOPE_2026-09-07.md
+  value_of_information: docs/research-notes/STUDY1B_S4_VALUE_OF_INFORMATION_DECISION_TABLE_2026-09-06.md
+
+next_action: >-
+  Populate actual engineering topology/resource values that are outside the protected Study 1B
+  biometric-outcome boundary. Then calculate bounded Jungle Championship C_miss scenarios and compare
+  the value of additional independent evidence against its acquisition cost. Do not open SCREEN/TEST,
+  infer matcher performance, or launch S4N3.

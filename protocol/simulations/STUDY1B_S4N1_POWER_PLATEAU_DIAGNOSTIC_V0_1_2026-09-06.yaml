@@ -1,0 +1,135 @@
+schema_version: "1.0"
+contract_id: STUDY1B_S4N1_POWER_PLATEAU_DIAGNOSTIC_V0_1_2026-09-06
+study_id: study_1b_matched_compression
+date: 2026-09-06
+status: FROZEN_NONOUTCOME_DIAGNOSTIC_ANALYSIS_PLAN
+scientific_outcomes_permitted: false
+screen_opening_permitted: false
+test_opening_permitted: false
+representation_geometry_permitted: false
+amendment_activated: false
+
+purpose: >-
+  Diagnose the proximate mechanism behind the archived S4N1 power plateau near 0.869 at exact
+  synthetic TEST truth Delta_FNMR 0.01, using only the already-created S4N1 synthetic shard
+  artifacts. This diagnostic cannot rescue, rerun, reinterpret, or change the CLOSED_NEGATIVE
+  S4N1 decision. Its only scientific role is to inform a separately frozen prospective S4N2
+  design.
+
+harness:
+  repository: gharbonnier78/scientific-research-harness
+  pinned_ref: 3b109adcdd9a8cba4df029d3803ee0e5cb5bdf98
+  manifest: harness-adoption.yaml
+  local_instructions: AGENTS.md
+
+human_authority:
+  source: "2026-09-06 project conversation"
+  instruction: >-
+    Finir le plan actuel sans le modifier : archiver S4N1 négatif, diagnostiquer pourquoi on
+    plafonne à environ 86,9 %, puis concevoir/tester prospectivement S4N2.
+  authorization_scope: nonoutcome_archived_synthetic_diagnosis_then_prospective_s4n2
+
+basis:
+  s4n1_negative_result: protocol/chronicle/STUDY1B_S4N1_CORE_POWER_CALIBRATION_RESULT_2026-09-06.yaml
+  s4n1_frozen_contract: protocol/simulations/STUDY1B_S4N1_SELECTION_SEMANTICS_AND_CALIBRATION_DESIGN_V0_1_2026-09-04.yaml
+  source_workflow_run_id: 33950949898
+  source_commit: 01c25c8d9858c1cea10b723d8fa1c301ea6f4fba
+  source_truth_cells: [0.0, 0.01]
+  source_datasets_per_truth_cell: 4000
+  source_candidate_rules:
+    - S4N_FIXED_SEED
+    - S4N_VALIDATION_BEST
+    - S4N_VALIDATION_MEDIAN
+  source_canonical_summary_artifact_id: 9967056081
+  source_canonical_summary_digest: sha256:f45867edc18d7d59f73589267f9372c2bdaca6752a094fbad5404fc46ddecdba
+
+frozen_diagnostic_population:
+  use_new_synthetic_datasets: false
+  use_archived_shards_only: true
+  include_truth_cells: [0.0, 0.01]
+  require_exact_dataset_indices: [0, 3999]
+  require_dataset_count_per_truth: 4000
+  include_all_three_candidate_rules: true
+  allow_row_or_shard_exclusion_after_observation: false
+
+frozen_metrics_per_candidate_truth_cell:
+  - current_noninferiority_pass_fraction
+  - existing_two_sided_interval_coverage
+  - one_sided_upper_coverage_truth_lte_ucb97_5
+  - point_estimation_error_mean
+  - point_estimation_error_sd
+  - point_estimation_error_quantiles_2_5_5_50_95_97_5
+  - bootstrap_mean_minus_point_mean_and_sd
+  - ucb97_5_minus_point_mean_median_p10_p90
+  - ucb97_5_minus_bootstrap_mean_mean_median_p10_p90
+  - ucb95_minus_point_mean_median
+  - empirical_repeated_sampling_q97_5_point_error
+  - approximate_bootstrap_upper_se_from_ucb97_5_minus_mean
+  - approximate_bootstrap_se_to_repeated_sampling_sd_ratio
+  - ucb97_5_headroom_to_empirical_q97_5_error_ratio
+  - diagnostic_only_power_if_existing_ucb95_were_used
+  - headroom_scale_needed_for_90_percent_pass_rate
+  - square_root_information_multiplier_heuristic_for_that_scale
+
+crossfit_known_truth_diagnostic:
+  enabled: true
+  split: dataset_index_parity
+  construction: >-
+    For each candidate and truth cell, estimate the empirical 97.5th percentile of point
+    estimation error on even dataset indices and apply that additive upper-error quantile to odd
+    indices; repeat with odd as calibration and even as evaluation, then combine held-out rows.
+  report:
+    - heldout_upper_coverage
+    - heldout_noninferiority_pass_fraction
+    - calibration_quantile_even_to_odd
+    - calibration_quantile_odd_to_even
+  interpretation_boundary: >-
+    This is an oracle known-truth diagnostic of whether the available repeated-sampling
+    information could in principle support a narrower correctly calibrated upper bound under the
+    frozen generator. It is NOT an admissible real-data estimator and MUST NOT be promoted to
+    S4N2 without a separate prospective inferential justification and contract.
+
+between_selector_diagnostic:
+  report_power_range_at_each_truth: true
+  purpose: >-
+    Quantify whether selector choice is a material driver of the plateau. Do not choose the least
+    failing selector post hoc.
+
+interpretation_tests:
+  point_bias_not_primary_if: abs_mean_point_error_lte_0.001
+  selector_not_primary_if: power_range_across_selectors_lte_0.01
+  potential_ucb_spread_conservatism_signal_if:
+    one_sided_upper_coverage_gte: 0.985
+    bootstrap_se_to_repeated_sampling_sd_ratio_gte: 1.15
+  note: >-
+    These are diagnostic labels, not acceptance gates and not proof of a causal root cause. A
+    proposed S4N2 remedy must separately justify what uncertainty is estimand-relevant and must
+    pass prospective known-truth coverage and power validation.
+
+prohibited_interpretations:
+  - do_not_reclassify_s4n1_as_pass
+  - do_not_change_s4n1_margin
+  - do_not_change_s4n1_target_fmr
+  - do_not_change_s4n1_ucb_level
+  - do_not_change_s4n1_selector
+  - do_not_add_s4n1_datasets_to_seek_a_pass
+  - do_not_open_screen_or_real_test
+  - do_not_claim_real_biometric_performance
+  - do_not_claim_crossfit_oracle_is_a_valid_real_data_interval
+
+s4n2_design_boundary: >-
+  S4N2 may be designed only after this frozen diagnostic is executed and archived. S4N2 must be
+  a new prospective non-outcome contract. It may investigate estimator efficiency, graph/design
+  uncertainty, or additional independent information, but must preserve the scientific meaning
+  of any claimed operating-point comparison or explicitly declare and justify an estimand change.
+
+scientific_boundary:
+  scientific_outcomes_opened: false
+  screen_opened: false
+  qualification_test_outcomes_opened: false
+  real_route_performance_opened: false
+  representation_geometry_opened: false
+  amendment_activated: false
+  original_5_of_5_rule_replaced: false
+  artifact_selector_activated_for_real_study: false
+  s4n1_negative_result_reopened: false
