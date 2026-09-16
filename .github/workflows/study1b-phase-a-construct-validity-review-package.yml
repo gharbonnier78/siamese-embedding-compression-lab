@@ -1,0 +1,476 @@
+name: Study 1B Phase A Construct Validity Review Package
+
+on:
+  push:
+    branches:
+      - agent/study1b-preregistration-20260827
+    paths:
+      - '.github/workflows/study1b-phase-a-construct-validity-review-package.yml'
+      - 'AGENTS.md'
+      - 'harness-adoption.yaml'
+      - 'paper/siamese_embedding_compression_research_program_v0.3.1_status_addendum.tex'
+      - 'protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_BENCHMARK_V0_3_2026-09-08.yaml'
+      - 'protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_BENCHMARK_V0_3_D1_D3_ADDENDUM_2026-09-08.yaml'
+      - 'protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_BENCHMARK_V0_3_D1_D3_ADDENDUM_V0_2_2026-09-14.yaml'
+      - 'protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_ENVIRONMENT_LOCK_V0_6_2026-09-14.yaml'
+      - 'protocol/reviews/PR50_C7D03CDA_V06_N6_FOCUSED_REREVIEW_VERDICT_2026-09-16.md'
+      - 'protocol/reviews/STUDY1B_PHASE_A_CONSTRUCT_VALIDITY_REVIEW_REQUEST_V0_1_2026-09-16.md'
+      - 'protocol/chronicle/STUDY1B_PR50_C7D03CDA_V06_ACCEPT_2026-09-16.yaml'
+      - 'protocol/chronicle/STUDY1B_N7_N8_REVIEW_TRANSPORT_HARDENING_OPEN_2026-09-16.yaml'
+      - 'protocol/chronicle/STUDY1B_HUMAN_READABLE_STATUS_ADDENDUM_V0_3_1_2026-09-16.yaml'
+      - 'tests/test_study1b_engineering_benchmark_contract_v06.py'
+
+permissions:
+  contents: read
+  actions: read
+  issues: write
+  pull-requests: read
+
+jobs:
+  build-construct-validity-package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Install focused review dependency
+        run: python -m pip install 'PyYAML>=6,<7'
+
+      - name: Wait for five bounded exact-head workflows
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          REVIEW_HEAD_SHA: ${{ github.sha }}
+        run: |
+          python - <<'PY'
+          import json, os, time, urllib.parse, urllib.request
+          from pathlib import Path
+
+          repo = os.environ['REPO']
+          head = os.environ['REVIEW_HEAD_SHA']
+          token = os.environ['GH_TOKEN']
+          required = [
+              'CI',
+              'Research assurance',
+              'Study 1B Engineering Assurance',
+              'Study 1B Non-outcome Preflight',
+              'Study 1B Power Design Diagnostic',
+          ]
+          api = f'https://api.github.com/repos/{repo}/actions/runs?head_sha={urllib.parse.quote(head)}&per_page=100'
+
+          def get_json(url):
+              req = urllib.request.Request(url, headers={
+                  'Authorization': f'Bearer {token}',
+                  'Accept': 'application/vnd.github+json',
+                  'X-GitHub-Api-Version': '2022-11-28',
+                  'User-Agent': 'study1b-construct-validity-package',
+              })
+              with urllib.request.urlopen(req, timeout=30) as r:
+                  return json.load(r)
+
+          deadline = time.time() + 720
+          selected = None
+          payload = None
+          while time.time() < deadline:
+              payload = get_json(api)
+              by_name = {}
+              for run in payload.get('workflow_runs', []):
+                  if run.get('head_sha') != head:
+                      continue
+                  name = run.get('name')
+                  if name in required:
+                      prev = by_name.get(name)
+                      if prev is None or run.get('run_number', 0) > prev.get('run_number', 0):
+                          by_name[name] = run
+              missing = [n for n in required if n not in by_name]
+              pending = [n for n, r in by_name.items() if r.get('status') != 'completed']
+              failed = [n for n, r in by_name.items() if r.get('status') == 'completed' and r.get('conclusion') != 'success']
+              if failed:
+                  raise SystemExit(f'bounded workflow failed on exact head: {failed}')
+              if not missing and not pending:
+                  selected = by_name
+                  break
+              print(f'waiting: missing={missing} pending={pending}', flush=True)
+              time.sleep(20)
+
+          if selected is None:
+              raise SystemExit('timed out waiting for five bounded workflows')
+
+          out = Path('artifacts/study1b/construct-validity-review-evidence')
+          out.mkdir(parents=True, exist_ok=True)
+          (out / '06A_EXACT_HEAD_WORKFLOWS_RAW.json').write_text(
+              json.dumps(payload, indent=2, sort_keys=True) + '\n', encoding='utf-8'
+          )
+          norm = {
+              'schema_id': 'study1b.construct_validity.workflow_evidence',
+              'schema_version': 1,
+              'repository': repo,
+              'head_sha': head,
+              'source_api_url': api,
+              'required_workflows': [],
+          }
+          for name in required:
+              r = selected[name]
+              norm['required_workflows'].append({
+                  'name': name,
+                  'run_id': r['id'],
+                  'run_number': r['run_number'],
+                  'status': r['status'],
+                  'conclusion': r['conclusion'],
+                  'head_sha': r['head_sha'],
+                  'event': r.get('event'),
+                  'html_url': r.get('html_url'),
+                  'api_url': r.get('url'),
+              })
+          (out / '06_EXACT_HEAD_WORKFLOWS.json').write_text(
+              json.dumps(norm, indent=2, sort_keys=True) + '\n', encoding='utf-8'
+          )
+          print('Five bounded workflows PASS on exact head')
+          PY
+
+      - name: Create or reuse immutable construct-validity binding
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          REVIEW_HEAD_SHA: ${{ github.sha }}
+          REVIEW_BASE_SHA: 5730e6bfa07b51afbe7ad6a89ffb4a6bd0ba6eb7
+        run: |
+          python - <<'PY'
+          import json, os, urllib.request
+          from pathlib import Path
+
+          repo = os.environ['REPO']
+          head = os.environ['REVIEW_HEAD_SHA']
+          base = os.environ['REVIEW_BASE_SHA']
+          token = os.environ['GH_TOKEN']
+          marker = '[STUDY1B-CONSTRUCT-VALIDITY-REVIEW-BINDING]'
+          evidence = Path('artifacts/study1b/construct-validity-review-evidence')
+          workflows = json.loads((evidence / '06_EXACT_HEAD_WORKFLOWS.json').read_text())
+
+          headers = {
+              'Authorization': f'Bearer {token}',
+              'Accept': 'application/vnd.github+json',
+              'X-GitHub-Api-Version': '2022-11-28',
+              'User-Agent': 'study1b-construct-validity-package',
+          }
+          def request(url, method='GET', data=None):
+              body = None if data is None else json.dumps(data).encode('utf-8')
+              req = urllib.request.Request(url, data=body, method=method, headers=headers)
+              if body is not None:
+                  req.add_header('Content-Type', 'application/json')
+              with urllib.request.urlopen(req, timeout=30) as r:
+                  return json.load(r)
+
+          comments_url = f'https://api.github.com/repos/{repo}/issues/50/comments?per_page=100'
+          comments = request(comments_url)
+          found = None
+          for c in comments:
+              body = c.get('body') or ''
+              if marker in body and f'HEAD_SHA = {head}' in body:
+                  found = c
+                  break
+
+          lines = [
+              marker,
+              '',
+              'Immutable preparation binding for the separate Phase A construct-validity review package.',
+              '',
+              f'HEAD_SHA = {head}',
+              f'BASE_SHA = {base}',
+              'PINNED_HARNESS = gharbonnier78/scientific-research-harness@3b109adcdd9a8cba4df029d3803ee0e5cb5bdf98',
+              '',
+              'Five bounded technical-assurance workflows on this exact head:',
+          ]
+          for r in workflows['required_workflows']:
+              lines.append(f"- {r['name']}: run {r['run_id']} / #{r['run_number']} / {r['conclusion']}")
+          lines += [
+              '',
+              'Review scope: Phase A construct validity only.',
+              'N7/N8 transport hardening is part of the package mechanism.',
+              'CANONICAL_EXECUTION_CURRENTLY_ADMISSIBLE = no',
+              'CONSTRUCT_VALIDITY_REVIEWED = no',
+              'SCREEN/TEST/protected real-route performance/representation geometry remain sealed.',
+              'S4N3 is not launched. Phase A is not executed.',
+              '',
+              'This binding is stale if the branch head changes.',
+          ]
+          binding_body = '\n'.join(lines)
+
+          if found is None:
+              found = request(
+                  f'https://api.github.com/repos/{repo}/issues/50/comments',
+                  method='POST', data={'body': binding_body}
+              )
+          else:
+              if found.get('body') != binding_body:
+                  raise SystemExit('existing binding marker for exact head has divergent body; fail closed')
+
+          if marker not in (found.get('body') or '') or f'HEAD_SHA = {head}' not in (found.get('body') or ''):
+              raise SystemExit('binding comment does not bind exact head')
+          (evidence / '05_IMMUTABLE_BINDING_COMMENT.json').write_text(
+              json.dumps(found, indent=2, sort_keys=True) + '\n', encoding='utf-8'
+          )
+          (evidence / '05_BINDING_COMMENT_ID.txt').write_text(str(found['id']) + '\n', encoding='utf-8')
+          print(f"binding_comment_id={found['id']}")
+          PY
+
+      - name: Build N7 N8 hardened construct-validity package
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REVIEW_HEAD_SHA: ${{ github.sha }}
+          REVIEW_BASE_SHA: 5730e6bfa07b51afbe7ad6a89ffb4a6bd0ba6eb7
+          REPO: ${{ github.repository }}
+        run: |
+          python - <<'PY'
+          import base64
+          import hashlib
+          import json
+          import os
+          import shutil
+          import subprocess
+          import urllib.request
+          import zipfile
+          from pathlib import Path
+
+          root = Path.cwd()
+          head = os.environ['REVIEW_HEAD_SHA']
+          base = os.environ['REVIEW_BASE_SHA']
+          repo = os.environ['REPO']
+          token = os.environ['GH_TOKEN']
+          evidence = root / 'artifacts/study1b/construct-validity-review-evidence'
+          out = root / 'artifacts/study1b/construct-validity-review-package'
+          bundle = root / 'artifacts/study1b/construct-validity-review-bundle'
+          shutil.rmtree(out, ignore_errors=True)
+          shutil.rmtree(bundle, ignore_errors=True)
+          out.mkdir(parents=True)
+          bundle.mkdir(parents=True)
+
+          sources = [
+              'AGENTS.md',
+              'harness-adoption.yaml',
+              'paper/siamese_embedding_compression_research_program_v0.3.1_status_addendum.tex',
+              'protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_BENCHMARK_V0_3_2026-09-08.yaml',
+              'protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_BENCHMARK_V0_3_D1_D3_ADDENDUM_2026-09-08.yaml',
+              'protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_BENCHMARK_V0_3_D1_D3_ADDENDUM_V0_2_2026-09-14.yaml',
+              'protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_ENVIRONMENT_LOCK_V0_6_2026-09-14.yaml',
+              'protocol/reviews/PR50_C7D03CDA_V06_N6_FOCUSED_REREVIEW_VERDICT_2026-09-16.md',
+              'protocol/reviews/STUDY1B_PHASE_A_CONSTRUCT_VALIDITY_REVIEW_REQUEST_V0_1_2026-09-16.md',
+              'protocol/chronicle/STUDY1B_PR50_C7D03CDA_V06_ACCEPT_2026-09-16.yaml',
+              'protocol/chronicle/STUDY1B_N7_N8_REVIEW_TRANSPORT_HARDENING_OPEN_2026-09-16.yaml',
+              'protocol/chronicle/STUDY1B_HUMAN_READABLE_STATUS_ADDENDUM_V0_3_1_2026-09-16.yaml',
+              'tests/test_study1b_engineering_benchmark_contract_v06.py',
+          ]
+
+          def blob_sha(data):
+              return hashlib.sha1(b'blob ' + str(len(data)).encode('ascii') + b'\0' + data).hexdigest()
+
+          entries = []
+          for rel in sources:
+              src = root / rel
+              if not src.is_file():
+                  raise SystemExit(f'missing required source: {rel}')
+              data = src.read_bytes()
+              expression = f'{head}:{rel}'
+              expected = subprocess.check_output(['git', 'rev-parse', expression], text=True).strip()
+              actual_builder_guard = blob_sha(data)
+              if actual_builder_guard != expected:
+                  raise SystemExit(f'Git blob mismatch before package: {rel}')
+              dst = out / rel
+              dst.parent.mkdir(parents=True, exist_ok=True)
+              dst.write_bytes(data)
+              entries.append({
+                  'path': rel,
+                  'byte_length': len(data),
+                  'sha256': hashlib.sha256(data).hexdigest(),
+                  'git_blob_sha1_expected': expected,
+                  'git_blob_sha1_expected_source': {
+                      'kind': 'immutable_repository_object',
+                      'repository': repo,
+                      'head_sha': head,
+                      'path': rel,
+                      'git_object_expression': expression,
+                      'immutable_contents_api_url': f'https://api.github.com/repos/{repo}/contents/{rel}?ref={head}',
+                      'immutable_blob_api_url': f'https://api.github.com/repos/{repo}/git/blobs/{expected}',
+                  },
+              })
+
+          source_manifest = {
+              'schema_id': 'study1b.construct_validity.source_manifest',
+              'schema_version': 2,
+              'repository': repo,
+              'pull_request': 50,
+              'head_sha': head,
+              'base_sha': base,
+              'review_scope': 'PHASE_A_CONSTRUCT_VALIDITY_PREEXECUTION',
+              'git_blob_formula': "SHA1('blob ' + byte_length + NUL + content)",
+              'n7_rule': 'expected blob identity source is declared; reviewer recomputes packaged-byte blob identity',
+              'entries': entries,
+          }
+          (out / '01_SOURCE_MANIFEST.json').write_text(
+              json.dumps(source_manifest, indent=2, sort_keys=True) + '\n', encoding='utf-8'
+          )
+
+          # Transport exact pinned HARNESS bytes as an offline review convenience while preserving external authority.
+          harness_repo = 'gharbonnier78/scientific-research-harness'
+          harness_ref = '3b109adcdd9a8cba4df029d3803ee0e5cb5bdf98'
+          harness_expected = 'b5354c9c02c91cfa1e6a0b734741cdf78e39ed1d'
+          url = f'https://api.github.com/repos/{harness_repo}/contents/HARNESS.md?ref={harness_ref}'
+          req = urllib.request.Request(url, headers={
+              'Authorization': f'Bearer {token}',
+              'Accept': 'application/vnd.github+json',
+              'X-GitHub-Api-Version': '2022-11-28',
+              'User-Agent': 'study1b-construct-validity-package',
+          })
+          with urllib.request.urlopen(req, timeout=30) as r:
+              hobj = json.load(r)
+          hbytes = base64.b64decode(hobj['content'])
+          if blob_sha(hbytes) != harness_expected or hobj.get('sha') != harness_expected:
+              raise SystemExit('pinned HARNESS Git blob mismatch')
+          hpath = out / 'external_authority/HARNESS.md'
+          hpath.parent.mkdir(parents=True, exist_ok=True)
+          hpath.write_bytes(hbytes)
+          harness_manifest = {
+              'repository': harness_repo,
+              'ref': harness_ref,
+              'path': 'HARNESS.md',
+              'expected_git_blob_sha1': harness_expected,
+              'api_reported_git_blob_sha1': hobj.get('sha'),
+              'sha256': hashlib.sha256(hbytes).hexdigest(),
+              'immutable_url': f'https://github.com/{harness_repo}/blob/{harness_ref}/HARNESS.md',
+              'source_api_url': url,
+              'authority_note': 'Transported copy is for offline review; normative authority remains the immutable external repository object.',
+          }
+          (out / '02_PINNED_HARNESS.json').write_text(
+              json.dumps(harness_manifest, indent=2, sort_keys=True) + '\n', encoding='utf-8'
+          )
+
+          # N8: transport the actual binding comment and workflow API evidence rather than an author summary.
+          for name in ['05_IMMUTABLE_BINDING_COMMENT.json', '06_EXACT_HEAD_WORKFLOWS.json', '06A_EXACT_HEAD_WORKFLOWS_RAW.json']:
+              shutil.copy2(evidence / name, out / name)
+
+          request_text = (root / 'protocol/reviews/STUDY1B_PHASE_A_CONSTRUCT_VALIDITY_REVIEW_REQUEST_V0_1_2026-09-16.md').read_text(encoding='utf-8')
+          prompt = [
+              '# PR #50 — independent Phase A construct-validity review',
+              '',
+              f'Head under review: `{head}`',
+              f'Base: `{base}`',
+              'Pinned harness: `gharbonnier78/scientific-research-harness@3b109adcdd9a8cba4df029d3803ee0e5cb5bdf98`',
+              '',
+              'This review is limited to Phase A construct validity. It is not execution authorization and does not require protected biometric outcomes.',
+              '',
+              '## Mandatory transport checks',
+              '',
+              '1. Run `python review_tools/verify_package.py`.',
+              '2. Independently recompute every repository-source Git blob SHA-1 from packaged bytes and compare to `git_blob_sha1_expected`.',
+              '3. Confirm each `git_blob_sha1_expected_source` binds repository + immutable head + path; do not use an authored recomputed-blob column (none is provided).',
+              '4. Inspect `05_IMMUTABLE_BINDING_COMMENT.json`; confirm it binds this exact head and preserves execution/construct-validity boundaries.',
+              '5. Inspect `06_EXACT_HEAD_WORKFLOWS.json` and the transported raw API response; confirm all five required workflows are SUCCESS on this exact head.',
+              '6. Recompute the transported pinned HARNESS Git blob SHA-1 and compare to `02_PINNED_HARNESS.json`.',
+              '7. Run `python -m unittest tests.test_study1b_engineering_benchmark_contract_v06 -v` after installing PyYAML.',
+              '',
+              'Green workflows are technical assurance only and are not a construct-validity verdict.',
+              '',
+              '## Semantic review request',
+              '',
+              request_text,
+              '',
+              '## Hard boundary',
+              '',
+              'Do not open SCREEN, qualification TEST, protected real-route performance or representation geometry; do not launch S4N3; do not execute Phase A; do not select/freeze target hardware as part of this review.',
+          ]
+          (out / '03_REVIEWER_PROMPT.md').write_text('\n'.join(prompt) + '\n', encoding='utf-8')
+
+          verifier = r'''import hashlib, json
+from pathlib import Path
+ROOT = Path(__file__).resolve().parents[1]
+def blob_sha(data):
+    return hashlib.sha1(b"blob " + str(len(data)).encode("ascii") + b"\0" + data).hexdigest()
+m = json.loads((ROOT / "01_SOURCE_MANIFEST.json").read_text(encoding="utf-8"))
+head = m["head_sha"]
+for e in m["entries"]:
+    p = ROOT / e["path"]
+    if not p.is_file(): raise SystemExit(f"missing: {e['path']}")
+    d = p.read_bytes()
+    if len(d) != e["byte_length"]: raise SystemExit(f"length mismatch: {e['path']}")
+    if hashlib.sha256(d).hexdigest() != e["sha256"]: raise SystemExit(f"sha256 mismatch: {e['path']}")
+    if blob_sha(d) != e["git_blob_sha1_expected"]: raise SystemExit(f"blob mismatch: {e['path']}")
+    s = e.get("git_blob_sha1_expected_source") or {}
+    if s.get("head_sha") != head or s.get("path") != e["path"] or s.get("kind") != "immutable_repository_object":
+        raise SystemExit(f"N7 source provenance mismatch: {e['path']}")
+    if "git_blob_sha1_recomputed" in e:
+        raise SystemExit(f"N7 regression: authored recomputed blob column present: {e['path']}")
+h = json.loads((ROOT / "02_PINNED_HARNESS.json").read_text(encoding="utf-8"))
+hd = (ROOT / "external_authority/HARNESS.md").read_bytes()
+if blob_sha(hd) != h["expected_git_blob_sha1"]: raise SystemExit("HARNESS blob mismatch")
+b = json.loads((ROOT / "05_IMMUTABLE_BINDING_COMMENT.json").read_text(encoding="utf-8"))
+body = b.get("body") or ""
+if "[STUDY1B-CONSTRUCT-VALIDITY-REVIEW-BINDING]" not in body or f"HEAD_SHA = {head}" not in body:
+    raise SystemExit("N8 binding does not bind exact head")
+w = json.loads((ROOT / "06_EXACT_HEAD_WORKFLOWS.json").read_text(encoding="utf-8"))
+required = {"CI", "Research assurance", "Study 1B Engineering Assurance", "Study 1B Non-outcome Preflight", "Study 1B Power Design Diagnostic"}
+seen = set()
+for r in w["required_workflows"]:
+    seen.add(r["name"])
+    if r["head_sha"] != head or r["status"] != "completed" or r["conclusion"] != "success":
+        raise SystemExit(f"N8 workflow evidence invalid: {r['name']}")
+if seen != required: raise SystemExit(f"N8 required workflows mismatch: {seen}")
+print(f"Construct-validity transport verification PASS: {len(m['entries'])} repository sources, N7/N8 satisfied by package construction")
+'''
+          vpath = out / 'review_tools/verify_package.py'
+          vpath.parent.mkdir(parents=True, exist_ok=True)
+          vpath.write_text(verifier, encoding='utf-8')
+
+          contents = []
+          for p in sorted(x for x in out.rglob('*') if x.is_file()):
+              data = p.read_bytes()
+              contents.append({'path': p.relative_to(out).as_posix(), 'byte_length': len(data), 'sha256': hashlib.sha256(data).hexdigest()})
+          (out / '04_PACKAGE_CONTENTS_SHA256.json').write_text(
+              json.dumps({'schema_version': 1, 'entries': contents}, indent=2, sort_keys=True) + '\n', encoding='utf-8'
+          )
+
+          zip_name = f'PR50_{head[:8].upper()}_PHASE_A_CONSTRUCT_VALIDITY_REVIEW_2026-09-16.zip'
+          zip_path = bundle / zip_name
+          with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED, compresslevel=9) as zf:
+              for p in sorted(x for x in out.rglob('*') if x.is_file()):
+                  info = zipfile.ZipInfo(p.relative_to(out).as_posix(), date_time=(1980,1,1,0,0,0))
+                  info.compress_type = zipfile.ZIP_DEFLATED
+                  info.external_attr = 0o100644 << 16
+                  zf.writestr(info, p.read_bytes())
+          digest = hashlib.sha256(zip_path.read_bytes()).hexdigest()
+          binding = json.loads((out / '05_IMMUTABLE_BINDING_COMMENT.json').read_text())
+          metadata = {
+              'head_sha': head,
+              'base_sha': base,
+              'binding_comment_id': binding['id'],
+              'zip_name': zip_name,
+              'zip_sha256': digest,
+              'exact_repository_source_count': len(entries),
+              'n7_hardened': True,
+              'n8_hardened': True,
+              'review_scope': 'PHASE_A_CONSTRUCT_VALIDITY_PREEXECUTION',
+          }
+          (bundle / f'{zip_name}.sha256').write_text(f'{digest}  {zip_name}\n', encoding='utf-8')
+          (bundle / 'PACKAGE_METADATA.json').write_text(json.dumps(metadata, indent=2, sort_keys=True) + '\n', encoding='utf-8')
+          print(f'Built {zip_name} sha256={digest}')
+          PY
+
+      - name: Verify package and focused contract
+        working-directory: artifacts/study1b/construct-validity-review-package
+        run: |
+          python review_tools/verify_package.py
+          python -m unittest tests.test_study1b_engineering_benchmark_contract_v06 -v
+
+      - name: Upload construct-validity review bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: study1b-phase-a-construct-validity-review-package
+          path: artifacts/study1b/construct-validity-review-bundle
+          if-no-files-found: error
+          retention-days: 90
