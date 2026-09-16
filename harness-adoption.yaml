@@ -42,19 +42,19 @@ artifacts:
 execution:
   environment_lock: protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_ENVIRONMENT_LOCK_V0_6_2026-09-14.yaml
   environment_lock_status: >-
-    The referenced prospective v0.6 contract preserves the independently accepted D1-D3 design history and the
-    conservative repository-root public-information bound while addressing the reviewer-recorded pre-execution items
-    N4, N5 and R1/N2. N4 separates influence over evidence creation/framing from mere receipt, possession, citation or
-    review so D2 remains usable for genuinely pre-existing external evidence while D1 remains the accountable
-    completeness backstop. N5 states that only temporal ordering against the immutable public bound is mechanically
-    checkable; source independence and attester influence remain provenance/attestation claims. R1/N2 is hardened with
-    choice-specific informational-overlap classification so hardware mismatch alone cannot discharge relevance for
-    portable backend/BLAS, threading/affinity or measurement-method choices. N6 is adopted as a review-process rule:
-    subsequent packages ship exact normative artifacts with expected Git blob SHA-1 values for reviewer-side local
-    recomputation. The lock is BLOCKED_PENDING_PREEXECUTION_SEMANTIC_REREVIEW_PLATFORM_BINDING_AND_PROVENANCE.
-    Canonical Jungle Championship Phase A execution remains prohibited. Actual edge hardware, external power meter,
-    off-device load generator, configuration-choice provenance/attestation and exact synthetic-generator identity are
-    not materialized. Construct validity remains unreviewed and is a separate review step after semantic hardening.
+    The prospective v0.6 lock remains the reviewed normative object. Independent focused review on exact head
+    c7d03cdad3bdf460bc6261508f2dc416504c7e4b accepted N4, N5 and R1/N2 and accepted the N6 package rule for the
+    reviewed package, while explicitly preserving CANONICAL_EXECUTION_CURRENTLY_ADMISSIBLE=no and
+    CONSTRUCT_VALIDITY_REVIEWED=no. The reviewed v0.6 lock/addendum bytes are not rewritten to record that acceptance;
+    the append-only verdict and Chronicle entry carry the review result. Two new review-transport findings, N7 and N8,
+    are non-conditions of that ACCEPT but must be hardened before the next delegated independent review package. N7
+    requires the package manifest to declare the repository-object provenance of each expected Git blob SHA-1 and to
+    leave reviewer-side recomputation to the reviewer rather than serializing an author-side recomputed comparison
+    column. N8 requires the package to transport the immutable PR binding and the five exact-head bounded workflow
+    results that the reviewer prompt asks to verify. Canonical Jungle Championship Phase A execution remains prohibited.
+    Actual edge hardware, external power meter, off-device load generator, configuration-choice provenance/attestation,
+    exact synthetic-generator identity and an execution-specific environment lock remain unmaterialized. A separate
+    construct-validity review must occur before that physical materialization/freeze sequence.
   replay_commands:
     - "PYTHONPATH=src python -m unittest tests.test_harness_adoption tests.test_scientific_harness tests.test_coverage_execution tests.test_coverage_execution_vectorized tests.test_study1b_engineering_benchmark_contract tests.test_study1b_engineering_benchmark_contract_v06 -v"
   engineering_care:
@@ -107,8 +107,15 @@ adoption:
     cb124244ecdc285c1c711dd28cc1a074ff645ddc accepted D2, the root bound and the D1/D2 split while keeping execution
     inadmissible and construct validity unreviewed. That reviewer also recorded N4, N5, N6 and R1/N2 as non-blocking
     current-verdict items, with N4/N5/R1-N2 requiring pre-execution closure and N6 requiring package-process hardening.
-    v0.6 addresses N4/N5/R1-N2 prospectively and adopts N6 for the next package without rewriting the accepted v0.5
-    artifacts. These changes add engineering pre-execution gates only and do not alter Study 1B scientific gates,
-    authorize protected outcome opening, launch S4N3, or establish construct validity. Historical schema declarations
-    remain unchanged; new local Study 1B artifacts use the prospective local schema-id policy without silently retyping
-    this upstream harness manifest family.
+    v0.6 addressed N4/N5/R1-N2 prospectively and adopted N6 without rewriting the accepted v0.5 artifacts. Focused
+    independent review on head c7d03cdad3bdf460bc6261508f2dc416504c7e4b then returned ACCEPT with N4_CLOSED=yes,
+    N5_CLOSED=yes, R1_N2_PORTABLE_CHOICE_OVERLAP_CLOSED=yes and N6_PACKAGE_RULE_SATISFIED=yes, while keeping canonical
+    execution inadmissible and construct validity unreviewed. The reviewer independently checked 20/20 package SHA-256
+    and lengths, recomputed 16/16 Git blob identities, ran the package verifier and the 11 focused contract tests, and
+    re-derived lock/addendum agreement. Two new transport-only findings N7/N8 are carried forward without reopening that
+    semantic ACCEPT. N7 asks that expected Git blob identities declare their immutable repository-object source and that
+    authored recomputed blob values disappear from the manifest. N8 asks that future packages transport the immutable
+    review binding and exact-head bounded workflow evidence requested by the reviewer prompt. These are review-process
+    hardening items, not permission to open protected outcomes or execute Phase A. Historical schema declarations remain
+    unchanged; new local Study 1B artifacts use the prospective local schema-id policy without silently retyping this
+    upstream harness manifest family.
