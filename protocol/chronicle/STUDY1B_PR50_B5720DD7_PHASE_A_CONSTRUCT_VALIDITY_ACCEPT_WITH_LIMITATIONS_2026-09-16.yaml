@@ -1,0 +1,144 @@
+schema_id: study1b.chronicle.review_result
+schema_version: 4
+artifact_version: "0.1"
+entry_type: study1b_pr50_b5720dd7_phase_a_construct_validity_accept_with_limitations
+chronicle_entry_id: CHRON-20260916-053
+study_id: study_1b_matched_compression
+review_date: 2026-09-16
+archived_at: 2026-09-16
+kind: append_only_nonoutcome_review_result
+status: CONSTRUCT_VALIDITY_ACCEPTED_WITH_LIMITATIONS_PROTOCOL_CHANGES_REQUIRED_BEFORE_PLATFORM_MATERIALIZATION
+outcome_evidence_seen: false
+
+review_basis:
+  reviewed_head: b5720dd7e2031e0ac090ae4f5ea4c09fb0a05cc5
+  base: 5730e6bfa07b51afbe7ad6a89ffb4a6bd0ba6eb7
+  pinned_harness_ref: 3b109adcdd9a8cba4df029d3803ee0e5cb5bdf98
+  immutable_binding_comment_id: 5697365170
+  package: PR50_B5720DD7_PHASE_A_CONSTRUCT_VALIDITY_REVIEW_2026-09-16.zip
+  package_sha256: fe4ff0af8bec437e17efb10c809d9113f8d2c162ab416c8dd93a2abe5c7566de
+  github_actions_artifact_id: 10445719399
+  github_actions_artifact_digest: sha256:80ff9bf8fa7ddbe6ae1771714f5899e265dca30c9ada19a1d763f60d3f7cceef
+  archived_verdict: protocol/reviews/PR50_B5720DD7_PHASE_A_CONSTRUCT_VALIDITY_REVIEW_VERDICT_2026-09-16.md
+  archived_verdict_sha256: c0e7afe7c2f9f7d8a42dae42b5cf4d49fa8155c61719b4ccc1ff882fafc63d5a
+  verdict: ACCEPT_WITH_LIMITATIONS
+
+reviewer_independence:
+  did_not_design_phase_a_benchmark: true
+  did_not_prepare_review_package: true
+  did_not_author_reviewed_protocol_changes: true
+  prior_reviews_in_same_series_authored_by_same_reviewer: true
+  prior_heads:
+    - ab7f3d0
+    - f5d748
+    - 022e8f
+    - cb124244
+    - c7d03cda
+  disclosed_confirmation_risk: true
+  second_reviewer_without_history_recommended_for_stronger_independence: true
+  second_reviewer_required_by_this_verdict: false
+
+transport_verification:
+  package_sha256_match: true
+  repository_git_blobs_recomputed: 13
+  repository_git_blob_mismatches: 0
+  immutable_source_provenance_bound: 13
+  N7_CLOSED: true
+  pinned_harness_blob_and_sha256_match: true
+  immutable_binding_verified: true
+  exact_head_workflows_verified_success: 5
+  N8_CLOSED: true
+  package_contents_sha256_and_length_verified: 22
+  focused_contract_tests_passed: 11
+  reviewer_network_dereference_available: false
+  note: >-
+    The reviewer verified the transported immutable-address evidence and independently recomputed package and Git-blob
+    identities, but did not dereference GitHub addresses because the review environment had no network access. No
+    transport check failed and the semantic review proceeded.
+
+reviewer_decision:
+  CONSTRUCT_VALIDITY_ACCEPTED: true
+  DIMENSION_ONLY_INTERVENTION_VALID: true
+  FIXED_WORK_DENSE_SEARCH_CONSTRUCT_VALID: true
+  SYNTHETIC_DENSE_PAYLOAD_VALID_FOR_BOUNDED_ENGINEERING_CHARACTERIZATION: true
+  G0_G2_SCOPE_VALID_AS_SENSITIVITY_NOT_EVENT_FACT: true
+  MEASUREMENT_ENDPOINTS_MATCH_ENGINEERING_CLAIM_SCOPE: true
+  MEASUREMENT_PLANE_VALID_FOR_DEVICE_LEVEL_ENERGY_CLAIM: true
+  CONFOUND_CONTROL_SUFFICIENT_FOR_PAIRED_PHASE_A: true
+  GENERALIZATION_LIMITS_EXPLICIT_AND_ACCEPTABLE: true
+  CHARACTERIZATION_VS_QUALIFICATION_BOUNDARY_ACCEPTABLE: true
+  INTERPRETATION_FIREWALL_ACCEPTABLE: true
+  REQUIRES_PROTOCOL_CHANGE_BEFORE_PLATFORM_MATERIALIZATION: true
+  PROTECTED_BIOMETRIC_OUTCOMES_REQUIRED_FOR_REVIEW: false
+  CANONICAL_EXECUTION_CURRENTLY_ADMISSIBLE: false
+
+blockers_before_platform_materialization:
+  B1_cache_and_bandwidth_observability:
+    status: OPEN_PROSPECTIVE_CORRECTION_REQUIRED
+    minimum_correction:
+      - record_cpu_cache_hierarchy_in_environment_lock
+      - record_measured_achievable_memory_bandwidth_and_method
+      - report_each_arm_working_set_against_llc_capacity
+      - report_each_arm_achieved_memory_throughput_against_measured_bandwidth
+    firewall_note: >-
+      A STREAM-class bandwidth characterization performed after platform-choice freeze and before result-bearing Phase A
+      shares neither representation dimension nor search family with the target workload. It is environment
+      characterization and does not reopen accepted D1-D3/N4-N6 semantics, provided it is not used to retune the frozen
+      lock-defining choices.
+  B2_cross_regime_ratio_guard:
+    status: OPEN_PROSPECTIVE_CORRECTION_REQUIRED
+    minimum_correction:
+      - paired_delta_or_ratio_requires_same_saturation_regime_for_both_arms
+      - neither_arm_may_be_right_censored_for_quantitative_ratio
+      - report_each_arm_saturation_point_alongside_paired_delta
+      - report_cross_regime_pairs_as_regime_crossing_without_combined_ratio
+  B3_backend_dispatch_observability:
+    status: OPEN_PROSPECTIVE_CORRECTION_REQUIRED
+    minimum_correction:
+      - record_backend_reported_kernel_or_core_identifier_per_arm
+      - record_exact_call_shape_per_arm
+      - record_batch_size_memory_order_and_leading_dimension
+      - record_backend_reported_blocking_parameters_when_available
+      - bind_dispatch_evidence_into_result_provenance
+
+reporting_limitations:
+  L1_joules_per_identification_conditioning:
+    status: ACCEPTED_LIMITATION_REQUIRES_REPORTING_GUARD
+    rule: every_joules_per_identification_value_names_offered_qps_and_saturation_regime
+  L3_percentile_support_gaps:
+    status: ACCEPTED_LIMITATION_REQUIRES_REPORTING_GUARD
+    rule: report_preamble_must_explain_designed_percentile_gaps_from_support_rules
+
+future_sensitivity:
+  L2_intermediate_working_set:
+    status: FUTURE_SENSITIVITY_NOT_PHASE_A_BLOCKER
+    rule: >-
+      G0 and G2 do not support interpolation through intermediate working sets. Future Phase B may add G1, or the Phase A
+      report must state explicitly that no intermediate-behaviour claim is made.
+
+scientific_boundary:
+  screen_opened: false
+  qualification_test_opened: false
+  real_route_performance_opened: false
+  representation_geometry_opened: false
+  amendment_activated: false
+  s4n1_status: CLOSED_NEGATIVE
+  s4n2_status: CLOSED_NEGATIVE
+  s4n3_launched: false
+  phase_a_executed: false
+  target_platform_selected_or_frozen: false
+
+execution_gate:
+  construct_validity_accepted_on_reviewed_head: true
+  blockers_B1_B2_B3_closed: false
+  platform_materialization_permitted: false
+  canonical_phase_a_execution_permitted: false
+
+next_action: >-
+  Preserve this verdict as bound to b5720dd7e2031e0ac090ae4f5ea4c09fb0a05cc5. Land B1, B2 and B3 prospectively
+  without rewriting the reviewed head or its historical normative bytes; incorporate L1/L3 reporting guards and retain
+  L2 as a future sensitivity requirement. Run bounded assurance on the resulting exact correction head and obtain a
+  focused independent confirmation that B1-B3 are correctly closed before materializing target hardware, external power
+  meter, off-device load generator, configuration-choice provenance, generator identity or an execution-specific lock.
+  Prefer a reviewer with no prior history in this series to strengthen independence. Do not execute Phase A and do not
+  open protected Study 1B outcomes.
