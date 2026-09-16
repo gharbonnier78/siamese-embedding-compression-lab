@@ -1,0 +1,72 @@
+schema_id: study1b.chronicle.documentation_sync
+schema_version: 1
+artifact_version: "0.1"
+entry_type: study1b_human_readable_status_addendum_v0_3_1
+chronicle_entry_id: CHRON-20260916-052
+study_id: study_1b_matched_compression
+date: 2026-09-16
+kind: append_only_nonoutcome_documentation_change
+status: STATUS_ADDENDUM_SYNCHRONIZED_PRE_CONSTRUCT_VALIDITY_REVIEW
+outcome_evidence_seen: false
+
+task:
+  requested_actions:
+    - record_the_accepted_v0_6_semantic_review_in_human_readable_research_documentation
+    - record_N7_N8_transport_findings_without_reopening_the_ACCEPT
+    - explain_the_transition_to_separate_Phase_A_construct_validity_review
+    - render_and_visually_verify_a_versioned_status_addendum_PDF
+  scientific_semantics_changed: false
+  scientific_gate_changed: false
+  execution_authorization_changed: false
+
+source:
+  latex: paper/siamese_embedding_compression_research_program_v0.3.1_status_addendum.tex
+  relationship_to_v0_3: versioned_status_addendum_does_not_overwrite_v0_3
+  accepted_semantic_head_described: c7d03cdad3bdf460bc6261508f2dc416504c7e4b
+
+pdf_build:
+  target_name: siamese_embedding_compression_research_program_v0.3.1_status_addendum.pdf
+  sha256: 5afebb93907d7e455718901d7ea15bbe8c7ee47bc5c1a38d1de7de95cb604aa8
+  pages: 3
+  renderer_check: PASS
+  visual_check: PASS
+  historical_pdf_overwrite_permitted: false
+  repository_binary_publication_status: NOT_COMMITTED_BY_TEXT_ONLY_CONNECTOR
+  note: >-
+    The PDF was built twice from the versioned LaTeX source with pdflatex, rendered to images and visually inspected.
+    A first render exposed overlong repository paths; the LaTeX source was corrected with breakable path/URL handling,
+    rebuilt, rerendered and verified. Existing v0.2, v0.2.1 and v0.3 artifacts are not overwritten.
+
+status_synchronized:
+  v0_6_semantic_review: ACCEPT
+  N4_CLOSED: true
+  N5_CLOSED: true
+  R1_N2_PORTABLE_CHOICE_OVERLAP_CLOSED: true
+  N6_PACKAGE_RULE_SATISFIED: true
+  N7_status: OPEN_REVIEW_TRANSPORT_HARDENING
+  N8_status: OPEN_REVIEW_TRANSPORT_HARDENING
+  construct_validity_reviewed: false
+  canonical_phase_a_execution_permitted: false
+
+construct_validity_transition:
+  request: protocol/reviews/STUDY1B_PHASE_A_CONSTRUCT_VALIDITY_REVIEW_REQUEST_V0_1_2026-09-16.md
+  review_question: >-
+    If Phase A were executed exactly as specified, would its measurements validly support the bounded engineering
+    claims the benchmark is designed to make?
+  platform_materialization_before_review_acceptance_permitted: false
+
+scientific_boundary:
+  screen_opened: false
+  qualification_test_opened: false
+  real_route_performance_opened: false
+  representation_geometry_opened: false
+  amendment_activated: false
+  s4n1_status: CLOSED_NEGATIVE
+  s4n2_status: CLOSED_NEGATIVE
+  s4n3_launched: false
+  phase_a_executed: false
+
+next_action: >-
+  Implement N7/N8 in the construct-validity package transport, freeze an exact package head, require the five bounded
+  workflows to succeed on that head, create an immutable binding, then issue the self-contained package for independent
+  construct-validity review. Do not materialize the target platform and do not execute Phase A.
