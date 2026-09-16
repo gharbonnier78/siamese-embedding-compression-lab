@@ -208,9 +208,8 @@ jobs:
                   f'https://api.github.com/repos/{repo}/issues/50/comments',
                   method='POST', data={'body': binding_body}
               )
-          else:
-              if found.get('body') != binding_body:
-                  raise SystemExit('existing binding marker for exact head has divergent body; fail closed')
+          elif found.get('body') != binding_body:
+              raise SystemExit('existing binding marker for exact head has divergent body; fail closed')
 
           if marker not in (found.get('body') or '') or f'HEAD_SHA = {head}' not in (found.get('body') or ''):
               raise SystemExit('binding comment does not bind exact head')
@@ -279,8 +278,7 @@ jobs:
               data = src.read_bytes()
               expression = f'{head}:{rel}'
               expected = subprocess.check_output(['git', 'rev-parse', expression], text=True).strip()
-              actual_builder_guard = blob_sha(data)
-              if actual_builder_guard != expected:
+              if blob_sha(data) != expected:
                   raise SystemExit(f'Git blob mismatch before package: {rel}')
               dst = out / rel
               dst.parent.mkdir(parents=True, exist_ok=True)
@@ -317,7 +315,6 @@ jobs:
               json.dumps(source_manifest, indent=2, sort_keys=True) + '\n', encoding='utf-8'
           )
 
-          # Transport exact pinned HARNESS bytes as an offline review convenience while preserving external authority.
           harness_repo = 'gharbonnier78/scientific-research-harness'
           harness_ref = '3b109adcdd9a8cba4df029d3803ee0e5cb5bdf98'
           harness_expected = 'b5354c9c02c91cfa1e6a0b734741cdf78e39ed1d'
@@ -351,7 +348,6 @@ jobs:
               json.dumps(harness_manifest, indent=2, sort_keys=True) + '\n', encoding='utf-8'
           )
 
-          # N8: transport the actual binding comment and workflow API evidence rather than an author summary.
           for name in ['05_IMMUTABLE_BINDING_COMMENT.json', '06_EXACT_HEAD_WORKFLOWS.json', '06A_EXACT_HEAD_WORKFLOWS_RAW.json']:
               shutil.copy2(evidence / name, out / name)
 
@@ -387,50 +383,51 @@ jobs:
           ]
           (out / '03_REVIEWER_PROMPT.md').write_text('\n'.join(prompt) + '\n', encoding='utf-8')
 
-          verifier = r'''import hashlib, json
-from pathlib import Path
-ROOT = Path(__file__).resolve().parents[1]
-def blob_sha(data):
-    return hashlib.sha1(b"blob " + str(len(data)).encode("ascii") + b"\0" + data).hexdigest()
-m = json.loads((ROOT / "01_SOURCE_MANIFEST.json").read_text(encoding="utf-8"))
-head = m["head_sha"]
-for e in m["entries"]:
-    p = ROOT / e["path"]
-    if not p.is_file(): raise SystemExit(f"missing: {e['path']}")
-    d = p.read_bytes()
-    if len(d) != e["byte_length"]: raise SystemExit(f"length mismatch: {e['path']}")
-    if hashlib.sha256(d).hexdigest() != e["sha256"]: raise SystemExit(f"sha256 mismatch: {e['path']}")
-    if blob_sha(d) != e["git_blob_sha1_expected"]: raise SystemExit(f"blob mismatch: {e['path']}")
-    s = e.get("git_blob_sha1_expected_source") or {}
-    if s.get("head_sha") != head or s.get("path") != e["path"] or s.get("kind") != "immutable_repository_object":
-        raise SystemExit(f"N7 source provenance mismatch: {e['path']}")
-    if "git_blob_sha1_recomputed" in e:
-        raise SystemExit(f"N7 regression: authored recomputed blob column present: {e['path']}")
-h = json.loads((ROOT / "02_PINNED_HARNESS.json").read_text(encoding="utf-8"))
-hd = (ROOT / "external_authority/HARNESS.md").read_bytes()
-if blob_sha(hd) != h["expected_git_blob_sha1"]: raise SystemExit("HARNESS blob mismatch")
-b = json.loads((ROOT / "05_IMMUTABLE_BINDING_COMMENT.json").read_text(encoding="utf-8"))
-body = b.get("body") or ""
-if "[STUDY1B-CONSTRUCT-VALIDITY-REVIEW-BINDING]" not in body or f"HEAD_SHA = {head}" not in body:
-    raise SystemExit("N8 binding does not bind exact head")
-w = json.loads((ROOT / "06_EXACT_HEAD_WORKFLOWS.json").read_text(encoding="utf-8"))
-required = {"CI", "Research assurance", "Study 1B Engineering Assurance", "Study 1B Non-outcome Preflight", "Study 1B Power Design Diagnostic"}
-seen = set()
-for r in w["required_workflows"]:
-    seen.add(r["name"])
-    if r["head_sha"] != head or r["status"] != "completed" or r["conclusion"] != "success":
-        raise SystemExit(f"N8 workflow evidence invalid: {r['name']}")
-if seen != required: raise SystemExit(f"N8 required workflows mismatch: {seen}")
-print(f"Construct-validity transport verification PASS: {len(m['entries'])} repository sources, N7/N8 satisfied by package construction")
-'''
+          verifier_lines = [
+              'import hashlib, json',
+              'from pathlib import Path',
+              'ROOT = Path(__file__).resolve().parents[1]',
+              'def blob_sha(data):',
+              '    return hashlib.sha1(b"blob " + str(len(data)).encode("ascii") + b"\\0" + data).hexdigest()',
+              'm = json.loads((ROOT / "01_SOURCE_MANIFEST.json").read_text(encoding="utf-8"))',
+              'head = m["head_sha"]',
+              'for e in m["entries"]:',
+              '    p = ROOT / e["path"]',
+              '    if not p.is_file(): raise SystemExit(f"missing: {e[\'path\']}")',
+              '    d = p.read_bytes()',
+              '    if len(d) != e["byte_length"]: raise SystemExit(f"length mismatch: {e[\'path\']}")',
+              '    if hashlib.sha256(d).hexdigest() != e["sha256"]: raise SystemExit(f"sha256 mismatch: {e[\'path\']}")',
+              '    if blob_sha(d) != e["git_blob_sha1_expected"]: raise SystemExit(f"blob mismatch: {e[\'path\']}")',
+              '    s = e.get("git_blob_sha1_expected_source") or {}',
+              '    if s.get("head_sha") != head or s.get("path") != e["path"] or s.get("kind") != "immutable_repository_object": raise SystemExit(f"N7 source provenance mismatch: {e[\'path\']}")',
+              '    if "git_blob_sha1_recomputed" in e: raise SystemExit(f"N7 regression: authored recomputed blob column present: {e[\'path\']}")',
+              'h = json.loads((ROOT / "02_PINNED_HARNESS.json").read_text(encoding="utf-8"))',
+              'hd = (ROOT / "external_authority/HARNESS.md").read_bytes()',
+              'if blob_sha(hd) != h["expected_git_blob_sha1"]: raise SystemExit("HARNESS blob mismatch")',
+              'b = json.loads((ROOT / "05_IMMUTABLE_BINDING_COMMENT.json").read_text(encoding="utf-8"))',
+              'body = b.get("body") or ""',
+              'if "[STUDY1B-CONSTRUCT-VALIDITY-REVIEW-BINDING]" not in body or f"HEAD_SHA = {head}" not in body: raise SystemExit("N8 binding does not bind exact head")',
+              'w = json.loads((ROOT / "06_EXACT_HEAD_WORKFLOWS.json").read_text(encoding="utf-8"))',
+              'required = {"CI", "Research assurance", "Study 1B Engineering Assurance", "Study 1B Non-outcome Preflight", "Study 1B Power Design Diagnostic"}',
+              'seen = set()',
+              'for r in w["required_workflows"]:',
+              '    seen.add(r["name"])',
+              '    if r["head_sha"] != head or r["status"] != "completed" or r["conclusion"] != "success": raise SystemExit(f"N8 workflow evidence invalid: {r[\'name\']}")',
+              'if seen != required: raise SystemExit(f"N8 required workflows mismatch: {seen}")',
+              'print(f"Construct-validity transport verification PASS: {len(m[\'entries\'])} repository sources, N7/N8 satisfied by package construction")',
+          ]
           vpath = out / 'review_tools/verify_package.py'
           vpath.parent.mkdir(parents=True, exist_ok=True)
-          vpath.write_text(verifier, encoding='utf-8')
+          vpath.write_text('\n'.join(verifier_lines) + '\n', encoding='utf-8')
 
           contents = []
           for p in sorted(x for x in out.rglob('*') if x.is_file()):
               data = p.read_bytes()
-              contents.append({'path': p.relative_to(out).as_posix(), 'byte_length': len(data), 'sha256': hashlib.sha256(data).hexdigest()})
+              contents.append({
+                  'path': p.relative_to(out).as_posix(),
+                  'byte_length': len(data),
+                  'sha256': hashlib.sha256(data).hexdigest(),
+              })
           (out / '04_PACKAGE_CONTENTS_SHA256.json').write_text(
               json.dumps({'schema_version': 1, 'entries': contents}, indent=2, sort_keys=True) + '\n', encoding='utf-8'
           )
@@ -439,7 +436,7 @@ print(f"Construct-validity transport verification PASS: {len(m['entries'])} repo
           zip_path = bundle / zip_name
           with zipfile.ZipFile(zip_path, 'w', zipfile.ZIP_DEFLATED, compresslevel=9) as zf:
               for p in sorted(x for x in out.rglob('*') if x.is_file()):
-                  info = zipfile.ZipInfo(p.relative_to(out).as_posix(), date_time=(1980,1,1,0,0,0))
+                  info = zipfile.ZipInfo(p.relative_to(out).as_posix(), date_time=(1980, 1, 1, 0, 0, 0))
                   info.compress_type = zipfile.ZIP_DEFLATED
                   info.external_attr = 0o100644 << 16
                   zf.writestr(info, p.read_bytes())
@@ -457,7 +454,9 @@ print(f"Construct-validity transport verification PASS: {len(m['entries'])} repo
               'review_scope': 'PHASE_A_CONSTRUCT_VALIDITY_PREEXECUTION',
           }
           (bundle / f'{zip_name}.sha256').write_text(f'{digest}  {zip_name}\n', encoding='utf-8')
-          (bundle / 'PACKAGE_METADATA.json').write_text(json.dumps(metadata, indent=2, sort_keys=True) + '\n', encoding='utf-8')
+          (bundle / 'PACKAGE_METADATA.json').write_text(
+              json.dumps(metadata, indent=2, sort_keys=True) + '\n', encoding='utf-8'
+          )
           print(f'Built {zip_name} sha256={digest}')
           PY
 
