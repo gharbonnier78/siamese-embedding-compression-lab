@@ -1,0 +1,196 @@
+schema_id: study1b.engineering.construct_validity_corrections
+schema_version: 1
+artifact_version: "0.1"
+correction_id: STUDY1B-PHASE-A-CONSTRUCT-VALIDITY-CORRECTIONS-V0.1-2026-09-16
+study_id: study_1b_matched_compression
+date: 2026-09-16
+kind: prospective_nonoutcome_engineering_protocol_extension
+status: PROSPECTIVE_B1_B2_B3_CORRECTIONS_AWAITING_FOCUSED_INDEPENDENT_CONFIRMATION
+outcome_evidence_seen: false
+
+review_basis:
+  construct_validity_reviewed_head: b5720dd7e2031e0ac090ae4f5ea4c09fb0a05cc5
+  verdict: ACCEPT_WITH_LIMITATIONS
+  verdict_artifact: protocol/reviews/PR50_B5720DD7_PHASE_A_CONSTRUCT_VALIDITY_REVIEW_VERDICT_2026-09-16.md
+  verdict_sha256: c0e7afe7c2f9f7d8a42dae42b5cf4d49fa8155c61719b4ccc1ff882fafc63d5a
+  chronicle: protocol/chronicle/STUDY1B_PR50_B5720DD7_PHASE_A_CONSTRUCT_VALIDITY_ACCEPT_WITH_LIMITATIONS_2026-09-16.yaml
+  base_benchmark: protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_BENCHMARK_V0_3_2026-09-08.yaml
+  base_environment_lock: protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_ENVIRONMENT_LOCK_V0_6_2026-09-14.yaml
+  accepted_semantic_hardening_head: c7d03cdad3bdf460bc6261508f2dc416504c7e4b
+
+composition_rule: >-
+  This artifact is a prospective normative extension to the reviewed benchmark and environment-lock contracts. It does
+  not rewrite their historical bytes. Any future materialized Phase A execution lock MUST incorporate every REQUIRED
+  item below and MUST cite this artifact path and commit SHA as part of result identity. Until focused independent
+  confirmation of B1-B3 closure is obtained, platform materialization remains prohibited.
+
+scientific_boundary:
+  protected_biometric_inputs_required: false
+  screen_opened: false
+  qualification_test_opened: false
+  real_route_performance_opened: false
+  representation_geometry_opened: false
+  amendment_activated: false
+  s4n1_status: CLOSED_NEGATIVE
+  s4n2_status: CLOSED_NEGATIVE
+  s4n3_launched: false
+  phase_a_executed: false
+
+B1_cache_and_bandwidth_observability:
+  class: BLOCKER_BEFORE_PLATFORM_MATERIALIZATION
+  status: CORRECTED_PROSPECTIVELY_AWAITING_FOCUSED_INDEPENDENT_CONFIRMATION
+  required_environment_cpu_extension:
+    cache_hierarchy:
+      l1d_capacity_bytes_per_core_or_cluster: null
+      l2_capacity_bytes_per_core_or_cluster: null
+      l3_or_llc_capacity_bytes_total: null
+      inclusivity_policy: null
+      sharing_topology: null
+      source_or_measurement_reference: null
+      requirement: >-
+        Record the cache hierarchy actually applicable to the bound CPU, including the last-level cache capacity and
+        sharing topology used to interpret whether an arm working set can cross a cache-capacity boundary.
+  required_environment_memory_extension:
+    achievable_bandwidth_characterization:
+      measurement_method: null
+      tool_and_version: null
+      read_or_copy_kernel_definition: null
+      thread_count: null
+      affinity_policy: null
+      measured_achievable_bandwidth_GB_per_s: null
+      repetitions: null
+      timestamp_utc: null
+      raw_artifact_or_immutable_reference: null
+      role: ENVIRONMENT_CHARACTERIZATION_NOT_LOCK_SELECTION_SIGNAL
+      rule: >-
+        The platform and lock-defining choices MUST be prospectively frozen before this characterization is run. The
+        bandwidth characterization MUST NOT be used to retune or substitute hardware, backend, thread count, affinity,
+        frequency policy or another frozen choice for the same execution identity. If it motivates any such change,
+        create a new prospective design/execution identity and repeat the applicable review sequence.
+  required_reporting:
+    - arm_resident_working_set_bytes
+    - last_level_cache_capacity_bytes
+    - arm_working_set_to_llc_ratio
+    - achieved_memory_throughput_GB_per_s_when_observable
+    - measured_achievable_bandwidth_GB_per_s
+    - achieved_to_measured_bandwidth_fraction_when_observable
+  interpretation_rule: >-
+    Cache-capacity crossings and proximity to achievable memory bandwidth are mechanisms that may explain a measured
+    dimension effect. They are not separate interventions and do not invalidate the paired construct, but the report
+    MUST not claim cache or bandwidth dominance without these recorded environment facts.
+  firewall_note: >-
+    A STREAM-class or equivalent bandwidth characterization shares neither representation dimension nor Phase A search
+    family. Under the accepted choice-specific information firewall it is a measurement-method/environment
+    characterization. It does not reopen D1-D3 or N4-N6 provided it occurs after lock-choice freeze and is not used to
+    retune the frozen choices.
+
+B2_saturation_and_censoring_pairwise_interpretation:
+  class: BLOCKER_BEFORE_PLATFORM_MATERIALIZATION
+  status: CORRECTED_PROSPECTIVELY_AWAITING_FOCUSED_INDEPENDENT_CONFIRMATION
+  saturation_regime_labels:
+    - UNSATURATED
+    - SATURATION_TRANSITION
+    - SATURATED
+    - RIGHT_CENSORED
+    - INDETERMINATE
+  required_pairwise_rule: >-
+    A quantitative paired 512D-versus-128D delta or ratio for latency, throughput, queue recovery or energy at a common
+    offered load is admissible only when BOTH arms are assigned the same non-censored saturation regime for that load.
+    If regimes differ, or either arm is right-censored or indeterminate, report a REGIME_CROSSING_OR_CENSORED_PAIR and
+    do not compute or publish a combined performance ratio as though the pair represented the same operating regime.
+  saturation_point_reporting:
+    each_arm_saturation_point_or_interval_required: true
+    saturation_evidence_required_alongside_each_pairwise_delta: true
+    permitted_same_regime_quantitative_pair: true
+    cross_regime_ratio_permitted: false
+    right_censored_ratio_permitted: false
+  burst_rule: >-
+    The absolute 16 QPS burst remains part of Phase A. If one arm is right-censored while the other is finite, retain
+    both observations but do not reduce them to a finite ratio. An optional arm-relative burst sensitivity may be added
+    only prospectively as a separately labelled characterization and is not required to close B2.
+  required_status_token_for_invalid_ratio:
+    - REGIME_CROSSING_NO_COMBINED_RATIO
+    - CENSORED_PAIR_NO_COMBINED_RATIO
+  rationale: >-
+    The 512D arm transports four times the vector payload per dense comparison. A common offered QPS can therefore place
+    the two arms in different queueing regimes. Cross-regime ratios confound service-time effects with queue buildup and
+    must not be interpreted as a pure dimension ratio.
+
+B3_backend_dispatch_observability:
+  class: BLOCKER_BEFORE_PLATFORM_MATERIALIZATION
+  status: CORRECTED_PROSPECTIVELY_AWAITING_FOCUSED_INDEPENDENT_CONFIRMATION
+  required_runtime_extension:
+    per_arm_dispatch_record:
+      arm_dimension: null
+      backend_reported_kernel_or_core_identifier: null
+      backend_dispatch_observability_method: null
+      exact_call_shape:
+        operation: null
+        gemv_or_batched_gemm: null
+        batch_size: null
+        matrix_shape: null
+        vector_or_rhs_shape: null
+        memory_order: null
+        leading_dimension: null
+      backend_reported_blocking_parameters_if_available: null
+      backend_verbose_or_trace_raw_artifact_reference: null
+  observability_rule: >-
+    Record one dispatch record for 512D and one for 128D under the frozen backend/runtime configuration. A dispatch
+    difference is a legitimate consequence of representation dimension and remains part of the measured engineering
+    effect. The purpose of this record is diagnosis, not forced dispatch equality or runtime tuning.
+  unavailable_dispatch_rule: >-
+    If the selected backend exposes no kernel/core identifier or blocking detail, record the exact unavailable fields as
+    NOT_EXPOSED_BY_BACKEND together with the observability method attempted, exact backend build identity and exact call
+    shape. Do not silently infer a kernel identifier. Such a run may support the bounded paired dimension effect, but
+    mechanism-specific claims about microkernel dispatch MUST remain NOT_DEMONSTRATED.
+  result_provenance_extensions:
+    - per_arm_backend_dispatch_record
+    - backend_verbose_or_trace_raw_artifact_or_immutable_reference
+    - exact_search_call_shape_per_arm
+
+L1_energy_reporting_conditioning:
+  class: REPORTING_LIMITATION
+  status: REPORTING_GUARD_ADOPTED_PROSPECTIVELY
+  rule: >-
+    Every reported total_joules_per_identification or incremental_joules_per_identification_diagnostic value MUST name
+    the offered QPS, the arm saturation regime and whether the value came from steady-state or burst characterization.
+    An energy number without that conditioning MUST NOT be promoted as a standalone device property.
+
+L2_intermediate_working_set_sensitivity:
+  class: FUTURE_SENSITIVITY_REQUIREMENT
+  status: NOT_PHASE_A_BLOCKER
+  rule: >-
+    Phase A G0 and G2 results do not establish behavior at intermediate resident working sets and MUST NOT be
+    interpolated as if they did. A future Phase B may add G1 or another prospectively declared intermediate point. If it
+    does not, Phase A reporting must state explicitly that no intermediate-behavior claim is made.
+
+L3_percentile_support_reporting:
+  class: REPORTING_LIMITATION
+  status: REPORTING_GUARD_ADOPTED_PROSPECTIVELY
+  rule: >-
+    The Phase A report preamble MUST state that the existing support rules intentionally suppress p95 where a restart has
+    fewer than 200 completed samples and p99 where it has fewer than 1000. INSUFFICIENT_SAMPLES_NO_PERCENTILE_CLAIM is a
+    designed outcome, not missing data. Support thresholds MUST NOT be relaxed after seeing results.
+
+future_materialized_lock_requirements:
+  must_reference_this_correction_artifact_path_and_commit: true
+  must_materialize_B1_cache_hierarchy: true
+  must_freeze_B1_bandwidth_method_before_characterization: true
+  must_record_B1_bandwidth_value_before_result_bearing_phase_a: true
+  must_bind_B2_pairwise_interpretation_rule: true
+  must_bind_B3_dispatch_observability_method: true
+  must_retain_L1_and_L3_reporting_guards: true
+  L2_may_remain_deferred_to_future_phase: true
+
+execution_admissibility:
+  construct_validity_accepted_with_limitations_on_b5720dd7: true
+  B1_B2_B3_focused_independent_confirmation_obtained: false
+  platform_materialization_permitted: false
+  canonical_phase_a_execution_permitted: false
+
+next_action: >-
+  Run bounded technical assurance on the exact head carrying this prospective correction artifact and obtain focused
+  independent confirmation that B1, B2 and B3 are correctly closed. Prefer a reviewer with no history in the prior
+  review sequence. Only after that confirmation may platform materialization begin. Even then, canonical Phase A remains
+  blocked until target hardware, meter, off-device load generator, configuration-choice provenance, exact generator
+  identity and the execution-specific materialized lock are frozen and re-assured. Do not open protected outcomes.
