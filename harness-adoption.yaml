@@ -40,9 +40,29 @@ artifacts:
   handoff: null
 
 execution:
-  environment_lock: null
+  environment_lock: protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_ENVIRONMENT_LOCK_V0_6_2026-09-14.yaml
+  environment_lock_extensions:
+    - protocol/benchmarks/STUDY1B_PHASE_A_CONSTRUCT_VALIDITY_CORRECTIONS_V0_1_2026-09-16.yaml
+  environment_lock_status: >-
+    The prospective v0.6 lock remains the reviewed normative base object. Independent focused review on exact head
+    c7d03cdad3bdf460bc6261508f2dc416504c7e4b accepted N4, N5 and R1/N2 and accepted the N6 package rule while explicitly
+    preserving CANONICAL_EXECUTION_CURRENTLY_ADMISSIBLE=no. The later N7/N8-hardened Phase A construct-validity review on
+    exact head b5720dd7e2031e0ac090ae4f5ea4c09fb0a05cc5 returned ACCEPT_WITH_LIMITATIONS with
+    CONSTRUCT_VALIDITY_ACCEPTED=yes and all CV1-CV10 subfields yes. That reviewer independently recomputed 13/13 repository
+    Git blob identities, verified immutable-source provenance, the pinned HARNESS bytes, immutable binding, five exact-head
+    workflow successes, 22/22 package-content hashes/lengths and 11/11 focused contract tests, thereby closing N7 and N8.
+    Three new construct-validity blockers B1-B3 must be corrected before platform materialization: B1 cache hierarchy plus
+    achievable-memory-bandwidth observability; B2 a prohibition on reducing cross-saturation-regime or censored paired
+    observations to a combined ratio; B3 per-arm backend dispatch/call-shape observability. Those corrections are carried
+    prospectively by STUDY1B_PHASE_A_CONSTRUCT_VALIDITY_CORRECTIONS_V0_1_2026-09-16.yaml without rewriting the reviewed
+    v0.6 bytes and await focused independent confirmation. L1/L3 are prospective reporting guards; L2 remains a future
+    intermediate-working-set sensitivity and is not a Phase A blocker. Platform materialization and canonical Phase A
+    execution remain prohibited. Actual edge hardware, external power meter, off-device load generator,
+    configuration-choice provenance/attestation, exact synthetic-generator identity and an execution-specific materialized
+    lock remain unmaterialized. Prefer a focused confirmation reviewer with no prior history in this review series because
+    the construct-validity reviewer disclosed prior-review involvement and a corresponding confirmation-risk channel.
   replay_commands:
-    - "PYTHONPATH=src python -m unittest tests.test_harness_adoption tests.test_scientific_harness tests.test_coverage_execution tests.test_coverage_execution_vectorized -v"
+    - "PYTHONPATH=src python -m unittest tests.test_harness_adoption tests.test_scientific_harness tests.test_coverage_execution tests.test_coverage_execution_vectorized tests.test_study1b_engineering_benchmark_contract tests.test_study1b_engineering_benchmark_contract_v06 tests.test_study1b_phase_a_construct_validity_corrections_v01 -v"
   engineering_care:
     profile: POC
     rationale: >-
@@ -64,6 +84,7 @@ local_extensions:
   - protocol/
   - pedagogy/
   - tests/
+  - protocol/schemas/STUDY1B_LOCAL_ARTIFACT_SCHEMA_POLICY_V0_1_2026-09-08.md
 
 deviations: []
 
@@ -76,4 +97,37 @@ adoption:
     contract requiring direct repository, pull-request, immutable harness and relevant artifact
     URLs. This upgrade changes review/navigation method only; it does not change Study 1
     scientific meaning or Gate A thresholds. Historical Study 0 artifacts remain bound to the
-    harness refs under which they were produced.
+    harness refs under which they were produced. On 2026-09-08, execution.environment_lock was first
+    bound to a complete engineering lock schema, advanced to v0.2 after supplemental independent review
+    identified a pre-lock configuration-choice provenance gap, and advanced prospectively to v0.3 after
+    final design review required D1-D3: accountable attestation, timestamped measurement provenance with
+    a checkable temporal-order mechanism, and an information-based rather than intent-based overlap rule. A focused
+    re-review then closed D1/D3 but found the D2 impossibility anchor too late. v0.4 attempted to move D2 to
+    benchmark-v0.1 commit 878bfe2a64b34cce474a627d04b30233e2356958, and a subsequent focused reviewer ACCEPT
+    explicitly depended on that commit being the earliest relevant repository publication. Repository-side history
+    audit disproved that dependency and reopened D2 without rewriting the reviewer verdict. The bounded backward audit
+    then reached the repository root 4b40e7254bff1b88a44d13fb55b366bc7d3fc263, whose README already publishes the
+    512D-versus-128D intervention and future 1:N retrieval, gallery-indexing and latency-measurement family. v0.5
+    therefore uses the repository root as a deliberately conservative, mechanically terminal D2 public-information
+    bound and records the D1/D2 responsibility split requested by the reviewer. Focused independent review on head
+    cb124244ecdc285c1c711dd28cc1a074ff645ddc accepted D2, the root bound and the D1/D2 split while keeping execution
+    inadmissible and construct validity unreviewed. That reviewer also recorded N4, N5, N6 and R1/N2 as non-blocking
+    current-verdict items, with N4/N5/R1-N2 requiring pre-execution closure and N6 requiring package-process hardening.
+    v0.6 addressed N4/N5/R1-N2 prospectively and adopted N6 without rewriting the accepted v0.5 artifacts. Focused
+    independent review on head c7d03cdad3bdf460bc6261508f2dc416504c7e4b then returned ACCEPT with N4_CLOSED=yes,
+    N5_CLOSED=yes, R1_N2_PORTABLE_CHOICE_OVERLAP_CLOSED=yes and N6_PACKAGE_RULE_SATISFIED=yes, while keeping canonical
+    execution inadmissible and construct validity unreviewed. The reviewer independently checked 20/20 package SHA-256
+    and lengths, recomputed 16/16 Git blob identities, ran the package verifier and the 11 focused contract tests, and
+    re-derived lock/addendum agreement. Two transport-only findings N7/N8 were then hardened prospectively for the
+    construct-validity package: expected Git blob identities became explicitly bound to immutable repository objects,
+    author-side recomputed blob columns were removed, pinned HARNESS bytes were transported, and the immutable binding
+    plus five exact-head workflow results were included. Independent construct-validity review on head
+    b5720dd7e2031e0ac090ae4f5ea4c09fb0a05cc5 closed N7/N8 and accepted all CV1-CV10 dimensions, but returned
+    ACCEPT_WITH_LIMITATIONS because B1 cache/bandwidth observability, B2 cross-regime/censoring ratio semantics and B3
+    backend-dispatch observability must be frozen prospectively before platform materialization. Those corrections now
+    live in a separate normative extension so the reviewed historical benchmark/lock bytes remain immutable. The same
+    verdict classifies L1 energy conditioning and L3 percentile-gap disclosure as reporting limitations and L2
+    intermediate working-set behavior as a future sensitivity, not a Phase A blocker. The construct-validity reviewer
+    also disclosed that they authored multiple earlier reviews; therefore a no-history focused reviewer is preferred for
+    B1-B3 closure. None of these changes permit opening protected biometric outcomes, launching S4N3, materializing the
+    target platform before B1-B3 confirmation, or executing canonical Phase A.

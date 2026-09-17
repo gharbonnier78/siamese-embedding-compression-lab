@@ -1,0 +1,58 @@
+schema_version: 1
+study_id: study_1b_matched_compression
+date: "2026-08-28"
+event: NONOUTCOME_PREFLIGHT_CONTINUATION
+human_authority:
+  explicit_go: true
+  scope_fr: >-
+    Poursuivre l'examen déterministe des 18 quasi-doublons candidats, puis accélérer et
+    vectoriser le rééchantillonnage bootstrap avant de lancer les véritables lots
+    d'exécution des simulations de couverture statistique et de puissance statistique.
+scientific_boundary:
+  biometric_screen_outcomes_opened: false
+  qualification_test_outcomes_opened: false
+  representation_geometry_authorized: false
+  coverage_power_full_shards_started: false
+terminology_fr:
+  near_duplicate: "quasi-doublon candidat"
+  adjudication: "examen déterministe de seconde étape"
+  bootstrap: "rééchantillonnage bootstrap par emplacements de sujets"
+  shard: "lot d'exécution indépendant et reprenable"
+  coverage: "couverture statistique"
+  power: "puissance statistique"
+near_duplicate_plan:
+  first_stage: "dHash64, distance de Hamming <= 4, filtre volontairement sensible"
+  second_stage: >-
+    Comparaison déterministe, sans modèle biométrique, des pixels centraux normalisés par
+    NRMSE, corrélation de pixels et corrélation des gradients. Trois critères concordants
+    bloquent; deux imposent une revue; zéro ou un écarte le signal comme non duplicate-like.
+  candidates_expected: 18
+  rule: "aucun candidat n'est assimilé à une fuite avant cette seconde étape"
+bootstrap_acceleration:
+  invariant_semantics:
+    - "mêmes tirages multinomiaux de sujets, un tirage par réplication"
+    - "mêmes poids m_i pour les paires genuines et m_i*m_j pour les paires imposteurs"
+    - "même règle de seuil FMR par blocs entiers d'égalités"
+    - "même tirage partagé entre route candidate et référence"
+    - "aucun redessin silencieux des réplications dégénérées"
+  engineering_changes:
+    - "pré-indexation des extrémités du graphe de paires"
+    - "calcul NumPy vectorisé des poids d'arêtes"
+    - "tri et blocs d'égalité des distances préparés une seule fois"
+    - "sommes cumulées au lieu de rescans répétés des distances"
+  oracle_requirement: >-
+    La voie accélérée doit produire exactement le même résumé que la voie scalaire sur une
+    fixture comportant égalités de distances et réplications dégénérées potentielles avant
+    d'être utilisée dans les simulations complètes.
+known_failures_recorded:
+  - >-
+    Un premier workflow d'adjudication a échoué sur trois écarts Ruff dans le nouveau script;
+    correction en cours, sans impact scientifique.
+  - >-
+    Le premier passage de la racine Kaggle vers GITHUB_OUTPUT a été contaminé par les messages
+    de progression de kagglehub; la résolution est modifiée pour séparer la sortie de contrôle
+    du chemin transmis au workflow.
+next_gate_fr: >-
+  Ne lancer les lots complets de couverture et de puissance qu'après: adjudication non bloquante
+  des 18 quasi-doublons candidats, équivalence oracle du bootstrap accéléré, mesure de coût mise
+  à jour, CI/assurance vertes et enregistrement des preuves correspondantes.

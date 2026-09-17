@@ -1,0 +1,136 @@
+schema_version: "1.0"
+decision_input_id: STUDY1B-ENGINEERING-COST-INPUT-SHEET-V0.1-2026-09-07
+study_id: study_1b_matched_compression
+date: 2026-09-07
+status: AWAITING_ENGINEERING_VALUES
+kind: nonoutcome_engineering_cost_input_sheet
+
+purpose: >-
+  Collect the minimum engineering and economic inputs needed to convert the structural 512D-to-128D
+  benefit envelope into C_miss and a value-of-information comparison for additional independent
+  evidence, without opening protected Study 1B outcomes or inventing product economics.
+
+scientific_boundary:
+  real_study_outcomes_opened: false
+  screen_opened: false
+  qualification_test_opened: false
+  real_route_performance_opened: false
+  representation_geometry_opened: false
+  amendment_activated: false
+  s4n1_status: CLOSED_NEGATIVE
+  s4n2_status: CLOSED_NEGATIVE
+  s4n3_launched: false
+
+working_policy:
+  pass: PROMOTE_TO_CONTROLLED_NEXT_ENGINEERING_OR_QUALIFICATION_STAGE
+  not_demonstrated: RETAIN_RAW512_BY_DEFAULT
+  additional_evidence_rule: REQUIRE_POSITIVE_VALUE_OF_INFORMATION
+
+exact_structural_constants:
+  d_raw: 512
+  d_comp: 128
+  dimension_ratio: 0.25
+  vector_payload_reduction_fraction_same_dtype_encoding: 0.75
+  s4n1_best_power: 0.869
+  frozen_target_power: 0.90
+  s4n1_power_gap: 0.031
+
+inputs:
+  representation:
+    datatype: null
+    bytes_per_component: null
+    representation_encoding_notes: null
+    source_or_owner: null
+  population_and_retention:
+    number_of_embeddings_N: null
+    retention_horizon_value: null
+    retention_horizon_unit: null
+    growth_rate_or_refresh_notes: null
+    source_or_owner: null
+  replication_and_backup:
+    effective_replication_factor_r: null
+    includes_backup: null
+    notes: null
+    source_or_owner: null
+  transfer:
+    vector_transfers_Q_over_horizon: null
+    refresh_frequency: null
+    transfer_rate_per_byte: null
+    transfer_rate_currency: null
+    source_or_owner: null
+  storage:
+    storage_rate_per_byte_over_horizon: null
+    storage_rate_currency: null
+    notes: null
+    source_or_owner: null
+  compute_capacity:
+    measured_compute_or_capacity_value: null
+    unit_or_currency: null
+    measurement_method: null
+    source_or_owner: null
+    note: >-
+      Must be measured or supplied by engineering authority. Do not infer end-to-end latency or throughput
+      gain from the 4:1 dimensional ratio alone.
+  enabling_value:
+    amount: null
+    unit_or_currency: null
+    description: null
+    source_or_owner: null
+  requalification:
+    cost: null
+    currency: null
+    schedule_delay_value: null
+    schedule_delay_unit: null
+    source_or_owner: null
+  additional_independent_evidence:
+    candidate_increment_description: null
+    new_subjects: null
+    new_captures: null
+    new_sessions: null
+    new_devices_or_sites: null
+    total_cost: null
+    currency: null
+    schedule_delay_value: null
+    schedule_delay_unit: null
+    expected_information_increase_notes: null
+    source_or_owner: null
+  decision_context:
+    q_acceptable_state_prior: null
+    q_rationale: null
+    raw512_operationally_valid_fallback: null
+    raw512_constraints: null
+    false_qualification_severity: null
+    false_qualification_cost_or_loss_model: null
+    deployment_reversibility_class: null
+    rollback_time: null
+    rollback_unit: null
+    decision_owner: null
+
+calculation_contract:
+  raw_vector_bytes: "N * 512 * b"
+  compressed_vector_bytes: "N * 128 * b"
+  vector_bytes_avoided: "N * 384 * b"
+  replicated_vector_bytes_avoided: "N * 384 * b * r"
+  storage_value: "N * 384 * b * r * R_storage"
+  transfer_value: "Q * 384 * b * R_transfer"
+  total_128d_value: "V_storage + V_transfer + V_compute + V_capacity + V_enabling"
+  C_miss: >-
+    delayed_or_foregone(V_128D) + avoidable_requalification_cost + avoidable_schedule_or_opportunity_cost,
+    with explicit protection against double-counting.
+  s4n1_value_of_recovering_gap_to_90: "q * 0.031 * C_miss"
+  break_even_rule: >-
+    Additional independent evidence is economically justified on the missed-demonstration side alone only
+    if its incremental cost is lower than q * 0.031 * C_miss. False-qualification risk must be considered separately.
+
+provenance_rule: >-
+  Every populated non-structural value must identify its source, owner, measurement, estimate class or explicit
+  assumption. Unknown values remain null; they must not be guessed from Study 1B protected outcomes.
+
+next_action: >-
+  Populate this sheet with explicit engineering values, then compute C_miss and the break-even value of additional
+  independent evidence. Any future power/design change remains prospective and cannot reclassify S4N1 or S4N2.
+
+references:
+  policy_baseline: protocol/decisions/STUDY1B_OPERATIONAL_POLICY_BASELINE_V0_1_2026-09-07.yaml
+  structural_benefit: docs/research-notes/STUDY1B_512D_TO_128D_STRUCTURAL_BENEFIT_ENVELOPE_2026-09-07.md
+  voi_note: docs/research-notes/STUDY1B_S4_VALUE_OF_INFORMATION_DECISION_TABLE_2026-09-06.md

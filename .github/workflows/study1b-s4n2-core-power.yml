@@ -1,0 +1,236 @@
+name: Study 1B S4N2 DAGJK20 Power 4000
+
+on:
+  push:
+    branches:
+      - agent/study1b-preregistration-20260827
+    paths:
+      - 'protocol/chronicle/STUDY1B_S4N2_DAGJK20_POWER_4000_LAUNCH_2026-09-06.yaml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  prepare-frozen-graphs:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: Install package and LFW access
+        run: |
+          python -m pip install --upgrade pip 'setuptools>=83.0.0'
+          python -m pip install -e . kagglehub
+      - name: Resolve LFW dataset root
+        id: lfw
+        run: |
+          python - <<'PY'
+          import contextlib, os, sys, kagglehub
+          with contextlib.redirect_stdout(sys.stderr):
+              root = kagglehub.dataset_download('jessicali9530/lfw-dataset/versions/4')
+          with open(os.environ['GITHUB_OUTPUT'], 'a', encoding='utf-8') as handle:
+              handle.write(f'root={root}\n')
+          PY
+      - name: Stage pinned LFW View 1 metadata
+        run: |
+          cp protocol/sources/lfw_view1/peopleDevTrain.txt '${{ steps.lfw.outputs.root }}/peopleDevTrain.txt'
+          cp protocol/sources/lfw_view1/peopleDevTest.txt '${{ steps.lfw.outputs.root }}/peopleDevTest.txt'
+      - name: Materialize frozen active data boundary
+        env:
+          PYTHONPATH: src
+        run: |
+          python scripts/study1b_apply_active_data_boundary.py \
+            --dataset-root '${{ steps.lfw.outputs.root }}' \
+            --output-dir artifacts/study1b/s4n2-power-source
+      - name: Verify frozen source hashes
+        working-directory: artifacts/study1b/s4n2-power-source
+        run: |
+          printf '%s  %s\n' \
+            '767f9fe8d1d8466a0e722f826b26875a0e852f525f7413a9658a307a9639366e' \
+            'capture_manifest.csv' | sha256sum -c -
+          printf '%s  %s\n' \
+            'fb849558e0b09b0fa7ff301991af010815f0b4ee98ab62faa1c585477f9f8601' \
+            'graphs/validation_pairs.csv' | sha256sum -c -
+          printf '%s  %s\n' \
+            '08c86ca9a641fc96b74014ae1974f713cd00e558dd98946ac32ff440c4666f85' \
+            'graphs/test_pairs.csv' | sha256sum -c -
+      - uses: actions/upload-artifact@v4
+        with:
+          name: study1b-s4n2-power-frozen-graphs
+          path: |
+            artifacts/study1b/s4n2-power-source/capture_manifest.csv
+            artifacts/study1b/s4n2-power-source/graphs/validation_pairs.csv
+            artifacts/study1b/s4n2-power-source/graphs/test_pairs.csv
+            artifacts/study1b/s4n2-power-source/preflight_report.json
+          if-no-files-found: error
+
+  power-shards:
+    needs: prepare-frozen-graphs
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    strategy:
+      fail-fast: false
+      max-parallel: 20
+      matrix:
+        truth: [d0, d001]
+        shard: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39]
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: Install package
+        run: |
+          python -m pip install --upgrade pip 'setuptools>=83.0.0'
+          python -m pip install -e .
+      - uses: actions/download-artifact@v5
+        with:
+          name: study1b-s4n2-power-frozen-graphs
+          path: artifacts/study1b/s4n2-power-source
+      - name: Execute frozen S4N2 power shard
+        env:
+          PYTHONPATH: src
+          TRUTH: ${{ matrix.truth }}
+          SHARD: ${{ matrix.shard }}
+        run: |
+          case "$TRUTH" in
+            d0) DELTA='0.0' ;;
+            d001) DELTA='0.01' ;;
+            *) echo "unknown truth label: $TRUTH" >&2; exit 2 ;;
+          esac
+          START=$((SHARD * 100))
+          STOP=$((START + 100))
+          mkdir -p artifacts/study1b/s4n2-power-shards
+          python scripts/study1b_s4n2_run_shard.py \
+            --validation-graph artifacts/study1b/s4n2-power-source/graphs/validation_pairs.csv \
+            --test-graph artifacts/study1b/s4n2-power-source/graphs/test_pairs.csv \
+            --truth-delta "$DELTA" \
+            --start "$START" \
+            --stop "$STOP" \
+            --output "artifacts/study1b/s4n2-power-shards/${TRUTH}_${SHARD}.jsonl"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: study1b-s4n2-power-${{ matrix.truth }}-${{ matrix.shard }}
+          path: artifacts/study1b/s4n2-power-shards/
+          if-no-files-found: error
+
+  aggregate-truth:
+    needs: power-shards
+    if: always() && needs.power-shards.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        truth: [d0, d001]
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: Install package
+        run: |
+          python -m pip install --upgrade pip 'setuptools>=83.0.0'
+          python -m pip install -e .
+      - uses: actions/download-artifact@v5
+        with:
+          pattern: study1b-s4n2-power-${{ matrix.truth }}-*
+          path: artifacts/study1b/s4n2-power-downloaded
+          merge-multiple: true
+      - name: Aggregate S4N2 power gate
+        env:
+          PYTHONPATH: src
+          TRUTH: ${{ matrix.truth }}
+        run: |
+          case "$TRUTH" in
+            d0) DELTA='0.0' ;;
+            d001) DELTA='0.01' ;;
+            *) echo "unknown truth label: $TRUTH" >&2; exit 2 ;;
+          esac
+          mkdir -p artifacts/study1b/s4n2-power-summary
+          python scripts/study1b_s4n2_aggregate.py \
+            --input-root artifacts/study1b/s4n2-power-downloaded \
+            --gate power \
+            --expected 4000 \
+            --truth-delta "$DELTA" \
+            --output "artifacts/study1b/s4n2-power-summary/${TRUTH}_power_4000.json"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: study1b-s4n2-power-${{ matrix.truth }}-4000-summary
+          path: artifacts/study1b/s4n2-power-summary/${{ matrix.truth }}_power_4000.json
+          if-no-files-found: error
+
+  combine-power:
+    needs: aggregate-truth
+    if: always() && needs.aggregate-truth.result == 'success'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/download-artifact@v5
+        with:
+          pattern: study1b-s4n2-power-*-4000-summary
+          path: artifacts/study1b/s4n2-power-combined-input
+          merge-multiple: true
+      - name: Combine prospectively frozen S4N2 power cells
+        env:
+          SOURCE_COMMIT: ${{ github.sha }}
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          root = Path('artifacts/study1b/s4n2-power-combined-input')
+          cells = {}
+          for label in ('d0', 'd001'):
+              data = json.loads((root / f'{label}_power_4000.json').read_text())
+              if data.get('gate') != 'power' or data.get('scientific_outcomes_opened') is not False:
+                  raise SystemExit(f'{label}: invalid power summary')
+              if int(data.get('simulated_datasets', -1)) != 4000:
+                  raise SystemExit(f'{label}: expected exactly 4000 datasets')
+              cells[label] = data
+          candidates = ('S4N_FIXED_SEED', 'S4N_VALIDATION_BEST', 'S4N_VALIDATION_MEDIAN')
+          eligible = {
+              candidate: all(
+                  bool(cells[label]['candidates'][candidate]['coverage_pass'])
+                  and bool(cells[label]['candidates'][candidate]['power_pass'])
+                  for label in cells
+              )
+              for candidate in candidates
+          }
+          preference = ('S4N_VALIDATION_BEST', 'S4N_VALIDATION_MEDIAN', 'S4N_FIXED_SEED')
+          preferred = next((candidate for candidate in preference if eligible[candidate]), None)
+          out = {
+              'schema_version': 1,
+              'kind': 'study1b_s4n2_dagjk20_power_calibration_4000',
+              'scientific_outcomes_opened': False,
+              'screen_opened': False,
+              'test_opened': False,
+              'representation_geometry_opened': False,
+              'amendment_activated': False,
+              'artifact_selector_activated_for_real_study': False,
+              'source_commit': os.environ['SOURCE_COMMIT'],
+              'datasets_per_truth_cell': 4000,
+              'truth_cells': cells,
+              'candidate_pass_both_truths': eligible,
+              'prospectively_frozen_preference_order': list(preference),
+              'preferred_candidate_if_coverage_archive_remains_valid': preferred,
+              'pass': preferred is not None,
+              'next_action_if_pass': 'ARCHIVE_S4N2_RESULT_AND_PERFORM_RESIDUAL_DECISION_RISK_OPERATIONAL_IMPACT_ANALYSIS_BEFORE_ANY_REAL_OUTCOME_OPENING',
+              'next_action_if_fail': 'ARCHIVE_NEGATIVE_S4N2_RESULT_AND_STOP_THIS_ESTIMATOR_CANDIDATE',
+          }
+          target = Path('artifacts/study1b/s4n2-power-combined/power_4000.json')
+          target.parent.mkdir(parents=True, exist_ok=True)
+          target.write_text(json.dumps(out, indent=2, sort_keys=True) + '\n')
+          print(json.dumps({'power_gate_pass': out['pass'], 'preferred_candidate': preferred}, sort_keys=True))
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: study1b-s4n2-dagjk20-power-calibration-4000-summary
+          path: artifacts/study1b/s4n2-power-combined/power_4000.json
+          if-no-files-found: error

@@ -1,0 +1,106 @@
+kind: study1b_power_design_s2_pilot_result
+schema_version: 1
+date: 2026-08-31
+status: S2_PILOT_CLOSED_FINAL_EXPANSION_REQUIRED
+
+study: Study 1B matched compression
+branch: agent/study1b-preregistration-20260827
+scientific_outcomes_opened: false
+screen_opened: false
+test_opened: false
+geometry_opened: false
+amendment_activated: false
+canonical_gate_replaced: false
+
+source_run:
+  workflow: Study 1B Power Design S2 Pilot
+  run_id: 33350245983
+  run_number: 1
+  head_sha: 9ee72702db77631eee48c67bbfce1b0851a6fac8
+  status: completed
+  conclusion: success
+  completed_at_utc: 2026-08-31T05:51:46Z
+  summary_artifact:
+    name: study1b-power-design-s2-pilot-summary
+    artifact_id: 9746993621
+    digest: sha256:bda4d2d4087933aa74c44679fa3903b6a578054dcdf0ca69f9d0e40f289e146a
+
+scientific_boundary:
+  role: prospective synthetic design sensitivity only
+  pilot_role: screening_designs_not_claim_bearing
+  datasets_per_cell: 500
+  bootstrap_replicates_per_dataset: 10000
+  final_selection_power_target: 0.90
+  pilot_screening_floor: 0.80
+  frozen_ni_margin: 0.03
+  frozen_ucb_level: 0.975
+  frozen_seed_labels: [11, 29, 47, 71, 101]
+  seed_effect_sd_reference: 0.005
+  seed_effect_sd_sensitivity: [0.0, 0.0025, 0.005, 0.0075, 0.01]
+  effect_scenarios: [0.0, 0.01]
+  decision_rules_evaluated: [all_5_of_5, at_least_4_of_5, at_least_3_of_5]
+
+pilot_results:
+  sd_0_0:
+    delta_0_0: {all_5_of_5: 0.998, at_least_4_of_5: 1.0, at_least_3_of_5: 1.0}
+    delta_0_01: {all_5_of_5: 0.63, at_least_4_of_5: 0.86, at_least_3_of_5: 0.942}
+  sd_0_0025:
+    delta_0_0: {all_5_of_5: 0.976, at_least_4_of_5: 0.998, at_least_3_of_5: 1.0}
+    delta_0_01: {all_5_of_5: 0.518, at_least_4_of_5: 0.774, at_least_3_of_5: 0.906}
+  sd_0_005_reference:
+    delta_0_0: {all_5_of_5: 0.918, at_least_4_of_5: 1.0, at_least_3_of_5: 1.0}
+    delta_0_01: {all_5_of_5: 0.406, at_least_4_of_5: 0.738, at_least_3_of_5: 0.896}
+  sd_0_0075:
+    delta_0_0: {all_5_of_5: 0.812, at_least_4_of_5: 0.976, at_least_3_of_5: 0.994}
+    delta_0_01: {all_5_of_5: 0.304, at_least_4_of_5: 0.65, at_least_3_of_5: 0.852}
+  sd_0_01:
+    delta_0_0: {all_5_of_5: 0.70, at_least_4_of_5: 0.956, at_least_3_of_5: 0.992}
+    delta_0_01: {all_5_of_5: 0.222, at_least_4_of_5: 0.546, at_least_3_of_5: 0.80}
+
+reference_sd_disposition:
+  all_5_of_5:
+    delta_0_power: 0.918
+    delta_0_01_power: 0.406
+    pilot_screening_survives: false
+    disposition: ELIMINATED_AS_AMENDMENT_CANDIDATE
+    reason: true_delta_0_01_power_below_0_80_screening_floor
+  at_least_4_of_5:
+    delta_0_power: 1.0
+    delta_0_01_power: 0.738
+    pilot_screening_survives: false
+    disposition: ELIMINATED_AS_AMENDMENT_CANDIDATE
+    reason: true_delta_0_01_power_below_0_80_screening_floor
+  at_least_3_of_5:
+    delta_0_power: 1.0
+    delta_0_01_power: 0.896
+    pilot_screening_survives: true
+    meets_final_target_at_pilot_resolution: false
+    disposition: SOLE_REFERENCE_SD_RULE_SURVIVOR_REQUIRES_4000_FINAL
+    reason: true_delta_0_01_power_is_above_0_80_screening_floor_and_close_to_0_90_target
+
+interpretation:
+  - The original all-five rule remains strongly underpowered at the reference seed-effect SD=0.005; the pilot estimate 0.406 is consistent with the canonical 4000-dataset failure 0.38725 and does not support retaining that rule.
+  - The 4-of-5 rule also fails the predeclared pilot screening floor at the reference SD, with power 0.738 at true delta=0.01.
+  - The 3-of-5 rule is the only simple k-of-five rule that survives the predeclared pilot screen at the reference SD. Its pilot power is 0.896 at true delta=0.01 and 1.0 at true delta=0.
+  - The 3-of-5 result is deliberately not rounded into a pass: 0.896 is below the final 0.90 target. The contract therefore requires a 4000-dataset final expansion before any design selection.
+  - Sensitivity across SD values shows the expected monotone loss of power as seed variability increases. This supports treating seed instability as a material part of the method-level decision semantics rather than hiding it.
+  - Sensitivity SD values are diagnostic assumptions, not tunable protocol parameters. The reference model remains SD=0.005 unless prospectively amended for an independently justified scientific reason.
+
+next_authorized_step:
+  phase: S2_FINAL_REFERENCE_SD_CONFIRMATION
+  execute_real_outcomes: false
+  candidate_rule: at_least_3_of_5
+  seed_effect_sd: 0.005
+  effect_scenarios: [0.0, 0.01]
+  final_datasets_per_cell: 4000
+  bootstrap_replicates_per_dataset: 10000
+  required_power_each_scenario: 0.90
+  selection_after_result: NOT_AUTOMATIC
+  note: >-
+    A final synthetic 4000-dataset confirmation is authorized only for the sole
+    surviving simple rule at the original reference SD. Even if it reaches the
+    0.90 target, amendment activation still requires explicit semantics,
+    coverage revalidation for the changed decision rule, independent scientific
+    and technical review, green assurance, and explicit human authorization.
+
+provenance_policy: append_only

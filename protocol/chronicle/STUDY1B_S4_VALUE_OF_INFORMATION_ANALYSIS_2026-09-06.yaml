@@ -1,0 +1,68 @@
+schema_version: "1.0"
+entry_type: study1b_s4_value_of_information_analysis
+chronicle_entry_id: CHRON-20260906-028
+study_id: study_1b_matched_compression
+date: 2026-09-06
+kind: append_only_nonoutcome_decision_analysis
+status: AWAITING_OPERATIONAL_INPUTS
+outcome_evidence_seen: false
+
+summary: >-
+  Materialize the next-step engineering value-of-information analysis after S4N1/S4N2 closure.
+  The analysis quantifies the value of recovering the gap from observed power to the frozen 0.90 target
+  only in symbolic/conditional terms, because Study 1B has not opened real candidate outcomes and no
+  operational cost model has been supplied. The result supports stopping method shopping and collecting
+  explicit fallback, benefit, evidence-cost, false-qualification-consequence, and reversibility inputs.
+
+human_authority:
+  source: "2026-09-06 project conversation"
+  instruction: "Let's go"
+
+basis:
+  disposition: protocol/chronicle/STUDY1B_S4_RESIDUAL_DECISION_RISK_DISPOSITION_2026-09-06.yaml
+  framework: protocol/decisions/STUDY1B_S4_RESIDUAL_DECISION_RISK_FRAMEWORK_2026-09-06.yaml
+  analysis_note: docs/research-notes/STUDY1B_S4_VALUE_OF_INFORMATION_DECISION_TABLE_2026-09-06.md
+
+quantitative_result:
+  s4n1_best_power: 0.8690
+  s4n1_best_gap_to_target: 0.0310
+  s4n2_best_power: 0.8490
+  s4n2_best_gap_to_target: 0.0510
+  target_power: 0.90
+  conditional_value_formula_s4n1: "0.0310 * C_miss"
+  prospective_value_formula_s4n1: "q * 0.0310 * C_miss"
+  conditional_value_formula_s4n2: "0.0510 * C_miss"
+  prospective_value_formula_s4n2: "q * 0.0510 * C_miss"
+  interpretation: >-
+    These expressions measure the maximum expected missed-demonstration cost avoided if a future design
+    could raise power exactly to 0.90 while leaving other decision risks unchanged. They are not estimates
+    of product benefit and do not imply that additional evidence will achieve 0.90.
+
+unknown_operational_inputs:
+  q: prospective probability of an acceptable candidate state
+  C_miss: cost of missing or delaying an actually acceptable compression
+  C_extra_evidence: incremental cost of additional independent evidence
+  alpha: separately calibrated false-qualification probability under adverse state
+  C_false_pass: consequence of qualifying an unacceptable candidate
+  fallback_policy: action after NOT_DEMONSTRATED
+  reversibility: deployment rollback/recovery capability
+
+current_disposition:
+  s4n1: CLOSED_NEGATIVE
+  s4n2: CLOSED_NEGATIVE
+  s4n3: NOT_LAUNCHED
+  method_shopping: PROHIBITED
+  decision_analysis: WAIT_FOR_EXPLICIT_OPERATIONAL_INPUTS
+
+boundaries:
+  scientific_outcomes_opened: false
+  screen_opened: false
+  qualification_test_opened: false
+  real_route_performance_opened: false
+  representation_geometry_opened: false
+  amendment_activated: false
+
+next_action: >-
+  Obtain explicit engineering inputs for PASS/NOT_DEMONSTRATED actions, raw512 fallback validity,
+  128D benefit, additional-evidence cost/delay, false-qualification consequence and deployment
+  reversibility. Do not infer these values from unopened Study 1B outcomes.

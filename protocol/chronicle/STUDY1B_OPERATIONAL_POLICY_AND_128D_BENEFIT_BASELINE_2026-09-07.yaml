@@ -1,0 +1,81 @@
+schema_version: "1.0"
+entry_type: study1b_operational_policy_and_structural_benefit_baseline
+chronicle_entry_id: CHRON-20260907-029
+study_id: study_1b_matched_compression
+date: 2026-09-07
+kind: append_only_nonoutcome_decision_analysis
+status: AWAITING_ENGINEERING_COST_INPUTS
+outcome_evidence_seen: false
+
+summary: >-
+  Record the approved working policy for continuing Study 1B decision analysis and quantify the
+  exact dimension-only 512D-to-128D benefit envelope without opening any real Study 1B outcome.
+  PASS is treated as promotion to a controlled next engineering/qualification stage, not automatic
+  production release. NOT_DEMONSTRATED retains raw512 by default. Additional independent evidence
+  is considered only through value-of-information analysis.
+
+human_authority:
+  source: "2026-09-07 project conversation"
+  instruction: "Ok"
+
+policy_baseline:
+  pass: PROMOTE_TO_CONTROLLED_NEXT_ENGINEERING_OR_QUALIFICATION_STAGE
+  pass_is_production_release: false
+  not_demonstrated: RETAIN_RAW512_BY_DEFAULT
+  raw512_operational_validity: WORKING_ASSUMPTION_PENDING_CONFIRMATION
+  additional_evidence_rule: REQUIRE_POSITIVE_VALUE_OF_INFORMATION
+  reversibility: DESIRED_ENGINEERING_PROPERTY_NOT_YET_ESTABLISHED_FACT
+
+structural_128d_result:
+  raw_dimension: 512
+  compressed_dimension: 128
+  dimension_ratio: 0.25
+  vector_payload_reduction_fraction_same_dtype_encoding: 0.75
+  direct_dense_coordinate_work_reduction_fraction: 0.75
+  end_to_end_storage_reduction_claimed: false
+  end_to_end_latency_reduction_claimed: false
+  end_to_end_throughput_multiplier_claimed: false
+  economic_value_claimed: false
+
+value_of_information_link:
+  s4n1_best_power: 0.869
+  frozen_target_power: 0.90
+  power_gap: 0.031
+  conditional_maximum_missed_demonstration_value_recovered: "0.031 * C_miss"
+  prospective_maximum_value_recovered: "q * 0.031 * C_miss"
+  note: >-
+    This expression is a break-even framework only. It assumes a hypothetical future design that
+    could reach 0.90 without worsening other error properties and does not assert that such a design exists.
+
+required_engineering_inputs:
+  - embedding datatype / bytes per component
+  - number of embeddings and retention horizon
+  - replication / backup factor
+  - transfer or refresh volume
+  - applicable storage and transfer rates
+  - measured compute/capacity effect if available without crossing the protected outcome boundary
+  - cost and delay of genuinely independent new evidence
+  - operational confirmation that raw512 is a valid retained fallback
+  - downstream false-qualification consequence and rollback capability
+
+boundaries:
+  scientific_outcomes_opened: false
+  screen_opened: false
+  qualification_test_opened: false
+  real_route_performance_opened: false
+  representation_geometry_opened: false
+  amendment_activated: false
+  s4n1: CLOSED_NEGATIVE
+  s4n2: CLOSED_NEGATIVE
+  s4n3: NOT_LAUNCHED
+
+references:
+  policy_baseline: protocol/decisions/STUDY1B_OPERATIONAL_POLICY_BASELINE_V0_1_2026-09-07.yaml
+  structural_benefit_note: docs/research-notes/STUDY1B_512D_TO_128D_STRUCTURAL_BENEFIT_ENVELOPE_2026-09-07.md
+  operational_inputs: protocol/decisions/STUDY1B_OPERATIONAL_DECISION_INPUTS_V0_1_2026-09-06.yaml
+  value_of_information: docs/research-notes/STUDY1B_S4_VALUE_OF_INFORMATION_DECISION_TABLE_2026-09-06.md
+
+next_action: >-
+  Populate an engineering cost sheet using explicit system values. Do not guess product economics,
+  matcher performance, geometry or deployment properties. Use those inputs to calculate C_miss and
+  compare the expected value of more independent evidence against its acquisition cost.

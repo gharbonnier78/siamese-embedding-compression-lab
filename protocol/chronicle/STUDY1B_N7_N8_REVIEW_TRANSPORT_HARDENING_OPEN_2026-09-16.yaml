@@ -1,0 +1,84 @@
+schema_id: study1b.chronicle.review_transport_hardening
+schema_version: 1
+artifact_version: "0.1"
+entry_type: study1b_n7_n8_review_transport_hardening_open
+chronicle_entry_id: CHRON-20260916-051
+study_id: study_1b_matched_compression
+date: 2026-09-16
+kind: append_only_nonoutcome_review_process_change
+status: OPEN_IMPLEMENTATION_FOR_NEXT_DELEGATED_REVIEW_PACKAGE
+outcome_evidence_seen: false
+
+review_basis:
+  accepted_semantic_head: c7d03cdad3bdf460bc6261508f2dc416504c7e4b
+  accepted_verdict: protocol/reviews/PR50_C7D03CDA_V06_N6_FOCUSED_REREVIEW_VERDICT_2026-09-16.md
+  accepted_chronicle: protocol/chronicle/STUDY1B_PR50_C7D03CDA_V06_ACCEPT_2026-09-16.yaml
+  semantic_verdict: ACCEPT
+  N4_CLOSED: true
+  N5_CLOSED: true
+  R1_N2_PORTABLE_CHOICE_OVERLAP_CLOSED: true
+  N6_PACKAGE_RULE_SATISFIED: true
+  CANONICAL_EXECUTION_CURRENTLY_ADMISSIBLE: false
+  CONSTRUCT_VALIDITY_REVIEWED: false
+
+purpose: >-
+  Harden delegated-review transport after the accepted v0.6 semantic review identified two transport-only findings.
+  N7 and N8 do not reopen the accepted N4/N5/R1-N2/N6 semantic result. They improve what a reviewer can independently
+  inspect and verify from the next package before the separate Phase A construct-validity review.
+
+N7_expected_git_blob_provenance:
+  status: OPEN_IMPLEMENTATION
+  problem: >-
+    The reviewed N6 manifest exposed an expected Git blob SHA-1 and an author-side recomputed blob SHA-1 but did not
+    explicitly state that the expected identity originated from the repository object at the immutable reviewed head.
+  required_change:
+    - each_expected_blob_identity_declares_source_as_immutable_head_colon_path_git_object
+    - include_exact_git_object_expression_or_equivalent_provenance_locator
+    - remove_git_blob_sha1_recomputed_from_author_manifest
+    - reviewer_recomputes_git_blob_identity_from_packaged_bytes
+  implementation_rule: >-
+    Package construction may still fail closed by comparing checkout bytes to git rev-parse <head>:<path> before
+    transport, but that author-side comparison is a builder guard, not a reviewer verdict field and is not serialized
+    as a second pre-agreed blob column.
+
+N8_binding_and_workflow_transport:
+  status: OPEN_IMPLEMENTATION
+  problem: >-
+    The reviewed N6 prompt required the reviewer to verify the immutable PR binding and five exact-head bounded workflow
+    successes although those objects were not transported in the package.
+  required_change:
+    - transport_immutable_binding_comment_snapshot_with_id_url_body_and_head_binding
+    - transport_exact_head_CI_result
+    - transport_exact_head_Research_assurance_result
+    - transport_exact_head_Study_1B_Engineering_Assurance_result
+    - transport_exact_head_Study_1B_Non_outcome_Preflight_result
+    - transport_exact_head_Study_1B_Power_Design_Diagnostic_result
+    - preserve_direct_GitHub_API_or_HTML_source_URLs_for_optional_reverification
+    - package_verifier_checks_all_transported_workflow_head_shas_equal_review_head
+    - package_verifier_checks_all_five_required_conclusions_are_success
+  independence_note: >-
+    Transporting GitHub snapshots removes mandatory repository reachability for package inspection. Direct immutable/API
+    URLs remain present so a reviewer with repository access can independently re-fetch the external source. The package
+    must not present an author-written summary as equivalent to the transported API objects.
+
+construct_validity_transition:
+  review_request: protocol/reviews/STUDY1B_PHASE_A_CONSTRUCT_VALIDITY_REVIEW_REQUEST_V0_1_2026-09-16.md
+  construct_validity_status: NOT_REVIEWED
+  platform_materialization_permitted: false
+  execution_permitted: false
+
+scientific_boundary:
+  screen_opened: false
+  qualification_test_opened: false
+  real_route_performance_opened: false
+  representation_geometry_opened: false
+  amendment_activated: false
+  s4n1_status: CLOSED_NEGATIVE
+  s4n2_status: CLOSED_NEGATIVE
+  s4n3_launched: false
+  phase_a_executed: false
+
+next_action: >-
+  Implement N7/N8 in the next construct-validity review-package workflow, synchronize the human-readable status, then
+  freeze an exact head. Require the five bounded workflows to succeed on that exact head before creating the immutable
+  construct-validity review binding and package. Do not materialize target hardware or execute Phase A.

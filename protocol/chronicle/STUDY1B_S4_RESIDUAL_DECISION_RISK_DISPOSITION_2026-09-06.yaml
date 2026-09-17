@@ -1,0 +1,82 @@
+schema_version: "1.0"
+entry_type: study1b_s4_residual_decision_risk_disposition
+chronicle_entry_id: CHRON-20260906-027
+study_id: study_1b_matched_compression
+date: 2026-09-06
+kind: append_only_nonoutcome_decision_disposition
+status: OPEN_DECISION_ANALYSIS
+outcome_evidence_seen: false
+
+summary: >-
+  Following prospectively frozen negative S4N1 and S4N2 power results, stop the estimator-search
+  path for now rather than opening an opportunistic S4N3. Preserve the 0.90 requirement as binding
+  for the completed S4N1/S4N2 campaigns, but do not interpret it as an established product-safety
+  boundary. Move the next authorized non-outcome work to residual decision-risk, fallback-policy,
+  and value-of-information analysis. No real Study 1B outcome is opened by this disposition.
+
+human_authority:
+  source: "2026-09-06 project conversation"
+  instruction: "Let's go"
+  context: >-
+    Human authority accepted the proposed next step: answer the engineering question of what the
+    85-87% versus 90% power gap means operationally, rather than continuing to tune estimators to
+    manufacture a pass.
+
+basis:
+  s4n1_result: protocol/chronicle/STUDY1B_S4N1_CORE_POWER_CALIBRATION_RESULT_2026-09-06.yaml
+  s4n2_result: protocol/chronicle/STUDY1B_S4N2_DAGJK20_POWER_4000_RESULT_2026-09-06.yaml
+  decision_framework: protocol/decisions/STUDY1B_S4_RESIDUAL_DECISION_RISK_FRAMEWORK_2026-09-06.yaml
+  operational_note: docs/research-notes/STUDY1B_S4N1_S4N2_RESIDUAL_DECISION_RISK_OPERATIONAL_IMPACT_2026-09-06.md
+  pedagogy_case: pedagogy/case-studies/quand-une-methode-bien-calibree-manque-de-puissance-study1b-s4n1-s4n2.fr.md
+
+preserved_scientific_facts:
+  s4n1_status: CLOSED_NEGATIVE
+  s4n2_status: CLOSED_NEGATIVE
+  frozen_power_gate: 0.90
+  critical_synthetic_truth_delta_fnmr: 0.01
+  s4n1_best_power: 0.8690
+  s4n2_best_power: 0.8490
+  s4n1_best_non_demonstration_probability: 0.1310
+  s4n2_best_non_demonstration_probability: 0.1510
+  target_non_demonstration_probability: 0.10
+
+scientific_interpretation:
+  - >-
+    The excess non-demonstration probability is a study-level Type-II decision risk under the frozen
+    synthetic truth. It is not person-level FMR/FNMR risk and is not evidence about the unopened real
+    compressed candidate.
+  - >-
+    Under a conservative fallback in which NOT_DEMONSTRATED retains raw512, the dominant consequence
+    of lower power is expected opportunity cost or qualification delay, not a directly inferred biometric
+    safety loss.
+  - >-
+    The completed 0.90 gate may not be lowered retroactively. A future power requirement may only be
+    justified prospectively from explicit decision consequences and evidence economics.
+
+current_disposition:
+  s4n3_estimator_search: STOP_FOR_NOW
+  reason: >-
+    Continuing solely because S4N1 and S4N2 missed 0.90 would risk post-hoc method shopping. Any future
+    S4N3 would require an independently motivated methodological hypothesis and a new prospective freeze.
+  next_workstream: residual_decision_risk_and_value_of_information
+  next_required_inputs:
+    - PASS action
+    - NOT_DEMONSTRATED fallback action
+    - validity of raw512 fallback
+    - engineering value of an acceptable 128D adoption
+    - cost/delay of additional independent evidence
+    - false-qualification consequence
+    - reversibility and operational criticality
+
+boundaries:
+  scientific_outcomes_opened: false
+  screen_opened: false
+  qualification_test_opened: false
+  real_route_performance_opened: false
+  representation_geometry_opened: false
+  amendment_activated: false
+  prior_negative_result_reclassified: false
+
+next_action: >-
+  Build a non-outcome engineering decision table / value-of-information analysis using symbolic values
+  until explicit operational inputs are provided. Do not open SCREEN or TEST to populate missing costs.

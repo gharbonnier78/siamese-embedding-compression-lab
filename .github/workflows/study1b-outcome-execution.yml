@@ -1,0 +1,71 @@
+name: Study 1B Outcome Execution
+
+# Outcome-bearing by construction. Never run on push/pull_request.
+on:
+  workflow_dispatch:
+    inputs:
+      stage:
+        description: Authorized Study 1B stage
+        required: true
+        type: choice
+        options: [SCREEN, QUALIFICATION]
+      authorization_path:
+        description: Repository authorization artifact bound to the exact protocol SHA
+        required: true
+        default: protocol/authorizations/STUDY1B_NOT_AUTHORIZED.yaml
+      embedding_table:
+        description: Local/mounted frozen raw512 NPZ path
+        required: true
+      graphs_dir:
+        description: Local/mounted frozen graph directory
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  execute:
+    runs-on: ubuntu-latest
+    timeout-minutes: 330
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+          cache: pip
+      - name: Install frozen execution package
+        run: |
+          python -m pip install --upgrade pip 'setuptools>=83.0.0'
+          python -m pip install -e .
+      - name: Fail closed unless exact human authorization exists
+        env:
+          PYTHONPATH: src
+          AUTHORIZATION_PATH: ${{ inputs.authorization_path }}
+        run: |
+          python - <<'PY'
+          import os
+          from pathlib import Path
+          from siamese_compression_lab.study1b_execution import assert_outcome_authorized
+          assert_outcome_authorized(
+              Path(os.environ['AUTHORIZATION_PATH']),
+              Path('protocol/studies/study_1b_matched_compression.yaml'),
+          )
+          print('Study 1B authorization artifact validated')
+          PY
+      - name: Execute authorized stage
+        env:
+          PYTHONPATH: src
+        run: |
+          python scripts/study1b_execute.py \
+            --authorization '${{ inputs.authorization_path }}' \
+            --protocol protocol/studies/study_1b_matched_compression.yaml \
+            --embedding-table '${{ inputs.embedding_table }}' \
+            --graphs-dir '${{ inputs.graphs_dir }}' \
+            --stage '${{ inputs.stage }}' \
+            --output-dir 'artifacts/study1b/${{ inputs.stage }}'
+      - name: Upload authorized outcome artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: study1b-${{ inputs.stage }}-${{ github.sha }}
+          path: artifacts/study1b/${{ inputs.stage }}
+          if-no-files-found: error

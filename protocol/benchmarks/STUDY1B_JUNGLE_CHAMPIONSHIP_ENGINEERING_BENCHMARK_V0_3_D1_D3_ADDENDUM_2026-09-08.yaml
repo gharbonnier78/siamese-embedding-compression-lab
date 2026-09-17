@@ -1,0 +1,90 @@
+schema_id: study1b.engineering.benchmark_addendum
+schema_version: 1
+artifact_version: "0.1"
+addendum_id: STUDY1B-JUNGLE-CHAMPIONSHIP-BENCHMARK-V0.3-D1-D3-ADDENDUM-2026-09-08
+study_id: study_1b_matched_compression
+date: 2026-09-08
+kind: nonoutcome_engineering_benchmark_normative_addendum
+status: CORRECTED_AWAITING_INDEPENDENT_REREVIEW
+base_benchmark: protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_BENCHMARK_V0_3_2026-09-08.yaml
+environment_lock: protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_ENVIRONMENT_LOCK_V0_3_2026-09-08.yaml
+review_basis: protocol/reviews/PR50_FINAL_DESIGN_REREVIEW_VERDICT_2026-09-08.md
+
+normative_precedence: >-
+  This addendum supersedes only the pre-lock selection/provenance semantics of benchmark v0.3 where the
+  v0.3 text relies on target-workload intent or relatedness. All other benchmark v0.3 clauses remain normative.
+
+scientific_boundary:
+  protected_biometric_inputs_required: false
+  screen_opened: false
+  qualification_test_opened: false
+  real_route_performance_opened: false
+  representation_geometry_opened: false
+  amendment_activated: false
+  s4n3_launched: false
+
+prelock_selection_guard_v2:
+  classification_basis: INFORMATIONAL_OVERLAP_NOT_INTENT
+  rule: >-
+    A prior measurement is treated as materially informative for lock selection when its workload shares
+    a vector dimensionality under evaluation (128 or 512), the Phase A search/index computational family,
+    and the hardware class under consideration. The measurement's stated intent, project label or run name
+    is not used to decide whether it is informative.
+  target_vector_dimensions: [128, 512]
+  target_search_family: EXACT_DENSE_DOT_PRODUCT_TOP1
+  target_index_mode: none
+  hardware_class: supplied_by_materialized_environment_lock
+  prior_measurement_signature_required: true
+  signature_fields:
+    - vector_dimensions
+    - search_family
+    - index_mode
+    - hardware_class
+    - hardware_model_if_known
+    - datatype_if_known
+    - gallery_scale_if_known
+    - measurement_reference
+  intent_is_classifier_input: false
+  label_is_classifier_input: false
+  labels_with_no_exemption:
+    - smoke_test
+    - pilot
+    - phase_0
+    - exploratory_run
+    - dry_run
+    - benchmark_preview
+    - capacity_check
+    - tuning_pass
+  materially_informative_measurement_may_silently_choose_hardware: false
+  materially_informative_measurement_may_silently_choose_backend: false
+  materially_informative_measurement_may_silently_choose_threading_or_affinity: false
+  materially_informative_measurement_may_silently_choose_frequency_or_power_mode: false
+  materially_informative_measurement_may_silently_choose_energy_measurement_setup: false
+  if_materially_informative_measurement_already_informed_choice: >-
+    Declare the evidence, timestamp, workload signature and affected choice. The resulting configuration is not
+    represented as an untouched prospective lock. Assign a new prospective design/execution identity, freeze it,
+    and obtain independent review before canonical result-bearing execution.
+
+configuration_provenance_requirements:
+  attributable_attestation_required: true
+  provenance_attested_by_required: true
+  attestation_timestamp_required: true
+  evidence_timestamp_required_for_measurement_sources: true
+  exact_generator_commit_timestamp_required_before_execution: true
+  structural_impossibility_claim_requires_checkable_temporal_ordering: true
+
+execution_gate_redundancy:
+  platform_and_measurement_environment_gate: REQUIRED_NOT_YET_OBTAINED
+  configuration_choice_provenance_gate: REQUIRED_NOT_YET_OBTAINED
+  rule: >-
+    Either gate independently blocks canonical Phase A. Materializing hardware alone does not satisfy provenance,
+    and completing provenance alone does not substitute for an actual bound platform and measurement environment.
+
+interpretation_rules:
+  - "This addendum changes provenance/selection governance only; it does not alter Phase A scientific or engineering outcomes."
+  - "A prior benchmark is not non-informative merely because it had a different stated purpose."
+  - "The construct validity of Phase A remains a distinct review question and is not established by assurance tests."
+
+next_action: >-
+  Independently re-review benchmark v0.3 together with this addendum and environment lock v0.3. Do not execute Phase A
+  until both independent execution blockers are cleared in an immutable execution-specific lock.

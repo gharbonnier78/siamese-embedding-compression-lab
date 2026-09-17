@@ -1,0 +1,111 @@
+schema_version: "1.0"
+contract_id: study1b_s3_known_truth_revalidation_20260902
+status: NONOUTCOME_EXECUTION_AUTHORIZED
+human_authority:
+  source: "2026-09-02 project conversation: explicit request to revalidate known-truth for the frozen x1.5 and x2.0 S3 designs"
+  outcome_bearing_study1b_authorized: false
+  geometry_authorized: false
+scientific_outcomes_permitted: false
+study1b_protocol: protocol/studies/study_1b_matched_compression.yaml
+parent_coverage_contract: protocol/simulations/STUDY1B_COVERAGE_POWER_PREFLIGHT_2026-08-27.yaml
+s3_graph_construction_result: protocol/chronicle/STUDY1B_POWER_DESIGN_S3_GRAPH_CONSTRUCTION_RESULT_2026-09-02.yaml
+
+purpose: >-
+  Revalidate the frozen Study 1B subject-slot interval by synthetic known-truth coverage
+  on the two S3 expanded TEST information graphs before any S3 power calculation.
+  This is estimator/design validation only; it opens no biometric outcomes.
+
+frozen_designs:
+  x1_5:
+    graph_file: test_pairs_s3_x1_5.csv
+    graph_sha256: 57dd4a3b2db26220ea8e29f5a4d218b50883cdac456f18e73691c1d26afdebc0
+    genuine_pairs: 15000
+    impostor_pairs: 150000
+  x2_0:
+    graph_file: test_pairs_s3_x2_0.csv
+    graph_sha256: 85cd8b04d768ca035cf76184bb1f4547b9c25349803681be9af16be5b65cda58
+    genuine_pairs: 20000
+    impostor_pairs: 200000
+  capture_manifest_sha256: 767f9fe8d1d8466a0e722f826b26875a0e852f525f7413a9658a307a9639366e
+  base_test_graph_sha256: 08c86ca9a641fc96b74014ae1974f713cd00e558dd98946ac32ff440c4666f85
+
+estimator:
+  target_fmr: 0.01
+  noninferiority_margin_delta_fnmr: 0.03
+  ucb_quantile: 0.975
+  bootstrap_replicates: 10000
+  sampling_unit: identity_slot
+  genuine_edge_weight: m_i
+  impostor_edge_weight: m_i_times_m_j
+  synthesize_unobserved_edges: false
+  same_draw_for_paired_routes: true
+  degenerate_fraction_limit: 0.001
+
+coverage:
+  metric: representation_delta_fnmr
+  nominal_interval: percentile_two_sided_95_with_97_5_upper_bound
+  dataset_checkpoints: [1000, 2000, 4000]
+  initial_checkpoint: 1000
+  stop_rule: first_checkpoint_where_all_cells_pass
+  gate:
+    exact_clopper_pearson_two_sided_95_lower_bound_gte: 0.93
+    degenerate_fraction_lte: 0.001
+  scenarios:
+    - name: independent_pair_null
+      target_delta_fnmr: 0.0
+      subject_effect_sd_genuine: 0.0
+      subject_effect_sd_impostor: 0.0
+      candidate_reference_noise_correlation: 0.7
+    - name: subject_dependence_null
+      target_delta_fnmr: 0.0
+      subject_effect_sd_genuine: 0.08
+      subject_effect_sd_impostor: 0.05
+      candidate_reference_noise_correlation: 0.7
+    - name: subject_dependence_noninferior
+      target_delta_fnmr: 0.01
+      subject_effect_sd_genuine: 0.08
+      subject_effect_sd_impostor: 0.05
+      candidate_reference_noise_correlation: 0.7
+    - name: subject_dependence_boundary
+      target_delta_fnmr: 0.03
+      subject_effect_sd_genuine: 0.08
+      subject_effect_sd_impostor: 0.05
+      candidate_reference_noise_correlation: 0.7
+    - name: subject_dependence_inferior
+      target_delta_fnmr: 0.05
+      subject_effect_sd_genuine: 0.08
+      subject_effect_sd_impostor: 0.05
+      candidate_reference_noise_correlation: 0.7
+  rationale: >-
+    Estimator, interval, gate and scenario family are unchanged from the original
+    pre-outcome coverage contract. Only the frozen pair graph changes. The x1.5 and
+    x2.0 designs are aggregated separately.
+
+execution:
+  phase: S3_KNOWN_TRUTH_REVALIDATION
+  initial_checkpoint_datasets_per_scenario: 1000
+  datasets_per_shard: 50
+  maximum_planned_shard_wall_time_hours: 4
+  resumable: true
+  append_only_progress_jsonl: true
+  graph_hash_verification_required: true
+  no_power_in_this_phase: true
+  no_silent_reduction: >-
+    A runtime or infrastructure failure does not permit reducing bootstrap replicates,
+    scenario coverage, graph size, or the statistical gate. Escalation from 1000 to
+    2000 or 4000 datasets follows only the frozen checkpoint rule.
+
+prohibitions:
+  screen_route_scores_read: false
+  qualification_test_route_scores_read: false
+  representation_geometry_opened: false
+  amendment_activated: false
+  canonical_failed_power_result_replaced: false
+
+next_gate_if_coverage_passes:
+  phase: S3_POWER_CALIBRATION
+  authorization: NOT_GRANTED_BY_THIS_CONTRACT
+
+outputs:
+  raw_simulation_data_are_synthetic: true
+  archive_graph_hashes_seed_lineage_progress_and_summaries: true

@@ -1,0 +1,83 @@
+entry_id: STUDY1B_POWER_DESIGN_AMENDMENT_OPENED_2026-08-31
+entry_type: prospective_preoutcome_design_amendment_opening
+study_id: study_1b_matched_compression
+date: 2026-08-31
+status: DESIGN_AMENDMENT_ANALYSIS_OPEN
+
+scope:
+  scientific_outcomes_opened: false
+  screen_authorized: false
+  test_authorized: false
+  geometry_authorized: false
+  amendment_activated: false
+  purpose: >-
+    Open a prospective design-analysis phase after the canonical power preflight
+    failed at true delta=0.01. The phase may compare synthetic decision designs but
+    may not inspect or use real Study 1B compression outcomes.
+
+canonical_failed_evidence:
+  run_id: 33299151340
+  head_sha: 8b005717c5e8566f3ebe898fdac66965191d1dd5
+  summary_artifact_id: 9733239954
+  summary_digest: sha256:6daf4d3fe22573a33269bb1ff48a0b6a7bc3778c3a751e38a51399a4778b5d4e
+  delta_0_power: 0.9345
+  delta_0_01_power: 0.38725
+  verdict: FAIL
+  canonical_result_replaced: false
+
+opened_artifacts:
+  amendment_draft: protocol/amendments/STUDY1B_POWER_DESIGN_AMENDMENT_V0_1_2026-08-31.yaml
+  sensitivity_contract: protocol/simulations/STUDY1B_POWER_DESIGN_SENSITIVITY_V0_1_2026-08-31.yaml
+
+frozen_during_analysis:
+  target_fmr: 0.01
+  noninferiority_margin: 0.03
+  one_sided_ucb_level: 0.975
+  bootstrap_replicates: 10000
+  seed_labels: [11, 29, 47, 71, 101]
+  active_data_boundary_unchanged: true
+
+first_analysis_step:
+  id: S1_REANALYSE_EXISTING_SYNTHETIC_POWER_ROWS
+  role: post_failure_design_diagnostic
+  new_model_outcomes: none
+  new_bootstrap_simulations: none
+  planned_outputs:
+    - marginal pass probability by seed
+    - 3-of-5, 4-of-5 and 5-of-5 synthetic decision rates
+    - worst-seed UCB distribution
+    - seed-effect distribution
+    - dependence between seed pass indicators
+  interpretation_rule: >-
+    Alternative-rule rates are descriptive design diagnostics only. They are not
+    preregistered Study 1B results and cannot by themselves authorize a rule change.
+
+subsequent_analysis_if_needed:
+  - prospective seed-effect SD sweep on synthetic known-truth worlds
+  - information-content sensitivity subject to corpus feasibility
+  - fresh calibration of any method-level seed-distribution estimator
+
+selection_state:
+  selected_design: null
+  amendment_activation_authorized: false
+  reason: >-
+    No design is selected until sensitivity evidence, claim semantics, calibration,
+    independent scientific review, independent technical review, and explicit human
+    authorization are complete.
+
+pedagogical_reading:
+  en_francais_dans_le_texte: >-
+    Nous avons appris que la regle actuelle manque de puissance. La bonne reaction
+    n'est pas de choisir immediatement une regle plus facile, mais de comparer les
+    causes possibles avec des donnees synthetiques ou la verite est connue. Les
+    vrais resultats 128D contre raw512 restent fermes pendant cette etude.
+  lecture_ingenieur: >-
+    Le FAIL devient une entree de conception experimentale. Nous decomposons la
+    fonction de decision en quatre leviers: aggregation des seeds, variabilite des
+    seeds, largeur d'incertitude et information independante. Toute modification
+    finale devra etre justifiee par calibration, pas par optimisation post-hoc.
+  lecture_12_ans: >-
+    Le premier jeu etait trop difficile. On ne regarde pas encore le vrai match.
+    On essaie plusieurs regles sur des matchs inventes dont on connait deja le score
+    correct, puis on demande a des arbitres de verifier la nouvelle regle avant de
+    l'utiliser pour de vrai.

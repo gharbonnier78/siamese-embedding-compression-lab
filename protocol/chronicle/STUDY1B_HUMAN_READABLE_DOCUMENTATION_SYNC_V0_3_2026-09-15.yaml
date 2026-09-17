@@ -1,0 +1,72 @@
+schema_id: study1b.chronicle.documentation_sync
+schema_version: 1
+artifact_version: "0.1"
+entry_type: study1b_human_readable_documentation_sync_v0_3
+chronicle_entry_id: CHRON-20260915-049
+study_id: study_1b_matched_compression
+date: 2026-09-15
+kind: append_only_nonoutcome_documentation_change
+status: DOCUMENTATION_SYNCHRONIZED_AWAITING_ASSURANCE_AND_IMMUTABLE_REVIEW_BINDING
+outcome_evidence_seen: false
+
+task:
+  requested_actions:
+    - update_the_human_readable_Study_1_narrative_to_current_Study1B_S4_D1_D3_v0_6_state
+    - produce_research_program_monograph_v0_3
+    - document_objectives_data_models_algorithms_evaluation_protocol_S4_engineering_benchmark_evidence_firewalls_and_current_gates
+  scientific_semantics_changed: false
+  scientific_gate_changed: false
+  execution_authorization_changed: false
+
+new_human_facing_artifacts:
+  study1_narrative: paper/study1_protocol_v0.4-preexecution.md
+  monograph_source: paper/siamese_embedding_compression_research_program_v0.3.tex
+  paper_entrypoint: paper/main.tex
+
+documentation_scope:
+  study0:
+    status: corrected_negative_closure_preserved
+  study1a:
+    status: preexecution_protocol_only_no_new_scientific_result
+  study1b:
+    protected_screen_opened: false
+    protected_test_opened: false
+    real_route_performance_opened: false
+    representation_geometry_opened: false
+  s4:
+    s4n1_status: CLOSED_NEGATIVE
+    s4n2_status: CLOSED_NEGATIVE
+    s4n3_launched: false
+  d1_d2_d3:
+    accepted_v0_5_history_preserved: true
+  v0_6:
+    n4: prospectively_corrected_awaiting_independent_review
+    n5: prospectively_corrected_awaiting_independent_review
+    r1_n2: prospectively_corrected_awaiting_independent_review
+    n6: self_contained_review_transport_rule_adopted
+  construct_validity_reviewed: false
+  canonical_phase_a_execution_permitted: false
+
+pdf_build:
+  target_name: siamese_embedding_compression_research_program_v0.3.pdf
+  source: paper/siamese_embedding_compression_research_program_v0.3.tex
+  historical_pdf_overwrite_permitted: false
+  note: >-
+    The repository PDF build entrypoint is advanced prospectively to the v0.3 monograph source.
+    Existing v0.2 and v0.2.1 PDF files remain historical artifacts and are not overwritten.
+    A rendered v0.3 PDF was produced and visually/preflight checked during this documentation task;
+    repository publication of binary PDF bytes depends on the normal PDF build/publication path.
+
+scientific_boundary:
+  amendment_activated: false
+  target_workload_measurement_executed: false
+  screen_opened: false
+  qualification_test_opened: false
+  real_route_performance_opened: false
+  representation_geometry_opened: false
+
+next_action: >-
+  Run the bounded repository assurance workflows on the documentation-synchronized head.
+  If the exact head is green, publish an immutable review binding and construct the N6-compliant
+  self-contained focused v0.6 semantic re-review package. Do not begin Phase A and do not open
+  protected Study 1B outcomes.

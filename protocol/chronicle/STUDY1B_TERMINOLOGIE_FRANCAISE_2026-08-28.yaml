@@ -1,0 +1,35 @@
+schema_version: 1
+event_id: STUDY1B_TERMINOLOGIE_FRANCAISE_2026-08-28
+date: "2026-08-28"
+study_id: study_1b_matched_compression
+kind: PEDAGOGICAL_TERMINOLOGY_CLARIFICATION
+outcome_bearing: false
+scientific_outcomes_opened: false
+human_request: >-
+  Employer dans les échanges et la Chronicle une formulation française explicite
+  plutôt que le mélange « adjudication déterministe des 18 near-duplicates, puis
+  accélération/vectorisation du bootstrap avant de lancer les vrais shards
+  coverage/power ».
+preferred_french_wording: >-
+  Examen déterministe des 18 quasi-doublons candidats, puis accélération et
+  vectorisation du rééchantillonnage bootstrap avant de lancer les véritables
+  lots de simulation de couverture statistique et de puissance statistique.
+terminology:
+  near_duplicate: "quasi-doublon candidat"
+  adjudication: "examen déterministe conduisant à une décision documentée"
+  bootstrap: "rééchantillonnage bootstrap"
+  vectorization: "vectorisation du calcul"
+  shard: "lot d'exécution indépendant et reprenable"
+  coverage: "couverture statistique"
+  power: "puissance statistique"
+clarification: >-
+  « Quasi-doublon candidat » ne signifie pas « fuite de données confirmée » : il
+  s'agit d'une paire signalée par le filtre perceptuel dHash et soumise à une
+  seconde vérification déterministe. « Couverture statistique » désigne ici la
+  fréquence avec laquelle l'intervalle calculé contient la valeur vraie dans les
+  simulations à vérité connue. « Puissance statistique » désigne la probabilité
+  de satisfaire la règle de décision lorsqu'une non-infériorité vraie de taille
+  prédéfinie est simulée.
+execution_boundary: >-
+  Cette clarification est pédagogique et terminologique uniquement. Elle
+  n'autorise aucun résultat biométrique SCREEN ou TEST de Study 1B.

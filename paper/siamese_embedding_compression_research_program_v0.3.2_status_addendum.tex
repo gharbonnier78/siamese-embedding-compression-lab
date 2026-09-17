@@ -1,0 +1,201 @@
+\documentclass[10pt,a4paper]{article}
+\pdfinfoomitdate=1
+\pdftrailerid{}
+\pdfsuppressptexinfo=15
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage[a4paper,margin=22mm]{geometry}
+\usepackage{booktabs,tabularx,array}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{xurl}
+\usepackage{fancyhdr}
+\definecolor{navy}{HTML}{17324D}
+\definecolor{teal}{HTML}{1B728C}
+\definecolor{soft}{HTML}{F3F6F8}
+\definecolor{warn}{HTML}{8A4B08}
+\definecolor{greenish}{HTML}{2E6B57}
+\hypersetup{colorlinks=true,linkcolor=navy,urlcolor=teal,
+  pdftitle={Siamese Embedding Compression Research Program v0.3.2 Status Addendum},
+  pdfauthor={Guillaume Harbonnier},
+  pdfsubject={Phase A construct-validity acceptance with limitations and prospective closure of B1-B3}}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt}
+\setlist[itemize,enumerate]{nosep,leftmargin=*}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{Siamese Embedding Compression Research Program}
+\fancyhead[R]{v0.3.2 status addendum}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+\newcommand{\code}[1]{\texttt{#1}}
+\title{\textbf{Siamese Embedding Compression Research Program}\\[4pt]
+\large Status Addendum: construct validity accepted with prospective blockers}
+\author{Guillaume Harbonnier\\
+\small Independent exploratory research\\
+\small \url{https://github.com/gharbonnier78/siamese-embedding-compression-lab}}
+\date{Version 0.3.2 --- 16 September 2026}
+\begin{document}
+\maketitle
+\thispagestyle{empty}
+\begin{center}
+\fcolorbox{warn}{soft}{\parbox{0.92\linewidth}{
+\textbf{Scope.} This addendum updates v0.3.1 after the independent Phase A construct-validity review. Construct validity
+is accepted with limitations on the exact reviewed head \code{b5720dd7...}; three prospective blockers B1--B3 must be
+closed before platform materialization. This addendum opens no protected Study 1B outcome, launches no S4N3, selects no
+target platform and does not authorize canonical Phase A execution.
+}}
+\end{center}
+
+\section{Independent construct-validity verdict}
+
+The independent review of the N7/N8-hardened package bound to exact head \code{b5720dd7...} returned:
+
+\begin{quote}
+\code{VERDICT: ACCEPT\_WITH\_LIMITATIONS}\\
+\code{CONSTRUCT\_VALIDITY\_ACCEPTED: yes}\\
+\code{REQUIRES\_PROTOCOL\_CHANGE\_BEFORE\_PLATFORM\_MATERIALIZATION: yes}\\
+\code{CANONICAL\_EXECUTION\_CURRENTLY\_ADMISSIBLE: no}
+\end{quote}
+
+All ten construct-validity dimensions were accepted: intervention isolation, fixed-work dense-search semantics,
+synthetic-payload adequacy for the bounded engineering characterization, G0/G2 scenario scope, endpoint alignment,
+measurement-plane validity, confound control, generalization limits, characterization-versus-qualification and the
+interpretation firewall.
+
+Transport hardening was also independently checked: 13/13 repository Git blobs were recomputed and tied to immutable
+repository-object provenance, the pinned HARNESS bytes matched, the immutable binding and five exact-head workflows were
+verified, 22/22 package-content hashes and lengths matched, and the 11 focused contract tests passed. The reviewer therefore
+closed N7 and N8.
+
+\subsection*{Independence qualification}
+
+The reviewer did not design the benchmark, prepare the package or author the reviewed protocol changes, but disclosed that
+they authored several earlier reviews in the same series. Because earlier findings shaped parts of the current design, the
+reviewer explicitly identified a confirmation-risk channel and recommended a second reviewer with no prior history if the
+programme wants stronger independence. This is recorded as a precaution rather than as a condition that invalidates the
+current verdict.
+
+\section{What the ACCEPT means --- and what it does not}
+
+The design is considered valid for the bounded engineering question: if executed as specified, Phase A can characterize
+the engineering consequences of 512D versus 128D under exact dense top-1 fixed-work search on a bound device and workload.
+The review did not require protected biometric outcomes; this confirms that engineering characterization and biometric
+qualification are separable in practice for this gate.
+
+The ACCEPT does \textbf{not} authorize platform materialization yet, because three missing records would leave surprising
+results valid but insufficiently interpretable. It also does not authorize Phase A execution, biometric non-inferiority
+claims, production suitability claims or any opening of SCREEN, qualification TEST, protected real-route performance or
+representation geometry.
+
+\section{Three blockers before platform materialization}
+
+\subsection*{B1 --- cache hierarchy and achievable memory bandwidth}
+
+The environment contract did not require enough information to explain whether a measured effect is driven mainly by
+arithmetic, a cache-capacity crossing or memory bandwidth. G0 is especially diagnostic because the nominal FP32 working
+sets are approximately 61.44 MB at 512D and 15.36 MB at 128D; depending on the target LLC, the two arms can fall on
+different sides of a cache-capacity boundary.
+
+The prospective correction therefore requires:
+\begin{itemize}
+\item L1d, L2 and L3/LLC capacities, inclusivity policy and sharing topology;
+\item a named achievable-memory-bandwidth characterization method and measured value;
+\item arm working-set size relative to LLC capacity;
+\item achieved memory throughput relative to measured bandwidth where observable.
+\end{itemize}
+
+The platform/lock-defining choices must be frozen before bandwidth characterization. The characterization may not be used
+to retune those choices under the same execution identity. If it motivates a configuration change, a new prospective
+identity and the applicable review sequence are required. This preserves the accepted D3 information firewall.
+
+\subsection*{B2 --- ratios across different saturation or censoring regimes}
+
+A common offered QPS can place the 512D and 128D arms in different queueing regimes. A ratio between a saturated arm and an
+unsaturated arm does not isolate the same quantity as a within-regime pair; likewise a right-censored recovery value cannot
+be reduced to a finite ratio against a finite observation.
+
+The correction therefore requires every arm to carry an explicit saturation regime. Quantitative paired deltas or ratios
+are allowed only when both arms are in the same non-censored regime. Cross-regime and censored pairs remain reported as
+observations, but receive explicit \code{NO\_COMBINED\_RATIO} status rather than a misleading scalar comparison.
+
+\subsection*{B3 --- backend dispatch observability}
+
+A fixed BLAS/runtime configuration can dispatch different microkernels or blocking strategies at inner dimensions 512 and
+128. That difference is a legitimate consequence of dimension and is part of the measured engineering effect; it must not
+be forced away. It must, however, be observable enough to diagnose an unexpected delta.
+
+The prospective correction therefore records, per arm, the backend-reported kernel/core identifier when available, the
+observability method, exact GEMV or batched-GEMM call shape, batch size, memory order, leading dimension, blocking details
+when exposed and raw verbose/trace evidence. If the backend does not expose an item, the protocol records
+\code{NOT\_EXPOSED\_BY\_BACKEND} rather than inventing it, and mechanism-specific microkernel claims remain
+\code{NOT\_DEMONSTRATED}.
+
+\section{Accepted limitations and future sensitivity}
+
+Two reporting limitations are now prospective guards rather than open blockers. Every joules-per-identification value must
+name offered QPS and saturation regime; this prevents a load-conditioned energy number from being quoted as a context-free
+device property. The report preamble must also explain designed percentile gaps created by the frozen minimum sample
+support: \code{INSUFFICIENT\_SAMPLES\_NO\_PERCENTILE\_CLAIM} is a designed result, not missing data.
+
+A separate future sensitivity remains non-blocking for Phase A: G0 and G2 differ strongly in resident working set, so their
+two-point result cannot establish intermediate behavior. G1 or another intermediate point may be added prospectively in a
+later phase; absent such a measurement, the Phase A report must not interpolate between G0 and G2.
+
+\section{Current governance state}
+
+\begin{tabularx}{\linewidth}{>{\bfseries}l X}
+\toprule
+Item & State \\
+\midrule
+Construct validity & accepted with limitations on \code{b5720dd7...} \\
+N7 / N8 & closed by construct-validity transport verification \\
+B1 / B2 / B3 & prospectively corrected; focused confirmation required \\
+L1 / L3 & prospective reporting guards adopted \\
+L2 & future sensitivity; not a Phase A blocker \\
+Platform materialization & prohibited until B1--B3 focused confirmation \\
+Canonical Phase A & not admissible; not executed \\
+SCREEN / TEST / protected performance / geometry & sealed \\
+S4N1 / S4N2 & \code{CLOSED\_NEGATIVE} / \code{CLOSED\_NEGATIVE} \\
+S4N3 & not launched \\
+\bottomrule
+\end{tabularx}
+
+\section{Next admissible sequence}
+
+\begin{enumerate}
+\item preserve the construct-validity verdict as bound to \code{b5720dd7...};
+\item land B1--B3 prospectively in a separate correction artifact without rewriting historical reviewed bytes;
+\item run bounded technical assurance on the exact correction head;
+\item obtain focused independent confirmation that B1--B3 are closed, preferably from a reviewer with no prior history
+in the review series;
+\item only after that confirmation, materialize target hardware, external power meter, off-device load generator,
+configuration-choice provenance/attestation and exact generator identity;
+\item freeze an execution-specific materialized lock, rerun exact-head assurances and complete any review required by the
+provenance/lock mechanism;
+\item only then may canonical Phase A become eligible for execution.
+\end{enumerate}
+
+No step authorizes opening protected Study 1B biometric outcomes.
+
+\section{Authoritative artifacts for this transition}
+
+\begin{itemize}
+\item \path{protocol/reviews/PR50_B5720DD7_PHASE_A_CONSTRUCT_VALIDITY_REVIEW_VERDICT_2026-09-16.md}
+\item \path{protocol/chronicle/STUDY1B_PR50_B5720DD7_PHASE_A_CONSTRUCT_VALIDITY_ACCEPT_WITH_LIMITATIONS_2026-09-16.yaml}
+\item \path{protocol/benchmarks/STUDY1B_PHASE_A_CONSTRUCT_VALIDITY_CORRECTIONS_V0_1_2026-09-16.yaml}
+\item \path{protocol/reviews/STUDY1B_PHASE_A_CONSTRUCT_VALIDITY_LIMITATIONS_CLOSURE_REVIEW_REQUEST_V0_1_2026-09-16.md}
+\end{itemize}
+
+Pinned reusable method authority:\\
+\url{https://github.com/gharbonnier78/scientific-research-harness/blob/3b109adcdd9a8cba4df029d3803ee0e5cb5bdf98/HARNESS.md}
+
+\vfill
+\begin{center}
+\small\textit{This addendum is explanatory and status-synchronizing. Frozen protocols, independent review verdicts and
+append-only Chronicle entries remain authoritative.}
+\end{center}
+\end{document}

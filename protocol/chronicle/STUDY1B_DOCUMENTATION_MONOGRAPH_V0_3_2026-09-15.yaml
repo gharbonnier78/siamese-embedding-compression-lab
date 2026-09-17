@@ -1,0 +1,80 @@
+schema_id: study1b.chronicle.documentation_capitalisation
+schema_version: 1
+artifact_version: "0.1"
+chronicle_entry_id: CHRON-20260915-049
+study_id: study_1b_matched_compression
+date: 2026-09-15
+kind: append_only_nonoutcome_documentation_capitalisation
+status: DOCUMENTATION_UPDATED_NO_GATE_CHANGE
+outcome_evidence_seen: false
+
+human_request:
+  summary: >-
+    Update the current Study 1 narrative, produce a new v0.3 research-program monograph/PDF continuation,
+    and document the scientific/engineering objectives, data and sources, models/algorithms, evaluation protocol,
+    S4 negative closure, Jungle Championship engineering benchmark, D1/D2/D3, v0.6 N4/N5/R1-N2,
+    evidence classification and next gates.
+  authorized_scope:
+    - narrative_documentation_update
+    - monograph_source_creation
+    - pdf_generation_from_nonoutcome_documentation
+  not_authorized:
+    - open_SCREEN
+    - open_qualification_TEST
+    - access_real_route_performance
+    - access_representation_geometry
+    - activate_amendment
+    - launch_S4N3
+    - execute_target_Phase_A_workload
+
+source_state:
+  pre_documentation_head: beb2f193cfe1f5255b8f4fc1b5dd4c96aa386c2b
+  accepted_v0_5_review_head: cb124244ecdc285c1c711dd28cc1a074ff645ddc
+  accepted_v0_5_verdict: protocol/reviews/PR50_CB124244_D2_V05_FOCUSED_REREVIEW_VERDICT_2026-09-10.md
+  current_v0_6_lock: protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_ENVIRONMENT_LOCK_V0_6_2026-09-14.yaml
+  current_v0_6_addendum: protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_BENCHMARK_V0_3_D1_D3_ADDENDUM_V0_2_2026-09-14.yaml
+  current_v0_6_open_chronicle: protocol/chronicle/STUDY1B_PR50_PREEXECUTION_SEMANTIC_HARDENING_V0_6_OPEN_2026-09-14.yaml
+
+documentation_actions:
+  research_program_living_summary:
+    path: RESEARCH_PROGRAM.md
+    new_version: "0.3"
+    role: compact_current_program_status
+  current_study1_narrative:
+    path: paper/study1_protocol_v0.4-preexecution-v06.md
+    role: current_reader_facing_preexecution_narrative
+    historical_v0_3_rewritten: false
+  monograph_source:
+    path: paper/siamese_embedding_compression_research_program_v0.3.md
+    role: source_for_reader_facing_v0_3_pdf
+  historical_pdfs_overwritten: false
+
+content_boundaries:
+  s4n1_status: CLOSED_NEGATIVE
+  s4n2_status: CLOSED_NEGATIVE
+  s4n3_launched: false
+  screen_opened: false
+  qualification_test_opened: false
+  real_route_performance_opened: false
+  representation_geometry_opened: false
+  amendment_activated: false
+  engineering_target_workload_executed: false
+
+governance_state_preserved:
+  D1_CLOSED_ACCEPTED_HISTORY: true
+  D2_CLOSED_ACCEPTED_HISTORY: true
+  D3_CLOSED_ACCEPTED_HISTORY: true
+  v0_6_independent_review_accepted: false
+  construct_validity_reviewed: false
+  canonical_phase_a_execution_permitted: false
+
+interpretation_guards:
+  - S4 values are synthetic known-truth calibration evidence, not real biometric performance.
+  - 512_to_128 gives exact 75_percent coordinate/payload reduction only at equal datatype/encoding.
+  - Structural reduction is not evidence of 4x end-to-end performance or 75_percent lower energy.
+  - Engineering results cannot establish biometric non-inferiority.
+  - Green workflows are technical assurance, not semantic or scientific acceptance.
+
+next_action: >-
+  After these documentation-only commits, wait for exact-head bounded workflows to turn green. Then publish an immutable
+  v0.6 review binding and construct the self-contained N6-focused re-review package. Do not execute canonical Phase A.

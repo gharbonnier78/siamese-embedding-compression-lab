@@ -1,0 +1,149 @@
+schema_id: study1b.chronicle.review_result
+schema_version: 4
+artifact_version: "0.1"
+entry_type: study1b_pr50_cb124244_d2_v05_accept
+chronicle_entry_id: CHRON-20260914-047
+study_id: study_1b_matched_compression
+review_date: 2026-09-10
+archived_at: 2026-09-14
+kind: append_only_nonoutcome_review_result
+status: D2_V0_5_ACCEPTED_DESIGN_CONDITIONS_SATISFIED_EXECUTION_STILL_BLOCKED
+outcome_evidence_seen: false
+
+review_basis:
+  reviewed_head: cb124244ecdc285c1c711dd28cc1a074ff645ddc
+  base: 5730e6bfa07b51afbe7ad6a89ffb4a6bd0ba6eb7
+  pinned_harness_ref: 3b109adcdd9a8cba4df029d3803ee0e5cb5bdf98
+  immutable_binding_comment_id: 5618135826
+  package: PR50_CB124244_D2_V05_FOCUSED_REREVIEW_PACKAGE_2026-09-10.zip
+  package_sha256: 473700dcc88dfd70c94e73e2f0231ae9f645fd80ed49b54ae2aec76ad83e58de
+  archived_verdict: protocol/reviews/PR50_CB124244_D2_V05_FOCUSED_REREVIEW_VERDICT_2026-09-10.md
+  verdict: ACCEPT
+
+reviewer_decision:
+  D1_CLOSED: true
+  D2_CLOSED: true
+  D3_CLOSED: true
+  D1_D2_RESPONSIBILITY_SPLIT_ACCEPTED: true
+  ROOT_PUBLIC_INFORMATION_BOUND_ACCEPTED: true
+  PRIOR_DESIGN_CONDITIONS_SATISFIED: true
+  CANONICAL_EXECUTION_CURRENTLY_ADMISSIBLE: false
+  CONSTRUCT_VALIDITY_REVIEWED: false
+  R1_N2_PORTABLE_CHOICE_OVERLAP_CLOSED: false
+
+reopening_signal:
+  statement: >-
+    The prior 022e8f D2 closure was explicitly reopened after repository-side audit falsified its load-bearing
+    earliest-anchor assumption. The accepted verdict was preserved rather than rewritten or removed. The party holding
+    the acceptance actively searched for disconfirming repository evidence and reopened its own closure when that
+    evidence was found. The reviewer identifies this as the single strongest signal in the review series because it
+    demonstrates that the governance is capable of reversing a favorable conclusion when new contradictory evidence
+    appears.
+  prior_accepted_head: 022e8f50437dca4b2aa56a034a5fb63e7751301b
+  falsified_anchor: 878bfe2a64b34cce474a627d04b30233e2356958
+  reopening_audit: protocol/reviews/PR50_022E8F_D2_ANCHOR_REPOSITORY_AUDIT_2026-09-10.md
+  corrected_root_bound: 4b40e7254bff1b88a44d13fb55b366bc7d3fc263
+  corrected_root_bound_timestamp_utc: "2026-08-07T08:23:56Z"
+  root_parent_count: 0
+
+accepted_D2_shape:
+  public_information_bound:
+    accepted: true
+    role: CONSERVATIVE_REPOSITORY_ROOT_PUBLIC_INFORMATION_BOUND
+    note: >-
+      The accepted claim is no longer the difficult negative 'earliest commit publishing final classifier attributes'.
+      It is the mechanically terminal repository-root fact, verified from the empty parent list. The root README already
+      exposes the 512-to-128 research intervention, template-storage comparison, and future 1:N retrieval, gallery
+      indexing and latency measurement family, while explicitly not claiming that the later CPU/G0/G2/threading/power
+      Phase A contract existed at inception.
+  D1_D2_responsibility_split:
+    accepted: true
+    D2_role: TEMPORAL_STRUCTURAL_IMPOSSIBILITY_FOR_EXTERNAL_PREEXISTING_EVIDENCE
+    D1_role: ACCOUNTABLE_NEGATIVE_FACT_FOR_ATTESTER_KNOWLEDGE_AND_ACTIONS
+    key_rule: >-
+      Public commit ordering never substitutes for D1 accountable attestation where the attesting party influenced,
+      produced or commissioned the evidence. Ambiguity defaults to D1 and potentially informative treatment.
+
+reviewer_verification_scope:
+  package_zip_sha256_verified: true
+  package_manifest_entries_verified: 7
+  package_manifest_mismatches: 0
+  nested_github_actions_artifact_digest_chain_verified: true
+  normative_lock_v0_5_content_directly_verified_from_package: false
+  assurance_test_directly_executed_from_package: false
+  git_blob_sha1_values_independently_verified: false
+  repository_root_metadata_independently_verified_by_reviewer: false
+  workflow_conclusions_independently_verified_by_reviewer: false
+  note: >-
+    The reviewer explicitly accepted the design despite repository-access limitations, while recording those limitations
+    and identifying a transport-reviewability regression as N6. Acceptance is semantic for the D1-D3 provenance and
+    temporal-firewall design only; it is not construct-validity or execution acceptance.
+
+open_nonblocking_items:
+  N4_D2_possession_vs_influence:
+    status: OPEN_PREEXECUTION_HARDENING
+    blocking_current_verdict: false
+    finding: >-
+      The current D2 disqualifier enumeration conflates influence over evidence creation/framing with mere possession
+      or review. Because citation entails possession, the current wording can conservatively collapse D2's practical
+      scope into D1. Before execution-specific lock freeze, prospectively scope D2 disqualifiers to influence over
+      creation or framing and keep possession/review from being automatic disqualifiers; preserve the conservative
+      conflict rule.
+  N5_structural_impossibility_label_scope:
+    status: OPEN_PREEXECUTION_HARDENING
+    blocking_current_verdict: false
+    finding: >-
+      Only timestamp ordering is mechanically checkable. Independence/source-control negatives are attested through D1.
+      Add explicit wording before execution-specific lock freeze so downstream users do not read 'structural
+      impossibility' as making the entire mechanism objective.
+  N6_review_package_transport_regression:
+    status: OPEN_REVIEW_PROCESS_HARDENING
+    blocking_current_verdict: false
+    finding: >-
+      The reference-only package prevented direct inspection of normative artifacts and local recomputation of their Git
+      blob SHA-1 values. Future review packages should ship the exact normative artifacts plus their expected Git blob
+      SHA-1 values and instruct the reviewer to recompute Git blob identity locally. This retains bytewise divergence
+      detection without sacrificing reviewability.
+  R1_N2_portable_choice_overlap:
+    status: OPEN_PREEXECUTION_HARDENING
+    blocking_current_verdict: false
+    must_close_before_execution_specific_lock_freeze: true
+    finding: >-
+      The D3 conjunction can under-classify cross-hardware measurements that remain informative for portable backend/BLAS,
+      threading/affinity and energy-measurement choices. Any correction remains prospective and separately reviewable.
+
+schema_note:
+  historical_s4_clarification_rewritten: false
+  note: >-
+    Earlier N3 concern is not carried as an active blocker here. The repository schema policy already names the historical
+    S4 shared-population/t19 clarification in its compatibility boundary; no retrospective rewrite is authorized.
+
+execution_gate:
+  canonical_phase_a_execution_permitted: false
+  target_edge_hardware_bound: false
+  external_power_meter_bound: false
+  off_device_load_generator_bound: false
+  configuration_choice_provenance_materialized: false
+  provenance_attestation_materialized: false
+  generator_code_identity_materialized: false
+  execution_specific_environment_lock_materialized: false
+  independent_blockers:
+    - PLATFORM_AND_MEASUREMENT_ENVIRONMENT_NOT_MATERIALIZED
+    - CONFIGURATION_CHOICE_PROVENANCE_NOT_MATERIALIZED
+
+scientific_boundary:
+  screen_opened: false
+  qualification_test_opened: false
+  real_route_performance_opened: false
+  representation_geometry_opened: false
+  amendment_activated: false
+  s4n1_status: CLOSED_NEGATIVE
+  s4n2_status: CLOSED_NEGATIVE
+  s4n3_launched: false
+
+next_action: >-
+  Preserve the accepted D1-D3 design state. Before any execution-specific environment lock is frozen, address N4, N5
+  and R1/N2 prospectively and independently review any semantic change. Adopt the N6 package rule for subsequent review
+  transport: include exact normative artifacts plus expected Git blob SHA-1 values so the reviewer can recompute blob
+  identity locally. Do not execute canonical Phase A, do not open protected outcomes, and do not infer construct validity
+  from this provenance/firewall ACCEPT.

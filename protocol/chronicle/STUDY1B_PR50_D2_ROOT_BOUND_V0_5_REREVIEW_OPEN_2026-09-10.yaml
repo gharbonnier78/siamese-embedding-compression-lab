@@ -1,0 +1,122 @@
+schema_id: study1b.chronicle.review_transition
+schema_version: 1
+artifact_version: "0.1"
+entry_type: study1b_pr50_d2_repository_root_bound_v05_rereview_open
+chronicle_entry_id: CHRON-20260910-046
+study_id: study_1b_matched_compression
+date: 2026-09-10
+kind: append_only_nonoutcome_review_transition
+status: D2_CORRECTED_PROSPECTIVELY_AWAITING_ASSURANCE_IMMUTABLE_BINDING_AND_FOCUSED_REREVIEW
+outcome_evidence_seen: false
+
+trigger:
+  prior_entry: CHRON-20260910-045
+  prior_project_state: D2_REOPENED_BY_REPOSITORY_ANCHOR_AUDIT
+  reviewer_verdict_preserved: ACCEPT_ON_022E8F_AS_HISTORICAL_FACT
+  reviewer_verdict_rewritten: false
+  reason: >-
+    The reviewer explicitly made D2 closure depend on 878bfe2a being the earliest repository publication sufficient
+    to make a prior workload materially informative. Repository-side audit disproved that condition. The subsequent
+    bounded backward audit therefore searched for a conservative mechanically terminal public-information bound.
+
+bounded_backward_history_audit:
+  artifact: protocol/reviews/PR50_D2_BOUNDED_BACKWARD_HISTORY_AUDIT_2026-09-10.md
+  artifact_commit: f6f6ac47df5a73bbd417b028e823e91964f708fd
+  terminal_commit_sha: 4b40e7254bff1b88a44d13fb55b366bc7d3fc263
+  terminal_commit_timestamp_utc: "2026-08-07T08:23:56Z"
+  terminal_commit_message: Initialize reproducible Siamese compression study
+  repository_root_parent_count: 0
+  root_artifact: README.md
+  root_information_relevant_to_conservative_bound:
+    - supervised_512_to_128_linear_metric_projection_question
+    - raw_512D_and_128D_compression_routes
+    - float32_template_storage_comparison
+    - future_1_to_N_retrieval
+    - future_gallery_indexing
+    - future_latency_measurements
+  explicit_nonclaim: >-
+    The root README did not freeze the later exact Phase A CPU/G0/G2/threading/power contract. The root is used as a
+    deliberately conservative public-information bound because the 512D-versus-128D intervention and retrieval/storage/
+    latency measurement family were already public enough that a repository-informed measurement could plausibly inform
+    later lock-defining choices.
+
+environment_lock_v05:
+  artifact: protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_ENVIRONMENT_LOCK_V0_5_2026-09-10.yaml
+  creation_commit: 050ae1a62e181f429a4808a74670f00bd7ae59a7
+  status: BLOCKED_PENDING_PLATFORM_BINDING_PROVENANCE_AND_FOCUSED_REREVIEW
+  d2_bound_type: CONSERVATIVE_REPOSITORY_ROOT_PUBLIC_INFORMATION_BOUND
+  d2_bound_sha: 4b40e7254bff1b88a44d13fb55b366bc7d3fc263
+  d2_bound_timestamp_utc: "2026-08-07T08:23:56Z"
+  prior_878bfe2a_anchor_disposition: SUPERSEDED_FOR_FUTURE_EXECUTION_NOT_EARLIEST
+  generator_identity_role: REPLAY_AND_RESULT_PROVENANCE_NOT_STRUCTURAL_IMPOSSIBILITY_BOUND
+
+reviewer_n1_responsibility_split:
+  implemented_prospectively: true
+  d2_role: >-
+    Temporal structural-impossibility ordering may discharge only genuinely third-party or pre-existing external
+    evidence whose provenance is strictly earlier than the repository public-information bound and independent of the
+    attesting party's production or commissioning.
+  d1_role: >-
+    Accountable attestation carries the negative for evidence produced, commissioned, requested, reviewed, received or
+    otherwise known by the attesting party, even if that evidence predates public commit time.
+  ambiguous_case_rule: REQUIRE_D1_AND_TREAT_AS_POTENTIALLY_INFORMATIVE
+  public_anchor_substitutes_for_d1: false
+
+assurance_contract_update:
+  focused_test_commit: 857303e44fe8d2b520d995fc6da6f0f84acdf0e3
+  focused_test_path: tests/test_study1b_engineering_benchmark_contract.py
+  expected_focus:
+    - repository_root_bound_and_parent_count
+    - root_public_information_scope_and_nonclaims
+    - d1_d2_responsibility_split
+    - v05_self_reference
+    - prior_disproven_anchor_recorded
+    - generator_identity_kept_out_of_structural_bound
+    - r1_n2_open_status
+    - phase_a_execution_remains_blocked
+  harness_adoption_commit: 8b9d843faf14f3c28e0703b346cd38d568725d8f
+  harness_environment_lock: protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_ENVIRONMENT_LOCK_V0_5_2026-09-10.yaml
+
+open_items:
+  D2:
+    current_state: CORRECTED_PROSPECTIVELY_NOT_YET_REVIEW_CLOSED
+    required_next_gate: FOCUSED_INDEPENDENT_REREVIEW_ON_EXACT_BOUND_HEAD
+  R1_N2_portable_choice_overlap:
+    current_state: OPEN_PREEXECUTION_HARDENING
+    note: >-
+      The current dimension + search-family + hardware-class overlap conjunction may under-classify evidence informative
+      for portable backend/BLAS, threading/affinity or energy-measurement choices. v0.5 intentionally does not silently
+      change this classifier. Any hardening is prospective and independently reviewed before execution-lock freeze.
+  construct_validity:
+    reviewed: false
+    claimed: false
+
+preserved_scientific_state:
+  s4n1_status: CLOSED_NEGATIVE
+  s4n2_status: CLOSED_NEGATIVE
+  s4n3_launched: false
+  screen_opened: false
+  qualification_test_opened: false
+  real_route_performance_opened: false
+  representation_geometry_opened: false
+  amendment_activated: false
+
+execution_gate:
+  canonical_phase_a_execution_permitted: false
+  target_edge_hardware_bound: false
+  external_power_meter_bound: false
+  off_device_load_generator_bound: false
+  configuration_choice_provenance_materialized: false
+  provenance_attestation_materialized: false
+  generator_code_identity_materialized: false
+  execution_specific_environment_lock_materialized: false
+  independent_blockers:
+    - PLATFORM_AND_MEASUREMENT_ENVIRONMENT_NOT_MATERIALIZED
+    - CONFIGURATION_CHOICE_PROVENANCE_NOT_MATERIALIZED
+
+next_action: >-
+  Run bounded assurance on the exact head containing the audit, v0.5 lock, focused tests, harness binding and this
+  Chronicle entry. If required checks pass, publish immutable review navigation for that exact SHA and prepare a focused
+  reviewer package. Request a narrow verdict on the repository-root D2 bound and D1/D2 responsibility split. Do not claim
+  D2 re-closed before that review. Do not execute canonical Phase A. Treat R1/N2 as a separate pre-execution hardening
+  track and do not infer construct validity from provenance/firewall review.

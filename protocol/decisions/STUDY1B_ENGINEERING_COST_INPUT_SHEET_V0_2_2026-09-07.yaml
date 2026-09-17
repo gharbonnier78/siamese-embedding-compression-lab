@@ -1,0 +1,157 @@
+schema_version: "1.0"
+decision_input_id: STUDY1B-ENGINEERING-COST-INPUT-SHEET-V0.2-2026-09-07
+study_id: study_1b_matched_compression
+date: 2026-09-07
+status: AWAITING_EDGE_HARDWARE_AND_ENERGY_VALUES
+kind: nonoutcome_engineering_cost_input_sheet
+supersedes_for_future_population: protocol/decisions/STUDY1B_ENGINEERING_COST_INPUT_SHEET_V0_1_2026-09-07.yaml
+
+purpose: >-
+  Extend the non-outcome engineering value model with the Jungle Championship edge constraints:
+  galleries must reside in RAM; CPU, GPU/NPU and their associated memory remain comparison parameters;
+  a lower-cost CPU route remains admissible when it satisfies peak-flow response constraints; and electrical
+  consumption / battery autonomy are explicit engineering outcomes. raw512 / 512D remains the representation
+  reference for comparison. No protected Study 1B outcome is opened.
+
+scientific_boundary:
+  real_study_outcomes_opened: false
+  screen_opened: false
+  qualification_test_opened: false
+  real_route_performance_opened: false
+  representation_geometry_opened: false
+  amendment_activated: false
+  s4n1_status: CLOSED_NEGATIVE
+  s4n2_status: CLOSED_NEGATIVE
+  s4n3_launched: false
+
+working_policy:
+  representation_reference: raw512_512D
+  candidate_representation_dimension: 128
+  pass: PROMOTE_TO_CONTROLLED_NEXT_ENGINEERING_OR_QUALIFICATION_STAGE
+  not_demonstrated: RETAIN_RAW512_BY_DEFAULT
+  additional_evidence_rule: REQUIRE_POSITIVE_VALUE_OF_INFORMATION
+
+hard_constraints_user_provided:
+  galleries_must_fit_in_RAM: true
+  accelerator_is_not_mandatory: true
+  cpu_option_admissible_if_peak_response_requirement_met: true
+  gpu_or_npu_option_remains_parameter: true
+  associated_memory_capacity_and_type_remain_parameters: true
+  electrical_consumption_and_battery_autonomy_are_decision_variables: true
+
+comparison_axes:
+  representation:
+    baseline: {dimension: 512, role: scientific_and_engineering_reference}
+    candidate: {dimension: 128, role: compression_candidate}
+    datatype_options: [FP32, FP16, INT8]
+    note: >-
+      Datatype/quantization changes are separate engineering alternatives from dimensional compression and may
+      require their own accuracy/equivalence qualification before being treated as interchangeable.
+  compute_platform:
+    options: [CPU, GPU, NPU_OR_OTHER_ACCELERATOR]
+    selection_rule: >-
+      Choose the lowest-cost architecture that satisfies RAM residency, peak-flow latency/throughput, thermal,
+      power and operational constraints. Do not assume GPU is superior or CPU is sufficient without benchmark evidence.
+  memory:
+    gallery_residency: RAM_REQUIRED
+    parameters:
+      - system_RAM_capacity
+      - accelerator_VRAM_or_shared_RAM_capacity
+      - usable_RAM_after_OS_application_and_safety_headroom
+      - memory_bandwidth
+      - memory_power_idle_and_active
+      - memory_type_and_cost
+  search_execution:
+    parameters:
+      - exact_or_indexed_search
+      - batching
+      - concurrency
+      - SIMD_or_accelerator_kernel
+      - index_memory_overhead
+    scientific_caveat: >-
+      Any search approximation or index setting that can change returned identities is not a pure cost optimization;
+      it requires separate qualification and may not silently alter the frozen biometric claim.
+  traffic:
+    parameters:
+      - local_observation_rate_v_i
+      - peak_observation_rate
+      - burst_duration
+      - acceptable_response_time
+      - queueing_budget
+      - number_of_parallel_capture_lanes
+  fleet:
+    sensitivity_device_count: [25, 50, 100]
+    central_device_count: 50
+    note: scenario_only_not_event_fact
+
+energy_and_battery_inputs:
+  power_components_W:
+    compute_idle: null
+    compute_active: null
+    RAM_idle: null
+    RAM_active_increment: null
+    camera_and_sensor_baseline: null
+    NIR_or_illumination_active: null
+    network_idle: null
+    network_active: null
+    storage_and_other: null
+  workload:
+    active_compute_fraction: null
+    queries_per_hour_profile: null
+    peak_queries_per_second: null
+    hours_active_per_day: null
+    standby_hours_per_day: null
+  battery:
+    nominal_capacity_Wh: null
+    usable_fraction: null
+    reserve_fraction: null
+    conversion_efficiency: null
+    required_autonomy_hours: null
+    recharge_or_swap_policy: null
+  measured_energy:
+    joules_per_identification: null
+    joules_per_peak_burst: null
+    Wh_per_match: null
+    Wh_per_day: null
+    measurement_method: null
+    source_or_owner: null
+
+energy_calculation_contract:
+  average_power_simple: >-
+    P_avg = P_fixed + (1-u)*P_compute_idle + u*P_compute_active + P_RAM + P_sensor + P_network,
+    where each term must be measured or explicitly estimated for the selected hardware/workload state.
+  energy_over_interval: "E_Wh = integral(P_W dt) / 3600"
+  battery_usable_energy: "E_usable_Wh = capacity_Wh * usable_fraction * conversion_efficiency * (1 - reserve_fraction)"
+  autonomy_hours: "autonomy_h = E_usable_Wh / P_avg_W"
+  energy_per_query_method: >-
+    Prefer measured incremental joules per identification or per representative burst over inferring energy from
+    vector dimension. 512D-to-128D gives 75% fewer coordinate contributions for fixed dense comparison but does
+    not imply 75% lower device power or energy.
+
+engineering_value_terms:
+  memory_tier_value: >-
+    Fleet value if 128D avoids crossing a system-RAM or accelerator-memory SKU threshold while retaining required headroom.
+  compute_platform_value: >-
+    Fleet value if 128D permits a lower-cost CPU-only architecture while meeting peak response requirements, or a
+    smaller/lower-power accelerator tier where CPU is insufficient.
+  energy_value: >-
+    Electrical/battery value from measured reduction in average/peak energy, battery capacity, recharge/swap frequency,
+    thermal load or power-system sizing.
+  offline_autonomy_value: >-
+    Value if smaller RAM-resident galleries allow broader local replication or longer disconnected operation.
+  synchronization_value: >-
+    Value from reduced gallery update payload across the distributed fleet.
+
+C_miss_extension: >-
+  C_miss may include foregone RAM-tier savings, compute-platform/BOM savings, battery/power-system savings, reduced
+  recharge or battery-swap operations, synchronization benefit, and offline-architecture value, in addition to prior
+  storage/capacity/schedule terms. All numerical terms require provenance and double-counting controls.
+
+provenance_rule: >-
+  User-provided hard constraints may be recorded as such. Hardware performance, power, latency, energy and economic
+  values remain null until measured, benchmarked, vendor-specified with caveats, or explicitly supplied by engineering authority.
+
+next_action: >-
+  Build a bounded hardware comparison matrix using raw512/512D as the embedding reference and 128D as candidate across
+  CPU/GPU/NPU, RAM tiers, datatypes, peak-flow profiles and battery/power scenarios. Prioritize feasibility thresholds:
+  gallery-in-RAM, peak response, then energy/autonomy and fleet cost. Do not open protected biometric outcomes.

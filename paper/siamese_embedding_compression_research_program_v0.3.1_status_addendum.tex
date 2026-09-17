@@ -1,0 +1,218 @@
+\documentclass[10pt,a4paper]{article}
+\pdfinfoomitdate=1
+\pdftrailerid{}
+\pdfsuppressptexinfo=15
+
+\usepackage[T1]{fontenc}
+\usepackage[utf8]{inputenc}
+\usepackage{lmodern}
+\usepackage{microtype}
+\usepackage[a4paper,margin=22mm]{geometry}
+\usepackage{booktabs,tabularx,array}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{xurl}
+\usepackage{fancyhdr}
+
+\definecolor{navy}{HTML}{17324D}
+\definecolor{teal}{HTML}{1B728C}
+\definecolor{soft}{HTML}{F3F6F8}
+\definecolor{warn}{HTML}{8A4B08}
+\definecolor{greenish}{HTML}{2E6B57}
+\hypersetup{
+  colorlinks=true,
+  linkcolor=navy,
+  urlcolor=teal,
+  pdftitle={Siamese Embedding Compression Research Program v0.3.1 Status Addendum},
+  pdfauthor={Guillaume Harbonnier},
+  pdfsubject={Accepted v0.6 semantic hardening, N7/N8 transport hardening and Phase A construct-validity transition}
+}
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{5pt}
+\setlist[itemize,enumerate]{nosep,leftmargin=*}
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{Siamese Embedding Compression Research Program}
+\fancyhead[R]{v0.3.1 status addendum}
+\fancyfoot[C]{\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+\newcommand{\code}[1]{\texttt{#1}}
+
+\title{\textbf{Siamese Embedding Compression Research Program}\\[4pt]
+\large Status Addendum: semantic ACCEPT to construct-validity review}
+\author{Guillaume Harbonnier\\
+\small Independent exploratory research\\
+\small \url{https://github.com/gharbonnier78/siamese-embedding-compression-lab}}
+\date{Version 0.3.1 --- 16 September 2026}
+
+\begin{document}
+\maketitle
+\thispagestyle{empty}
+
+\begin{center}
+\fcolorbox{warn}{soft}{\parbox{0.92\linewidth}{
+\textbf{Scope.} This addendum updates the status of the v0.3 monograph without replacing it. It records the accepted
+v0.6 pre-execution semantic review, the new N7/N8 review-transport findings, and the transition to a separate Phase A
+construct-validity review. It opens no protected Study 1B SCREEN, qualification TEST, real-route performance or
+representation geometry, launches no S4N3, and does not authorize canonical Phase A execution.
+}}
+\end{center}
+
+\section{What changed since v0.3}
+
+The v0.3 monograph described N4, N5, R1/N2 and N6 as prospectively hardened but still awaiting focused independent
+review. That review is now complete on exact head
+\code{c7d03cdad3bdf460bc6261508f2dc416504c7e4b}.
+
+The independent verdict was:
+
+\begin{quote}
+\code{VERDICT: ACCEPT}\\
+\code{N4\_CLOSED: yes}\\
+\code{N5\_CLOSED: yes}\\
+\code{R1\_N2\_PORTABLE\_CHOICE\_OVERLAP\_CLOSED: yes}\\
+\code{N6\_PACKAGE\_RULE\_SATISFIED: yes}\\
+\code{CANONICAL\_EXECUTION\_CURRENTLY\_ADMISSIBLE: no}\\
+\code{CONSTRUCT\_VALIDITY\_REVIEWED: no}
+\end{quote}
+
+The reviewer independently reported 20/20 package SHA-256 and byte-length checks, 16/16 Git blob SHA-1 recomputations,
+a PASS from the bundled verifier, 11/11 focused v0.6 contract tests, direct lock/addendum agreement re-derivation, and
+no protected-scope leakage in the reviewed human-facing material.
+
+The reviewed v0.6 lock and addendum are not rewritten merely to encode acceptance. The append-only review verdict and
+Chronicle entry carry that decision while preserving the exact reviewed bytes.
+
+\section{Meaning of the accepted semantic hardening}
+
+\subsection*{N4: possession is not creation influence}
+
+A genuinely pre-existing external source does not lose D2 eligibility merely because the attester later receives,
+reviews or cites it. Production, commissioning, requesting, specifying, directing or materially framing evidence
+requires D1. D1 remains the completeness backstop for every lock-defining choice and ambiguity fails closed.
+
+\subsection*{N5: only temporal ordering is mechanically checkable}
+
+The accepted wording no longer invites the entire D1/D2 mechanism to be called structurally objective. Only the temporal
+ordering against the immutable repository-public bound is mechanically checkable. External/pre-existing classification,
+absence of attester influence and completeness remain provenance/attestation claims.
+
+\subsection*{R1/N2: informational overlap is choice-specific}
+
+Prior evidence is classified against the lock-defining choice it may inform. Hardware mismatch alone cannot discharge
+relevance for portable backend/BLAS, threading/affinity or measurement-method choices. Measurement-method evidence may
+transfer even when hardware class, vector dimension or search family differ. If informative prior evidence has already
+shaped a choice, the remedy is disclosure plus a new prospective design/execution identity and independent review, not
+silent reinterpretation.
+
+\subsection*{N6: exact bytes are reviewable}
+
+The accepted package transported exact normative bytes and allowed the reviewer to recompute Git blob identity locally.
+N6 is therefore satisfied for that reviewed package.
+
+\section{New transport findings N7 and N8}
+
+The same reviewer identified two new findings. They are transport-only and are not conditions of the v0.6 ACCEPT.
+
+\begin{description}
+\item[N7.] The package manifest exposed \code{git\_blob\_sha1\_expected} but did not explicitly declare that its source
+was the repository object at the immutable reviewed head. Future packages must state that provenance explicitly.
+The authored \code{git\_blob\_sha1\_recomputed} column should disappear so recomputation remains reviewer-side.
+
+\item[N8.] The reviewer prompt required verification of the immutable PR binding and five exact-head bounded workflow
+successes, but those objects were not transported. The next package must carry the binding snapshot and exact-head
+workflow evidence, with direct GitHub/API locators retained for optional independent re-fetch.
+\end{description}
+
+The distinction is important: N7/N8 improve \emph{demonstrability and review autonomy}. They do not change the accepted
+scientific or engineering semantics of N4/N5/R1-N2/N6.
+
+\section{Why construct validity is now the next gate}
+
+The governance question is no longer only ``is the benchmark protected against outcome-informed design?'' The next
+question is:
+
+\begin{quote}
+\textbf{If Phase A were executed exactly as specified, would its measurements validly support the bounded engineering
+claims the benchmark is designed to make?}
+\end{quote}
+
+This is a construct-validity question. It can and should be answered before target hardware or protected outcomes are
+opened.
+
+The dedicated review must challenge at least the following:
+
+\begin{itemize}
+\item whether 512D versus 128D is isolated as the intervention under otherwise paired execution conditions;
+\item whether exact dense top-1 fixed-work search is a valid construct for the intended brute-force 1:N engineering question;
+\item whether deterministic L2-normalized dense synthetic vectors are adequate for bounded memory/compute/latency/energy
+characterization, and where numerical distribution could still matter;
+\item whether G0 and G2 are valid sensitivity scenarios without being presented as event or deployment facts;
+\item whether latency, throughput, RAM, queueing, external power and joules-per-identification endpoints match the claims;
+\item whether external power measurement and off-device load generation provide the intended device-level energy construct;
+\item whether counterbalancing, restarts, raw-sample retention and no-runtime-tuning rules control material confounding;
+\item whether external-validity limits are explicit enough to prevent a bound platform/workload result from becoming a
+universal edge-system claim;
+\item whether characterization is kept separate from pass/fail qualification while operational thresholds remain null;
+\item whether engineering evidence remains firewalled from biometric non-inferiority or superiority claims.
+\end{itemize}
+
+The formal request is stored in:\\
+\path{protocol/reviews/STUDY1B_PHASE_A_CONSTRUCT_VALIDITY_REVIEW_REQUEST_V0_1_2026-09-16.md}.
+
+\section{Current state}
+
+\begin{tabularx}{\linewidth}{>{\bfseries}l X}
+\toprule
+Item & State \\
+\midrule
+Study 0 & corrected bounded negative closure \\
+S4N1 / S4N2 & \code{CLOSED\_NEGATIVE} / \code{CLOSED\_NEGATIVE} \\
+S4N3 & not launched \\
+N4 / N5 / R1-N2 / N6 & accepted closed for reviewed v0.6 package \\
+N7 / N8 & open review-transport hardening for next package \\
+Construct validity & not reviewed \\
+Target hardware / meter / load generator & not materialized \\
+Execution-specific environment lock & not materialized \\
+Canonical Phase A & not admissible; not executed \\
+Protected SCREEN / TEST / performance / geometry & sealed \\
+\bottomrule
+\end{tabularx}
+
+\section{Exact next admissible sequence}
+
+\begin{enumerate}
+\item implement N7/N8 in the construct-validity review-package transport;
+\item synchronize human-readable documentation and freeze an exact review head;
+\item require the five bounded technical-assurance workflows to succeed on that exact head;
+\item create an immutable binding for that exact construct-validity review head;
+\item build the N7/N8-hardened construct-validity package including binding and workflow evidence;
+\item obtain independent construct-validity review;
+\item only after construct-validity acceptance may the project materialize and freeze target hardware, external power
+meter, off-device load generator, configuration-choice provenance, generator identity and an execution-specific lock;
+\item rerun bounded assurance on the exact materialized execution head before any canonical Phase A execution becomes eligible.
+\end{enumerate}
+
+No step in this sequence authorizes opening protected Study 1B biometric outcomes.
+
+\section{Authoritative artifacts added by this transition}
+
+\begin{itemize}
+\item \path{protocol/reviews/PR50_C7D03CDA_V06_N6_FOCUSED_REREVIEW_VERDICT_2026-09-16.md}
+\item \path{protocol/chronicle/STUDY1B_PR50_C7D03CDA_V06_ACCEPT_2026-09-16.yaml}
+\item \path{protocol/chronicle/STUDY1B_N7_N8_REVIEW_TRANSPORT_HARDENING_OPEN_2026-09-16.yaml}
+\item \path{protocol/reviews/STUDY1B_PHASE_A_CONSTRUCT_VALIDITY_REVIEW_REQUEST_V0_1_2026-09-16.md}
+\end{itemize}
+
+Pinned reusable method authority:\\
+\url{https://github.com/gharbonnier78/scientific-research-harness/blob/3b109adcdd9a8cba4df029d3803ee0e5cb5bdf98/HARNESS.md}
+
+\vfill
+\begin{center}
+\small\textit{This addendum is explanatory and status-synchronizing. Frozen protocols, independent review verdicts and
+append-only Chronicle entries remain authoritative.}
+\end{center}
+
+\end{document}

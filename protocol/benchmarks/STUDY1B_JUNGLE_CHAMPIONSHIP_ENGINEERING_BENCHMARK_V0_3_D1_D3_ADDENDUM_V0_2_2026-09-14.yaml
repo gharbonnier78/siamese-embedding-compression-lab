@@ -1,0 +1,158 @@
+schema_id: study1b.engineering.benchmark_addendum
+schema_version: 2
+artifact_version: "0.2"
+addendum_id: STUDY1B-JUNGLE-CHAMPIONSHIP-BENCHMARK-V0.3-D1-D3-ADDENDUM-V0.2-2026-09-14
+study_id: study_1b_matched_compression
+date: 2026-09-14
+kind: nonoutcome_engineering_benchmark_normative_addendum
+status: PROSPECTIVE_PREEXECUTION_HARDENING_AWAITING_INDEPENDENT_REVIEW
+base_benchmark: protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_BENCHMARK_V0_3_2026-09-08.yaml
+supersedes_for_future_execution: protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_BENCHMARK_V0_3_D1_D3_ADDENDUM_2026-09-08.yaml
+environment_lock: protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_ENVIRONMENT_LOCK_V0_6_2026-09-14.yaml
+review_basis:
+  accepted_d2_v0_5_verdict: protocol/reviews/PR50_CB124244_D2_V05_FOCUSED_REREVIEW_VERDICT_2026-09-10.md
+  accepted_d2_v0_5_chronicle: protocol/chronicle/STUDY1B_PR50_CB124244_D2_V05_ACCEPT_2026-09-14.yaml
+
+normative_precedence: >-
+  This addendum supersedes the v0.1 addendum only for future execution-specific lock construction and only for
+  the pre-lock informational-overlap classification semantics. Historical reviewed artifacts remain unchanged.
+  All benchmark v0.3 clauses not explicitly overridden here remain normative.
+
+scientific_boundary:
+  protected_biometric_inputs_required: false
+  screen_opened: false
+  qualification_test_opened: false
+  real_route_performance_opened: false
+  representation_geometry_opened: false
+  amendment_activated: false
+  s4n3_launched: false
+
+information_firewall_v3:
+  classification_basis: CHOICE_SPECIFIC_INFORMATIONAL_OVERLAP_NOT_GLOBAL_HARDWARE_CONJUNCTION
+  general_rule: >-
+    A prior measurement is informative for a lock-defining choice when its observable workload or measurement
+    characteristics could reasonably inform that specific choice. Informational relevance is evaluated per choice,
+    not by one global conjunction requiring vector dimension, search family and hardware class to all match.
+    Stated intent, project label or run name are never classifier inputs.
+  fail_closed_rule: >-
+    If applicability to a lock-defining choice is uncertain, classify the prior measurement as informative for that
+    choice until an attributable rationale demonstrates otherwise. Informative evidence MUST be disclosed and MUST NOT
+    silently select or tune an untouched prospective canonical lock.
+  intended_purpose_is_classifier_input: false
+  label_is_classifier_input: false
+
+  choice_families:
+    platform_specific:
+      choices:
+        - device_under_test
+        - cpu_or_accelerator_platform
+        - system_ram_capacity_and_type
+        - frequency_governor_and_boost_policy
+      overlap_rule: >-
+        Hardware class or a materially comparable platform is normally required for a prior measurement to be
+        informative for these platform-specific choices, together with workload features relevant to the choice.
+        Exact hardware identity is not required when the measurement can still constrain the choice at the declared
+        hardware-class level.
+      hardware_class_may_be_required: true
+
+    search_runtime_portable:
+      choices:
+        - search_backend_and_blas_runtime
+      overlap_rule: >-
+        Same or materially comparable dense-search computational family, datatype/precision and vector dimensionality
+        are sufficient to make a measurement potentially informative across different hardware classes. A hardware-class
+        mismatch MUST NOT by itself classify evidence as non-informative for backend or BLAS/runtime selection.
+      hardware_class_required: false
+      required_or_material_features:
+        - search_family_or_materially_comparable_dense_kernel
+        - datatype_or_precision
+        - vector_dimensionality_or_equivalent_kernel_shape
+
+    concurrency_portable:
+      choices:
+        - benchmark_thread_count_and_affinity
+      overlap_rule: >-
+        Measurements or tuning studies on thread count, affinity, oversubscription, NUMA or runtime parallelism may be
+        informative across hardware classes when they concern the same backend/search execution family or a materially
+        comparable threading model. Hardware mismatch alone does not discharge informational relevance.
+      hardware_class_required: false
+      informative_features:
+        - thread_count_or_affinity
+        - oversubscription_or_runtime_thread_controls
+        - numa_or_parallelism_policy
+        - materially_comparable_search_or_blas_runtime
+
+    measurement_method_portable:
+      choices:
+        - load_generator_host_and_link
+        - external_power_meter_and_measurement_plane
+        - battery_capacity_and_operational_policy_if_used
+      overlap_rule: >-
+        Prior evidence about measurement-plane design, meter placement, sampling, synchronization, load-generator
+        contamination, joules-per-identification accounting, battery reserve policy or equivalent measurement-method
+        choices may be informative even when vector dimensions, search family or hardware class differ. Relevance is
+        based on transferability of the measurement method, not on hardware identity.
+      hardware_class_required: false
+      vector_dimension_required: false
+      search_family_required: false
+
+  minimum_signature_fields_for_prior_measurement:
+    - measurement_reference
+    - evidence_timestamp
+    - source_type
+    - hardware_class_if_applicable
+    - vector_dimensions_if_applicable
+    - search_family_if_applicable
+    - datatype_if_applicable
+    - backend_or_blas_if_applicable
+    - threading_or_affinity_if_applicable
+    - measurement_plane_if_applicable
+    - load_generation_method_if_applicable
+    - choices_potentially_informed
+    - attributable_overlap_assessment
+
+  per_choice_output:
+    allowed_values:
+      - INFORMATIVE
+      - NOT_INFORMATIVE_WITH_RATIONALE
+      - UNCERTAIN_TREAT_AS_INFORMATIVE
+    rationale_required_for_not_informative: true
+    uncertainty_defaults_to_informative: true
+
+  consequence_if_informative_evidence_already_informed_choice: >-
+    Declare the evidence, timestamp, observable signature, affected lock-defining choice and attributable rationale.
+    The resulting configuration is not represented as an untouched prospective lock. Assign a new prospective
+    design/execution identity, freeze it, and obtain independent review before canonical result-bearing execution.
+
+n4_possession_vs_influence_boundary:
+  rule: >-
+    Mere receipt, possession, citation or review of genuinely pre-existing third-party evidence does not by itself
+    mean that the attesting party influenced the evidence's creation or framing. D2 may remain applicable to such
+    evidence when its external origin and temporal ordering are established. Production, commissioning, requesting,
+    specifying, directing, materially framing or otherwise influencing creation of the evidence requires D1 treatment.
+  possession_alone_forces_D1_creation_influence_classification: false
+  creation_or_framing_influence_forces_D1: true
+  D1_provenance_completeness_attestation_still_required: true
+  conflict_rule: >-
+    If influence over creation/framing is uncertain, require D1 and treat the evidence as potentially informative.
+
+n5_structural_impossibility_scope:
+  objectively_checkable_component: >-
+    The mechanically checkable D2 component is temporal ordering against the immutable repository-public bound.
+  provenance_or_attestation_backed_components:
+    - external_or_preexisting_source_classification
+    - absence_of_attester_influence_over_creation_or_framing
+    - completeness_of_disclosed_materially_informative_evidence
+  interpretation_rule: >-
+    The phrase structural impossibility MUST NOT be cited as making the entire D2/D1 mechanism objective. Only the
+    immutable temporal ordering is mechanically checkable; source independence and attester influence are provenance
+    claims subject to accountable D1 attestation and fail-closed conflict handling.
+
+review_and_execution_gate:
+  independent_review_of_v0_2_required_before_execution_specific_lock_freeze: true
+  construct_validity_reviewed: false
+  canonical_phase_a_execution_permitted: false
+
+next_action: >-
+  Independently review N4, N5 and the choice-specific R1/N2 classifier before freezing any execution-specific lock.
+  Do not open protected biometric outcomes and do not infer construct validity from this semantic hardening.

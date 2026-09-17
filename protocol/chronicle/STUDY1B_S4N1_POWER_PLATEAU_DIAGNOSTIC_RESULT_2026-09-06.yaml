@@ -1,0 +1,182 @@
+schema_version: "1.0"
+entry_type: s4n1_power_plateau_diagnostic_result
+chronicle_entry_id: CHRON-20260906-022
+study_id: study_1b_matched_compression
+date: 2026-09-06
+kind: append_only_nonoutcome_archived_synthetic_diagnostic
+status: CLOSED_DIAGNOSTIC
+outcome_evidence_seen: false
+
+summary: >-
+  The frozen post-closure analysis of the archived S4N1 synthetic power shards confirms that the
+  approximately 0.869 power plateau at true TEST Delta_FNMR 0.01 is not primarily explained by
+  point-estimator bias or by the frozen artifact selector. The selected-artifact point estimator
+  is nearly unbiased, selector power differs by only 0.004, while the existing UCB97.5 headroom
+  is materially wider than the empirical repeated-sampling upper error in the known-truth
+  generator. This is evidence of conservative uncertainty spread under this synthetic design,
+  not permission to narrow the interval post hoc. S4N1 remains CLOSED_NEGATIVE.
+
+harness:
+  repository: gharbonnier78/scientific-research-harness
+  pinned_ref: 3b109adcdd9a8cba4df029d3803ee0e5cb5bdf98
+  manifest: harness-adoption.yaml
+  local_instructions: AGENTS.md
+
+human_authority:
+  source: "2026-09-06 project conversation"
+  instruction: >-
+    Finir le plan actuel sans le modifier : archiver S4N1 négatif, diagnostiquer pourquoi on
+    plafonne à environ 86,9 %, puis concevoir/tester prospectivement S4N2.
+
+basis:
+  s4n1_negative_result: protocol/chronicle/STUDY1B_S4N1_CORE_POWER_CALIBRATION_RESULT_2026-09-06.yaml
+  frozen_diagnostic_contract: protocol/simulations/STUDY1B_S4N1_POWER_PLATEAU_DIAGNOSTIC_V0_1_2026-09-06.yaml
+  launch_chronicle: protocol/chronicle/STUDY1B_S4N1_POWER_PLATEAU_DIAGNOSTIC_LAUNCH_2026-09-06.yaml
+  source_s4n1_power_run_id: 33950949898
+  diagnostic_source_commit: c98b331fa776cc005e68b4448149aad3b0781a95
+
+execution:
+  workflow: Study 1B S4N1 Power Plateau Diagnostic
+  workflow_file: .github/workflows/study1b-s4n1-power-plateau-diagnostic.yml
+  run_id: 34026007286
+  run_number: 1
+  event: push
+  conclusion: success
+  started_at_utc: "2026-09-06T09:55:49Z"
+  completed_at_utc: "2026-09-06T09:56:42Z"
+
+canonical_artifact:
+  id: 9987072338
+  name: study1b-s4n1-power-plateau-diagnostic
+  github_digest: sha256:f40fdbc94280827779a96b423d89575881e751a817ebffe64923168494861c05
+  independently_verified_zip_sha256: f40fdbc94280827779a96b423d89575881e751a817ebffe64923168494861c05
+  extracted_summary_file: diagnostic.json
+  extracted_summary_sha256: fb14e63fe1fac71d564a7cda88e1802d049fbff12ceda8ca767d4300ebc012ea
+
+archived_population_integrity:
+  new_synthetic_datasets_created: false
+  source_truth_cells: [0.0, 0.01]
+  exact_dataset_indices_per_truth: [0, 3999]
+  datasets_per_truth: 4000
+  selectors:
+    - S4N_FIXED_SEED
+    - S4N_VALIDATION_BEST
+    - S4N_VALIDATION_MEDIAN
+  rows_or_shards_excluded_after_observation: false
+
+frozen_interpretation_tests:
+  point_bias_not_primary: true
+  selector_not_primary: true
+  potential_ucb_spread_conservatism_signal: true
+
+results_at_true_delta_0_01:
+  S4N_FIXED_SEED:
+    current_power: 0.8655
+    point_error_mean: -0.0000508
+    point_error_sd: 0.005158831529104863
+    point_error_q97_5: 0.01009999999999997
+    one_sided_upper_coverage_ucb97_5: 0.9975
+    existing_two_sided_coverage: 0.9955
+    median_ucb97_5_minus_point: 0.014005661249280998
+    median_approx_bootstrap_upper_se: 0.007164991244881324
+    bootstrap_se_to_repeated_sampling_sd_ratio: 1.3888787033378003
+    ucb97_5_headroom_to_empirical_q97_5_error_ratio: 1.3904083950012123
+    diagnostic_only_power_existing_ucb95: 0.94275
+    headroom_scale_needed_for_90_percent_pass: 0.9413909518897728
+    square_root_information_multiplier_heuristic: 1.1283919011024872
+    crossfit_known_truth_oracle:
+      heldout_upper_coverage: 0.973
+      heldout_noninferiority_pass_fraction: 0.974
+  S4N_VALIDATION_BEST:
+    current_power: 0.869
+    point_error_mean: -0.00008045
+    point_error_sd: 0.005151624754085038
+    point_error_q97_5: 0.010000000000000009
+    one_sided_upper_coverage_ucb97_5: 0.99725
+    existing_two_sided_coverage: 0.995
+    median_ucb97_5_minus_point: 0.014015010946838359
+    median_approx_bootstrap_upper_se: 0.00716380947821656
+    bootstrap_se_to_repeated_sampling_sd_ratio: 1.3905922539361855
+    ucb97_5_headroom_to_empirical_q97_5_error_ratio: 1.4040808569411123
+    diagnostic_only_power_existing_ucb95: 0.942
+    headroom_scale_needed_for_90_percent_pass: 0.9459114474498489
+    square_root_information_multiplier_heuristic: 1.1176325386785497
+    crossfit_known_truth_oracle:
+      heldout_upper_coverage: 0.9735
+      heldout_noninferiority_pass_fraction: 0.97625
+  S4N_VALIDATION_MEDIAN:
+    current_power: 0.8695
+    point_error_mean: -0.000099975
+    point_error_sd: 0.00511370755916147
+    point_error_q97_5: 0.009802500000000013
+    one_sided_upper_coverage_ucb97_5: 0.99625
+    existing_two_sided_coverage: 0.994
+    median_ucb97_5_minus_point: 0.01403849992493096
+    median_approx_bootstrap_upper_se: 0.007167697893107715
+    bootstrap_se_to_repeated_sampling_sd_ratio: 1.4016636286262432
+    ucb97_5_headroom_to_empirical_q97_5_error_ratio: 1.433147638108108
+    diagnostic_only_power_existing_ucb95: 0.94525
+    headroom_scale_needed_for_90_percent_pass: 0.9455401831520225
+    square_root_information_multiplier_heuristic: 1.1185103829609244
+    crossfit_known_truth_oracle:
+      heldout_upper_coverage: 0.968
+      heldout_noninferiority_pass_fraction: 0.978
+
+between_selector_result:
+  power_range_true_delta_0_00: 0.00075
+  power_range_true_delta_0_01: 0.004
+  interpretation: >-
+    The maximum power difference among selectors at Delta_FNMR 0.01 is 0.4 percentage point,
+    far smaller than the gap to the frozen 0.90 gate. Selector choice is therefore not identified
+    as the primary proximate driver of the plateau.
+
+mechanism_diagnosis:
+  point_estimator: >-
+    Mean TEST point-estimation error at Delta_FNMR 0.01 is between approximately -0.00005 and
+    -0.00010 across selectors, with repeated-sampling SD approximately 0.0051. The plateau is not
+    explained by a material point-estimator bias under the frozen generator.
+  uncertainty_spread: >-
+    The median UCB97.5-minus-point headroom is approximately 0.0140 whereas the empirical 97.5th
+    percentile of point-estimation error is approximately 0.0098 to 0.0101. The diagnostic ratio
+    is approximately 1.39 to 1.43. One-sided upper coverage is approximately 99.6 to 99.75 percent,
+    well above a 97.5 percent target. Under this known-truth generator the current bootstrap upper
+    bound therefore behaves conservatively enough to materially reduce power.
+  amount_of_change_needed_only_as_diagnostic: >-
+    Scaling the existing UCB headroom to roughly 94.1 to 94.6 percent of its present value would
+    have moved the archived synthetic pass rate to 90 percent. Under a pure 1/sqrt(information)
+    heuristic this corresponds to only about 1.12 times effective information. This is not a
+    prospective sample-size result and cannot be used to alter S4N1.
+  oracle_check: >-
+    A parity-split known-truth repeated-sampling oracle gives held-out upper coverage of about
+    96.8 to 97.35 percent and held-out NI power of about 97.4 to 97.8 percent. This shows that the
+    archived generator contains enough repeated-sampling information for a materially tighter
+    upper uncertainty statement in principle. The oracle uses known synthetic truth and is not an
+    admissible real-data inference method.
+
+scientific_conclusion: >-
+  S4N1's negative result is preserved. The post-closure diagnosis localizes the next methodological
+  question: improve the efficiency/calibration of selected-artifact TEST uncertainty estimation,
+  or add enough genuinely independent identity-level information, while preserving the operating
+  point, 97.5 percent one-sided protection, identity dependence, and untouched TEST semantics.
+  Merely switching to an observed UCB95, reducing confidence, or choosing the least-failing
+  selector is prohibited post hoc.
+
+next_action:
+  action: DESIGN_AND_FREEZE_PROSPECTIVE_S4N2
+  design_question: >-
+    Can a prospectively justified uncertainty estimator and/or a prospectively increased amount
+    of independent identity-level information achieve calibrated one-sided selected-artifact TEST
+    coverage with at least 0.90 power at true Delta_FNMR 0.01, without relaxing the Study 1B
+    operating-point or non-inferiority claim?
+
+scientific_boundary:
+  scientific_outcomes_opened: false
+  screen_opened: false
+  qualification_test_outcomes_opened: false
+  real_route_performance_opened: false
+  representation_geometry_opened: false
+  amendment_activated: false
+  original_5_of_5_rule_replaced: false
+  artifact_selector_activated_for_real_study: false
+  s4n1_negative_result_reopened: false
+  s4n1_closed_negative_preserved: true

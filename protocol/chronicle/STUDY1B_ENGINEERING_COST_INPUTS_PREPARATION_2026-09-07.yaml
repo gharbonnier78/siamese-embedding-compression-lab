@@ -1,0 +1,62 @@
+schema_version: "1.0"
+entry_type: study1b_engineering_cost_inputs_preparation
+chronicle_entry_id: CHRON-20260907-030
+study_id: study_1b_matched_compression
+date: 2026-09-07
+kind: append_only_nonoutcome_decision_analysis
+status: AWAITING_ENGINEERING_VALUES
+outcome_evidence_seen: false
+
+summary: >-
+  Prepare the structured engineering cost and value-of-information worksheet required after the approved
+  operational policy baseline. No product economics are guessed and no protected Study 1B outcome is opened.
+  The next admissible action is to populate explicit engineering values with provenance, then calculate C_miss
+  and compare the expected value of additional independent evidence with its acquisition cost.
+
+human_authority:
+  source: "2026-09-07 project conversation"
+  instruction: "Ok"
+
+artifacts:
+  structured_input_sheet: protocol/decisions/STUDY1B_ENGINEERING_COST_INPUT_SHEET_V0_1_2026-09-07.yaml
+  worksheet: docs/research-notes/STUDY1B_ENGINEERING_COST_AND_VOI_WORKSHEET_2026-09-07.md
+
+preserved_policy:
+  pass: PROMOTE_TO_CONTROLLED_NEXT_ENGINEERING_OR_QUALIFICATION_STAGE
+  not_demonstrated: RETAIN_RAW512_BY_DEFAULT
+  additional_evidence_rule: REQUIRE_POSITIVE_VALUE_OF_INFORMATION
+  s4n3: NOT_LAUNCHED
+
+required_next_inputs:
+  - bytes per embedding component / datatype
+  - number of embeddings and retention horizon
+  - effective replication and backup factor
+  - transfer/refresh volume if material
+  - applicable storage and transfer rates if available
+  - measured compute/capacity benefit if available without crossing the protected outcome boundary
+  - cost and delay of genuinely independent additional evidence
+  - confirmation that raw512 is operationally retainable
+  - false-qualification consequence class
+  - reversibility / rollback characteristics
+
+calculation_to_follow:
+  C_miss: >-
+    foregone or delayed 128D engineering value plus avoidable requalification and schedule/opportunity cost,
+    with double-counting prevented.
+  s4n1_break_even: "C_extra < q * 0.031 * C_miss"
+  caveat: >-
+    This break-even addresses the missed-demonstration side only. False-qualification risk remains a separate
+    decision term and any alpha used later must have prospective justification.
+
+boundaries:
+  scientific_outcomes_opened: false
+  screen_opened: false
+  qualification_test_opened: false
+  real_route_performance_opened: false
+  representation_geometry_opened: false
+  amendment_activated: false
+  s4n1: CLOSED_NEGATIVE
+  s4n2: CLOSED_NEGATIVE
+  s4n3: NOT_LAUNCHED
+
+next_action: POPULATE_EXPLICIT_ENGINEERING_VALUES_WITH_PROVENANCE

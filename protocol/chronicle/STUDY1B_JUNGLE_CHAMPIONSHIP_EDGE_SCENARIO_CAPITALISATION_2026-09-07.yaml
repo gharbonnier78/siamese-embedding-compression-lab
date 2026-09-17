@@ -1,0 +1,213 @@
+schema_version: "1.0"
+entry_type: study1b_jungle_championship_edge_scenario_capitalisation
+chronicle_entry_id: CHRON-20260907-031
+study_id: study_1b_matched_compression
+date: 2026-09-07
+kind: append_only_nonoutcome_engineering_scenario
+status: CAPITALIZED_AWAITING_SCENARIO_VALUES
+outcome_evidence_seen: false
+
+summary: >-
+  Archive the Jungle Championship engineering scenario used to ground the Study 1B 512D-to-128D
+  value-of-information analysis. The scenario now distinguishes event-level identities, physical
+  gallery replication/partitioning across distributed edge devices, local observation flows, and
+  deferred national offline identification. It also records whitelist/blacklist/unmatched semantics,
+  event scale, sensitivity ranges and the current hybrid-edge architecture hypothesis without
+  opening protected Study 1B outcomes or asserting unverified production facts.
+
+human_authority:
+  source: "2026-09-07 project conversation"
+  instructions_and_clarifications:
+    - >-
+      Use the Jungle Championship event scenario with whitelist, blacklist and distributed edge devices
+      as the concrete engineering case for the Study 1B cost/value analysis.
+    - >-
+      Whitelist means persons authorized for the five-day event, including spectators, technical staff,
+      organizing staff and numerous contractors/subcontractors.
+    - >-
+      Blacklist is a restricted list of stadium-banned persons, potentially extended with nationally or
+      internationally wanted persons.
+    - >-
+      For persons in neither list, retain portrait, location and time for later national offline 1:N
+      identification.
+    - >-
+      Event envelope: five days, three matches per day, stadium capacity 50,000; spectators are not
+      necessarily the same across matches, but repeat attendance is expected.
+    - >-
+      Edge devices are distributed widely; identities are not unique to one device and people do not
+      pass in front of every camera/device.
+    - >-
+      Archive these exchanges in the Scientific Chronicle like the preceding decision-analysis exchanges.
+
+provenance_classes:
+  USER_PROVIDED: direct scenario facts or assumptions from the human authority
+  DERIVED: arithmetic or structural consequences of supplied values
+  SCENARIO: exploratory sensitivity values proposed for analysis; not asserted event facts
+
+event_envelope:
+  duration_days:
+    value: 5
+    provenance: USER_PROVIDED
+  matches_per_day:
+    value: 3
+    provenance: USER_PROVIDED
+  total_matches:
+    value: 15
+    provenance: DERIVED
+  stadium_capacity:
+    value: 50000
+    provenance: USER_PROVIDED
+  max_spectator_passages_if_full:
+    value: 750000
+    provenance: DERIVED
+    note: "Passage envelope, not unique-person estimate."
+  repeat_attendance_expected:
+    value: true
+    provenance: USER_PROVIDED
+
+biometric_populations:
+  whitelist:
+    meaning:
+      - authorized spectators
+      - technical staff
+      - organizing staff
+      - contractors/subcontractors
+      - other authorized event roles
+    treatment: local_or_edge_1_to_N_authorization_or_recognition
+    size: UNKNOWN_POTENTIALLY_HUNDREDS_OF_THOUSANDS
+    provenance: USER_PROVIDED
+  blacklist:
+    meaning:
+      - stadium-banned persons
+      - potentially nationally/internationally wanted persons
+    treatment: local_or_edge_1_to_N_detection_or_alert
+    size: UNKNOWN_EXPECTED_MUCH_SMALLER_THAN_WHITELIST
+    provenance: USER_PROVIDED
+  unmatched_local_lists:
+    meaning: person in neither whitelist nor blacklist
+    retained_evidence:
+      - portrait
+      - location
+      - timestamp
+    downstream_action: national_offline_1_to_N_identification
+    provenance: USER_PROVIDED
+
+edge_flow_model:
+  key_separation:
+    - logical_unique_event_identities
+    - physical_gallery_copies_per_device
+    - local_observations_or_passages_per_device
+    - total_matching_work
+  invalid_naive_model: "people * cameras"
+  rationale: >-
+    A logical identity may be represented on multiple devices, while a person is observed only by a
+    subset of devices. Device traffic is therefore local and heterogeneous.
+  variables:
+    N: unique identities in relevant event-level gallery
+    U: unique people attending/appearing
+    T: templates per identity
+    D: edge-device count
+    g_i: fraction of global gallery loaded on device i
+    v_i: observations/passages processed by device i
+    B: blacklist cardinality
+    b: bytes per embedding component
+    d: embedding dimension, 512 or 128
+    O: total biometric observations across devices
+  structural_formulas:
+    local_gallery_bytes_i: "N * g_i * T * d * b"
+    total_edge_gallery_payload: "sum_i N * g_i * T * d * b"
+    brute_force_matching_work_proxy: "sum_i v_i * (N * g_i * T) * d"
+  caveat: >-
+    Matching-work formula is a first-order structural proxy only and must not be interpreted as measured
+    end-to-end latency or throughput.
+
+sensitivity_scenarios_not_event_facts:
+  whitelist_unique_identities:
+    low: 250000
+    central: 500000
+    high: 750000
+    stress_extension: 1000000
+  blacklist_identities:
+    small: 1000
+    medium: 10000
+    large_stress: 100000
+  templates_per_identity: [1, 3, 5]
+  embedding_dimensions: [512, 128]
+  datatypes: [FP32, FP16, INT8]
+
+edge_architecture_scenarios:
+  A_full_replication:
+    whitelist: complete_on_each_relevant_device
+    blacklist: complete
+    tradeoff: maximum_offline_autonomy_and_maximum_gallery_replication
+  B_partitioned:
+    whitelist: partitioned_by_zone_role_or_access_domain
+    blacklist: complete_or_partitioned
+    tradeoff: lower_local_memory_and_work_with_higher_routing_configuration_complexity
+  C_hybrid:
+    whitelist: localized_or_partial
+    blacklist: broadly_replicated
+    tradeoff: compromise_between_offline_security_coverage_and_edge_resource_limits
+    current_role: CENTRAL_SCENARIO_HYPOTHESIS_NOT_PRODUCTION_FACT
+
+unmatched_portrait_branch:
+  retained: "portrait + location + timestamp"
+  implication: >-
+    Portrait bytes may dominate storage for this branch, so 512D-to-128D embedding compression may be a
+    secondary storage effect unless embedding/index replication is the material bottleneck.
+  unknowns:
+    - portrait format
+    - retention count
+    - retention period
+    - duplicate/event association rules
+
+link_to_C_miss:
+  candidate_value_categories:
+    - smaller local and replicated galleries
+    - greater edge RAM/cache fit
+    - reduced gallery synchronization or transfer payload
+    - reduced coordinate-level dense-comparison work
+    - greater freedom to replicate security-relevant lists locally
+    - increased offline autonomy
+    - possible device/capacity headroom
+  interpretation: >-
+    These are engineering-value categories only. No measured storage, latency, throughput, energy,
+    financial benefit or production suitability is asserted. Lost or delayed acceptable compression may
+    therefore contribute to C_miss through constrained edge architecture as well as through storage cost.
+
+required_next_inputs:
+  - edge-device count and topology by zone
+  - gallery routing rule / distribution of g_i
+  - local observation-flow distribution v_i and peak ingress load
+  - templates per identity
+  - embedding datatype
+  - blacklist cardinality and update frequency
+  - whitelist cardinality / registration process / repeat-attendance estimate
+  - portrait format and retention policy for unmatched persons
+  - network synchronization/update cadence
+  - edge RAM/storage/compute constraints
+  - representative 512D-vs-128D edge benchmark if permitted by protected-outcome boundary
+  - cost and delay of genuinely independent additional biometric evidence
+
+scientific_boundary:
+  real_study_outcomes_opened: false
+  screen_opened: false
+  qualification_test_opened: false
+  real_route_performance_opened: false
+  representation_geometry_opened: false
+  amendment_activated: false
+  s4n1_status: CLOSED_NEGATIVE
+  s4n2_status: CLOSED_NEGATIVE
+  s4n3_launched: false
+
+references:
+  scenario_note: docs/research-notes/STUDY1B_JUNGLE_CHAMPIONSHIP_EDGE_SCENARIO_ASSUMPTIONS_2026-09-07.md
+  engineering_cost_sheet: protocol/decisions/STUDY1B_ENGINEERING_COST_INPUT_SHEET_V0_1_2026-09-07.yaml
+  operational_policy: protocol/decisions/STUDY1B_OPERATIONAL_POLICY_BASELINE_V0_1_2026-09-07.yaml
+  structural_benefit: docs/research-notes/STUDY1B_512D_TO_128D_STRUCTURAL_BENEFIT_ENVELOPE_2026-09-07.md
+  value_of_information: docs/research-notes/STUDY1B_S4_VALUE_OF_INFORMATION_DECISION_TABLE_2026-09-06.md
+
+next_action: >-
+  Populate a Jungle Championship scenario matrix over device topology, local gallery fraction, observation
+  flow, templates and datatype; then calculate edge memory/transfer/work envelopes and translate only
+  measured or explicitly supplied system values into C_miss. Do not infer protected biometric outcomes.

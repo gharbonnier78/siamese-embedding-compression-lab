@@ -1,0 +1,96 @@
+schema_version: "1.0"
+entry_type: study1b_pr50_independent_review_result
+chronicle_entry_id: CHRON-20260908-036
+study_id: study_1b_matched_compression
+date: 2026-09-08
+kind: append_only_independent_review_result
+status: ACCEPT_WITH_CHANGES_BLOCKING_PHASE_A_EXECUTION
+outcome_evidence_seen: false
+
+review_basis:
+  pr: 50
+  reviewed_head: ab7f3d099ba0bd26dd1158afa8f80e5b66bf801d
+  base: 5730e6bfa07b51afbe7ad6a89ffb4a6bd0ba6eb7
+  pinned_harness: 3b109adcdd9a8cba4df029d3803ee0e5cb5bdf98
+  reviewer_artifact: protocol/reviews/PR50_INDEPENDENT_REVIEW_2026-09-08.md
+  reviewer_verdict: ACCEPT_WITH_CHANGES
+
+review_summary:
+  s4_closure:
+    status: SOUND_BUT_RECORD_INCOMPLETE
+    conclusion_unchanged: true
+    notes:
+      - S4N1 and S4N2 remain CLOSED_NEGATIVE against the frozen 0.90 power gate.
+      - No post-hoc rescue was found.
+      - Power remains a study-level non-demonstration probability under the frozen synthetic generator, not person-level biometric harm.
+      - Reviewer found a methodological explanation gap between the S4N1 plateau diagnostic and S4N2 lower observed power; closure itself is unaffected.
+  engineering_benchmark:
+    direction: ACCEPTED_IN_PRINCIPLE
+    canonical_execution_authorized: false
+    reason: >-
+      Benchmark boundaries are sound, but reproducibility, search semantics, RAM-infeasibility handling,
+      energy measurement, post-hoc threshold protection and measurement-statistics rules must be frozen first.
+
+blocking_changes:
+  - id: B1
+    action: Re-pin review-request artifact URLs to an immutable reviewed head.
+  - id: B2
+    action: Add a complete benchmark environment lock and resolve the null environment lock for benchmark execution.
+  - id: B3
+    action: Freeze exact Phase A search semantics and remove/declare threshold-related score-distribution confounding.
+  - id: B4
+    action: Freeze handling when 512D G2 cannot fit in device RAM.
+  - id: B5
+    action: Freeze canonical external wall/DC energy measurement and joules-per-identification baseline convention.
+  - id: B6
+    action: Add a guard preventing operational thresholds from being set after Phase A and retroactively applied to the same run.
+  - id: B7
+    action: Freeze repetitions, warm-up/discard, duration, sample counts and dispersion reporting.
+  - id: B8
+    action: Freeze load-generator placement and resource/latency accounting.
+  - id: B9
+    action: Mark G2 central scenario explicitly as SCENARIO_ONLY_NOT_EVENT_FACT.
+  - id: B10
+    action: Record S4N1/S4N2 shared simulated population, S4N2 quantile multiplier/df, and restate estimator-stop rationale around post-hoc optimisation risk.
+
+reviewer_nonblocking_recommendations:
+  - Rename summary-facing BEST to PROSPECTIVELY_PREFERRED and report the observed maximum separately.
+  - Add Monte Carlo uncertainty on power as a first-class field.
+  - Add archived-shard SE-dispersion and boundary-behaviour analysis for S4N2 explanation.
+  - Add G0 as a small-working-set Phase A control.
+  - Mark vector payload arithmetic as derived, not measured.
+  - Constrain and document the synthetic-vector distribution and finite-value guarantees.
+  - Condition battery/autonomy figures on explicit duty cycle and load profile.
+  - Record FP16/INT8 top-k changes versus FP32 as diagnostics in Phase C.
+  - Attach a limitation note to the 0.0310 and 0.0510 incremental-power figures.
+
+repository_side_corroboration_after_review:
+  reviewed_head_ci_status:
+    head: ab7f3d099ba0bd26dd1158afa8f80e5b66bf801d
+    Study_1B_Non_outcome_Preflight: success
+    Research_assurance: success
+    Study_1B_Engineering_Assurance: success
+    Study_1B_Power_Design_Diagnostic: success
+    CI: success
+  independence_note: >-
+    This repository-side check addresses a reviewer limitation but is not retroactively attributed to the independent reviewer.
+
+head_binding:
+  review_applies_to_head_only: ab7f3d099ba0bd26dd1158afa8f80e5b66bf801d
+  archival_commit_moved_branch_head: true
+  final_acceptance_requires_re_review_after_blocking_changes: true
+
+scientific_boundary:
+  real_study_outcomes_opened: false
+  screen_opened: false
+  qualification_test_opened: false
+  real_route_performance_opened: false
+  representation_geometry_opened: false
+  amendment_activated: false
+  s4n1_status: CLOSED_NEGATIVE
+  s4n2_status: CLOSED_NEGATIVE
+  s4n3_launched: false
+
+next_action: >-
+  Address BLOCKING changes 1 through 9 before any canonical Phase A benchmark execution; B10 may be completed in parallel.
+  Preserve the independent review artifact unchanged. After remediation, bind a new independent review to the new immutable head.

@@ -1,0 +1,481 @@
+name: Study 1B Phase A CV Limitations Closure Review Package
+
+on:
+  push:
+    branches:
+      - agent/study1b-preregistration-20260827
+    paths:
+      - '.github/workflows/study1b-phase-a-cv-limitations-closure-review-package.yml'
+      - 'AGENTS.md'
+      - 'harness-adoption.yaml'
+      - 'paper/siamese_embedding_compression_research_program_v0.3.2_status_addendum.tex'
+      - 'protocol/benchmarks/STUDY1B_PHASE_A_CONSTRUCT_VALIDITY_CORRECTIONS_V0_1_2026-09-16.yaml'
+      - 'protocol/reviews/PR50_B5720DD7_PHASE_A_CONSTRUCT_VALIDITY_REVIEW_VERDICT_2026-09-16.md'
+      - 'protocol/reviews/STUDY1B_PHASE_A_CONSTRUCT_VALIDITY_LIMITATIONS_CLOSURE_REVIEW_REQUEST_V0_1_2026-09-16.md'
+      - 'protocol/chronicle/STUDY1B_PR50_B5720DD7_PHASE_A_CONSTRUCT_VALIDITY_ACCEPT_WITH_LIMITATIONS_2026-09-16.yaml'
+      - 'protocol/chronicle/STUDY1B_HUMAN_READABLE_STATUS_ADDENDUM_V0_3_2_2026-09-16.yaml'
+      - 'tests/test_study1b_phase_a_construct_validity_corrections_v01.py'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  actions: read
+  issues: read
+  pull-requests: read
+
+jobs:
+  build-focused-closure-package:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+
+      - name: Install review dependency
+        run: python -m pip install 'PyYAML>=6,<7'
+
+      - name: Wait for five bounded exact-head workflows
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          REVIEW_HEAD_SHA: ${{ github.sha }}
+        run: |
+          python - <<'PY'
+          import json, os, time, urllib.parse, urllib.request
+          from pathlib import Path
+
+          repo = os.environ["REPO"]
+          head = os.environ["REVIEW_HEAD_SHA"]
+          token = os.environ["GH_TOKEN"]
+          required = [
+              "CI",
+              "Research assurance",
+              "Study 1B Engineering Assurance",
+              "Study 1B Non-outcome Preflight",
+              "Study 1B Power Design Diagnostic",
+          ]
+          api = f"https://api.github.com/repos/{repo}/actions/runs?head_sha={urllib.parse.quote(head)}&per_page=100"
+
+          def get_json(url):
+              req = urllib.request.Request(
+                  url,
+                  headers={
+                      "Authorization": f"Bearer {token}",
+                      "Accept": "application/vnd.github+json",
+                      "X-GitHub-Api-Version": "2022-11-28",
+                      "User-Agent": "study1b-cv-limitations-closure-package",
+                  },
+              )
+              with urllib.request.urlopen(req, timeout=30) as response:
+                  return json.load(response)
+
+          deadline = time.time() + 900
+          selected = None
+          payload = None
+          while time.time() < deadline:
+              payload = get_json(api)
+              by_name = {}
+              for run in payload.get("workflow_runs", []):
+                  if run.get("head_sha") != head:
+                      continue
+                  name = run.get("name")
+                  if name not in required:
+                      continue
+                  prev = by_name.get(name)
+                  if prev is None or run.get("run_number", 0) > prev.get("run_number", 0):
+                      by_name[name] = run
+
+              missing = [name for name in required if name not in by_name]
+              pending = [name for name, run in by_name.items() if run.get("status") != "completed"]
+              failed = [
+                  name
+                  for name, run in by_name.items()
+                  if run.get("status") == "completed" and run.get("conclusion") != "success"
+              ]
+              if failed:
+                  raise SystemExit(f"bounded workflow failed on exact head: {failed}")
+              if not missing and not pending:
+                  selected = by_name
+                  break
+
+              print(f"waiting workflows: missing={missing} pending={pending}", flush=True)
+              time.sleep(20)
+
+          if selected is None:
+              raise SystemExit("timed out waiting for five bounded workflows")
+
+          out = Path("artifacts/study1b/cv-limitations-closure-evidence")
+          out.mkdir(parents=True, exist_ok=True)
+          (out / "06A_EXACT_HEAD_WORKFLOWS_RAW.json").write_text(
+              json.dumps(payload, indent=2, sort_keys=True) + "\n",
+              encoding="utf-8",
+          )
+          normalized = {
+              "schema_id": "study1b.cv_limitations_closure.workflow_evidence",
+              "schema_version": 1,
+              "repository": repo,
+              "head_sha": head,
+              "source_api_url": api,
+              "required_workflows": [],
+          }
+          for name in required:
+              run = selected[name]
+              normalized["required_workflows"].append(
+                  {
+                      "name": name,
+                      "run_id": run["id"],
+                      "run_number": run["run_number"],
+                      "status": run["status"],
+                      "conclusion": run["conclusion"],
+                      "head_sha": run["head_sha"],
+                      "event": run.get("event"),
+                      "html_url": run.get("html_url"),
+                      "api_url": run.get("url"),
+                  }
+              )
+          (out / "06_EXACT_HEAD_WORKFLOWS.json").write_text(
+              json.dumps(normalized, indent=2, sort_keys=True) + "\n",
+              encoding="utf-8",
+          )
+          print("Five bounded workflows PASS on exact head")
+          PY
+
+      - name: Wait for externally published immutable focused-review binding
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          REVIEW_HEAD_SHA: ${{ github.sha }}
+          REVIEW_BASE_SHA: 5730e6bfa07b51afbe7ad6a89ffb4a6bd0ba6eb7
+        run: |
+          python - <<'PY'
+          import json, os, time, urllib.request
+          from pathlib import Path
+
+          repo = os.environ["REPO"]
+          head = os.environ["REVIEW_HEAD_SHA"]
+          base = os.environ["REVIEW_BASE_SHA"]
+          token = os.environ["GH_TOKEN"]
+          marker = "[STUDY1B-CV-LIMITATIONS-CLOSURE-REVIEW-BINDING]"
+          evidence = Path("artifacts/study1b/cv-limitations-closure-evidence")
+          workflows = json.loads((evidence / "06_EXACT_HEAD_WORKFLOWS.json").read_text(encoding="utf-8"))
+          comments_url = f"https://api.github.com/repos/{repo}/issues/50/comments?per_page=100"
+          headers = {
+              "Authorization": f"Bearer {token}",
+              "Accept": "application/vnd.github+json",
+              "X-GitHub-Api-Version": "2022-11-28",
+              "User-Agent": "study1b-cv-limitations-closure-package",
+          }
+
+          def get_json(url):
+              req = urllib.request.Request(url, headers=headers)
+              with urllib.request.urlopen(req, timeout=30) as response:
+                  return json.load(response)
+
+          expected = [
+              marker,
+              f"HEAD_SHA = {head}",
+              f"BASE_SHA = {base}",
+              "B1_B2_B3_FOCUSED_CONFIRMATION_OBTAINED = no",
+              "PLATFORM_MATERIALIZATION_CURRENTLY_ADMISSIBLE = no",
+              "CANONICAL_EXECUTION_CURRENTLY_ADMISSIBLE = no",
+          ]
+          for run in workflows["required_workflows"]:
+              expected.append(
+                  f"- {run['name']}: run {run['run_id']} / #{run['run_number']} / {run['conclusion']}"
+              )
+
+          deadline = time.time() + 900
+          found = None
+          all_comments = None
+          while time.time() < deadline:
+              all_comments = get_json(comments_url)
+              candidates = []
+              for comment in all_comments:
+                  body = comment.get("body") or ""
+                  if marker in body and f"HEAD_SHA = {head}" in body:
+                      candidates.append(comment)
+
+              if len(candidates) > 1:
+                  raise SystemExit("multiple focused-review bindings found for exact head")
+              if len(candidates) == 1:
+                  found = candidates[0]
+                  body = found.get("body") or ""
+                  missing = [item for item in expected if item not in body]
+                  if missing:
+                      raise SystemExit(f"binding incomplete or inconsistent: {missing}")
+                  break
+
+              print("waiting for externally published focused-review binding...", flush=True)
+              time.sleep(20)
+
+          if found is None:
+              raise SystemExit("timed out waiting for focused-review binding")
+
+          (evidence / "05_IMMUTABLE_BINDING_COMMENT.json").write_text(
+              json.dumps(found, indent=2, sort_keys=True) + "\n",
+              encoding="utf-8",
+          )
+          (evidence / "05A_BINDING_COMMENTS_RAW.json").write_text(
+              json.dumps(all_comments, indent=2, sort_keys=True) + "\n",
+              encoding="utf-8",
+          )
+          print(f"binding_comment_id={found['id']}")
+          PY
+
+      - name: Build focused closure review package
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REVIEW_HEAD_SHA: ${{ github.sha }}
+          REVIEW_BASE_SHA: 5730e6bfa07b51afbe7ad6a89ffb4a6bd0ba6eb7
+          REPO: ${{ github.repository }}
+        run: |
+          python - <<'PY'
+          import base64
+          import hashlib
+          import json
+          import os
+          import shutil
+          import subprocess
+          import urllib.request
+          import zipfile
+          from pathlib import Path
+
+          root = Path.cwd()
+          head = os.environ["REVIEW_HEAD_SHA"]
+          base = os.environ["REVIEW_BASE_SHA"]
+          repo = os.environ["REPO"]
+          token = os.environ["GH_TOKEN"]
+          evidence = root / "artifacts/study1b/cv-limitations-closure-evidence"
+          out = root / "artifacts/study1b/cv-limitations-closure-package"
+          bundle = root / "artifacts/study1b/cv-limitations-closure-bundle"
+          shutil.rmtree(out, ignore_errors=True)
+          shutil.rmtree(bundle, ignore_errors=True)
+          out.mkdir(parents=True)
+          bundle.mkdir(parents=True)
+
+          sources = [
+              "AGENTS.md",
+              "harness-adoption.yaml",
+              "paper/siamese_embedding_compression_research_program_v0.3.2_status_addendum.tex",
+              "protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_BENCHMARK_V0_3_2026-09-08.yaml",
+              "protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_BENCHMARK_V0_3_D1_D3_ADDENDUM_V0_2_2026-09-14.yaml",
+              "protocol/benchmarks/STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_ENVIRONMENT_LOCK_V0_6_2026-09-14.yaml",
+              "protocol/benchmarks/STUDY1B_PHASE_A_CONSTRUCT_VALIDITY_CORRECTIONS_V0_1_2026-09-16.yaml",
+              "protocol/reviews/PR50_B5720DD7_PHASE_A_CONSTRUCT_VALIDITY_REVIEW_VERDICT_2026-09-16.md",
+              "protocol/reviews/STUDY1B_PHASE_A_CONSTRUCT_VALIDITY_LIMITATIONS_CLOSURE_REVIEW_REQUEST_V0_1_2026-09-16.md",
+              "protocol/chronicle/STUDY1B_PR50_B5720DD7_PHASE_A_CONSTRUCT_VALIDITY_ACCEPT_WITH_LIMITATIONS_2026-09-16.yaml",
+              "protocol/chronicle/STUDY1B_HUMAN_READABLE_STATUS_ADDENDUM_V0_3_2_2026-09-16.yaml",
+              "tests/test_study1b_engineering_benchmark_contract_v06.py",
+              "tests/test_study1b_phase_a_construct_validity_corrections_v01.py",
+          ]
+
+          def git_blob_sha(data):
+              header = b"blob " + str(len(data)).encode("ascii") + b"\0"
+              return hashlib.sha1(header + data).hexdigest()
+
+          entries = []
+          for rel in sources:
+              data = (root / rel).read_bytes()
+              expression = f"{head}:{rel}"
+              expected = subprocess.check_output(
+                  ["git", "rev-parse", expression],
+                  text=True,
+              ).strip()
+              if git_blob_sha(data) != expected:
+                  raise SystemExit(f"Git blob mismatch before package: {rel}")
+              dst = out / rel
+              dst.parent.mkdir(parents=True, exist_ok=True)
+              dst.write_bytes(data)
+              entries.append(
+                  {
+                      "path": rel,
+                      "byte_length": len(data),
+                      "sha256": hashlib.sha256(data).hexdigest(),
+                      "git_blob_sha1_expected": expected,
+                      "git_blob_sha1_expected_source": {
+                          "kind": "immutable_repository_object",
+                          "repository": repo,
+                          "head_sha": head,
+                          "path": rel,
+                          "git_object_expression": expression,
+                          "immutable_contents_api_url": f"https://api.github.com/repos/{repo}/contents/{rel}?ref={head}",
+                          "immutable_blob_api_url": f"https://api.github.com/repos/{repo}/git/blobs/{expected}",
+                      },
+                  }
+              )
+
+          manifest = {
+              "schema_id": "study1b.cv_limitations_closure.source_manifest",
+              "schema_version": 1,
+              "repository": repo,
+              "pull_request": 50,
+              "head_sha": head,
+              "base_sha": base,
+              "review_scope": "B1_B2_B3_CONSTRUCT_VALIDITY_LIMITATIONS_CLOSURE",
+              "entries": entries,
+          }
+          (out / "01_SOURCE_MANIFEST.json").write_text(
+              json.dumps(manifest, indent=2, sort_keys=True) + "\n",
+              encoding="utf-8",
+          )
+
+          harness_repo = "gharbonnier78/scientific-research-harness"
+          harness_ref = "3b109adcdd9a8cba4df029d3803ee0e5cb5bdf98"
+          harness_expected_blob = "b5354c9c02c91cfa1e6a0b734741cdf78e39ed1d"
+          url = f"https://api.github.com/repos/{harness_repo}/contents/HARNESS.md?ref={harness_ref}"
+          req = urllib.request.Request(
+              url,
+              headers={
+                  "Authorization": f"Bearer {token}",
+                  "Accept": "application/vnd.github+json",
+                  "X-GitHub-Api-Version": "2022-11-28",
+                  "User-Agent": "study1b-cv-limitations-closure-package",
+              },
+          )
+          with urllib.request.urlopen(req, timeout=30) as response:
+              obj = json.load(response)
+          hbytes = base64.b64decode(obj["content"])
+          if obj.get("sha") != harness_expected_blob:
+              raise SystemExit("pinned HARNESS API blob mismatch")
+          if git_blob_sha(hbytes) != harness_expected_blob:
+              raise SystemExit("pinned HARNESS recomputed blob mismatch")
+
+          hdst = out / "external_authority/HARNESS.md"
+          hdst.parent.mkdir(parents=True, exist_ok=True)
+          hdst.write_bytes(hbytes)
+          (out / "02_PINNED_HARNESS.json").write_text(
+              json.dumps(
+                  {
+                      "repository": harness_repo,
+                      "ref": harness_ref,
+                      "path": "HARNESS.md",
+                      "git_blob_sha1_expected": harness_expected_blob,
+                      "sha256": hashlib.sha256(hbytes).hexdigest(),
+                      "immutable_url": f"https://github.com/{harness_repo}/blob/{harness_ref}/HARNESS.md",
+                  },
+                  indent=2,
+                  sort_keys=True,
+              )
+              + "\n",
+              encoding="utf-8",
+          )
+
+          shutil.copy2(
+              evidence / "05_IMMUTABLE_BINDING_COMMENT.json",
+              out / "05_IMMUTABLE_BINDING_COMMENT.json",
+          )
+          shutil.copy2(
+              evidence / "05A_BINDING_COMMENTS_RAW.json",
+              out / "05A_BINDING_COMMENTS_RAW.json",
+          )
+          shutil.copy2(
+              evidence / "06_EXACT_HEAD_WORKFLOWS.json",
+              out / "06_EXACT_HEAD_WORKFLOWS.json",
+          )
+          shutil.copy2(
+              evidence / "06A_EXACT_HEAD_WORKFLOWS_RAW.json",
+              out / "06A_EXACT_HEAD_WORKFLOWS_RAW.json",
+          )
+          shutil.copy2(
+              root / "protocol/reviews/STUDY1B_PHASE_A_CONSTRUCT_VALIDITY_LIMITATIONS_CLOSURE_REVIEW_REQUEST_V0_1_2026-09-16.md",
+              out / "03_REVIEWER_PROMPT.md",
+          )
+
+          verifier_lines = [
+              "from pathlib import Path",
+              "import hashlib, json",
+              "root = Path(__file__).resolve().parents[1]",
+              "manifest = json.loads((root/'01_SOURCE_MANIFEST.json').read_text())",
+              "def blob(data): return hashlib.sha1(b'blob '+str(len(data)).encode()+b'\\0'+data).hexdigest()",
+              "for e in manifest['entries']:",
+              "    data = (root/e['path']).read_bytes()",
+              "    assert hashlib.sha256(data).hexdigest() == e['sha256'], e['path']",
+              "    assert blob(data) == e['git_blob_sha1_expected'], e['path']",
+              "    src = e['git_blob_sha1_expected_source']",
+              "    assert src['kind'] == 'immutable_repository_object'",
+              "    assert src['head_sha'] == manifest['head_sha']",
+              "    assert src['path'] == e['path']",
+              "    assert 'git_blob_sha1_recomputed' not in e",
+              "h = json.loads((root/'02_PINNED_HARNESS.json').read_text())",
+              "hb = (root/'external_authority/HARNESS.md').read_bytes()",
+              "assert blob(hb) == h['git_blob_sha1_expected']",
+              "assert hashlib.sha256(hb).hexdigest() == h['sha256']",
+              "binding = json.loads((root/'05_IMMUTABLE_BINDING_COMMENT.json').read_text())",
+              "body = binding.get('body') or ''",
+              "assert '[STUDY1B-CV-LIMITATIONS-CLOSURE-REVIEW-BINDING]' in body",
+              "assert f\"HEAD_SHA = {manifest['head_sha']}\" in body",
+              "work = json.loads((root/'06_EXACT_HEAD_WORKFLOWS.json').read_text())",
+              "assert work['head_sha'] == manifest['head_sha']",
+              "assert len(work['required_workflows']) == 5",
+              "assert all(x['head_sha'] == manifest['head_sha'] and x['status'] == 'completed' and x['conclusion'] == 'success' for x in work['required_workflows'])",
+              "print(f\"CV limitations closure transport verification PASS: {len(manifest['entries'])} repository sources\")",
+          ]
+          tools = out / "review_tools"
+          tools.mkdir(parents=True, exist_ok=True)
+          (tools / "verify_package.py").write_text(
+              "\n".join(verifier_lines) + "\n",
+              encoding="utf-8",
+          )
+
+          content_entries = []
+          for path in sorted(p for p in out.rglob("*") if p.is_file()):
+              rel = path.relative_to(out).as_posix()
+              if rel == "04_PACKAGE_CONTENTS_SHA256.json":
+                  continue
+              data = path.read_bytes()
+              content_entries.append(
+                  {
+                      "path": rel,
+                      "byte_length": len(data),
+                      "sha256": hashlib.sha256(data).hexdigest(),
+                  }
+              )
+          (out / "04_PACKAGE_CONTENTS_SHA256.json").write_text(
+              json.dumps({"entries": content_entries}, indent=2, sort_keys=True) + "\n",
+              encoding="utf-8",
+          )
+
+          zip_name = f"PR50_{head[:8].upper()}_PHASE_A_CV_LIMITATIONS_CLOSURE_REVIEW_2026-09-17.zip"
+          zip_path = bundle / zip_name
+          with zipfile.ZipFile(
+              zip_path,
+              "w",
+              compression=zipfile.ZIP_DEFLATED,
+              compresslevel=9,
+          ) as zf:
+              for path in sorted(p for p in out.rglob("*") if p.is_file()):
+                  rel = path.relative_to(out).as_posix()
+                  info = zipfile.ZipInfo(rel, (1980, 1, 1, 0, 0, 0))
+                  info.compress_type = zipfile.ZIP_DEFLATED
+                  info.external_attr = 0o100644 << 16
+                  zf.writestr(info, path.read_bytes())
+
+          digest = hashlib.sha256(zip_path.read_bytes()).hexdigest()
+          (bundle / "PACKAGE_SHA256.txt").write_text(
+              f"{digest}  {zip_name}\n",
+              encoding="utf-8",
+          )
+          print(f"package={zip_name}")
+          print(f"sha256={digest}")
+          PY
+
+      - name: Verify package and focused contracts
+        run: |
+          python artifacts/study1b/cv-limitations-closure-package/review_tools/verify_package.py
+          PYTHONPATH=src python -m unittest \
+            tests.test_study1b_engineering_benchmark_contract_v06 \
+            tests.test_study1b_phase_a_construct_validity_corrections_v01 -v
+
+      - name: Upload focused closure review bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: study1b-phase-a-cv-limitations-closure-review-package
+          path: artifacts/study1b/cv-limitations-closure-bundle/*
+          if-no-files-found: error
+          retention-days: 90

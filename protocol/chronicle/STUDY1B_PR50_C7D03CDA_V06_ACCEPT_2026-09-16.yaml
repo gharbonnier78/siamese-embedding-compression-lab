@@ -1,0 +1,132 @@
+schema_id: study1b.chronicle.review_result
+schema_version: 4
+artifact_version: "0.1"
+entry_type: study1b_pr50_c7d03cda_v06_accept
+chronicle_entry_id: CHRON-20260916-050
+study_id: study_1b_matched_compression
+review_date: 2026-09-16
+archived_at: 2026-09-16
+kind: append_only_nonoutcome_review_result
+status: V0_6_SEMANTIC_HARDENING_ACCEPTED_CONSTRUCT_VALIDITY_NOT_REVIEWED_EXECUTION_STILL_BLOCKED
+outcome_evidence_seen: false
+
+review_basis:
+  reviewed_head: c7d03cdad3bdf460bc6261508f2dc416504c7e4b
+  base: 5730e6bfa07b51afbe7ad6a89ffb4a6bd0ba6eb7
+  pinned_harness_ref: 3b109adcdd9a8cba4df029d3803ee0e5cb5bdf98
+  immutable_binding_comment_id: 5687327361
+  package: PR50_C7D03CDA_V06_N6_FOCUSED_REREVIEW_2026-09-15.zip
+  package_sha256: 09302b89d9319aa5755672a7f7c6af2bb736f7863b47b64a54b9a380e36f51b5
+  github_actions_artifact_id: 10416176129
+  github_actions_artifact_digest: sha256:b148623c9c90b26312e719dd4e09ec5c5ca690697d83eeba8dd09c1b8be13a0f
+  archived_verdict: protocol/reviews/PR50_C7D03CDA_V06_N6_FOCUSED_REREVIEW_VERDICT_2026-09-16.md
+  verdict: ACCEPT
+
+reviewer_decision:
+  N4_CLOSED: true
+  N5_CLOSED: true
+  R1_N2_PORTABLE_CHOICE_OVERLAP_CLOSED: true
+  N6_PACKAGE_RULE_SATISFIED: true
+  CANONICAL_EXECUTION_CURRENTLY_ADMISSIBLE: false
+  CONSTRUCT_VALIDITY_REVIEWED: false
+
+reviewer_verification_scope:
+  package_sha256_and_byte_lengths_verified: 20
+  package_sha256_and_byte_length_mismatches: 0
+  git_blob_sha1_values_independently_recomputed: 16
+  git_blob_sha1_mismatches: 0
+  manifest_entries_missing: 0
+  bundled_verifier_passed: true
+  focused_v0_6_contract_tests_passed: 11
+  lock_addendum_agreement_rederived_directly_from_yaml: true
+  paper_and_handoff_scope_scan_performed: true
+  protected_outcome_scope_leak_reported: false
+
+accepted_semantic_hardening:
+  N4_possession_vs_influence:
+    accepted: true
+    note: >-
+      Mere receipt, possession, citation or review is separated from creation/framing influence. Genuinely pre-existing
+      external evidence can remain D2-eligible after later receipt or review, while produced, commissioned, requested,
+      specified, directed or materially framed evidence requires D1. D1 completeness remains a backstop for every
+      lock-defining choice and ambiguity fails closed.
+  N5_checkable_vs_attested:
+    accepted: true
+    note: >-
+      Only temporal ordering against the immutable repository-public bound is represented as mechanically checkable.
+      External/pre-existing source classification, absence of attester influence and completeness remain provenance or
+      attestation claims. The prior misleading structural-impossibility mechanism label is not carried forward.
+  R1_N2_choice_specific_overlap:
+    accepted: true
+    note: >-
+      Informational overlap is classified per lock-defining choice. Portable backend/BLAS, concurrency and
+      measurement-method evidence can remain informative across hardware when transferability is attributable. The
+      measurement-method class does not require vector dimension or search family. If informative prior evidence has
+      already shaped a choice, disclosure plus a new frozen design/execution identity and independent review are
+      required rather than silent reinterpretation.
+  N6_transport:
+    accepted_for_reviewed_package: true
+    note: >-
+      Exact normative bytes were transported and reviewer-side Git blob identity was independently recomputed for all
+      sixteen repository sources.
+
+new_nonblocking_transport_findings:
+  N7_expected_git_blob_sha1_provenance:
+    status: OPEN_REVIEW_TRANSPORT_HARDENING
+    blocks_current_v0_6_semantic_accept: false
+    must_close_before_next_delegated_review_package: true
+    finding: >-
+      The manifest records git_blob_sha1_expected but does not declare that the expected value originates from the
+      repository object at the immutable reviewed head. Internal agreement between transported bytes and an authored
+      expected value is weaker than explicit repository-object provenance.
+    requested_hardening:
+      - declare_git_blob_sha1_expected_source_bound_to_immutable_head_and_path
+      - remove_authored_git_blob_sha1_recomputed_column_from_manifest
+      - retain_reviewer_side_recomputation_from_packaged_bytes
+    implementation_fact_not_available_to_reviewer_from_manifest: >-
+      The reviewed package builder obtained expected values via git rev-parse <head>:<path> and compared local bytes to
+      that repository object before packaging. N7 concerns making that source provenance explicit in the transported
+      manifest rather than changing the already verified bytes.
+  N8_binding_and_workflow_transport:
+    status: OPEN_REVIEW_TRANSPORT_HARDENING
+    blocks_current_v0_6_semantic_accept: false
+    must_close_before_next_delegated_review_package: true
+    finding: >-
+      The reviewer prompt requires verification of the immutable PR binding and five exact-head bounded workflow
+      successes, but those objects were not transported in the package. A reviewer without repository reachability
+      therefore cannot satisfy those prompt checks from the package alone.
+    requested_hardening:
+      - transport_immutable_binding_comment_evidence
+      - transport_exact_head_five_bounded_workflow_evidence
+      - preserve_source_urls_or_api_identity_for_reviewer_reverification
+
+execution_gate:
+  preexecution_semantic_hardening_independent_review_accepted_for_reviewed_head: true
+  canonical_phase_a_execution_permitted: false
+  construct_validity_reviewed: false
+  target_edge_hardware_bound: false
+  external_power_meter_bound: false
+  off_device_load_generator_bound: false
+  configuration_choice_provenance_materialized: false
+  provenance_attestation_materialized: false
+  generator_code_identity_materialized: false
+  execution_specific_environment_lock_materialized: false
+
+scientific_boundary:
+  screen_opened: false
+  qualification_test_opened: false
+  real_route_performance_opened: false
+  representation_geometry_opened: false
+  amendment_activated: false
+  s4n1_status: CLOSED_NEGATIVE
+  s4n2_status: CLOSED_NEGATIVE
+  s4n3_launched: false
+  phase_a_executed: false
+
+next_action: >-
+  Preserve the accepted v0.6 semantic review as bound to head c7d03cdad3bdf460bc6261508f2dc416504c7e4b. Before the next delegated independent
+  review package, harden review transport for N7 and N8 without changing the accepted v0.6 semantic meaning. Then build
+  a separate construct-validity review package and obtain independent construct-validity review before materializing or
+  freezing target hardware, power meter, off-device load generator, configuration-choice provenance, exact synthetic
+  generator identity or an execution-specific environment lock. Do not execute Phase A and do not open protected
+  Study 1B outcomes.

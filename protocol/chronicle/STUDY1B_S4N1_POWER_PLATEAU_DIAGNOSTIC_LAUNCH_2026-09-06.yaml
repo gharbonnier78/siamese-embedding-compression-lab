@@ -1,0 +1,76 @@
+schema_version: "1.0"
+entry_type: s4n1_power_plateau_diagnostic_launch
+chronicle_entry_id: CHRON-20260906-021
+study_id: study_1b_matched_compression
+date: 2026-09-06
+kind: append_only_nonoutcome_diagnostic_launch
+status: LAUNCHED
+outcome_evidence_seen: false
+
+summary: >-
+  Launch the prospectively frozen post-closure diagnostic of the archived S4N1 synthetic power
+  plateau near 0.869. The diagnostic reuses only the already-created synthetic shards from S4N1
+  core power run 33950949898. It creates no new scientific datasets, cannot rescue or reopen S4N1,
+  and opens no SCREEN, qualification TEST, real route performance, or representation geometry.
+
+human_authority:
+  source: "2026-09-06 project conversation"
+  instruction: >-
+    Finir le plan actuel sans le modifier : archiver S4N1 négatif, diagnostiquer pourquoi on
+    plafonne à environ 86,9 %, puis concevoir/tester prospectivement S4N2.
+  launch_authorized: true
+
+basis:
+  s4n1_negative_result: protocol/chronicle/STUDY1B_S4N1_CORE_POWER_CALIBRATION_RESULT_2026-09-06.yaml
+  frozen_diagnostic_contract: protocol/simulations/STUDY1B_S4N1_POWER_PLATEAU_DIAGNOSTIC_V0_1_2026-09-06.yaml
+  implementation: scripts/study1b_s4n1_power_plateau_diagnostic.py
+  focused_tests: tests/test_study1b_s4n1_power_plateau_diagnostic.py
+  workflow: .github/workflows/study1b-s4n1-power-plateau-diagnostic.yml
+  prelaunch_head: 655ddc9fa8487aa637bf2b20e753ae170f2073d5
+
+prelaunch_assurance:
+  ci:
+    run_id: 34025860424
+    conclusion: success
+    python_3_10_smoke: success
+    python_3_12_smoke: success
+  engineering_assurance:
+    run_id: 34025860422
+    conclusion: success
+  power_design_diagnostic:
+    run_id: 34025860335
+    conclusion: success
+  nonoutcome_preflight:
+    run_id: 34025860418
+    conclusion: success
+  research_assurance:
+    run_id: 34025860337
+    conclusion: success
+
+archived_input_boundary:
+  source_run_id: 33950949898
+  source_commit: 01c25c8d9858c1cea10b723d8fa1c301ea6f4fba
+  truth_cells: [0.0, 0.01]
+  exact_dataset_indices_per_truth: [0, 3999]
+  datasets_per_truth: 4000
+  expected_jsonl_shards: 80
+  new_synthetic_datasets_permitted: false
+  row_or_shard_exclusion_after_observation_permitted: false
+
+launch_contract:
+  diagnostic_only: true
+  use_archived_synthetic_shards_only: true
+  s4n1_decision_may_change: false
+  s4n1_candidate_eligibility_may_change: false
+  s4n2_design_may_be_frozen_before_diagnostic_archive: false
+
+scientific_boundary:
+  scientific_outcomes_opened: false
+  screen_opened: false
+  qualification_test_outcomes_opened: false
+  real_route_performance_opened: false
+  representation_geometry_opened: false
+  amendment_activated: false
+  original_5_of_5_rule_replaced: false
+  artifact_selector_activated_for_real_study: false
+  s4n1_negative_result_reopened: false

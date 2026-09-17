@@ -1,0 +1,70 @@
+schema_id: study1b.chronicle.documentation_sync
+schema_version: 1
+artifact_version: "0.1"
+entry_type: study1b_human_readable_status_addendum_v0_3_2
+chronicle_entry_id: CHRON-20260916-054
+study_id: study_1b_matched_compression
+date: 2026-09-16
+kind: append_only_nonoutcome_documentation_change
+status: STATUS_ADDENDUM_SYNCHRONIZED_POST_CONSTRUCT_VALIDITY_REVIEW
+outcome_evidence_seen: false
+
+task:
+  requested_actions:
+    - record_construct_validity_accept_with_limitations
+    - record_N7_N8_closed_by_transport_verification
+    - record_B1_B2_B3_as_prospective_blockers_before_platform_materialization
+    - record_L1_L3_reporting_guards_and_L2_future_sensitivity
+    - render_and_visually_verify_versioned_status_addendum_PDF
+  scientific_semantics_changed: false
+  scientific_gate_changed: false
+  execution_authorization_changed: false
+
+source:
+  latex: paper/siamese_embedding_compression_research_program_v0.3.2_status_addendum.tex
+  relationship_to_v0_3_and_v0_3_1: versioned_status_addendum_does_not_overwrite_historical_human_readable_artifacts
+  construct_validity_reviewed_head_described: b5720dd7e2031e0ac090ae4f5ea4c09fb0a05cc5
+
+pdf_build:
+  target_name: siamese_embedding_compression_research_program_v0.3.2_status_addendum.pdf
+  sha256: 255a21ac8e293079c67a52e3dedc9c7b2b93759fa9be98813183a8f02e30e41c
+  pages: 3
+  renderer_check: PASS
+  visual_check: PASS
+  historical_pdf_overwrite_permitted: false
+  repository_binary_publication_status: NOT_COMMITTED_BY_TEXT_ONLY_CONNECTOR
+  note: >-
+    The PDF was built twice from the versioned LaTeX source with pdflatex, rendered to three images and visually
+    inspected. The first render exposed an overlong full commit SHA in running text; the source was corrected to use the
+    short immutable-head label in the explanatory PDF, rebuilt and rerendered. Normative artifacts retain the full SHA.
+
+status_synchronized:
+  construct_validity_verdict: ACCEPT_WITH_LIMITATIONS
+  construct_validity_accepted: true
+  N7_CLOSED: true
+  N8_CLOSED: true
+  B1_status: PROSPECTIVELY_CORRECTED_AWAITING_FOCUSED_INDEPENDENT_CONFIRMATION
+  B2_status: PROSPECTIVELY_CORRECTED_AWAITING_FOCUSED_INDEPENDENT_CONFIRMATION
+  B3_status: PROSPECTIVELY_CORRECTED_AWAITING_FOCUSED_INDEPENDENT_CONFIRMATION
+  L1_status: REPORTING_GUARD_ADOPTED_PROSPECTIVELY
+  L2_status: FUTURE_SENSITIVITY_NOT_PHASE_A_BLOCKER
+  L3_status: REPORTING_GUARD_ADOPTED_PROSPECTIVELY
+  platform_materialization_permitted: false
+  canonical_phase_a_execution_permitted: false
+
+scientific_boundary:
+  screen_opened: false
+  qualification_test_opened: false
+  real_route_performance_opened: false
+  representation_geometry_opened: false
+  amendment_activated: false
+  s4n1_status: CLOSED_NEGATIVE
+  s4n2_status: CLOSED_NEGATIVE
+  s4n3_launched: false
+  phase_a_executed: false
+
+next_action: >-
+  Freeze an exact correction-review head after all governance/test synchronization is complete, require bounded technical
+  assurances on that exact head, create an immutable focused-review binding and package, then obtain focused independent
+  confirmation of B1-B3 closure, preferably from a reviewer with no prior history in this review series. Do not begin
+  platform materialization and do not execute Phase A before that confirmation.
