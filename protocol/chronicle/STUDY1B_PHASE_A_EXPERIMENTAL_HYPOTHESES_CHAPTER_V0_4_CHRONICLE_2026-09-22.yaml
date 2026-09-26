@@ -1,0 +1,229 @@
+schema_id: study1b.chronicle.documentation_sync
+schema_version: 1
+artifact_version: "0.1"
+entry_type: study1b_phase_a_experimental_hypotheses_chapter_v0_4
+chronicle_entry_id: CHRON-20260926-055
+repository_integration_date: 2026-09-26
+study_id: study_1b_matched_compression
+date: 2026-09-22
+kind: append_only_nonoutcome_documentation_change
+status: PHASE_A_EXPERIMENTAL_HYPOTHESES_CHAPTER_AND_TRACEABILITY_V0_4_DRAFTED_DECISIONS_PENDING
+outcome_evidence_seen: false
+
+authorship:
+  drafted_with: AI assistant (Claude, Anthropic), single human-directed conversation
+  assistant_statements_are_sources: false
+  decisions_taken_by_assistant: none
+  human_owner_decisions_pending: true
+
+task:
+  requested_actions:
+    - write_complete_phase_a_experimental_hypotheses_chapter_readable_by_engineers_and_biometric_experts
+    - explain_every_acronym_and_jargon_term_at_least_once
+    - verify_hardware_and_regulatory_assumptions_against_sources_and_record_provenance_class
+    - record_forgotten_dimensioning_hypotheses_D12_D13_D14_with_recommendations
+    - record_open_questions_requiring_human_owner_decision
+  scientific_semantics_changed: false
+  scientific_gate_changed: false
+  execution_authorization_changed: false
+  normative_artifacts_modified: false
+  note: >-
+    This entry records documentation and prospective proposals only. D12, D13 and D14 are proposed additions to the
+    future execution-guard specification; none is adopted by this entry, and benchmark v0.3, addendum v0.2, lock v0.6
+    and corrections v0.1 are unchanged.
+
+base:
+  repository_head_described: cb43fdb1543700ae1429a0ed93ea99eed9065899
+  repository_head_modified: false
+
+source:
+  latex: paper/study1b_phase_a_experimental_hypotheses_v0.4_fr.tex
+  relationship_to_existing_human_readable_artifacts: new_versioned_chapter_does_not_overwrite_historical_artifacts
+  repository_head_described: cb43fdb1543700ae1429a0ed93ea99eed9065899
+
+status_synchronized:
+  note: gate status restated unchanged; this entry changes no status
+  construct_validity_verdict_on_b5720dd7: ACCEPT_WITH_LIMITATIONS
+  construct_validity_accepted: true
+  B1_B2_B3_focused_independent_confirmation_obtained: false
+  platform_materialization_permitted: false
+  canonical_phase_a_execution_permitted: false
+
+artifacts:
+  chapter_latex:
+    file: study1b_phase_a_experimental_hypotheses_v0.4_fr.tex
+    suggested_repository_path: paper/study1b_phase_a_experimental_hypotheses_v0.4_fr.tex
+    sha256: 8671681ba18896b2a8651a298b50cf336307bd0648920fa14f95928d4a45ecf9
+    language: fr
+  chapter_pdf:
+    file: study1b_phase_a_experimental_hypotheses_v0.4_fr.pdf
+    sha256: ee37ee48fcec3592a142c08841ac4824be84dd86cf39095c34f39c392e10629c
+    pages: 23
+  traceability_specification:
+    file: STUDY1B_PHASE_A_CONTRACT_TO_EXECUTION_TRACEABILITY_V0_4.md
+    sha256: 44fd9e5f21d7e499bd847f8f48922072c83168d4dc9d7784c10a4b2c4a063811
+    classification: ENGINEERING_ASSURANCE_SPECIFICATION_NOT_REVIEW_NOT_GOVERNANCE
+    suggested_repository_path: protocol/assurance/STUDY1B_PHASE_A_CONTRACT_TO_EXECUTION_TRACEABILITY_V0_4.md
+    relationship: the chapter is the human-readable rendering of this specification
+
+pdf_build:
+  engine: xelatex
+  engine_requirement: >-
+    The source uses fontspec and unicode-math. It requires XeLaTeX or LuaLaTeX and does not build with pdflatex,
+    unlike the v0.3.2 status addendum. A CI build job must use the same engine.
+  required_fonts:
+    - Caladea
+    - Carlito
+    - DejaVu Sans Mono
+    - Latin Modern Math (latinmodern-math.otf)
+  compile_passes: 3
+  latex_errors: 0
+  overfull_boxes: 0
+  missing_glyphs: 0
+  renderer_check: PASS
+  visual_check: PASS
+  visual_check_note: >-
+    Rendered page by page and inspected. Defects found and fixed before delivery: Bitstream Charter Bold (Type 1)
+    crashed xdvipdfmx on a seac-composed accented glyph, so the text font was changed to Caladea with Carlito; U+25CF
+    and U+25CB are absent from Caladea and were replaced by math bullets; babel-french autospacing inserted a space in
+    "1:1", "1:N" and "IEC 62471:2006", suppressed with NoAutoSpacing; decimal commas broke pgfplots tick labels; text
+    was justified inside TikZ boxes. Every non-ASCII character of the source was checked against the font cmaps.
+  historical_pdf_overwrite_permitted: false
+  repository_binary_publication_status: NOT_COMMITTED_BY_TEXT_ONLY_CONNECTOR
+
+findings_recorded:
+  factual_correction:
+    id: EDGE_LLC_RANGE_CORRECTION
+    superseded_claim: >-
+      Edge last-level caches range from 4 to 32 MB, so gallery G0 (61.44 MB at 512D, 15.36 MB at 128D) brackets that
+      range and separates a cache-resident 128D arm from a DRAM-bound 512D arm.
+    origin_of_superseded_claim: drafting assistant training data, not a source
+    verified_llc_capacity_MB:
+      raspberry_pi_5_bcm2712: 2
+      jetson_orin_nano_per_cpu_cluster: 2
+      intel_n100: 6
+    consequence: >-
+      No G0 arm is cache-resident on any of the three documented edge platforms. G0 differs from G2 in magnitude, not
+      in regime, and the SMALL_WORKING_SET_CONTROL role does not separate cache from DRAM on this hardware. A genuinely
+      cache-resident control would need about 4000 vectors at 128D or 1000 at 512D for 2 MB.
+  source_hygiene:
+    id: AI_SUMMARY_IS_NOT_A_SOURCE
+    observation: >-
+      While searching for the Intel ARK sheet of the N100, the first result was an AI-generated summary of an archived
+      ARK page. It attributed dual- and triple-channel memory, Hyper-Threading and ECC to the N100, contradicted by all
+      other sources, which describe a 4-core, 4-thread, single-channel part.
+    rule_adopted_in_chapter: automatic summaries of primary sources and assistant statements are excluded as sources
+  contract_coverage_method:
+    id: COVERAGE_MUST_FIRST_ESTABLISH_WHICH_ARTIFACT_EACH_TEST_OPENS
+    observation: >-
+      No test opens STUDY1B_JUNGLE_CHAMPIONSHIP_ENGINEERING_BENCHMARK_V0_3_2026-09-08.yaml. A first coverage estimate
+      based on key names produced false positives because homonymous keys exist in other artifacts.
+  first_order_model:
+    operational_intensity_unbatched_exact_scan: 0.5 operations per byte, independent of dimension
+    null_hypothesis: latency ratio of exactly 4x while both arms are memory-bound
+    interpretation: any measured deviation from 4x signals cache residency, backend dispatch or thermal throttling
+    effective_bandwidth_efficiency_used: "0.70"
+    effective_bandwidth_efficiency_nature: ASSUMED_NOT_MEASURED
+  new_coupling_tier_bandwidth:
+    observation: Jetson Orin Nano 4 GB has 34 GB/s peak memory bandwidth against 68 GB/s for 8 GB
+    consequence: a lower RAM tier may also halve bandwidth; tier advantage must be evaluated at the target tier bandwidth
+  new_coupling_battery_enclosure:
+    observation: typical Li-ion charge window 0 to 45 C, discharge -20 to 60 C, no charging below freezing
+    consequence: in a sealed enclosure heated by the SoC, a mobile unit may leave its charge window from above in summer
+  forgotten_dimensioning_hypotheses:
+    D12_batching_policy:
+      finding: phase_a_search_semantics does not fix a batching policy; the word does not appear in benchmark v0.3
+      mechanism: batching B queries multiplies operational intensity by B and can move every saturation point by an order of magnitude
+      recommendation: >-
+        Server scenario without batching as primary, Offline scenario with a frozen batch size as declared secondary;
+        dynamic batching deferred to a deployment phase because its wait parameter would itself need freezing.
+      status: PROPOSED_NOT_ADOPTED
+    D13_arrival_process:
+      finding: benchmark v0.3 uses deterministic arrivals; the MLPerf Server scenario uses Poisson arrivals
+      mechanism: M/D/1 mean wait is rho/(2(1-rho)) service times against zero for D/D/1 below capacity
+      recommendation: keep deterministic arrivals canonical and add a Poisson variant with a frozen seed at the same mean rates
+      status: PROPOSED_NOT_ADOPTED
+    D14_requests_per_passage:
+      finding: the load grid is in requests per second, the scenario in passages; no conversion is written
+      recommendation: one request per passage from best-frame selection as canonical, with a sensitivity at k detections
+      status: PROPOSED_NOT_ADOPTED_VALUES_TO_BE_DECLARED
+  product_question:
+    id: EQUAL_BYTES_COMPARISON
+    fact: 512D INT8 and 128D FP32 both occupy 512 bytes per vector
+    consequence: the RAM and tier argument for 128D can be obtained by quantization alone
+    recommendation: >-
+      Compare representations at equal bytes in a future biometric protocol identity, including a 512D INT8 route.
+      Study 1B is not modified.
+    status: PROPOSED_NOT_ADOPTED
+  regulatory_facts:
+    legal_advice: false
+    iec_62471: horizontal photobiological safety standard for incoherent sources including LEDs, 200 to 3000 nm
+    gdpr_article_9: processing of biometric data for unique identification prohibited in principle, with exceptions
+    eu_ai_act_article_5_1_h: >-
+      real-time remote biometric identification in publicly accessible spaces for law enforcement prohibited in
+      principle, with narrow exceptions
+    consequence: >-
+      The access-control branch and the watchlist branch may fall under different legal regimes if deployment is in the
+      EU. Jurisdiction and operator per branch are scenario parameters to declare before dimensioning each branch.
+  sequencing:
+    finding: opening SCREEN before platform materialization would breach benchmark interpretation rule 9
+    corrected_order: [freeze_guard_logic_D1_to_D14, independent_guard_spec_review, materialize_platform,
+                      freeze_operational_envelope_and_expert_thresholds, execute_phase_a, open_screen,
+                      cross_biometric_engineering_consequence]
+
+sources_verified:
+  primary:
+    - Raspberry Pi hardware documentation, BCM2712
+    - Raspberry Pi, Heating and cooling Raspberry Pi 5
+    - NVIDIA Jetson Orin Nano Series Data Sheet, DS-11105-001
+    - NVIDIA Jetson Orin NX and Orin Nano Thermal Design Guide, TDG-11127-001
+    - Williams, Waterman, Patterson, Roofline, Communications of the ACM 52(4), 2009
+    - MLCommons, MLPerf Inference Rules
+  secondary:
+    - Notebookcheck and TechPowerUp for Intel N100
+    - RidgeRun for Jetson Orin Nano L3 per cluster
+    - Battery University BU-410
+    - four concordant sources for IEEE 802.3af and 802.3at power at the powered device
+    - Verfassungsblog analysis of EU AI Act article 5
+  standards_catalogue:
+    - IEC 62471:2006 catalogue entries
+  derived:
+    - Intel N100 peak bandwidth 38.4 GB/s from 4800 MT/s times 8 bytes, single channel
+  assumed_not_measured:
+    - effective bandwidth efficiency 0.70
+    - operating system and runtime overhead 1 GB
+  not_reached:
+    - Intel ARK page for the N100
+    - IEEE 802.3 standard text (paywalled)
+    - Jetson L3 detail inside DS-11105-001
+  not_yet_verified:
+    - ISO/IEC 19795 series
+
+decisions_pending:
+  default_proposed_accept_or_replace: [D1, D2, D3, D4, D5, D7, D9, D10]
+  values_to_declare: [D6, D8, D11, D14]
+  to_arbitrate: [D12, D13]
+  governance:
+    - holders of the three blinded-elicitation roles, no cumulation
+    - jurisdiction and operator for each branch
+    - legal qualification by counsel
+  scenario_values:
+    - expected passages, device density, watchlist size, target operating point per branch
+
+scientific_boundary:
+  screen_opened: false
+  qualification_test_opened: false
+  real_route_performance_opened: false
+  representation_geometry_opened: false
+  amendment_activated: false
+  s4n1_status: CLOSED_NEGATIVE
+  s4n2_status: CLOSED_NEGATIVE
+  s4n3_launched: false
+  phase_a_executed: false
+  platform_materialized: false
+
+next_action: >-
+  Maintainer assigns the chronicle identifier, commits the chapter source and the traceability specification as
+  append-only documentation, and adds a CI job building the chapter with XeLaTeX. The human owner then takes the
+  pending decisions D1 to D14 without looking at any data, after which the execution-guard specification is derived
+  and receives a short independent review before any platform materialization.
