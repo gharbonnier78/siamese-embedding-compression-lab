@@ -22,8 +22,8 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y --no-install-recommends \
             texlive-xetex texlive-latex-extra texlive-lang-french texlive-pictures \
-            texlive-fonts-extra fonts-crosextra-caladea fonts-crosextra-carlito \
-            fonts-dejavu-core
+            texlive-fonts-extra texlive-science \
+            fonts-crosextra-caladea fonts-crosextra-carlito fonts-dejavu-core
           fc-cache -f
       - name: Build chapter with three XeLaTeX passes
         working-directory: paper
