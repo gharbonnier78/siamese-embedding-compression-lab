@@ -1,0 +1,1365 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage{fontspec}
+\setmainfont{Caladea}
+\setsansfont{Carlito}
+\setmonofont{DejaVu Sans Mono}[Scale=0.82]
+\usepackage{unicode-math}
+\setmathfont{latinmodern-math.otf}
+\usepackage[french]{babel}
+\usepackage[a4paper,margin=2.4cm,headheight=14pt]{geometry}
+\usepackage{microtype}
+\usepackage[locale=FR,group-minimum-digits=4,mode=text]{siunitx}
+\usepackage{booktabs,array,tabularx,longtable}
+\usepackage{enumitem}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{babel,arrows.meta,positioning,calc,fit,backgrounds,decorations.pathreplacing}
+\usepackage{pgfplots}
+\pgfplotsset{compat=1.18}
+\usepgfplotslibrary{fillbetween}
+\usepackage[most]{tcolorbox}
+\usepackage{fancyhdr}
+\usepackage[hidelinks]{hyperref}
+
+\definecolor{encre}{HTML}{1F3A5F}
+\definecolor{bleupale}{HTML}{E8EEF6}
+\definecolor{ambre}{HTML}{8A5A00}
+\definecolor{ambrepale}{HTML}{FBF1DD}
+\definecolor{rouge}{HTML}{8E2A2A}
+\definecolor{rougepale}{HTML}{F8E6E6}
+\definecolor{vert}{HTML}{2E5E2E}
+\definecolor{vertpale}{HTML}{E7F1E4}
+\definecolor{gris}{HTML}{5A5A5A}
+
+\hypersetup{colorlinks=true,linkcolor=encre,citecolor=encre,urlcolor=encre}
+
+\newtcolorbox{encadre}[1]{enhanced,breakable,colback=bleupale,colframe=encre,
+  boxrule=0pt,leftrule=2.5pt,arc=0pt,left=8pt,right=8pt,top=6pt,bottom=6pt,
+  fonttitle=\sffamily\bfseries\small,coltitle=encre,colbacktitle=bleupale,
+  title={#1},attach title to upper,after title={\par\smallskip}}
+\newtcolorbox{alerte}[1]{enhanced,breakable,colback=ambrepale,colframe=ambre,
+  boxrule=0pt,leftrule=2.5pt,arc=0pt,left=8pt,right=8pt,top=6pt,bottom=6pt,
+  fonttitle=\sffamily\bfseries\small,coltitle=ambre,colbacktitle=ambrepale,
+  title={#1},attach title to upper,after title={\par\smallskip}}
+\newtcolorbox{correction}[1]{enhanced,breakable,colback=rougepale,colframe=rouge,
+  boxrule=0pt,leftrule=2.5pt,arc=0pt,left=8pt,right=8pt,top=6pt,bottom=6pt,
+  fonttitle=\sffamily\bfseries\small,coltitle=rouge,colbacktitle=rougepale,
+  title={#1},attach title to upper,after title={\par\smallskip}}
+
+\newcommand{\terme}[1]{\emph{#1}}
+\newcommand{\unun}{{\NoAutoSpacing 1:1}}
+\newcommand{\unN}{{\NoAutoSpacing 1:N}}
+\newcommand{\brkunder}{\textunderscore\allowbreak}
+\newcommand{\cle}[1]{{\ttfamily\let\_\brkunder #1}}
+\newcommand{\nat}[1]{\textsf{\small #1}}
+\newcommand{\fort}{$\bullet\bullet$}
+\newcommand{\moy}{$\bullet$}
+\newcommand{\faible}{$\circ$}
+
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\sffamily\footnotesize\color{gris}Study 1B · Phase A · Hypothèses d'expérimentation}
+\fancyhead[R]{\sffamily\footnotesize\color{gris}v0.4}
+\fancyfoot[C]{\sffamily\footnotesize\thepage}
+\renewcommand{\headrulewidth}{0.3pt}
+
+\setlist{itemsep=2pt,topsep=4pt}
+\setlength{\parskip}{0.45em}
+\setlength{\parindent}{0pt}
+\setlength{\emergencystretch}{2.5em}
+
+\begin{document}
+
+\begin{titlepage}
+\vspace*{3cm}
+{\sffamily\color{gris}\small Programme de compression d'embeddings biométriques\par}
+\vspace{0.4cm}
+{\Huge\bfseries\color{encre}Study 1B — Phase A\par}
+\vspace{0.3cm}
+{\LARGE Hypothèses d'expérimentation\par}
+\vspace{0.3cm}
+{\large\itshape Du contrat scientifique à l'expérience exécutable\par}
+\vspace{1.6cm}
+\begin{tabular}{@{}ll@{}}
+\textsf{\small Version} & 0.4 \\
+\textsf{\small Rattachement} & head \cle{cb43fdb1543700ae1429a0ed93ea99eed9065899} \\
+\textsf{\small Nature} & spécification d'assurance d'ingénierie \\
+\textsf{\small Compagnon de} & \cle{STUDY1B\_PHASE\_A\_CONTRACT\_TO\_EXECUTION\_TRACEABILITY\_V0\_4.md} \\
+\end{tabular}
+\vfill
+\begin{encadre}{Statut}
+Ce chapitre n'est ni une revue, ni un verdict, ni une autorisation d'exécuter. Il
+consigne les hypothèses sur lesquelles repose la Phase A, la manière dont chacune
+doit être gardée, et les décisions qui restent à prendre. Aucun résultat biométrique
+protégé n'a été ouvert pour l'écrire.
+
+Il a été rédigé avec l'assistance d'un modèle de langage. Les affirmations de ce
+modèle ne sont pas des sources : toute valeur factuelle porte sa provenance
+(section~\ref{sec:provenance}). Le chapitre documente lui-même une erreur factuelle
+commise puis corrigée pendant sa rédaction (section~\ref{sec:correction}).
+\end{encadre}
+\end{titlepage}
+
+\tableofcontents
+\clearpage
+
+% =====================================================================
+\section{Objet du chapitre et lecteurs visés}
+% =====================================================================
+
+Ce chapitre s'adresse à deux lecteurs qui n'ont pas le même vocabulaire. L'ingénieur
+système connaît la mémoire, les caches, la bande passante et les budgets de
+puissance, mais pas nécessairement la manière dont on qualifie une dégradation
+biométrique. Le scientifique biométricien connaît les taux d'erreur, les points de
+fonctionnement et la non-infériorité, mais pas nécessairement pourquoi une recherche
+dans une galerie est limitée par la mémoire plutôt que par le calcul. Le
+chapitre suppose l'un ou l'autre, jamais les deux. La section~\ref{sec:vocabulaire}
+établit un vocabulaire commun, et le glossaire de l'annexe~\ref{sec:glossaire}
+définit chaque sigle.
+
+Il répond à une question précise : \emph{sur quelles hypothèses repose la Phase A,
+et comment s'assure-t-on que l'expérience exécutée sera bien celle qui a été
+conçue ?} Cette seconde moitié est la raison d'être du document. Au terme de sept
+cycles de revue, le programme disposait d'un contrat scientifique soigneusement
+revu, mais d'aucun mécanisme vérifiant que, le jour de l'exécution, la machine
+ferait ce que le contrat demande. Le contrat de mesure, qui porte toute la
+réponse scientifique, n'était ouvert par aucun test.
+
+Le chapitre avance en trois temps. Il pose d'abord le modèle physique qui gouverne
+la mesure, et l'hypothèse nulle qui en découle. Il reprend ensuite chaque
+hypothèse — de mesure, d'appareil, opérationnelle, de décision — en disant ce
+qu'elle garantit et ce qu'on conclurait à tort si elle était violée sans que
+personne le voie. Il termine par les décisions qui doivent être gelées avant de
+choisir la moindre machine, et par les questions qui restent ouvertes.
+
+% =====================================================================
+\section{La question posée, et celle qui ne l'est pas}
+% =====================================================================
+
+\subsection{D'où vient Study 1B}
+
+Le programme cherche à savoir si l'on peut comprimer une représentation faciale de
+512 dimensions en 128 sans la rendre biométriquement inacceptable. Trois études se
+succèdent. \textbf{Study 0} comparait quatre routes — la représentation brute en
+512 dimensions et trois compressions en 128 : projection aléatoire, analyse en
+composantes principales, et projection apprise de type siamois — sur un extracteur
+ResNet-18 entraîné sur ImageNet. Après correction de l'estimation d'incertitude, son
+résultat était négatif ; mais son substrat n'était pas un vrai modèle de
+reconnaissance faciale. \textbf{Study 1A} a qualifié ce substrat manquant : un
+extracteur AdaFace IR101, entraîné sur WebFace12M, retenu comme référence 512D.
+\textbf{Study 1B} reprend la comparaison sur ce substrat qualifié.
+
+Le protocole confirmatoire de Study 1B fixe une marge de non-infériorité
+$\delta_{\mathrm{NI}} = 0{,}03$ sur l'écart de taux de faux rejets, mesuré à un taux
+de fausses acceptations de \num{0,01}. Deux campagnes de calibration de puissance,
+S4N1 et S4N2, ont établi que ce protocole n'atteint pas la puissance requise de
+\num{0,90} : \num{0,869} et \num{0,849} pour le candidat préféré. Toutes deux sont
+closes négatives. Elles reposent sur la même population simulée et ne constituent
+donc qu'une seule ligne de preuve, examinée par deux procédures d'incertitude
+différentes. Les résultats biométriques réels de Study 1B — les étapes dites SCREEN
+et TEST — restent scellés.
+
+\subsection{Ce que mesure la Phase A}
+
+La Phase A est un banc d'ingénierie. Elle ne répond à aucune question biométrique.
+Elle mesure, sur des vecteurs synthétiques, ce que coûte chaque représentation sur
+un appareil en périphérie de réseau — un \terme{edge device}, c'est-à-dire un
+appareil qui calcule sur place plutôt que d'envoyer ses données à un serveur
+central. Trois questions :
+
+\begin{enumerate}
+\item \textbf{Faisabilité mémoire} — la galerie tient-elle en RAM sur un palier
+  matériel donné, y compris le cas où le bras 512D ne tient pas ?
+\item \textbf{Latence et débit} — pour une recherche exhaustive, quel est l'effet de
+  la dimension sur le temps de réponse, le débit, la file d'attente et la saturation ?
+\item \textbf{Énergie et autonomie} — mesurée à l'entrée de l'appareil, quelle est
+  la consommation, et quelles affirmations d'autonomie en découlent légitimement ?
+\end{enumerate}
+
+\subsection{Le pare-feu entre les deux pistes}
+
+La règle d'interprétation n°~9 du contrat de benchmark est courte et décisive :
+\emph{aucun résultat protégé de Study 1B ne peut être ouvert pour choisir ou régler
+une configuration d'ingénierie}. Elle protège contre une contamination précise. Si
+l'on connaissait les écarts biométriques réels avant de choisir le matériel, on
+serait tenté de choisir le palier où la compression paraît la plus avantageuse. La
+section~\ref{sec:decision} montre que cette règle impose un ordre de gel que la
+discussion produit avait failli inverser.
+
+% =====================================================================
+\section{Vocabulaire commun}\label{sec:vocabulaire}
+% =====================================================================
+
+\subsection{Pour le lecteur biométricien : ce qui gouverne la machine}
+
+\paragraph{Bras.} Terme emprunté aux essais comparatifs, comme le bras de traitement
+d'un essai clinique. La Phase A compte exactement deux bras : le bras 512D et le bras
+128D. Un bras est la configuration de mesure entière sous une seule condition : même
+machine, même logiciel, même nombre de fils d'exécution, même galerie, même charge.
+Seule la dimension change. On parle de \terme{bras appariés} parce qu'on les fait
+tourner dans des conditions identiques pour attribuer l'écart à la seule variable
+qui diffère.
+
+\paragraph{Galerie et gabarit.} La galerie est l'ensemble des représentations
+stockées contre lesquelles on compare un visage entrant. Chaque personne y figure
+par plusieurs gabarits — trois dans le scénario retenu — c'est-à-dire plusieurs
+vecteurs issus de captures différentes.
+
+\paragraph{Working set.} L'ensemble des données qu'un programme touche réellement
+pendant son travail. Pour une recherche exhaustive, c'est la galerie entière :
+chaque requête compare le vecteur entrant à tous les vecteurs stockés.
+
+\paragraph{Hiérarchie mémoire et cache.} Un processeur ne lit pas directement la
+mémoire principale ; il passe par des niveaux de cache de plus en plus grands et de
+plus en plus lents — L1, L2, puis L3, appelé aussi \terme{LLC} pour \emph{last level
+cache}. Un accès en cache coûte environ un ordre de grandeur de moins qu'un accès en
+RAM. Le processeur décide seul de ce qui reste en cache : on ne \og charge \fg{} pas
+une galerie en cache, on constate seulement si elle y tient.
+
+\paragraph{Bande passante mémoire.} Le nombre d'octets par seconde que la mémoire
+peut livrer au processeur. Pour une recherche exhaustive sur une grande galerie,
+c'est elle — et non la vitesse de calcul — qui limite le débit : le processeur passe
+l'essentiel de son temps à attendre les données.
+
+\paragraph{Saturation et régime.} Un appareil sature quand la charge demandée
+dépasse ce qu'il peut traiter : les requêtes s'accumulent dans une file et le temps
+de réponse n'est plus du temps de calcul mais du temps d'attente. On parle de
+\terme{régime} pour désigner l'état d'un bras à une charge donnée : non saturé, en
+transition, saturé. Comparer un bras saturé à un bras qui ne l'est pas revient à
+comparer de l'attente à du service.
+
+\paragraph{Throttling.} Réduction automatique de la fréquence du processeur quand sa
+température dépasse un seuil. C'est une marche d'escalier, pas une pente douce :
+sous le seuil, pleine vitesse ; au-dessus, vitesse réduite.
+
+\paragraph{Clause, garde, et les trois familles de garde.} Une \terme{clause} dit ce
+qui doit être vrai — par exemple, \og le swap doit être nul pendant la mesure \fg.
+C'est du texte dans un contrat. Une \terme{garde} est le mécanisme qui vérifie et
+qui bloque. Il en existe trois familles, qui n'attrapent pas les mêmes erreurs. Le
+\terme{test de contrat} vérifie que le document dit encore ce qu'il disait, et
+attrape une modification silencieuse du contrat. L'\terme{assertion d'exécution}
+vérifie que la machine a réellement fait ce que le document demande, et attrape un
+swap actif ou un wattmètre trop lent. Le \terme{contrôle humain} couvre ce qui ne
+s'automatise pas.
+
+\subsection{Pour le lecteur ingénieur : ce qui gouverne la décision biométrique}
+
+\paragraph{Vérification et identification.} En vérification \og un contre un \fg{}
+(\unun), on compare une personne à une identité revendiquée, comme au contrôle d'un
+titre d'embarquement. En identification \og un contre plusieurs \fg{} (\unN), on
+cherche une personne dans toute une galerie, comme dans une liste de surveillance.
+Ce ne sont pas les mêmes métriques.
+
+\paragraph{FMR et FNMR.} En \unun, le \terme{FMR} (\emph{false match rate}) est la
+proportion d'imposteurs acceptés à tort ; le \terme{FNMR} (\emph{false non-match
+rate}) est la proportion de personnes légitimes rejetées à tort. On règle le seuil
+de décision pour fixer le FMR, puis on mesure le FNMR qui en résulte : c'est le
+\terme{point de fonctionnement}.
+
+\paragraph{FPIR et FNIR.} En \unN, les grandeurs correspondantes sont le \terme{FPIR}
+(\emph{false positive identification rate}), proportion de personnes absentes de la
+liste qui déclenchent une alerte, et le \terme{FNIR} (\emph{false negative
+identification rate}), proportion de personnes de la liste qui passent sans
+alerte. Un FMR \unun{} multiplié par la taille de la galerie n'est pas un FPIR.
+
+\paragraph{Non-infériorité.} Démontrer qu'une méthode n'est pas \emph{pire} qu'une
+référence au-delà d'une marge fixée d'avance — ici, que le FNMR de la route 128D ne
+dépasse pas celui de la référence 512D de plus de trois points. C'est une question
+différente de \og est-elle meilleure ? \fg, et elle exige que la marge soit fixée
+avant de voir les données.
+
+% =====================================================================
+\section{Le modèle de premier ordre et son hypothèse nulle}\label{sec:modele}
+% =====================================================================
+
+\subsection{Deux galeries, deux bras, quatre charges utiles}
+
+Le contrat retient deux galeries, marquées toutes deux comme des scénarios de
+dimensionnement et non comme des effectifs observés. \textbf{G0} est une liste de
+\num{10000} identités, soit \num{30000} vecteurs à trois gabarits par personne.
+\textbf{G2} est une galerie centrale de \num{510000} identités, soit
+\num{1530000} vecteurs. En virgule flottante sur 32 bits (FP32), chaque composante
+occupe 4 octets, et chaque vecteur $4d$ octets.
+
+\begin{table}[h]
+\centering\small
+\begin{tabular}{@{}lrrr@{}}
+\toprule
+& vecteurs & bras 512D & bras 128D \\
+\midrule
+G0 — liste de surveillance & \num{30000} & \num{61,44}~Mo & \num{15,36}~Mo \\
+G2 — galerie centrale & \num{1530000} & \num{3133440000} octets & \num{783360000} octets \\
+\bottomrule
+\end{tabular}
+\caption{Charge utile de galerie par bras. Le rapport est exactement 4 par
+construction ; c'est une valeur \emph{dérivée}, pas un résultat de mesure.}
+\label{tab:charges}
+\end{table}
+
+\subsection{Pourquoi la recherche est limitée par la mémoire}
+
+Le cadre qui gouverne tout le raisonnement de la Phase A est le \terme{modèle
+Roofline} de Williams, Waterman et Patterson~\cite{roofline}. Il dit qu'un calcul
+atteint au mieux le minimum entre deux plafonds : la crête de calcul du processeur,
+et le produit de la bande passante mémoire par l'\terme{intensité opérationnelle} —
+le nombre d'opérations effectuées par octet lu en mémoire.
+
+\[
+  \text{performance atteignable} = \min\bigl(\text{crête de calcul},\;
+  \text{bande passante} \times \text{intensité opérationnelle}\bigr)
+\]
+
+Une recherche exacte non groupée compare la requête à chaque vecteur de la galerie :
+$d$ produits et $d$ sommes, soit $2d$ opérations, pour $4d$ octets lus.
+L'intensité opérationnelle vaut donc
+\[
+  \frac{2d}{4d} = 0{,}5 \ \text{opération par octet},
+\]
+\textbf{quelle que soit la dimension}. C'est très en deçà du point de crête de
+tout processeur usuel : les deux bras sont profondément limités par la mémoire.
+
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}
+\begin{loglogaxis}[
+  width=12.5cm,height=7cm,
+  xmin=0.1,xmax=100,ymin=0.05,ymax=20,
+  xlabel={intensité opérationnelle (opérations par octet)},
+  ylabel={performance atteignable},
+  xtick={0.1,0.5,1,8,10,100},
+  xticklabels={{0,1},{0,5},1,8,10,100},
+  ytick=\empty,
+  axis lines=left,
+  every axis label/.style={font=\small},
+  tick label style={font=\small},
+]
+\addplot[very thick,encre,domain=0.1:12,samples=2] {x};
+\addplot[very thick,encre,domain=12:100,samples=2] {12};
+\node[font=\footnotesize,encre,rotate=33] at (axis cs:1.2,1.9) {plafond de bande passante};
+\node[font=\footnotesize,encre] at (axis cs:40,15.5) {plafond de calcul};
+\draw[dashed,gris] (axis cs:12,0.05) -- (axis cs:12,12);
+\node[font=\footnotesize,gris,anchor=west] at (axis cs:12.5,0.09) {point de crête};
+\addplot[only marks,mark=*,mark size=3pt,rouge] coordinates {(0.5,0.5)};
+\node[font=\footnotesize,rouge,anchor=north west,align=left] at (axis cs:0.52,0.42)
+  {scan exact non groupé\\les deux bras, même point};
+\draw[-{Stealth[length=3mm]},thick,ambre] (axis cs:0.6,0.6) -- (axis cs:7,7);
+\addplot[only marks,mark=o,mark size=3pt,ambre,thick] coordinates {(8,8)};
+\node[font=\footnotesize,ambre,anchor=south east,align=right] at (axis cs:7,8.5)
+  {groupement de $B$ requêtes\\intensité $0{,}5\times B$};
+\end{loglogaxis}
+\end{tikzpicture}
+\caption{Lecture Roofline de la Phase A. Figure schématique : la position du point de
+crête dépend de la plateforme et n'est pas une valeur mesurée.}
+\label{fig:roofline}
+\end{figure}
+
+La figure~\ref{fig:roofline} porte la conséquence la plus importante du chapitre. Les
+deux bras occupent \emph{le même point} du diagramme : même intensité, donc même
+débit d'opérations. Mais le bras 512D a quatre fois plus d'opérations à faire, et
+quatre fois plus d'octets à lire. Il met donc quatre fois plus de temps.
+
+\begin{encadre}{Hypothèse nulle de la Phase A}
+Tant que les deux bras restent limités par la mémoire, le modèle prédit un rapport
+de latence d'\textbf{exactement 4×}, sur toutes les plateformes et à toutes les
+charges non saturées. Tout écart mesuré à 4× est donc de l'\emph{information}, pas
+du bruit : il signale un mécanisme que le modèle ignore — résidence en cache, choix
+différent de micro-noyau par la bibliothèque de calcul, ou throttling thermique. Les
+gardes B1, B3 et D9 existent pour rendre ces écarts attribuables.
+\end{encadre}
+
+\subsection{Ordres de grandeur par plateforme}
+
+Au premier ordre, le temps de service d'une requête est la charge utile divisée par
+la bande passante effective, et le débit de saturation en est l'inverse. Le
+tableau~\ref{tab:saturation} applique ce calcul à trois plateformes edge
+documentées. L'efficacité de lecture continue — la fraction de la bande passante
+théorique réellement obtenue — est \textbf{supposée} à \SI{70}{\percent} ; elle
+n'est pas mesurée, et c'est précisément ce que la caractérisation D4 devra
+établir.
+
+\begin{table}[h]
+\centering\small
+\begin{tabular}{@{}lrrrr@{}}
+\toprule
+& \multicolumn{2}{c}{bande passante (Go/s)} & \multicolumn{2}{c}{saturation G2 (requêtes/s)} \\
+\cmidrule(lr){2-3}\cmidrule(l){4-5}
+plateforme & crête & effective & 512D & 128D \\
+\midrule
+Raspberry Pi 5 & 17 & 11,9 & 3,8 & 15,2 \\
+Jetson Orin Nano 4 Go & 34 & 23,8 & \emph{infaisable} & 30,4 \\
+Jetson Orin Nano 8 Go & 68 & 47,6 & 15,2 & 60,8 \\
+Intel N100 & 38,4 & 26,9 & 8,6 & 34,3 \\
+\bottomrule
+\end{tabular}
+\caption{Modèle de premier ordre, efficacité de \SI{70}{\percent} supposée. La
+crête du N100 est dérivée (\num{4800} MT/s × 8 octets, canal unique) ; les autres
+sont de fiche. G0 sature entre environ 190 et \num{3100} requêtes par seconde selon
+le cas, très au-delà de la grille de charge.}
+\label{tab:saturation}
+\end{table}
+
+Le tableau fait déjà apparaître deux constats que la suite exploite. Sur le
+Raspberry Pi 5, le bras 512D sature \emph{à l'intérieur} de la grille de charge
+prévue, qui va de \num{0,25} à 8 requêtes par seconde, alors que le bras 128D non :
+c'est exactement la situation que la garde B2 doit encadrer
+(section~\ref{sec:saturation}). Sur le Jetson Orin Nano 8 Go, en revanche, aucun des
+deux bras ne sature avant 8 requêtes par seconde : la grille est trop basse pour ce
+matériel. Le même protocole produit donc des cellules interprétables différentes
+selon la machine — raison pour laquelle la règle d'affectation de régime doit être
+gelée \emph{avant} de choisir la machine.
+
+% =====================================================================
+\section{Ce que la vérification a corrigé}\label{sec:correction}
+% =====================================================================
+
+\begin{correction}{Correction d'une affirmation fausse}
+Une version antérieure de ce travail affirmait que les caches de dernier niveau des
+processeurs edge vont \og de 4 à \num{32}~Mo \fg, et en déduisait que la
+galerie G0 — \num{61,44}~Mo contre \num{15,36}~Mo — encadrait cette
+gamme : le bras 128D y aurait tenu en cache, le 512D non. \textbf{C'était faux.}
+L'affirmation venait de l'apprentissage du modèle de langage, non d'une source.
+\end{correction}
+
+Les valeurs documentées sont nettement plus basses : \num{2}~Mo de L3 partagé
+sur le Raspberry Pi 5~\cite{rpidoc}, \num{2}~Mo par grappe de cœurs sur le
+Jetson Orin Nano~\cite{ridgerun}, \num{6}~Mo sur l'Intel N100~\cite{nbcheck}.
+Sur aucune de ces trois plateformes, aucun bras de G0 ne tient en cache. Les quatre
+combinaisons bras × galerie sont en mémoire principale.
+
+La conséquence n'est pas cosmétique. G0 était décrite comme un
+\emph{contrôle à petit working set}, censé isoler un régime où l'arithmétique et le
+cache dominent. Sur du matériel edge réaliste, G0 diffère de G2 par la grandeur, pas
+par la nature. Un véritable contrôle résident en cache demanderait environ
+\num{4000} vecteurs à 128D, ou \num{1000} à 512D, pour \num{2}~Mo de cache.
+
+Le Jetson a par ailleurs validé dans les faits une règle posée auparavant de façon
+abstraite : son cache L3 est partagé par grappe, non par puce. Un banc épinglé sur
+la grappe de quatre cœurs dispose de \num{2}~Mo, pas de la somme. C'est ce
+que la décision D3 appelle le cache \emph{effectif}.
+
+Une seconde leçon est venue en cherchant la fiche Intel du N100. Le premier résultat
+était un résumé généré par intelligence artificielle d'une page Intel archivée ; il
+attribuait au N100 le double et le triple canal mémoire, l'Hyper-Threading et la
+mémoire ECC — trois affirmations que toutes les autres sources contredisent. Un
+résumé automatique d'une source primaire n'hérite pas de son autorité. Il est exclu
+des sources de ce chapitre, au même titre que les réponses d'un assistant, y
+compris celles qui ont servi à le rédiger.
+
+% =====================================================================
+\section{Hypothèses de mesure}\label{sec:mesure}
+% =====================================================================
+
+Chaque hypothèse est présentée par ce qu'elle garantit, puis par ce qu'on conclurait
+à tort si elle était violée sans que personne le voie. Cette seconde question est
+celle qui ordonne les priorités : toutes les clauses ne méritent pas le même effort
+d'ingénierie, et c'est la gravité de la conclusion fausse qui décide.
+
+\subsection{Faisabilité mémoire}
+
+\paragraph{Résidence en RAM et absence de swap.} Le contrat exige que la galerie
+reste entièrement en mémoire vive et que le système n'écrive rien sur disque pour
+compenser. Violée, cette clause ferait conclure que le bras 512D tient en RAM sur un
+palier alors que le système d'exploitation l'a sauvé en débordant sur le stockage.
+C'est la conclusion la plus coûteuse du programme : elle validerait un déploiement
+matériellement infaisable. Garde requise : assertion d'exécution sur les compteurs de
+swap, avant et après chaque fenêtre de mesure.
+
+\paragraph{Infaisabilité comme résultat.} Si un bras ne tient pas, le contrat
+enregistre \cle{RAM\_INFEASIBLE\_ON\_TIER} comme un résultat valide, et interdit
+toutes les échappatoires : réduire la galerie, changer le type numérique, activer le
+swap, ou migrer un seul bras vers un palier supérieur. Violée, un contournement
+passerait pour une mesure appariée.
+
+\paragraph{RAM requise totale.} La faisabilité ne se prononce pas sur les octets de
+galerie mais sur la somme de la galerie, du processus, de l'environnement
+d'exécution, du système, des tampons, des autres services et d'une marge de
+sécurité. Sans marge gelée à l'avance, un bras déclaré faisable avec \SI{2}{\percent}
+de mémoire libre ne l'est pas en production — et une marge fixée après avoir vu les
+chiffres sera fixée à ce qui fait passer la conclusion voulue.
+
+\paragraph{Cache et bande passante — garde B1.} L'objectif affiché du contrat
+distingue un régime où l'arithmétique domine et un régime où la bande passante
+domine. Sans la taille du cache et une bande passante mesurée, cette distinction
+n'est pas vérifiable. La garde B1 exige de les enregistrer, avec un rapport
+\emph{dérivé} et toujours calculable : charge utile × débit complété ÷ bande
+passante mesurée. Ce rapport a une propriété utile : il suppose que tout vient de la
+RAM, donc il est une borne haute du trafic réel. Une valeur supérieure à 1 n'est pas
+une erreur de mesure, c'est la preuve qu'une partie du working set réside en cache.
+
+\subsection{Latence, débit et saturation}\label{sec:saturation}
+
+\paragraph{Sémantique de recherche.} Recherche exacte, un seul meilleur candidat,
+aucun seuil, aucun élagage, aucun index. Cette construction fixe le travail par
+requête et neutralise un confondant subtil : entre vecteurs aléatoires, les scores de
+similarité se concentrent en $1/\sqrt{d}$, deux fois plus dispersés à 128D qu'à 512D.
+Tout mécanisme dépendant d'un seuil produirait plus de candidats pour le bras 128D,
+et l'écart de dimension serait un artefact du générateur de données.
+
+\paragraph{Isolement de l'intervention.} Matériel, type numérique, cardinalité,
+threads et bibliothèque identiques, et surtout : la matrice 512D ne doit pas rester
+résidente pendant la mesure 128D. Sinon le bras 128D serait mesuré sur un cache
+chaud et une mémoire déjà peuplée, et paraîtrait meilleur pour une raison sans
+rapport avec la dimension.
+
+\paragraph{Génération synthétique.} Graine fixée, loi normale en FP32, normalisation,
+rejet des valeurs non finies. La marge est confortable : la composante typique vaut
+\num{0,0442} à 512D et \num{0,0884} à 128D, très loin des valeurs dénormalisées qui
+ralentiraient le calcul.
+
+\paragraph{Génération de charge.} Générateur hors de l'appareil mesuré, arrivées en
+boucle ouverte — c'est-à-dire indépendantes des réponses du système —, grille de
+\num{0,25} à 8 requêtes par seconde, rafale à 16. Un générateur sur l'appareil
+injecterait son propre calcul et sa propre consommation dans la mesure ; une boucle
+fermée masquerait la saturation.
+
+\paragraph{Statistiques de mesure.} Cinq redémarrages indépendants, 60~secondes
+d'échauffement exclues, fenêtre de 600~secondes, ordre des bras alterné, conservation
+des échantillons bruts, aucune exclusion silencieuse de run raté. Chaque élément
+ferme une erreur différente : un échauffement non exclu attribue le coût d'un cache
+froid à la dimension, un ordre fixe attribue la dérive thermique au second bras, une
+exclusion silencieuse installe un biais de survie.
+
+\paragraph{Support des percentiles.} Un percentile 95 exige au moins 200 requêtes
+complétées par redémarrage, un percentile 99 au moins \num{1000}. Sur 600~secondes,
+la grille donne 150, 300, 600, \num{1200}, \num{2400} et \num{4800} requêtes attendues :
+le percentile 95 est supprimé par conception à \num{0,25} requête par seconde, le
+percentile 99 jusqu'à 1. Mais une cellule vide a deux sens opposés — charge trop
+faible par conception, ou bras saturé qui n'a pas complété assez de requêtes. Publier
+les comptes attendus \emph{et} réalisés lève l'ambiguïté.
+
+\paragraph{Régime de saturation — garde B2.} Un rapport 512D/128D n'est publiable que
+si les deux bras sont dans le même régime et qu'aucun n'est censuré. La
+figure~\ref{fig:regimes} l'illustre sur le Raspberry Pi 5.
+
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  width=12.5cm,height=6.6cm,
+  xmin=0,xmax=18,ymin=0,ymax=18,
+  xlabel={charge offerte (requêtes/s)},
+  ylabel={débit complété (requêtes/s)},
+  axis lines=left,
+  xtick={0,2,4,8,16},
+  ytick={0,3.8,15.2},
+  yticklabels={0,{3,8},{15,2}},
+  every axis label/.style={font=\small},
+  tick label style={font=\small},
+  legend style={font=\footnotesize,at={(0.02,0.98)},anchor=north west,draw=none,fill=white},
+]
+\fill[ambrepale] (axis cs:3.88,0) rectangle (axis cs:18,18);
+\node[font=\footnotesize,ambre,align=center] at (axis cs:12.3,7.6)
+  {paires à régimes croisés\\aucun rapport publiable};
+\addplot[very thick,encre,domain=0:18,samples=200] {min(x,15.2)};
+\addlegendentry{bras 128D}
+\addplot[very thick,rouge,domain=0:18,samples=200] {min(x,3.8)};
+\addlegendentry{bras 512D}
+\addplot[dotted,gris,domain=0:18] {x};
+\pgfplotsinvokeforeach{0.25,0.5,1,2,4,8,16}{\draw[gris!60] (axis cs:#1,0) -- (axis cs:#1,0.6);}
+\end{axis}
+\end{tikzpicture}
+\caption{Illustration au premier ordre sur Raspberry Pi 5 (efficacité supposée
+\SI{70}{\percent}). Les traits courts sur l'axe marquent la grille de charge. À 4
+requêtes par seconde le bras 512D est en transition, à 8 et 16 il est saturé, alors
+que le bras 128D ne l'est qu'à peine à 16. Seules les charges de \num{0,25} à 2
+donnent des paires comparables.}
+\label{fig:regimes}
+\end{figure}
+
+La garde B2 est aujourd'hui incomplète. Ses cinq étiquettes de régime sont gelées,
+mais \emph{la règle qui affecte une cellule à une étiquette ne l'est pas}. Sans elle,
+c'est un analyste regardant les données qui décidera après coup si un rapport peut
+être publié — exactement la liberté que le programme a supprimée partout ailleurs.
+La décision D1 y pourvoit (section~\ref{sec:decisions}).
+
+\paragraph{Régime thermique.} Le throttling est une marche d'escalier. À G2, le bras
+512D fait quatre fois plus de trafic mémoire et chauffera davantage. S'il franchit
+le seuil et que le bras 128D ne le franchit pas, le rapport mesuré confond
+\og quatre fois plus de travail \fg{} et \og à une fréquence plus basse \fg. C'est
+l'analogue exact de la saturation, et aucune clause ne le couvrait : il appelle la
+même construction, décision D9.
+
+\paragraph{Choix de micro-noyau — garde B3.} La règle d'appariement fixe la
+\emph{configuration} de la bibliothèque de calcul, pas le \emph{chemin de code} : une
+bibliothèque BLAS choisit couramment des noyaux différents à 512 et à 128
+dimensions. Cette différence fait légitimement partie de l'effet mesuré, et la
+garde B3 ne cherche pas à l'égaliser ; elle l'enregistre, pour qu'un écart
+surprenant puisse être diagnostiqué.
+
+\subsection{Énergie et autonomie}
+
+\paragraph{Plan de mesure.} La mesure canonique se fait à l'entrée de l'appareil ou
+à la prise, au moins dix fois par seconde ; la télémétrie interne ne sert que de
+diagnostic. Ce choix n'est pas une précaution de principe. Les compteurs intégrés
+excluent souvent la mémoire vive, or c'est exactement là que se voit l'écart entre
+\num{2,92}~Gio et \num{0,73}~Gio. Une mesure par télémétrie biaiserait
+la comparaison en faveur du bras évalué.
+
+\paragraph{Deux conventions d'énergie par identification.} Le total, ligne de base au
+repos incluse, est canonique ; l'incrémental, ligne de base soustraite, n'est que
+diagnostique, et ses valeurs négatives ne sont pas ramenées à zéro. Écrêter les
+négatifs transformerait un bruit symétrique en biais positif. Le total, lui, dépend
+fortement de la charge : un chiffre publié sans son point de charge n'a pas de sens.
+
+\paragraph{Modèle de batterie.} L'autonomie est la capacité utile divisée par la
+puissance moyenne \emph{totale}, sous un profil de charge nommé. L'énergie
+incrémentale ne doit jamais servir à calculer une autonomie : elle la surestimerait
+du rapport entre puissance totale et puissance incrémentale, l'erreur la plus facile
+à commettre et la plus visible dans un dossier de décision.
+
+\paragraph{Représentativité thermique du banc.} Le contrat enregistre le mode de
+refroidissement et la température ambiante, mais n'exige pas qu'ils correspondent au
+déploiement. La Fondation Raspberry Pi documente que ses cartes réduisent leur
+fréquence dès \SI{80}{\celsius}, davantage à \SI{85}{\celsius}, et que sans
+refroidissement un Pi 5 sous charge soutenue reste en throttling permanent — mesuré
+à l'air libre sur un banc de laboratoire~\cite{rpiheat}. Un boîtier étanche au
+soleil est pire. Mesurer sur banc ventilé et déployer en boîtier sans ventilateur
+donne un résultat qui ne se transfère pas, et qui se trompe dans le sens flatteur.
+
+\begin{alerte}{Un avantage candidat de 128D, invisible sur banc ventilé}
+À charge égale, le bras 128D fait quatre fois moins de trafic mémoire, donc dissipe
+moins. Il peut rester sous le seuil de throttling là où le bras 512D le franchit. Ce
+serait un gain opérationnel indépendant de la mémoire vive. Il n'apparaît qu'en
+conditions thermiques de déploiement : ventilés, les deux bras restent froids et
+l'avantage disparaît de la mesure.
+\end{alerte}
+
+% =====================================================================
+\section{L'appareil complet}\label{sec:appareil}
+% =====================================================================
+
+\subsection{La recherche n'est qu'un consommateur parmi d'autres}
+
+La Phase A mesure la recherche \emph{seule} : le contrat exige qu'aucun autre
+processus significatif ne tourne pendant la mesure. C'est la bonne première mesure,
+parce qu'elle isole la demande propre de la recherche. Mais un appareil de
+reconnaissance déployé à un portique fait bien d'autres choses, qui puisent dans les
+mêmes réserves. Quatre budgets sont partagés : la \textbf{puissance}, la
+\textbf{chaleur} que le boîtier doit évacuer, la \textbf{bande passante mémoire} et
+la \textbf{RAM}. La faisabilité ne se décide donc pas sur le budget total, mais sur le
+budget \emph{résiduel}, une fois servis les autres composants.
+
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}[x=1cm,y=1cm,font=\sffamily\footnotesize]
+\def\H{0.9}
+\draw[encre,thick] (0,0) rectangle (14,\H);
+\node[anchor=south west,encre] at (0,\H+0.08) {budget de puissance de l'appareil — par exemple le plafond PoE 802.3af de 12,95~W};
+\fill[gris!25] (0,0) rectangle (2.3,\H);   \node at (1.15,\H/2) {repos};
+\fill[gris!40] (2.3,0) rectangle (4.6,\H); \node at (3.45,\H/2) {caméras};
+\fill[ambre!35] (4.6,0) rectangle (7.8,\H); \node at (6.2,\H/2) {illumination IR};
+\fill[gris!45] (7.8,0) rectangle (10.3,\H); \node at (9.05,\H/2) {capture};
+\fill[gris!30] (10.3,0) rectangle (11.4,\H); \node at (10.85,\H/2) {radio};
+\fill[encre!85] (11.4,0) rectangle (14,\H); \node[white] at (12.7,\H/2) {recherche};
+\draw[decorate,decoration={brace,amplitude=5pt,mirror},encre] (11.4,-0.1) -- (14,-0.1)
+  node[midway,below=7pt,align=center,encre] {ce que mesure la Phase A\\et ce qui décide de la faisabilité};
+\draw[decorate,decoration={brace,amplitude=5pt,mirror},gris] (0,-0.1) -- (11.3,-0.1)
+  node[midway,below=7pt,gris] {autres composants — aucune valeur mesurée à ce jour};
+\end{tikzpicture}
+\caption{Principe du budget résiduel. Les proportions sont purement illustratives :
+aucune n'est mesurée. Le même raisonnement vaut pour la chaleur, la bande passante
+et la RAM.}
+\label{fig:budget}
+\end{figure}
+
+La recherche n'est peut-être pas le plus gros poste. Une illumination infrarouge peut
+consommer davantage que le processeur. Et un exemple documenté de caméras extérieures
+équipées de chauffage et d'essuie-glace fait état de 32~W par caméra par temps froid
+— davantage, à lui seul, que le plafond PoE 802.3af~\cite{ampcom}. Si caméras,
+illumination et détection consomment déjà l'essentiel d'un plafond PoE, les quelques
+watts d'écart entre les deux bras de recherche sont peut-être précisément ce qui
+décide de la faisabilité ; ou ils n'y changent rien. On ne le saura qu'avec les
+autres lignes du budget.
+
+\subsection{Les composants}
+
+\begin{table}[h]
+\centering\small
+\begin{tabularx}{\textwidth}{@{}>{\raggedright\arraybackslash}Xcccc>{\raggedright\arraybackslash}p{4.2cm}@{}}
+\toprule
+composant & puissance & chaleur & bande passante & RAM & point de vigilance \\
+\midrule
+calcul — recherche & \multicolumn{4}{c}{\emph{mesuré par la Phase A}} & objet du banc \\
+caméra visible & \moy{} & \moy{} & \moy{} & \moy{} & résolution × cadence \\
+caméra proche infrarouge (NIR) & \moy{} & \moy{} & \moy{} & \moy{} & sert aussi à la détection de fraude \\
+illumination IR & \fort{} & \fort{} & — & — & peut dépasser le calcul ; sécurité oculaire \\
+détection de mouvement & \faible{} & \faible{} & — & — & commande la mise en veille \\
+chaîne de capture & \fort{} & \fort{} & \fort{} & \fort{} & tourne en continu, rivalise avec la recherche \\
+radio & \moy{} & \moy{} & — & \faible{} & commande la propagation de galerie \\
+stockage de la galerie & \faible{} & \faible{} & — & — & chiffrement, temps de chargement \\
+élément sécurisé & \faible{} & \faible{} & — & — & vol d'appareil, fuite de liste \\
+alimentation & pertes & \moy{} & — & — & plafond dur (PoE ou batterie) \\
+chauffage & \fort{} & — & — & — & peut dominer l'hiver \\
+boîtier & — & décisif & — & — & reflets IR dans la caméra \\
+\bottomrule
+\end{tabularx}
+\caption{Contribution des composants aux quatre budgets. \fort{} charge potentiellement
+dominante, \moy{} charge significative, \faible{} charge faible. La chaîne de capture comprend la
+détection, l'alignement et l'encodage du visage.}
+\label{tab:composants}
+\end{table}
+
+\subsection{Quatre interactions qui font dépendre un coût de la taille de galerie}
+
+Ces quatre points relient la liste de composants à l'étude. Dans chacun, un choix de
+composant rend un coût opérationnel proportionnel à la taille de la galerie — donc à
+la dimension.
+
+\paragraph{Veille et galerie résidente.} Un appareil réveillé par détection de
+mouvement dort entre deux passages. Au réveil, la galerie doit être en mémoire. Deux
+voies, qui dépendent toutes deux de la taille : soit la RAM reste alimentée en veille,
+et ce coût croît avec la capacité ; soit la galerie est rechargée depuis le stockage
+et déchiffrée — \num{3,13}~Go contre 783~Mo. Et le réveil n'est utile que si le délai
+entre le réveil et la disponibilité est plus court que le temps qu'une personne met à
+entrer dans le champ. C'est une latence qui dépend directement de la dimension, et la
+Phase A ne la mesure pas.
+
+\paragraph{Radio en rafale et propagation.} Une radio qui ne s'allume que sur alerte
+économise l'énergie, mais la mise à jour de la liste de surveillance doit alors
+attendre une fenêtre radio. La durée de propagation devient le produit de la taille
+de galerie et du cycle radio.
+
+\paragraph{Galerie chiffrée au repos.} Des données biométriques sur un appareil en
+espace public doivent être chiffrées sur le stockage. Le déchiffrement au démarrage
+ou au réveil coûte un temps et un calcul proportionnels à la taille, et la galerie en
+clair occupe quatre fois plus de RAM à 512D.
+
+\paragraph{Bande passante partagée.} La détection de visage et le traitement de
+l'image consomment de la bande passante en continu. Or la recherche en est limitée.
+Le modèle de premier ordre doit donc utiliser la bande passante \emph{disponible},
+pas la bande passante totale : à 17~Go/s sur un Raspberry Pi 5, quelques Go/s pris
+par la détection déplacent sensiblement le point de saturation.
+
+% =====================================================================
+\section{Hypothèses opérationnelles}\label{sec:operationnel}
+% =====================================================================
+
+Les hypothèses opérationnelles relient la mesure au terrain. Le programme en a
+aujourd'hui la \emph{structure} complète ; il n'en a pas encore les \emph{valeurs},
+qui relèvent du scénario et doivent être déclarées par le responsable du programme.
+La section~\ref{sec:questions} en dresse la liste.
+
+\subsection{Classes de déploiement}
+
+\og Dans et autour des stades \fg{} désigne au moins deux situations, et elles ne sont
+pas contraintes par la même chose. Un \textbf{portique fixe} dispose vraisemblablement
+d'une alimentation par le câble réseau (PoE) ou du secteur : la batterie n'y sert que
+de secours, et c'est la chaleur, puis le plafond PoE, qui mordent. La norme 802.3af
+garantit \num{12,95}~W à l'appareil alimenté, la 802.3at en garantit \num{25,5}~W — et
+ce plafond couvre l'appareil entier. Un \textbf{point mobile ou temporaire} n'a pas
+d'infrastructure : sa batterie contraint autant que la chaleur.
+
+La batterie partage d'ailleurs le boîtier avec le processeur. Une cellule lithium-ion
+se charge typiquement entre 0 et \SI{45}{\celsius} et se décharge entre $-20$ et
+\SI{60}{\celsius} ; la charge sous le point de congélation n'est pas permise~\cite{bu410}.
+Le plafond haut compte autant que le bas : dans un boîtier fermé au soleil, chauffé
+par le processeur, la cellule peut sortir de sa fenêtre de charge \emph{par le haut}.
+Un point mobile en été peut alors fonctionner sans pouvoir se recharger. Un piège de
+lecture accompagne ce point : la plage \og operating temperature \fg{} d'une fiche de
+cellule reflète souvent la décharge ; la plage de charge est plus étroite~\cite{sunlith}.
+
+\subsection{Du passage à la requête}
+
+La grille de charge est exprimée en requêtes par seconde ; le scénario, en personnes
+qui passent. La conversion entre les deux n'est écrite nulle part. Or une personne
+qui franchit un portique produit plusieurs images. Chercher chaque visage détecté ou
+seulement la meilleure image change la charge d'un facteur 5 à 10 pour le même flux
+humain. Et un processeur qui sert plusieurs caméras la multiplie encore : la fiche du
+Jetson Orin Nano indique jusqu'à 16 canaux vidéo virtuels~\cite{nvds}.
+
+\subsection{Profils de service}
+
+L'autonomie à \num{0,25} requête par seconde et à 8 diffère bien davantage que tout
+écart entre 512D et 128D. Le contrat exige que toute autonomie nomme son profil, mais
+aucun profil n'est déclaré. Il en faut deux ou trois, décrits heure par heure : pointe
+de flux avant le match, régime de croisière, veille. C'est une décision de scénario,
+pas d'analyse : on sait déjà à quoi ressemble une journée de stade. Choisi après coup,
+le profil serait choisi pour que la conclusion tombe juste.
+
+\subsection{Conséquence opérationnelle}
+
+\paragraph{Deux familles de métriques, deux branches.} Le contrôle d'accès de type
+embarquement se chiffre en FMR et FNMR ; la liste de surveillance en FPIR et FNIR. Les
+deux branches de l'analyse de conséquence doivent être construites séparément, et
+aucun FMR \unun{} ne doit être multiplié par une taille de galerie pour produire un
+risque \unN. Cette erreur classique produit un nombre d'alertes qui paraît rigoureux
+et qui est faux d'un facteur inconnu.
+
+\paragraph{Corrélation entre observations.} Une personne vue plusieurs fois — deux
+portiques, plusieurs caméras — n'offre pas des chances indépendantes. Si elle est
+difficile à reconnaître, elle l'est souvent partout : même visage, mêmes lunettes,
+même angle, même éclairage.
+
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}
+\begin{semilogyaxis}[
+  width=11cm,height=6cm,
+  xmin=1,xmax=5,ymin=5e-6,ymax=0.3,
+  xtick={1,2,3,4,5},
+  xlabel={nombre d'observations $m$ de la même personne},
+  ylabel={probabilité de la manquer partout},
+  axis lines=left,
+  every axis label/.style={font=\small},
+  tick label style={font=\small},
+  legend style={font=\footnotesize,at={(0.98,0.98)},anchor=north east,draw=none,fill=white},
+]
+\addplot[name path=hi,very thick,rouge,domain=1:5,samples=2] {0.1};
+\addlegendentry{corrélation forte : $\approx p$}
+\addplot[name path=lo,very thick,encre,domain=1:5,samples=50] {0.1^x};
+\addlegendentry{indépendance : $p^m$}
+\addplot[ambrepale] fill between[of=hi and lo];
+\node[font=\footnotesize,ambre,align=center] at (axis cs:3.6,0.004) {bande à publier\\au lieu d'un point};
+\end{semilogyaxis}
+\end{tikzpicture}
+\caption{Pour une probabilité de manquer $p = 0{,}1$ par observation : à trois
+observations, \num{0,1}~\% sous indépendance contre \SI{10}{\percent} sous corrélation
+forte. Deux ordres de grandeur.}
+\label{fig:correlation}
+\end{figure}
+
+La règle qui en découle est simple : tout chiffre opérationnel multi-passage ou
+multi-appareil se publie comme une \emph{bande} entre ces deux extrêmes, jamais comme
+une valeur ponctuelle, sauf à disposer d'un modèle de corrélation justifié.
+
+\begin{encadre}{L'erreur de Study 0, remontée d'un niveau}
+Study 0 avait rééchantillonné des paires de comparaisons comme si elles étaient
+indépendantes, alors que les mêmes identités y revenaient ; ses intervalles étaient
+trop étroits. Traiter comme indépendantes les observations successives d'une même
+personne difficile, c'est commettre la même faute un niveau plus haut, avec la même
+conséquence : une confiance excessive.
+\end{encadre}
+
+\paragraph{Ancrage des références.} Toute valeur de référence nomme sa source, son
+jeu de données et son point de fonctionnement, et n'est jamais transportée vers un
+autre. Le jeu LFW, par exemple, ne permet pas d'estimer un FMR de $10^{-6}$. Le plafond
+ne vient pas du nombre de paires — l'appariement exhaustif en produit de l'ordre de
+$10^{8}$ — mais des \num{5749} identités : les paires se recouvrent, et l'information
+effective est bornée par le nombre de sujets. C'est encore le même fait statistique
+que ci-dessus.
+
+\subsection{Paliers matériels}
+
+L'argument économique le plus fort du dossier est que 128D pourrait éviter le palier
+matériel supérieur : un appareil à 4~Go au lieu de 8~Go, par exemple. Trois conditions
+le rendent défendable. L'échelle des paliers candidats doit être déclarée \emph{avant}
+toute mesure, sans quoi le second palier serait choisi après avoir vu le premier
+échouer. La RAM requise doit inclure une marge de sécurité gelée d'avance. Et aucune
+conséquence en aval — puissance, batterie, chaleur, masse, coût — ne doit être
+inférée du seul écart de RAM : chaque maillon est mesuré ou déclaré supposé.
+
+Une quatrième condition est apparue à la vérification des fiches. Sur le Jetson Orin
+Nano, la version 4~Go a une bande passante de crête de 34~Go/s, la version 8~Go de
+68~Go/s~\cite{nvds}. Descendre au palier inférieur ne retire pas seulement de la
+mémoire : \textbf{il divise la bande passante par deux}. Or la recherche en est
+limitée. L'avantage de palier doit donc être évalué avec la bande passante du palier
+visé, pas avec celle du palier supérieur.
+
+% =====================================================================
+\section{Hypothèses de décision}\label{sec:decision}
+% =====================================================================
+
+\subsection{La marge ne bouge pas}
+
+La marge $\delta_{\mathrm{NI}} = 0{,}03$ est une tolérance de recherche gelée, reprise
+de Study 0 pour préserver la comparabilité ; elle n'a été fixée ni par un organisme de
+normalisation ni par un consensus d'experts. Elle ne peut pas être remplacée à
+l'intérieur de Study 1B. Sinon un manque de puissance se résoudrait par un
+élargissement de marge, et un résultat \og non démontré \fg{} deviendrait \og démontré \fg{}
+par simple redéfinition — la forme la plus grave de raisonnement a posteriori, parce
+qu'elle ne laisse aucune trace dans les résultats, seulement dans l'historique du
+contrat. Toute marge issue d'un travail de justification ouvre une nouvelle identité
+de protocole.
+
+\subsection{L'expert ne voit que des conséquences}
+
+La marge peut en revanche être \emph{justifiée} pour une étude future, par l'avis
+d'un expert sur la gravité opérationnelle des dégradations. Le risque est alors que
+l'expert, connaissant les écarts réels, trouve acceptable ce qui a été observé. Le
+protocole d'élicitation repose sur un principe qui rend presque tout le reste
+superflu : \textbf{l'expert ne voit jamais un écart de taux ; il voit des
+conséquences}.
+
+\og Plus trois points de FNMR \fg{} est un objet statistique sur lequel un expert n'a
+pas d'intuition calibrée, et qui invite à s'ancrer sur 0,03. \og \num{22500} passages
+supplémentaires en contrôle manuel sur \num{750000} \fg{} est un objet opérationnel sur
+lequel il en a une. Traduire l'écart en conséquence est le travail de l'enveloppe ;
+juger l'acceptabilité de la conséquence est celui de l'expert. Séparés ainsi, l'aveuglement
+devient structurel : l'expert ne peut pas reconnaître où tombent les valeurs réelles,
+parce qu'il ne voit pas l'échelle sur laquelle elles tombent.
+
+\begin{table}[h]
+\centering\small
+\begin{tabular}{@{}ll@{}}
+\toprule
+rôle & interdit \\
+\midrule
+détenteur des résultats SCREEN & construire l'enveloppe, assister à l'élicitation \\
+constructeur de l'enveloppe & avoir vu un résultat SCREEN \\
+expert & voir un écart de taux, voir un nom de méthode \\
+\bottomrule
+\end{tabular}
+\caption{Séparation des rôles. Si une même personne en tient deux, aucune procédure
+ne rétablit l'aveuglement.}
+\label{tab:roles}
+\end{table}
+
+La grille présentée déborde le plausible des deux côtés, l'ordre de présentation est
+aléatoire, chaque cellule montre la bande de corrélation plutôt qu'un point, et les
+deux branches — contrôle d'accès et liste de surveillance — sont élicitées séparément.
+Une seconde séance, avec des scénarios intercalés reprenant des niveaux déjà jugés
+sous une autre forme, vérifie que le seuil énoncé est reproductible ; s'il ne l'est
+pas, ce n'est pas une mesure. Le produit n'est pas \og la marge vaut X \fg, mais un
+tableau conséquence → acceptable, limite ou inacceptable, par branche. Il donnera
+vraisemblablement une marge par branche, et non une marge unique.
+
+\subsection{SCREEN ne s'ouvre qu'après la machine}
+
+La discussion produit a proposé d'ouvrir SCREEN — l'étape exploratoire des résultats
+biométriques réels — avant la Phase A, pour disposer plus tôt des écarts réels des
+méthodes. Cet ordre violerait la règle n°~9 au sens littéral. Le palier matériel, la
+bibliothèque de calcul, le nombre de fils d'exécution et le wattmètre restent à choisir ;
+choisis après SCREEN, ils le seraient par des personnes connaissant les écarts
+biométriques. La correction ne coûte rien : il suffit d'échanger la position de SCREEN
+et de la matérialisation de la plateforme (figure~\ref{fig:gel}).
+
+% =====================================================================
+\section{Trois hypothèses oubliées et une question produit}\label{sec:oubliees}
+% =====================================================================
+
+Ces trois hypothèses dimensionnent le résultat autant que toutes les précédentes, et
+aucune n'est fixée par le contrat. Aucune fiche technique ne les aurait révélées :
+elles sont apparues en confrontant le contrat à un cadre — Roofline, les règles de
+MLPerf, la théorie des files d'attente — et en posant une seule question :
+\emph{qu'est-ce qui, dans ce contrat, n'est fixé nulle part ?} La première a échappé à
+la revue de validité de construit, y compris à celle de l'assistant qui a contribué à
+ce document.
+
+\subsection{Le groupement des requêtes}
+
+Le contrat fixe l'algorithme, le meilleur candidat unique, l'absence de seuil et
+d'index. Il ne dit rien du \terme{batching} — le groupement de plusieurs requêtes
+traitées en une seule passe sur la galerie. Le mot n'y apparaît pas.
+
+Or c'est une variable de premier ordre. Grouper $B$ requêtes lit chaque vecteur de la
+galerie une fois pour $B$ usages : l'intensité opérationnelle passe de \num{0,5} à
+$0{,}5 \times B$ (figure~\ref{fig:roofline}). Tant que l'on reste sous le point de
+crête, le débit croît d'environ $B$ fois, pour les deux bras. Une variable non gelée
+peut donc déplacer tous les points de saturation d'un ordre de grandeur — et avec eux
+toutes les cellules de régime. À un portique en rafale, les requêtes s'accumulent, et
+un serveur réel les grouperait.
+
+Les règles de MLPerf Inference~\cite{mlperf}, référence des bancs d'inférence,
+répondent à ce problème en séparant explicitement des scénarios au lieu de laisser le
+groupement libre : un scénario \emph{Server}, requête par requête, avec arrivées
+aléatoires et contrainte de latence au 99\textsuperscript{e} percentile, et un
+scénario \emph{Offline}, où toutes les requêtes sont disponibles d'emblée et seul le
+débit compte.
+
+\begin{encadre}{Recommandation D12}
+Mesurer le scénario \textbf{Server sans groupement} comme scénario principal, et le
+scénario \textbf{Offline} comme scénario secondaire déclaré, avec une taille de lot
+gelée. La raison est une propriété du modèle : les deux bras ayant la même intensité
+opérationnelle, le groupement déplace leurs débits absolus sans changer, au premier
+ordre, leur rapport. La question du rapport se tranche donc sans groupement ; la
+question de la faisabilité absolue — l'appareil tient-il la charge du portique ? — a
+besoin du plafond Offline. Le groupement dynamique, qui attend un court délai pour
+réunir des requêtes, est une politique de déploiement : son délai d'attente devrait
+lui-même être gelé, et il relève d'une phase ultérieure.
+\end{encadre}
+
+\subsection{Le processus d'arrivée}
+
+Le contrat prévoit des arrivées \emph{déterministes} : une requête toutes les
+$1/\lambda$ secondes, exactement. MLPerf, dans son scénario Server, utilise des
+arrivées \emph{poissoniennes}, c'est-à-dire aléatoires et sans mémoire. La différence
+n'est pas un détail de méthode. C'est un résultat classique de la théorie des files :
+avec des arrivées et un service tous deux déterministes, aucune requête n'attend tant
+que la charge reste sous la capacité ; avec des arrivées poissoniennes et un service
+déterministe — une file notée M/D/1 —, l'attente moyenne vaut
+\[
+  W = \frac{\rho}{2(1-\rho)} \ \text{durées de service},
+\]
+où $\rho$ est le taux d'occupation de l'appareil.
+
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}
+\begin{axis}[
+  width=11cm,height=6cm,
+  xmin=0,xmax=0.96,ymin=0,ymax=10.5,
+  xlabel={taux d'occupation $\rho$},
+  ylabel={attente moyenne (durées de service)},
+  axis lines=left,
+  xtick={0,0.5,0.8,0.9},
+  xticklabels={0,{0,5},{0,8},{0,9}},
+  every axis label/.style={font=\small},
+  tick label style={font=\small},
+  legend style={font=\footnotesize,at={(0.03,0.97)},anchor=north west,draw=none,fill=white},
+]
+\addplot[very thick,rouge,domain=0:0.95,samples=120] {x/(2*(1-x))};
+\addlegendentry{arrivées poissoniennes (M/D/1)}
+\addplot[very thick,encre,domain=0:0.95,samples=2] {0};
+\addlegendentry{arrivées déterministes (D/D/1)}
+\addplot[only marks,mark=*,mark size=2pt,rouge] coordinates {(0.5,0.5) (0.8,2) (0.9,4.5)};
+\node[font=\footnotesize,rouge,anchor=west] at (axis cs:0.5,1.1) {0,5};
+\node[font=\footnotesize,rouge,anchor=east] at (axis cs:0.79,2.4) {2};
+\node[font=\footnotesize,rouge,anchor=east] at (axis cs:0.89,4.9) {4,5};
+\end{axis}
+\end{tikzpicture}
+\caption{L'écart entre les deux hypothèses d'arrivée explose près de la saturation —
+précisément la zone où se décide la publication des rapports.}
+\label{fig:md1}
+\end{figure}
+
+Des arrivées de stade sont au moins aussi irrégulières que des arrivées
+poissoniennes, souvent davantage avant le coup d'envoi. Le banc actuel est donc
+reproductible, mais \emph{optimiste sur la latence de queue}.
+
+\begin{encadre}{Recommandation D13}
+Conserver les arrivées déterministes comme processus canonique — les modifier
+toucherait un construit déjà accepté —, et \textbf{ajouter une variante poissonienne à
+graine gelée}, aux mêmes débits moyens. Une graine fixée rend la variante aussi
+reproductible que la version déterministe. Publier les deux ; leur écart est en
+soi une information sur la sensibilité de l'appareil à l'irrégularité du flux. Les
+afflux plus violents que Poisson restent couverts, en partie, par l'essai en rafale.
+\end{encadre}
+
+\subsection{Le passage et la caméra}
+
+Le troisième oubli a été traité en section~\ref{sec:operationnel} : la conversion
+entre personnes par heure et requêtes par seconde.
+
+\begin{encadre}{Recommandation D14}
+Retenir comme conversion canonique \textbf{une requête par passage}, issue de la
+sélection de la meilleure image, et déclarer une sensibilité à $k$ détections par
+passage. Le nombre de caméras par appareil découle des classes de déploiement. Les
+valeurs de $k$ et du nombre de caméras relèvent du scénario.
+\end{encadre}
+
+\subsection{La question produit prioritaire : quantifier plutôt que réduire}
+
+\begin{table}[h]
+\centering\small
+\begin{tabular}{@{}lr@{}}
+\toprule
+représentation & octets par vecteur \\
+\midrule
+512D en FP32 & \num{2048} \\
+512D en FP16 & \num{1024} \\
+\textbf{512D en INT8} & \textbf{512} \\
+\textbf{128D en FP32} & \textbf{512} \\
+\bottomrule
+\end{tabular}
+\caption{Une représentation 512D quantifiée sur 8 bits occupe exactement la même
+mémoire qu'une représentation 128D en virgule flottante 32 bits.}
+\label{tab:int8}
+\end{table}
+
+C'est sans doute le constat le plus lourd de conséquences du chapitre. Tout l'argument
+de mémoire et de palier matériel en faveur de 128D peut être obtenu \emph{sans réduire
+la dimension}, par quantification seule. Même charge utile, même palier. Au premier
+ordre, même latence aussi : l'intensité opérationnelle de 512D-INT8 vaut 2 opérations
+par octet, toujours sous le point de crête, et le temps reste fixé par les octets lus.
+
+Le benchmark a raison de séparer les deux interventions : la quantification y est une
+phase distincte, et c'est la bonne construction pour isoler l'effet de la dimension.
+Mais la \emph{décision produit} ne porte pas sur \og 512D contre 128D \fg. Elle porte
+sur \og quelle représentation de 512 octets préserve le mieux la performance
+biométrique \fg. Si 512D-INT8 se dégrade moins que 128D-FP32 à mémoire égale, la
+réduction de dimension perd sa raison d'être du côté de l'ingénierie. L'étude
+biométrique doit donc comparer les routes à \emph{octets égaux}, et le tableau de
+décision doit porter une colonne \og octets par vecteur \fg, pas seulement une colonne
+\og dimension \fg.
+
+% =====================================================================
+\section{Cadre réglementaire}\label{sec:reglementaire}
+% =====================================================================
+
+\begin{alerte}{Portée de cette section}
+Ce qui suit établit quelles règles existent. Leur application au programme dépend de
+la juridiction, de l'opérateur et de la finalité du traitement. C'est une
+qualification juridique qui relève d'un conseil ; ce document n'en tient pas lieu.
+\end{alerte}
+
+\paragraph{Sécurité photobiologique.} L'{\NoAutoSpacing IEC 62471:2006} fixe les limites d'exposition,
+la méthode de mesure et la classification des risques pour les sources optiques
+incohérentes, diodes électroluminescentes comprises et lasers exclus, entre 200 et
+\num{3000}~nm~\cite{iec62471}. C'est une norme horizontale : elle attribue un groupe
+de risque, mais les exigences qui en découlent relèvent des normes propres à chaque
+produit~\cite{bentham}. La nomenclature de l'appareil doit donc porter le groupe de
+risque de l'illuminateur infrarouge.
+
+\paragraph{Données biométriques, si le déploiement relève de l'Union européenne.}
+L'article 9 du RGPD interdit par principe le traitement de données biométriques aux
+fins d'identifier une personne de manière unique, sauf exceptions de son
+paragraphe~2~\cite{gdpr}.
+
+\paragraph{Intelligence artificielle en espace public, si le déploiement relève de
+l'Union européenne.} Le règlement européen sur l'IA interdit en principe
+l'identification biométrique à distance en temps réel dans les espaces accessibles au
+public à des fins répressives (article 5, paragraphe 1, point h), sauf exceptions
+étroites~\cite{aiact}. Les systèmes d'identification biométrique qui ne sont pas
+interdits sont classés à haut risque.
+
+\begin{alerte}{Conséquence pour le programme}
+Les deux branches de l'analyse ne sont pas seulement deux familles de métriques : elles
+peuvent relever de deux régimes juridiques. Un contrôle d'accès de porteurs de billets
+et une liste de surveillance opérée à des fins répressives ne se qualifient pas de la
+même manière. Dans l'Union européenne, la seconde peut être interdite par défaut,
+quelle que soit la qualité de l'ingénierie. La juridiction et l'opérateur de chaque
+branche sont des paramètres de scénario à déclarer \emph{avant} de dimensionner la
+branche correspondante.
+\end{alerte}
+
+% =====================================================================
+\section{Les quatorze décisions et l'ordre de gel}\label{sec:decisions}
+% =====================================================================
+
+Toutes les décisions ci-dessous se prennent sans regarder la moindre donnée. Chacune
+porte un défaut argumenté, que le responsable du programme accepte ou remplace ; ce qui
+compte est que la valeur soit gelée avant que quiconque voie la machine.
+
+\begin{small}\renewcommand{\arraystretch}{1.28}
+\begin{longtable}{@{}>{\bfseries}l>{\raggedright}p{3.6cm}>{\raggedright}p{6.6cm}l@{}}
+\toprule
+\normalfont id & objet & défaut proposé & statut \\
+\midrule
+\endhead
+D1 & affectation de régime de saturation & rapport débit complété / offert : $\geq 0{,}98$ non saturé, $<0{,}90$ saturé ; départage par la pente de la file ; l'indéterminé compte comme régimes différents & défaut \\
+D2 & débit dérivé obligatoire & charge utile × débit complété ÷ bande passante mesurée ; au-delà de 1, preuve de résidence en cache & défaut \\
+D3 & cache effectif & somme des tranches de LLC des grappes où tourne le banc & défaut \\
+D4 & caractérisation de bande passante & une fois, en début de session, suivie d'au moins 300~s de repos ; jamais entre deux blocs & défaut \\
+D5 & comptes attendus et réalisés & publiés ensemble, avec suppression \og par conception \fg{} ou \og par déficit \fg & défaut \\
+D6 & échelle de paliers & au moins deux paliers encadrant la faisabilité de 512D sur G2, chacun avec sa bande passante & à déclarer \\
+D7 & marge de sécurité RAM & le plus grand de \SI{20}{\percent} de la RAM ou 512~Mo libres au pic & défaut \\
+D8 & profils de service & deux ou trois profils horaires nommés & à déclarer \\
+D9 & régime thermique & même construction que D1, avec repli si la puce n'expose pas de compteurs & défaut \\
+D10 & banc thermiquement représentatif & mesure dans la configuration de déploiement la plus défavorable, sinon étiquette de meilleur cas & défaut \\
+D11 & classes de déploiement & portique fixe et point mobile : alimentation, plafond, ambiant, boîtier, veille & à déclarer \\
+D12 & groupement des requêtes & Server sans groupement en principal, Offline en secondaire & à trancher \\
+D13 & processus d'arrivée & déterministe canonique, plus une variante poissonienne à graine gelée & à trancher \\
+D14 & requêtes par passage & une par passage en canonique, sensibilité à $k$ détections & à déclarer \\
+\bottomrule
+\end{longtable}
+\end{small}
+
+\begin{figure}[h]
+\centering
+\begin{tikzpicture}[
+  font=\sffamily\small,
+  etape/.style={draw=encre,fill=bleupale,minimum width=9.4cm,minimum height=0.72cm,align=flush left,text width=9.1cm,inner xsep=6pt},
+  cle/.style={etape,fill=ambrepale,draw=ambre},
+  fl/.style={-{Stealth[length=2.5mm]},thick,encre},
+  node distance=0.32cm]
+\node[etape] (e1) {\textbf{1} \quad Geler la logique des gardes — D1 à D14};
+\node[etape,below=of e1] (e2) {\textbf{2} \quad Revue indépendante de la spécification des gardes};
+\node[etape,below=of e2] (e3) {\textbf{3} \quad Matérialiser la plateforme, lier les valeurs physiques};
+\node[etape,below=of e3] (e4) {\textbf{4} \quad Geler l'enveloppe opérationnelle et les seuils experts};
+\node[etape,below=of e4] (e5) {\textbf{5} \quad Exécuter la Phase A};
+\node[cle,below=of e5] (e6) {\textbf{6} \quad Ouvrir SCREEN};
+\node[etape,below=of e6] (e7) {\textbf{7} \quad Croiser biométrie, ingénierie et conséquences};
+\foreach \a/\b in {e1/e2,e2/e3,e3/e4,e4/e5,e5/e6,e6/e7} \draw[fl] (\a) -- (\b);
+\draw[decorate,decoration={brace,amplitude=5pt},gris,thick] ($(e3.north east)+(0.15,0)$) -- ($(e4.south east)+(0.15,0)$)
+  node[midway,right=8pt,align=left,gris,font=\sffamily\footnotesize] {3 et 4 peuvent\\se faire en parallèle,\\4 jamais après 6};
+\node[right=0.35cm of e6,align=left,ambre,font=\sffamily\footnotesize] {après la machine :\\règle n°~9};
+\end{tikzpicture}
+\caption{Ordre de gel. Le seul réordonnancement qu'impose la discussion produit est
+l'échange de SCREEN et de la matérialisation.}
+\label{fig:gel}
+\end{figure}
+
+Le premier lot de gardes à implémenter se choisit par la gravité de la conclusion
+fausse, non par la facilité du test : l'absence de swap, l'isolement des bras, la
+sémantique de recherche exacte, l'échauffement et l'alternance des bras, le
+générateur hors appareil et en boucle ouverte, le plan de mesure énergétique, puis les
+deux classifieurs de régime, de saturation et thermique.
+
+Deux principes gouvernent leur écriture. Chaque garde sépare sa \emph{logique} —
+formule, seuil, comportement en cas d'échec —, gelée maintenant, de sa
+\emph{matérialisation} — compteur système, modèle de wattmètre —, qui viendra avec la
+machine ; dans l'autre sens, on écrirait des assertions qui décrivent ce que la
+plateforme fait au lieu de contraindre ce qu'elle doit faire. Et chaque garde conserve
+la \emph{valeur observée}, pas seulement son verdict : sans cela, un relecteur ne peut
+pas distinguer \og vérifié et correct \fg{} de \og n'a pas tourné \fg.
+
+% =====================================================================
+\section{Questions ouvertes}\label{sec:questions}
+% =====================================================================
+
+Aucune des questions suivantes ne se tranche en regardant des données. Toutes
+relèvent du responsable du programme, et toutes doivent l'être avant le gel des gardes.
+
+\paragraph{Valeurs de scénario.} L'échelle des paliers matériels candidats et leur
+ordre d'essai (D6). Les profils de service heure par heure (D8). Les classes de
+déploiement : pour chacune, l'alimentation, le plafond de puissance, la plage de
+température ambiante, le type de boîtier, et si l'appareil peut dormir entre deux
+passages (D11). La politique de sélection d'images et le nombre de caméras par appareil
+(D14). Pour l'enveloppe opérationnelle : le nombre de passages attendus, la densité
+d'appareils autour des sites, la taille de la liste de surveillance, et le point de
+fonctionnement visé pour chaque branche.
+
+\paragraph{Gouvernance.} Qui tient chacun des trois rôles de l'élicitation — détenteur
+des résultats SCREEN, constructeur de l'enveloppe, expert — sachant qu'aucune personne
+ne peut en tenir deux. La juridiction et l'opérateur de chaque branche, qui décident
+du régime juridique applicable. La qualification juridique elle-même, par un conseil.
+
+\paragraph{Défauts à accepter ou remplacer.} D1 à D5, D7, D9 et D10 portent un défaut
+argumenté. D12 et D13 portent une recommandation qui demande un arbitrage explicite.
+
+\paragraph{Sources à terminer.} Lire le détail du cache L3 dans la fiche NVIDIA
+DS-11105-001. Consulter directement la fiche Intel du N100, non atteinte. Remplacer la
+source secondaire sur les batteries par la fiche de la cellule effectivement retenue.
+Vérifier la série de normes ISO/IEC 19795 sur l'évaluation des performances
+biométriques avant de l'utiliser pour justifier une marge.
+
+\paragraph{Question produit.} Faut-il introduire une route 512D quantifiée sur 8 bits
+dans la comparaison biométrique future, pour comparer les représentations à octets
+égaux ? Ce chapitre le recommande. Cette route relèverait d'une nouvelle identité de
+protocole, sans toucher à Study 1B.
+
+% =====================================================================
+\section{Provenance des valeurs}\label{sec:provenance}
+% =====================================================================
+
+Chaque valeur factuelle de ce chapitre relève de l'une des natures suivantes. Une
+conclusion ne peut reposer que sur les quatre premières.
+
+\begin{description}[style=nextline,leftmargin=2.2cm,font=\sffamily\small\bfseries]
+\item[primaire] fiche ou documentation du fabricant, texte normatif ou réglementaire
+\item[secondaire] reprise par un tiers : presse technique, distributeur, analyse
+\item[dérivée] calculée à partir d'une valeur documentée, formule donnée
+\item[mesurée] mesurée sur l'appareil, méthode et date à l'appui — aucune à ce jour
+\item[supposée] hypothèse de travail, interdite comme base d'une conclusion
+\end{description}
+
+Un résumé automatique d'une source primaire n'est pas une source, ni les réponses d'un
+assistant, y compris celles qui ont servi à rédiger ce chapitre.
+
+\begin{small}
+\begin{longtable}{@{}>{\raggedright}p{5.7cm}>{\raggedright}p{4.1cm}ll@{}}
+\toprule
+fait & valeur & nature & source \\
+\midrule
+\endhead
+Raspberry Pi 5 — cache L3 partagé & 2~Mo & primaire & \cite{rpidoc} \\
+Raspberry Pi 5 — bande passante mémoire & jusqu'à 17~Go/s & primaire & \cite{rpidoc} \\
+Raspberry Pi 5 — seuils de throttling & \SI{80}{\celsius} et \SI{85}{\celsius} & primaire & \cite{rpiheat} \\
+Raspberry Pi 5 — sans refroidissement, charge soutenue & throttling permanent & primaire & \cite{rpiheat} \\
+Raspberry Pi 5 — puissance sous charge & environ 12~W & secondaire & \cite{nbrpi} \\
+Jetson Orin Nano — bande passante de crête & 34~Go/s (4~Go), 68~Go/s (8~Go) & primaire & \cite{nvds} \\
+Jetson Orin Nano — canaux vidéo virtuels & jusqu'à 16 & primaire & \cite{nvds} \\
+Jetson Orin Nano — exigence de conception thermique & SoC sous sa température max & primaire & \cite{nvtdg} \\
+Jetson Orin Nano — cache L3 & 2~Mo par grappe & secondaire & \cite{ridgerun} \\
+Intel N100 — cache L3, mémoire & 6~Mo, canal unique DDR5-4800 & secondaire & \cite{nbcheck} \\
+Intel N100 — bande passante de crête & \num{38,4}~Go/s, soit \num{4800}~MT/s × 8 octets & dérivée & calcul \\
+PoE 802.3af et 802.3at — puissance à l'appareil & \num{12,95}~W et \num{25,5}~W & secondaire & \cite{poe} \\
+Cellule lithium-ion — plages de charge et de décharge & 0 à \SI{45}{\celsius} ; $-20$ à \SI{60}{\celsius} & secondaire & \cite{bu410} \\
+Caméra extérieure chauffée — pointe hivernale & jusqu'à 32~W & secondaire & \cite{ampcom} \\
+IEC 62471 — portée & 200 à \num{3000}~nm, lasers exclus & catalogue normatif & \cite{iec62471} \\
+RGPD, article 9 & interdiction de principe & texte réglementaire & \cite{gdpr} \\
+AI Act, article 5(1)(h) & interdiction de principe & analyse juridique & \cite{aiact} \\
+Modèle Roofline & $\min(\text{crête},\ \text{BP} \times \text{IO})$ & primaire & \cite{roofline} \\
+Scénarios MLPerf Inference & Server, Offline et autres & primaire & \cite{mlperf} \\
+Méthode STREAM & noyau Triad de référence & secondaire & \cite{stream} \\
+Efficacité de lecture continue & \SI{70}{\percent} & \textbf{supposée} & — \\
+Surcoût système et exécution & 1~Go & \textbf{supposée} & — \\
+\bottomrule
+\end{longtable}
+\end{small}
+
+\appendix
+
+% =====================================================================
+\section{Glossaire}\label{sec:glossaire}
+% =====================================================================
+
+\begin{description}[style=unboxed,leftmargin=0pt,font=\sffamily\small\bfseries,itemsep=3pt]
+\item[AI Act] Règlement européen sur l'intelligence artificielle.
+\item[BLAS] \emph{Basic Linear Algebra Subprograms} — bibliothèque standard de calcul
+  matriciel, qui choisit elle-même ses micro-noyaux selon la forme du calcul.
+\item[Bras] Configuration de mesure complète sous une seule condition ; la Phase A en
+  compte deux, 512D et 128D.
+\item[D/D/1, M/D/1] Notations de files d'attente à un serveur : arrivées déterministes
+  ou poissoniennes (D ou M), service déterministe (D).
+\item[DRAM] Mémoire vive dynamique, la mémoire principale de l'appareil.
+\item[FMR, FNMR] En vérification \unun : taux de fausses acceptations d'imposteurs, et
+  de faux rejets de personnes légitimes.
+\item[FP32, FP16, INT8] Formats numériques : virgule flottante sur 32 ou 16 bits,
+  entier sur 8 bits. 4, 2 ou 1 octet par composante.
+\item[FPIR, FNIR] En identification \unN : taux de fausses alertes pour des personnes
+  absentes de la liste, et de personnes de la liste passées sans alerte.
+\item[Garde] Mécanisme qui vérifie qu'une clause est tenue et bloque sinon : test de
+  contrat, assertion d'exécution ou contrôle humain.
+\item[Intensité opérationnelle] Nombre d'opérations effectuées par octet lu en mémoire.
+\item[IR, NIR] Infrarouge, proche infrarouge.
+\item[LFW] \emph{Labeled Faces in the Wild}, jeu académique de visages, \num{5749}
+  identités.
+\item[LLC] \emph{Last level cache} — dernier niveau de cache du processeur, le plus
+  grand et le plus lent.
+\item[LPDDR] Famille de mémoires vives basse consommation pour appareils embarqués.
+\item[MLPerf] Suite de bancs d'essai d'inférence de MLCommons, dont les règles
+  définissent des scénarios de charge.
+\item[NI, $\delta_{\mathrm{NI}}$] Non-infériorité ; marge de non-infériorité.
+\item[PoE] \emph{Power over Ethernet} — alimentation d'un appareil par son câble réseau.
+\item[Point de fonctionnement] Réglage du seuil de décision qui fixe un taux d'erreur
+  pour mesurer l'autre.
+\item[RGPD] Règlement général sur la protection des données (GDPR en anglais).
+\item[Roofline] Modèle de performance : le minimum entre crête de calcul et bande
+  passante × intensité opérationnelle.
+\item[SCREEN, TEST] Étapes de Study 1B : exploration biométrique non décisionnelle,
+  puis qualification. Toutes deux scellées.
+\item[SoC] \emph{System on chip} — puce réunissant processeur, mémoire cache et
+  contrôleurs.
+\item[STREAM] Banc de référence pour la bande passante mémoire soutenue.
+\item[Swap] Débordement de la mémoire vive sur le stockage, très lent.
+\item[Throttling] Réduction automatique de fréquence du processeur au-delà d'un seuil
+  de température.
+\item[Working set] Données effectivement touchées par un programme pendant son travail.
+\end{description}
+
+% =====================================================================
+\begin{thebibliography}{99}
+% =====================================================================
+\small
+\bibitem{roofline} S. Williams, A. Waterman, D. Patterson. \emph{Roofline: An
+  Insightful Visual Performance Model for Multicore Architectures}. Communications of
+  the ACM 52(4), avril 2009, p.~65--76. DOI 10.1145/1498765.1498785. Version libre :
+  rapport technique UC Berkeley UCB/EECS-2008-134.
+\bibitem{hp} J. L. Hennessy, D. A. Patterson. \emph{Computer Architecture: A
+  Quantitative Approach}, 6\textsuperscript{e} édition. Morgan Kaufmann, 2017.
+\bibitem{stream} STREAM, banc de bande passante mémoire soutenue. Documentation de
+  référence, dont Microsoft Learn, \emph{STREAM benchmark}.
+\bibitem{mlperf} MLCommons. \emph{MLPerf Inference Rules}, dépôt
+  \texttt{mlperf/inference\_policies}, fichier \texttt{inference\_rules.adoc}.
+\bibitem{rpidoc} Raspberry Pi Ltd. Documentation matérielle, processeur BCM2712.
+  \url{https://www.raspberrypi.com/documentation/hardware/raspberrypi/bcm2711/}
+\bibitem{rpiheat} Raspberry Pi Ltd. \emph{Heating and cooling Raspberry Pi 5}.
+  \url{https://www.raspberrypi.com/news/heating-and-cooling-raspberry-pi-5/}
+\bibitem{nbrpi} Notebookcheck. \emph{Broadcom BCM2712}.
+\bibitem{nvds} NVIDIA. \emph{Jetson Orin Nano Series Data Sheet}, DS-11105-001.
+\bibitem{nvtdg} NVIDIA. \emph{Jetson Orin NX Series and Jetson Orin Nano Series
+  Modules Thermal Design Guide}, TDG-11127-001.
+\bibitem{ridgerun} RidgeRun. \emph{NVIDIA Jetson Orin Nano — SoM Overview}.
+\bibitem{nbcheck} Notebookcheck, TechPowerUp. Fiches du processeur Intel N100.
+\bibitem{poe} Spécifications IEEE 802.3af et 802.3at, telles que rapportées par
+  plusieurs sources concordantes (Netgear, Schneider Electric, Faceofit). Norme IEEE
+  payante, non consultée.
+\bibitem{bu410} Battery University. \emph{BU-410: Charging at High and Low
+  Temperatures}.
+  \url{https://batteryuniversity.com/article/bu-410-charging-at-high-and-low-temperatures}
+\bibitem{sunlith} SunLith Energy. \emph{Charging temperature for batteries}.
+\bibitem{ampcom} AMPCOM. \emph{PoE Standards: 802.3af, 802.3at \& 802.3bt Complete
+  Glossary}.
+\bibitem{iec62471} {\NoAutoSpacing IEC 62471:2006}, \emph{Photobiological safety of lamps and lamp
+  systems}. Notice de catalogue, Conseil canadien des normes et SIS.
+\bibitem{bentham} Bentham Instruments. \emph{Photobiological Safety of Lamps and Lamp
+  Systems}.
+\bibitem{gdpr} Règlement (UE) 2016/679, article 9. Texte reproduit par gdpr-text.com.
+\bibitem{aiact} Règlement européen sur l'intelligence artificielle, article 5. Analyse :
+  Verfassungsblog, \emph{AI Act and the Prohibition of Real-Time Biometric
+  Identification}, décembre 2024.
+\end{thebibliography}
+
+\end{document}
