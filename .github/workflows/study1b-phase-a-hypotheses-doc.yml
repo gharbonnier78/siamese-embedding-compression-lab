@@ -1,0 +1,55 @@
+name: Study 1B Phase A Hypotheses Documentation
+
+on:
+  pull_request:
+    paths:
+      - 'paper/study1b_phase_a_experimental_hypotheses_v0.4_fr.tex'
+      - 'protocol/assurance/STUDY1B_PHASE_A_CONTRACT_TO_EXECUTION_TRACEABILITY_V0_4.md'
+      - '.github/workflows/study1b-phase-a-hypotheses-doc.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  xelatex-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v5
+      - name: Install XeLaTeX and required fonts
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            texlive-xetex texlive-latex-extra texlive-lang-french texlive-pictures \
+            texlive-fonts-extra fonts-crosextra-caladea fonts-crosextra-carlito \
+            fonts-dejavu-core
+          fc-cache -f
+      - name: Build chapter with three XeLaTeX passes
+        working-directory: paper
+        run: |
+          for pass in 1 2 3; do
+            xelatex -interaction=nonstopmode -halt-on-error -file-line-error \
+              study1b_phase_a_experimental_hypotheses_v0.4_fr.tex
+          done
+      - name: Reject layout and glyph regressions
+        working-directory: paper
+        run: |
+          LOG=study1b_phase_a_experimental_hypotheses_v0.4_fr.log
+          if grep -q '^!' "$LOG"; then
+            echo 'LaTeX error marker found' >&2
+            exit 1
+          fi
+          if grep -q 'Missing character' "$LOG"; then
+            echo 'Missing glyph found' >&2
+            exit 1
+          fi
+          if grep -q 'Overfull \\hbox' "$LOG"; then
+            echo 'Overfull box found' >&2
+            exit 1
+          fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: study1b-phase-a-hypotheses-v0.4-fr
+          path: paper/study1b_phase_a_experimental_hypotheses_v0.4_fr.pdf
+          if-no-files-found: error
