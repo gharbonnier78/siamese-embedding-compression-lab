@@ -1,0 +1,56 @@
+name: Study 1B Phase A v0.4 source import
+
+on:
+  push:
+    branches:
+      - agent/study1b-phase-a-hypotheses-v04-20260926
+    paths:
+      - '.github/workflows/study1b-phase-a-v04-import.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  reconstruct:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: agent/study1b-phase-a-hypotheses-v04-20260926
+          fetch-depth: 0
+
+      - name: Reconstruct exact package sources
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p protocol/assurance paper
+
+          base64 --decode .handoff_transport/traceability_v04.md.gz.b64             | gzip --decompress             > protocol/assurance/STUDY1B_PHASE_A_CONTRACT_TO_EXECUTION_TRACEABILITY_V0_4.md
+
+          base64 --decode .handoff_transport/hypotheses_v04.tex.gz.b64             | gzip --decompress             > paper/study1b_phase_a_experimental_hypotheses_v0.4_fr.tex
+
+          echo "44fd9e5f21d7e499bd847f8f48922072c83168d4dc9d7784c10a4b2c4a063811  protocol/assurance/STUDY1B_PHASE_A_CONTRACT_TO_EXECUTION_TRACEABILITY_V0_4.md"             | sha256sum --check -
+          echo "8671681ba18896b2a8651a298b50cf336307bd0648920fa14f95928d4a45ecf9  paper/study1b_phase_a_experimental_hypotheses_v0.4_fr.tex"             | sha256sum --check -
+
+      - name: Run focused benchmark contract test
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check 'PyYAML>=6,<7'
+          python -m unittest tests.test_study1b_phase_a_measurement_contract_v03 -v
+
+      - name: Commit exact sources and remove transport scaffolding
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf .handoff_transport
+          rm .github/workflows/study1b-phase-a-v04-import.yml
+
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git diff --cached --check
+          git commit -m 'docs(study1b): import exact Phase A hypotheses v0.4 sources'
+          git push origin HEAD:agent/study1b-phase-a-hypotheses-v04-20260926
