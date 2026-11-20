@@ -58,3 +58,14 @@ The visit to Arkema's "Le Lab" at La Défense is an opportunity for material-sel
 - Existing Study 1B engineering PR #50: https://github.com/gharbonnier78/siamese-embedding-compression-lab/pull/50 ; do not change its independent-review or protected-outcome rules.
 - See `hardware/BOM_PROVISIONAL.csv` (placeholder, not validated for purchase) and `hardware/METROLOGY_AND_DECISION_PROTOCOL.md`.
 - See `hardware/cad/README.md` for mechanically unverified placeholder enclosure and fabrication handoff.
+
+## Updated November 20 design baselines
+
+- [Full local model / 1:N system architecture and whitelist/blacklist policy semantics](EDGE_SYSTEM_ARCHITECTURE_V0.md) — distinction between matched candidate and a confirmed identity, signed atomic gallery/policy revisions and privacy limits.
+- [Structured system contract (YAML)](DEVICE_CONTRACT_V0.yaml) — research workloads, sensor/power domains, hot-swap and contract-level gates.
+- [Probe readout / PoE / Ethernet / low-power secure telemetry](PROBE_INTERFACE_AND_TELEMETRY_SPEC.md) — always-on MCU, external metrology, low-power readout, network sleep trade-off.
+- [Probe readout matrix](PROBE_INTERFACE_MATRIX.csv) — sensor observables, physical acquisition interface, firmware readout and reporting requirements.
+- [CAD / KiCad / SPICE / Claude Code or alternative workstation workflow](WORKBENCH_CLAUDE_CODE_AND_EDA.md) — use real native engineering files and validation tools.
+- **BOM revised:** 36 provisional equipment lines including dual approved protected battery modules, PoE PD, probe ADCs/shunts, MCU, independent thermocouple logger, encrypted storage, secure identity and power-loss-safe OTA. This is not a priced or approved BOM.
+
+**Design choice not yet made:** exact compute module and accelerator, model NPU compatibility, camera/NIR timing/pinouts, power domains, electrical schematic and actual PCB, verified connectors and enclosure dimensions. The early CAD model is a shape prototype, **not a manufacturing file**.
