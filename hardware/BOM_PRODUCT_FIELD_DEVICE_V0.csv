@@ -15,7 +15,7 @@ PD-013,metrology,Ambient temperature and humidity probe,1,Record climate and pot
 PD-014,security,Tamper/open switch,1,Detect enclosure opening,TBD,unselected,mechanical fit and fault logic
 PD-015,power,Commercial certified protected smart battery A,1,Replaceable primary pack,TBD,unselected,safety data and low-temp operation
 PD-016,power,Commercial certified protected smart battery B,1,Replaceable secondary pack,TBD,unselected,hot-swap safety and continuity
-PD-017,power,Power path and hold-up approved module,1,Switch dual packs and DC/PoE without interruption,TBD,unselected,reviewed circuit and bench tests
+PD-017,power,Power path and hold-up approved module,1,Prefer PoE/DC operational source and protect continuity via backup battery and optional approved pack swap,TBD,unselected,reviewed circuit and bench tests
 PD-018,power,Regulated DC supply and optional qualified PoE PD,1,Fixed-operation and charge supply,TBD,unselected,peak current and IEEE class selection
 PD-019,connectivity,Gigabit Ethernet port optional mechanical variant,1,Fixed wired data and maintenance,TBD,unselected,ingress connector seals
 PD-020,connectivity,WiFi antenna and modem,1,Optional mobile synchronization,TBD,unselected,antenna and duty cycle power
@@ -26,6 +26,6 @@ PD-024,enclosure,Optical windows suitable for RGB and NIR,2,Transmission rain dr
 PD-025,enclosure,Sun hood or glare-control geometry,1,Reduce sun flare and optical artifacts,TBD,unselected,geometry and field of view
 PD-026,enclosure,Passive heat spreader and thermal interface set,1,Heat rejection without liquid ingress,TBD,unselected,solar soak and high load tests
 PD-027,enclosure,Battery door with sealing and safe latch,1,Hot swap under mobile operation,TBD,unselected,ingress test and mechanical cycling
-PD-028,mechanics,Mobile mounting or carry system,1,Handheld walking or temporary mount,TBD,unselected,ergonomics vibration and mechanical safety
+PD-028,mechanics,Temporary fixed wall bracket pole/truss mounting system,1,Repeatable secure site installation and optical calibration,TBD,unselected,approved mounting/anti-tamper cable safety and install test
 PD-029,PCB,Low-voltage sensor and MCU carrier PCB,1,Integrates sensor buses and qualified connectors,TBD,unselected,KiCad ERC DRC and manual review
 PD-030,PCB,Connector harness and test pads,1,Camera trigger MCU telemetry external bench sync,TBD,unselected,validated levels and cable clearances
