@@ -24,6 +24,10 @@
 
 **Add a separate, secure, low-energy short-alert radio channel from each fixed unit to the event organizer's authorized security receiver.** It must not depend on the external metrology PC or continuous high-power 5G. Evaluate private LoRaWAN with event-owned on-site gateway, secure P2P sub-GHz, and existing wired/Wi-Fi alternatives; choose only after RF field study and regulatory check. Define application event ID, type, timestamp, pseudonymous zone, network receipt ACK, operator acknowledgement, retries, queuing, false-alert mitigation and separate on-device vs dispatch BOMs. Never send images, face vectors, personal identities or real watchlists over this channel. Receiver/dispatcher is operational infrastructure, not the experimental PC. See [LOW_POWER_SECURITY_ALERT_RF_REQUIREMENTS.md](LOW_POWER_SECURITY_ALERT_RF_REQUIREMENTS.md) and [BOM_EVENT_SECURITY_ALERT_RECEIVER_V0.csv](BOM_EVENT_SECURITY_ALERT_RECEIVER_V0.csv).
 
+## Outdoor upgrade without locking prototype fabrication
+
+The concept art A/B has no demonstrated ingress or humidity performance. **Keep P0/P1 manufacturable** with COTS SoM, cameras, open-frame bench and printed fit mock. Design A-v2 with no through-vents into electronics, a gasket land, replaceable optical windows, a single properly routed service cable, conductive outer heat path, and an optional *separately wall-fixed* power backup dock. Defer conformal coating, final IP label, expensive molds and verified thermal/weather claims to P3/P4. Produce a staged P0–P4 mechanical, electrical, environmental and DFM plan and evidence gates before final PCB/casing release. Read [STAGED_ENVIRONMENTAL_PROTOTYPING_AND_DFM_V0.md](STAGED_ENVIRONMENTAL_PROTOTYPING_AND_DFM_V0.md).
+
 ## Source-of-truth hierarchy
 
 1. **[FIXED_EVENT_INSTALLATION_MISSION.md](FIXED_EVENT_INSTALLATION_MISSION.md)** — latest authoritative mission and deployment.
