@@ -16,3 +16,22 @@ H-014,mechanical,Prototype enclosure in dimensionally stable material,1,Servicea
 H-015,battery,Protected commercial battery pack and approved charger,1,Bench autonomy trials only when electrical design reviewed,TBD,,No DIY cell pack or unapproved charging design
 H-016,load,Independent workload replay / load-generator computer,1,Offline deterministic scenario replay with fixed seed,TBD,,May reuse existing PC
 H-017,accessories,Cables connectors fasteners strain relief lab safety,1,Replaceable documented mechanical and wiring,TBD,,Connector-specific dimensions needed
+H-018,supervision,Always-on low-power MCU and independent RTC,1,Standby sensor acquisition wake GPIO watchdog,TBD,,Select MCU with verified low-sleep-current peripherals
+H-019,supervision,Nonvolatile MCU telemetry ring buffer FRAM,1,Store-and-forward for power-loss-safe probe events,TBD,,Capacity based on offline retention and write endurance
+H-020,supervision,Input and rail shunt and voltage monitoring ICs,3,PoE DC and internal rail energy metrology,TBD,,Bus addresses shunt temperature drift calibration
+H-021,thermal,Onboard temperature sensors and thermistors,4,Heatsink exterior ambient and NIR emitter region,TBD,,Locations and uncertainty by thermal model
+H-022,thermal,External calibrated thermocouple logger,1,Independent thermal ground truth,TBD,,Calibration traceability and placement
+H-023,environment,Ambient humidity and temperature sensor,1,Environmental conditioning,TBD,,Sample power and thermal mounting
+H-024,security,Tamper switch and optional accelerometer,1,Detect unauthorized opening tilt shock,TBD,,Wake interrupts and log retention
+H-025,power,Two independent approved hot-swappable smart battery packs,2,Uninterrupted pack replacement only after safety testing,TBD,,Commercial BMS pack health SoC and compatible chemistry
+H-026,power,Protected power-path controller and charger,1,Power continuity during pack swap and PoE DC backfeed protection,TBD,,Independent safety review and worst-load measurements
+H-027,network,Qualified PoE powered-device controller and DC conversion,1,Select PoE class from measured peak input current,TBD,,IEEE 802.3at/bt support and thermal verification
+H-028,network,Gigabit Ethernet PHY and mechanical connector,1,Authenticated wired management and telemetry,TBD,,Connector format waterproof requirements
+H-029,network,Optional Single Pair Ethernet PoDL interface,1,Only if distant wired probes justify this bus,TBD,,Not required for same-board I2C sensors
+H-030,debug,Authenticated scheduled low-power maintenance interface,1,Separate low-power MCU reports from always-reachable IP mode,TBD,,Network security power budget and service policy
+H-031,probe,Sensor bus breakout and calibration test points,1,I2C SPI GPIO ADC and power domains,TBD,,Electrical schematic and pin validation
+H-032,storage,Encrypted eMMC or NVMe for model and local 1-to-N gallery,1,Store 1M 512D or 128D vectors with index and versioned encryption,TBD,,Actual index RAM flash wear and IO measurement
+H-033,security,Hardware-backed device identity and secure key storage,1,OTA signing verification and keys for telemetry and gallery,TBD,,Check SoC secure boot and compatible SE module
+H-034,firmware,Power-loss-safe A/B update storage partitioning,1,Independent SoC and MCU updates plus rollback plan,TBD,,Prove boot and rollback support on target board
+H-035,AI,Optional validated NPU accelerator capability,1,Confirm selected biometric model operators and quantization support,TBD,,No inference TOPS assumption
+H-036,vision,Optional thermal LWIR scene sensor,1,Only if thermal imaging belongs to use case not enclosure thermal probes,TBD,,Cost power lens and regulatory requirements
