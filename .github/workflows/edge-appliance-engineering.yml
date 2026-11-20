@@ -29,6 +29,18 @@ jobs:
         run: python -m compileall -q engineering
       - name: Run synthetic tests
         run: python -m unittest discover -s engineering/sim/tests -v
+      - name: Abstract image RGB/NIR pixel replay, exact 512D and projected 128D
+        run: |
+          python engineering/sim/pixel_replay.py --out /tmp/pixel-demo
+          test -s /tmp/pixel-demo/image_comparison.json
+          test -s /tmp/pixel-demo/offline_replay_report.html
+          python - <<'PY'
+          import json
+          j=json.load(open("/tmp/pixel-demo/image_comparison.json"))
+          assert j["manifest"]["dataset_class"] == "SYNTHETIC_NONHUMAN"
+          assert j["manifest"]["biometric_performance_claim"] is False
+          assert len(j["comparisons"]) >= 10
+          PY
       - name: Reproducible synthetic device and PC experiment
         run: |
           python engineering/sim/digital_twin.py --dim 128 --out /tmp/twin-128
@@ -56,6 +68,9 @@ jobs:
             /tmp/twin-disconnected/*.json
             /tmp/hold-fab.json
             /tmp/synthetic-search.json
+            /tmp/pixel-demo/image_comparison.json
+            /tmp/pixel-demo/image_comparison.csv
+            /tmp/pixel-demo/offline_replay_report.html
           retention-days: 7
   firmware-host-simulation:
     runs-on: ubuntu-latest
