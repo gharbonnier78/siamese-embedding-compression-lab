@@ -1,0 +1,79 @@
+schema_version: edge-device-contract-0.1
+status: exploratory_not_buildable
+date: 2026-11-20
+provenance:
+  chat: "Projection Siamois 19 08 26; system owner follow-up November 2026"
+  science_scope: "No Study 1B protected outcomes used; engineering-only synthetic loads permitted"
+research_question: "Is measured local edge 1:N identification useful after accuracy, thermal, autonomy, total cost and privacy constraints?"
+gates: [G0_falsify_need, G1_instrumented_bench, G2_replay_100k_to_1M, G3_validated_CAD_and_PCB, G4_separate_authorized_pilot]
+modes:
+  - {name: off, ai_soc: off, rgb: off, nir: off, mcu: low_power}
+  - {name: sleep, ai_soc: off, rgb: off, nir: off, mcu: always_on}
+  - {name: detect, ai_soc: on, rgb: on, nir: conditional, mcu: always_on}
+  - {name: verify_1to1, ai_soc: on, matcher: one_to_one, mcu: always_on}
+  - {name: identify_1toN, ai_soc: on, matcher: one_to_many, mcu: always_on}
+  - {name: transmit, ai_soc: conditional, connectivity: wifi_eth_or_5g, mcu: always_on}
+  - {name: battery_swap, ai_soc: on_or_off, continuity: must_be_measured, mcu: always_on}
+imaging:
+  visible_rgb: {type: EO_RGB, required_in_full_prototype: true, connector: TBD}
+  near_infrared: {type: NIR, required_in_full_prototype: true, trigger_sync: GPIO_TTL, emitter_eye_safety_review: required}
+  longwave_thermal_scene: {type: LWIR, included: false, rationale: not_the_same_as_device_heat_probe}
+  low_power_passage_trigger: {candidates: [PIR, mmWave], selected: TBD, interface: GPIO_IRQ}
+compute:
+  soc: {candidate: RK3588_class_SoM, selected: TBD, measured_inference: false}
+  memory_gb_min_candidate: 8
+  model:
+    extractor: AdaFace_or_separately_validated
+    on_device_inference: required
+    packaging: hashed_signed_immutable
+    supported_precision: TBD
+    mandatory_runtime_operator_check: true
+  matching:
+    local_offline: true
+    modes: [verify_1to1, identify_1toN]
+    gallery_sizes_to_test: [100000, 500000, 1000000]
+    reference_embeddings: {dimension: 512, dtype: fp32}
+    compare_compressions: [{family: random, dimension: 128}, {family: PCA, dimension: 128}, {family: Siamese, dimension: 128}]
+    deterministic_synthetic_replay_first: true
+    separate_index_recall_validation: true
+    accuracy_qualification: separate_authorization
+    scores: {verification: [FMR, FNMR], identification: [FPIR, FNIR, rank_k]}
+  policies:
+    storage: separate_from_vector_index
+    lists: [allowlist, denylist_watchlist, unknown, no_decision]
+    denylist_requires_human_review: true
+    unknown_never_equals_denylist: true
+    update: signed_versioned_atomic
+    consented_lab_or_synthetic_only: true
+  storage:
+    media: eMMC_or_NVMe_TBD
+    encryption_at_rest: required
+    model_and_projection_version_tags: required
+    indexes: atomic_version_swap
+    event_retention_policy: TBD
+energy:
+  power_inputs: [certified_DC, optional_PoE, independently_protected_battery_A, independently_protected_battery_B]
+  hot_swap: {required_full_prototype: true, mechanism: not_selected, worst_case_load_continuity_test: required}
+  passive_thermal_first: true
+  always_on_mcu: true
+  external_power_analyzer_required: true
+  system_probe_matrix: hardware/PROBE_INTERFACE_MATRIX.csv
+connectivity:
+  wired: {interface: gigabit_ethernet, PoE: conditional_measured_power, connector: TBD}
+  mobile_primary: WiFi
+  mobile_optional_fallback: 5G
+  single_pair_ethernet: optional_only_if_remote_probes_need_it
+  low_power_remote_reachability_policy: TBD
+  signed_OTA_and_rollback: required
+  mutual_auth_networking: required
+design_toolchain:
+  coding_agent: Claude_Code_or_equivalent
+  ecad: KiCad
+  electrical_sim: ngspice
+  mcad: FreeCAD_and_OpenSCAD
+  experimental_AI_exploration: [Blueprint, Phaestus]
+  deliverables: [schematic_native, PCB_native, ERC, DRC, vendor_qualified_BOM, Gerber, STEP, STL, sensor_readout_spec, firmware, metrology_evidence]
+decision_rules:
+  STOP: "No lawful or useful need; simpler alternative dominates; errors or cost/thermal constraints unacceptable"
+  PIVOT: "Specific measured bottleneck can be corrected with revised architecture"
+  PERSEVERE: "Replication-backed useful benefit survives constraints versus baselines"
