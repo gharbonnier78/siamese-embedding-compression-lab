@@ -1,0 +1,102 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Siamese Embedded engineering evidence event — no biometric payload",
+  "type": "object",
+  "required": [
+    "run_id",
+    "device_id",
+    "event_kind",
+    "mode",
+    "timestamp_utc",
+    "trace_id",
+    "span_id",
+    "model_revision",
+    "config_revision",
+    "calibration_id"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "run_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "device_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "event_kind": {
+      "type": "string",
+      "enum": [
+        "wake",
+        "power",
+        "thermal",
+        "sensor",
+        "alert_sent",
+        "alert_rf_ack",
+        "alert_human_ack",
+        "error",
+        "config_change",
+        "update"
+      ]
+    },
+    "mode": {
+      "type": "string",
+      "enum": [
+        "off",
+        "sleep",
+        "idle",
+        "detect",
+        "search",
+        "transmit",
+        "maintenance",
+        "fault"
+      ]
+    },
+    "timestamp_utc": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "trace_id": {
+      "type": "string"
+    },
+    "span_id": {
+      "type": "string"
+    },
+    "model_revision": {
+      "type": "string"
+    },
+    "config_revision": {
+      "type": "string"
+    },
+    "calibration_id": {
+      "type": "string"
+    },
+    "site_profile_id": {
+      "type": "string"
+    },
+    "power_w": {
+      "type": "number",
+      "minimum": 0
+    },
+    "temp_c": {
+      "type": "number"
+    },
+    "battery_soc_pct": {
+      "type": "number",
+      "minimum": 0,
+      "maximum": 100
+    },
+    "event_ref": {
+      "type": "string"
+    },
+    "rf_delivery_status": {
+      "type": "string",
+      "enum": [
+        "pending",
+        "received",
+        "expired",
+        "failed"
+      ]
+    }
+  }
+}
