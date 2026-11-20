@@ -1,3 +1,9 @@
+# SUPERSEDED historic Flux prompt
+
+The carried/handheld/harness design premise in the text below was incorrect. **Use [FLUX_AI_START_HERE.md](FLUX_AI_START_HERE.md) and [FIXED_EVENT_INSTALLATION_MISSION.md](FIXED_EVENT_INSTALLATION_MISSION.md) instead.** Do not feed this old prompt to Flux. Retained for design decision history only.
+
+---
+
 # FLUX.AI — Full-system correction to the Phase 0 scope (v0.2, 2026-11-20)
 
 **This document overrides the narrowly scoped PCB-first framing in the initial Flux.ai brief. The earlier brief remains useful as a future subsystem prompt, not as the whole project.**
