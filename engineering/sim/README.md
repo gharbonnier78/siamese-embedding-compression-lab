@@ -52,3 +52,6 @@ Replaying the same saved video/photos can compare model outputs on identical pix
 ## Still missing before real-world use
 
 Real camera drivers; synchronized NIR hardware capture; target SoM model runtime and validated NPU/GPU; operator access control and lawful user list management; vetted TLS+mTLS, secure provisioning, local encryption, real instrument drivers, RF link budget and measured power/thermal; reproducible trial with a qualified data set. This is an engineering starting point, NOT a security appliance.
+## Roadmap for actual RGB/NIR portraits
+
+For a separate offline, access-controlled next phase, see [IMAGE_PAIR_REPLAY_PLAN.md](IMAGE_PAIR_REPLAY_PLAN.md). The present synthetic scene simulator uses **no image pixels**, while the planned image-pair adapter requires real, licensed/consented simultaneous RGB+NIR capture and controlled access; converting RGB with a grayscale filter is **not** physically equivalent to NIR. The plan maps all scenes (frontal/profile, backlit, low-light, wet-window, movement) to the 128D/512D frozen-model replay and to the PC supervisor, and explicitly separates control-flow mocks, real offline images, and physical measurement.
