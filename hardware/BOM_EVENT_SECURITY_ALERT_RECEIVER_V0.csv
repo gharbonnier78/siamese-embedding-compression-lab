@@ -1,0 +1,6 @@
+line_id,subsystem,item_description,quantity,minimum_spec_or_purpose,selection_status,design_review_gate
+SO-001,radio,Event owned private LoRaWAN gateway or equivalent controlled RF receiver,1,Receive authenticated low power radio alerts from deployed fixed units,TBD,site RF survey and protocol choice
+SO-002,security,Local security dispatch application/receiver with audited operator acknowledgement,1,Present review requests and equipment faults to authorized event personnel,TBD,operator workflow roles and data protection assessment
+SO-003,security,Gateway-to-console secured local connection and backup power,1,Maintain alert availability under Internet loss and bounded power outages,TBD,physical routing power backup and independent alarm path tests
+SO-004,radio,Certified antenna and installation accessories for the receiver/gateway,1,Controlled site coverage over event passage zones,TBD,radio permissions link budget and mounting survey
+SO-005,security,Authorized security personnel notification interface optional pager/mobile integration,1,Forward validated alert to named on-duty staff without data leakage,TBD,acknowledgement latency notification reliability and access rights
