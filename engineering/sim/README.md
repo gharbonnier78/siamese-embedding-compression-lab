@@ -12,6 +12,10 @@ The laboratory PC can simulate **what the external supervisory/analysis station 
 - External PC dashboard on 127.0.0.1, using **loopback HTTP only** as a controlled demonstration of the Ethernet interface; it cannot be used in production and does not implement real network authentication or mTLS.
 - Encrypted research evidence vault prototype and signed single-active-model package in sibling folders. Any real face data requires separate approval, protected storage and acquisition tooling.
 
+## Now implemented: deterministic **image-pixel** comparison
+
+The previous control-flow twin below remains synthetic scene metadata. The **new** [Pixel Replay module](PIXEL_REPLAY_AND_MODEL_ADAPTERS.md) instead generates actual files containing **non-human abstract RGB-like/NIR-like patterns**, reads their pixels with Pillow, extracts a deterministic DCT512 vector and compares exact 512D versus an orthogonal random128 projection on **identical images**. This is NOT a trained face recognizer or real NIR optical sensing. Run `python engineering/sim/pixel_replay.py --out /tmp/siamese-pixel-demo`, then open its local HTML dashboard. True authorized RGB/NIR paired captures and trained models still require separate protected adapters.
+
 ## Run locally
 
 From repository root:
