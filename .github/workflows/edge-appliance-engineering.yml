@@ -1,0 +1,115 @@
+name: Edge appliance engineering (synthetic, non-fabrication)
+on:
+  pull_request:
+    paths:
+      - "engineering/**"
+      - ".github/workflows/edge-appliance-engineering.yml"
+  push:
+    branches:
+      - "engineering/edge-appliance-reference-stack-v0"
+    paths:
+      - "engineering/**"
+      - ".github/workflows/edge-appliance-engineering.yml"
+permissions:
+  contents: read
+jobs:
+  software-synthetic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: engineering/requirements.txt
+      - name: Install controlled dependencies
+        run: python -m pip install -r engineering/requirements.txt
+      - name: Python syntax validation
+        run: python -m compileall -q engineering
+      - name: Run synthetic tests
+        run: python -m unittest discover -s engineering/sim/tests -v
+      - name: Abstract image RGB/NIR pixel replay, exact 512D and projected 128D
+        run: |
+          python engineering/sim/pixel_replay.py --out /tmp/pixel-demo
+          test -s /tmp/pixel-demo/image_comparison.json
+          test -s /tmp/pixel-demo/offline_replay_report.html
+          python - <<'PY'
+          import json
+          j=json.load(open("/tmp/pixel-demo/image_comparison.json"))
+          assert j["manifest"]["dataset_class"] == "SYNTHETIC_NONHUMAN"
+          assert j["manifest"]["biometric_performance_claim"] is False
+          assert len(j["comparisons"]) >= 10
+          PY
+      - name: Reproducible synthetic device and PC experiment
+        run: |
+          python engineering/sim/digital_twin.py --dim 128 --out /tmp/twin-128
+          python engineering/sim/digital_twin.py --dim 512 --out /tmp/twin-512
+          python engineering/sim/digital_twin.py --dim 128 --rf-down --ethernet-down --out /tmp/twin-disconnected
+          python engineering/sim/bench.py --seed 7 --samples 40 --output /tmp/bench-probe
+          python engineering/sim/replay.py --dim 128 --gallery 1000 --queries 3 > /tmp/synthetic-search.json
+          python engineering/bom/audit.py --root . --output /tmp/hold-fab.json
+          python - <<'PY'
+          import json
+          for folder in ("twin-128","twin-512","twin-disconnected"):
+              item=json.load(open("/tmp/"+folder+"/synthetic_digital_twin.json"))
+              assert item["manifest"]["source"]=="SIMULATED_NOT_MEASURED"
+              assert item["manifest"]["no_real_images"] is True
+          j=json.load(open("/tmp/hold-fab.json"))
+          assert j["manufacturing_release"] is False
+          PY
+      - name: Preserve synthetic-only results
+        uses: actions/upload-artifact@v4
+        with:
+          name: synthetic-engineering-checks
+          path: |
+            /tmp/twin-128/*.json
+            /tmp/twin-512/*.json
+            /tmp/twin-disconnected/*.json
+            /tmp/hold-fab.json
+            /tmp/synthetic-search.json
+            /tmp/pixel-demo/image_comparison.json
+            /tmp/pixel-demo/image_comparison.csv
+            /tmp/pixel-demo/offline_replay_report.html
+          retention-days: 7
+  firmware-host-simulation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile host MCU state machine (NOT target firmware)
+        run: |
+          gcc -std=c11 -Wall -Wextra -Werror -pedantic \
+            engineering/firmware/mcu_supervisor.c \
+            engineering/firmware/test_mcu.c \
+            -o /tmp/edge-mcu-supervisor
+          /tmp/edge-mcu-supervisor
+  mechanical-concept:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install OpenSCAD for P0 geometry only
+        run: sudo apt-get update -qq && sudo apt-get install -y -qq openscad
+      - name: Export unverified study STL models
+        run: |
+          mkdir -p /tmp/edge-geometry
+          openscad -D 'part="body"' -o /tmp/edge-geometry/body_CONCEPT_ONLY.stl engineering/mechanical/enclosure.scad
+          openscad -D 'part="lid"' -o /tmp/edge-geometry/lid_CONCEPT_ONLY.stl engineering/mechanical/enclosure.scad
+          openscad -D 'part="bracket"' -o /tmp/edge-geometry/bracket_CONCEPT_ONLY.stl engineering/mechanical/enclosure.scad
+          test -s /tmp/edge-geometry/body_CONCEPT_ONLY.stl
+          test -s /tmp/edge-geometry/lid_CONCEPT_ONLY.stl
+          test -s /tmp/edge-geometry/bracket_CONCEPT_ONLY.stl
+          for variant in hull book cassette; do
+            openscad -D "style=\"$variant\"" -D 'part="assembly"' \
+              -o "/tmp/edge-geometry/variant-$variant-CONCEPT_ONLY.stl" \
+              engineering/mechanical/concept_variants.scad
+            test -s "/tmp/edge-geometry/variant-$variant-CONCEPT_ONLY.stl"
+          done
+      - uses: actions/upload-artifact@v4
+        with:
+          name: unverified-p0-geometries-NOT-for-manufacture
+          path: /tmp/edge-geometry/*.stl
+          retention-days: 7
+# Deliberately NO KiCad Gerber/Excellon export. Electrical design isn't complete.
+# NO secrets or sensitive face/watchlist data on public CI.

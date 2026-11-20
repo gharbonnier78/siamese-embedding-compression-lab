@@ -1,0 +1,17 @@
+signal_id,subsystem,physical_interface,owner,power_domain,purpose,part_number,status
+E-001,PIR_presence,GPIO_interrupt,MCU,always_on,wake,TBD,REQUIRES_SELECTION
+E-002,RGB_camera,CSI2_or_USB_with_sync,SoM,switched,scene_capture,TBD,REQUIRES_SELECTION
+E-003,NIR_camera,CSI2_or_USB_with_sync,SoM,switched,scene_capture_night,TBD,REQUIRES_SELECTION
+E-004,NIR_driver,hardware_inhibit_and_PWM,MCU,switched,eye_safe_illumination,TBD,REQUIRES_SAFETY_REVIEW
+E-005,DC_input,shunt_current_voltage_I2C,MCU,always_on,energy_and_brownout,TBD,REQUIRES_CALIBRATION
+E-006,thermal_SoC_case_heatsink,I2C_or_thermistor,MCU,mixed,overheat_detection,TBD,REQUIRES_CALIBRATION
+E-007,ambient_humidity,I2C,MCU,always_on,environment_condition,TBD,REQUIRES_CALIBRATION
+E-008,protected_backup_battery_A_B,BMS_SMBus,MCU,always_on,power_continuity,TBD,REQUIRES_POWER_REVIEW
+E-009,PoE_power_good,GPIO_or_I2C,MCU,always_on,PoE_health,TBD,REQUIRES_POWER_REVIEW
+E-010,FRAM_RTC,SPI_or_I2C,MCU,always_on,durable_logs,TBD,REQUIRES_SELECTION
+E-011,security_radio,SPI_or_UART,MCU,conditional,low_power_alert_to_organizer,TBD,REQUIRES_RF_REVIEW
+E-012,MCU_to_SoM,UART_with_CRC,MCU_and_SoM,mixed,readout_and_wake,TBD,REQUIRES_PINOUT
+E-013,secure_element,I2C_or_SPI,SoM_and_MCU,conditional,device_trust_and_update_keys,TBD,REQUIRES_SELECTION
+E-014,storage,NVMe_or_eMMC,SoM,switched,active_signed_model_and_index,TBD,REQUIRES_ENCRYPTION
+E-015,bench_time_sync,GPIO_or_authenticated_Ethernet,bench,mixed,external_meter_alignment,TBD,REQUIRES_TIME_PROOF
+E-016,secure_service_port,Ethernet_or_USB,SoM,switched,administration_and_updates,TBD,REQUIRES_ACCESS_CONTROL
