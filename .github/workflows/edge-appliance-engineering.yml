@@ -100,6 +100,12 @@ jobs:
           test -s /tmp/edge-geometry/body_CONCEPT_ONLY.stl
           test -s /tmp/edge-geometry/lid_CONCEPT_ONLY.stl
           test -s /tmp/edge-geometry/bracket_CONCEPT_ONLY.stl
+          for variant in hull book cassette; do
+            openscad -D "style=\"$variant\"" -D 'part="assembly"' \
+              -o "/tmp/edge-geometry/variant-$variant-CONCEPT_ONLY.stl" \
+              engineering/mechanical/concept_variants.scad
+            test -s "/tmp/edge-geometry/variant-$variant-CONCEPT_ONLY.stl"
+          done
       - uses: actions/upload-artifact@v4
         with:
           name: unverified-p0-geometries-NOT-for-manufacture
