@@ -29,3 +29,6 @@ PD-027,enclosure,Battery door with sealing and safe latch,1,Hot swap under mobil
 PD-028,mechanics,Temporary fixed wall bracket pole/truss mounting system,1,Repeatable secure site installation and optical calibration,TBD,unselected,approved mounting/anti-tamper cable safety and install test
 PD-029,PCB,Low-voltage sensor and MCU carrier PCB,1,Integrates sensor buses and qualified connectors,TBD,unselected,KiCad ERC DRC and manual review
 PD-030,PCB,Connector harness and test pads,1,Camera trigger MCU telemetry external bench sync,TBD,unselected,validated levels and cable clearances
+PD-031,alerts,Low-power regional-compliant RF module with secure provisioning,1,Sparse secured RF alarms from device to organizer security receiver without always-on 5G,TBD,unselected,select LoRaWAN or sub-GHz radio after site survey duty cycle and power measurement
+PD-032,alerts,Matched RF antenna RF connector seal and enclosure clearance,1,Weather-protected secure radio uplink with tested detuning and mounting geometry,TBD,unselected,verify band ERP antenna placement and enclosure interaction
+PD-033,alerts,MCU-to-radio power and digital interface,1,UART/SPI control RTC timestamp fault alarm queue TX peaks and watchdog,TBD,unselected,choose voltage levels power sequencing and independent authenticated alert path
