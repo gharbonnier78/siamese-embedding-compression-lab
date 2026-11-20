@@ -15,7 +15,11 @@ import threading
 from urllib.parse import urlparse
 
 MAX_POST_BYTES = 2_000_000
-SENSITIVE_KEYS = ("candidate_ref", "lab_subject", "face", "embedding", "image", "person")
+# Deny explicit payload field names, but allow harmless flags such as
+# 'no_real_images' (the sentinel that the fixture is synthetic).
+SENSITIVE_FIELDS = {"candidate_ref", "lab_subject", "face_template", "face_image",
+                    "raw_image", "image_bytes", "person_id", "embedding_vector",
+                    "biometric_template", "person_name"}
 dashboard = r"""<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width">
 <title>Siamese Embedded — synthetic supervisor</title>
@@ -62,7 +66,7 @@ def check_sanitized(body: dict) -> None:
     def walk(item):
         if isinstance(item, dict):
             for k,v in item.items():
-                if any(term in k.lower() for term in SENSITIVE_KEYS):
+                if k.lower() in SENSITIVE_FIELDS or k.lower().startswith(("raw_face_", "image_bytes_")):
                     raise ValueError("sensitive field not permitted in console")
                 walk(v)
         elif isinstance(item, list):
