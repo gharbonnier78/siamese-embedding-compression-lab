@@ -34,6 +34,12 @@ Official primary sources:
 
 **Hard gate LEG-01:** require specific documented legal authorisation, DPO/controller assessment, site approval, rights/data minimisation protocol, lawful sample provenance and independent reviewer before *any* real 1:N biometric trial or marketing assertion. Synthetic 100k–1m embeddings are NOT evidence of field FPIR/FNIR.
 
+## Ex-ante Activity-System Exploration — explicit methodological prerequisite
+
+**New primary upstream model:** [ACTIVITY_SYSTEM_EX_ANTE_EXPLORATION_V0.md](ACTIVITY_SYSTEM_EX_ANTE_EXPLORATION_V0.md). This implements the complete ESSEC Croque Gourmet preliminary method with a neutral job, actor/decision-rights map, generic activity graph, **content/structure/governance** comparison of O0–O6, NICE mechanism hypotheses, incentive/value capture, rival explanations, discriminating experiments, and the frozen rubric **before** separate O1–O6 Business Model Canvases. It is design analysis, not observed commercial evidence.
+
+**Do not conclude that listing the six opportunities or having one combined BMC already constitutes six validated Business Model Canvases.** Canvas per architecture, hypothesis-to-evidence links and actual customer feedback remain further deliverables.
+
 ## Lean entrepreneurship experiment sequence
 
 1. **Problem before product:** conduct >=15 interviews across >=5 organisations; document actual event incidents, false interventions, install cost and purchasing decisions. At least 8/15 should describe independently recurring material pain; otherwise revise the segment.
