@@ -1,19 +1,19 @@
-# Nomenclature banc d’essai
+# Test Bench Bill of Materials
 
-**Équipement indépendant, jamais embarqué.** Aucun achat, prix ou stock vérifié. Les modèles cités sont des candidats et non des configurations qualifiées.
+**Independent equipment, never installed inside the product.** No purchase, price or stock verified. Named models are candidates, not qualified configurations.
 
-| ID | Qté | Équipement / source | À vérifier |
+| ID | Quantity | Equipment/source | Verification |
 |---|---:|---|---|
-| BN-01 | 1 | PC existant ou poste de banc, scripts de replay + ingestion et tableau de bord | débit horodaté, reproductibilité, capacité et stockage des seules données autorisées |
-| BN-02 | 1 | [Keysight N6705C](https://www.keysight.com/us/en/product/N6705C/dc-power-analyzer-modular-600-w-4-slots.html), châssis, module de mesure/source à sélectionner ; alternative analyseur DC passif indépendant | plages, chute d'insertion, capture d'impulsion, étalonnage, distinguer mesure sur PSU et mesure en mission sur packs |
-| BN-03 | 1+sondes | [Keysight DAQ970A](https://www.keysight.com/us/en/product/DAQ970A/data-acquisition-system.html), configuration thermocouples/accessoires à confirmer ; alternative logger calibré autonome | voies, compensation jonction froide, certificats, implantation et incertitude |
-| BN-04 | 1 | Alimentation DC de laboratoire approuvée + charge électronique ; non sélectionnées | courant crête, protections et réponse transitoire |
-| BN-05 | 1 jeu | Oscilloscope, sonde différentielle, générateur/marqueur sync, shunts et câbles | bande passante, isolation et dérive d'horloge |
-| BN-06 | 1 jeu | Luxmètre/radiomètre, cibles visible/NIR et source contrôlée | bande spectrale et calibration ; évaluation NIR par spécialiste |
-| BN-07 | accès labo | Enceinte climatique, pluie dirigée contrôlée, irradiation/vent, montage mécanique/système de mouvement | sévérités et instrumentation selon mission ; laboratoire externe si nécessaire |
-| BN-08 | option | Thermographie et acquisition vidéo de référence sans données personnelles | émissivité, repères temporels et données autorisées |
-| BN-09 | 1 jeu | Harnais de mesure et capteurs de référence, protection de test packs | raccords validés, méthode Kelvin, limites et procédure d'arrêt |
-| BN-10 | 1 jeu | Trépied de calibration uniquement, maquette murale rigide, cibles et repères amovibles | répétabilité de géométrie et preuve de repositionnement |
-| BN-11 | 1 jeu | Source PoE et instrumentation de coupure/DC, charge de test et relevé de puissance au PD | classe et chute avec câble représentatif, coupure de données distincte de la coupure d'énergie, bascule et reprise |
+| BN-01 | 1 | Existing PC or workstation, replay/ingestion scripts and dashboard | Timestamped throughput, reproducibility and storage for authorized data only |
+| BN-02 | 1 | [Keysight N6705C](https://www.keysight.com/us/en/product/N6705C/dc-power-analyzer-modular-600-w-4-slots.html) mainframe, source/measurement module TBD; passive independent DC analyzer alternative | Ranges, insertion drop, pulse capture and calibration; distinguish PSU measurements from backup operation |
+| BN-03 | 1 + probes | [Keysight DAQ970A](https://www.keysight.com/us/en/product/DAQ970A/data-acquisition-system.html), thermocouple configuration/accessories TBD; calibrated standalone logger alternative | Channels, cold-junction compensation, certificates, placement and uncertainty |
+| BN-04 | 1 | Approved lab DC supply and electronic load, unselected | Peak current, protection and transient response |
+| BN-05 | 1 set | Oscilloscope, differential probe, sync generator/marker, shunts and cables | Bandwidth, isolation and clock drift |
+| BN-06 | 1 set | Lux meter/radiometer, visible/NIR targets and controlled source | Spectral band, calibration and specialist NIR evaluation |
+| BN-07 | Lab access | Climate chamber, controlled driven rain, irradiation/wind and mechanical/motion fixtures | Severities and instrumentation set by mission; external lab if needed |
+| BN-08 | Optional | Thermography and ground-truth video excluding personal data | Emissivity, time markers and authorized data only |
+| BN-09 | 1 set | Electrical measurement harness and reference probes, pack test protection | Verified connections, Kelvin method, limits and stop procedure |
+| BN-10 | 1 set | Calibration-only tripod, rigid wall mockup, targets and removable markers | Geometry repeatability and repositioning evidence |
+| BN-11 | 1 set | PoE source and DC interruption instruments, load and PD power measurement; candidate UPS and protected reserve fixtures as needed | Class/drop with representative cable; separate data and energy loss; measure transfer/recovery and final-cable failure |
 
-Le banc peut alimenter et instrumenter le prototype en laboratoire. La preuve de fonctionnement autonome exige des sessions sans PC ni accès réseau, avec DC régulé ou PoE sans service réseau et instrumentation indépendante qui ne commande pas le produit. Une coupure d'énergie est un essai distinct.
+The bench may power and instrument the prototype in the lab. Prove autonomous operation without a PC or network access, on regulated DC or PoE without network service, using independent instruments that do not control the product. An energy interruption is a separate test.

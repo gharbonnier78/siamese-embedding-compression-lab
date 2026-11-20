@@ -1,21 +1,21 @@
-# Concept physique
+# Physical Concept
 
-**Installation temporaire fixe, sans cotation ni choix final de boîtier.** Mur ou structure rigide autorisée (poteau/truss via adaptateur qualifié). Trépied uniquement pour calibration et essais contrôlés. Les personnes marchent ; l'appareil ne se déplace pas. Toutes dimensions, charges et fixations réelles restent à vérifier sur site.
+**Temporary fixed installation; no final dimensions or enclosure selection.** Use an authorized wall or rigid structure, such as a pole or truss with a qualified adapter. A tripod is for calibration and controlled tests only. People move; the device does not. Verify all dimensions, loads and hardware on site.
 
 ```text
-Élévation : support fixe ║ platine + retenue → [ RGB | NIR | émetteur ]
-                         ║                     axe incliné vers zone utile (hauteur H à relever)
-                   câble fixé ↓ / boucle goutte      ↘ zone de passage
-Profil : mur ║ entretoise → réglage yaw/tilt verrouillable → axes optiques
-                 sortie de câble protégée                  ↘ proche → loin
-Plan : support ■ ── zone RGB ∩ NIR ── repères de calibration
-                  → flux piéton / occultations / surfaces réfléchissantes
+Elevation: fixed support ║ plate + retention → [RGB | NIR | emitter]
+                         ║                     axis tilted toward capture zone
+                        secured cable ↓ / drip loop (mounting height H TBD)
+Side: wall ║ standoff → lockable yaw/tilt → optical axes ↘ near-to-far zone
+     protected cable exit
+Plan: support ■ ── RGB ∩ NIR zone ── calibration markers
+                 → pedestrian flow / occlusions / reflective surfaces
 ```
 
-**Montage** : plaque murale ou adaptateur structure agréé par le site, platine de réglage verrouillable, repères d'angle/repositionnement, retenue secondaire indépendante si nécessaire après revue, visserie anti-manipulation et détection d'ouverture, soulagement de traction et boucle goutte hors passage. Vérifier charge statique, torsion câble, vent/vibration, dégagements et accès service ; interdire montage public tant que fixations, support, retenue et dégagement ne sont pas validés. Séparer accès réserve et volume électronique si nécessaire, sans supposer maintien IP porte ouverte.
+**Mount:** Site-approved wall plate or structural adapter, lockable adjustment plate, angle/repositioning marks, independent secondary retention if required after review, tamper-resistant hardware and opening detection, strain relief and drip loop clear of passage. Check static load, cable torque, wind/vibration, clearance and service access. Do not install in public before validating support, fasteners, retention and clearance. Separate backup access from electronics if necessary, and do not assume ingress protection with a door open.
 
-**Optique** : caméra RGB et NIR rigidement solidaires, émetteur séparé pour réduire les réflexions internes, pare-soleil et fenêtres aux transmissions mesurées. Au relevé, mesurer hauteur, yaw/tilt, distances proche/lointaine, largeur/flux, ligne de déclenchement, éclairage, surfaces réfléchissantes et occlusions ; qualifier champ commun et densité de pixels sur cible à plusieurs hauteurs. Premier contrôle géométrique : largeur fronto-parallèle ≈ 2d·tan(FOV horizontal/2), puis mesurer sur site car obliquité, distorsion et recouvrement invalident une simple extrapolation. Fixer critères avant capture. Relier délai PIR→première image, vitesse, temps de pose et flou ; mesurer écart d'exposition RGB/NIR. Tester NIR sur cibles inertes, inhibition matérielle au défaut, évaluation photobiologique avant toute exposition humaine. Pas de puissance NIR ou géométrie définitive présumée.
+**Optics:** Rigidly couple RGB and NIR cameras; separate the emitter to reduce internal reflections. Provide a sunshade and measure window transmission. Survey height, yaw/tilt, near/far distance, passage width/direction, trigger line, lighting, reflective surfaces and occlusions. Qualify common FOV and target pixel density at multiple heights. First approximation for frontoparallel width: 2d·tan(horizontal FOV/2); verify on site because obliquity, distortion and overlap invalidate simple extrapolation. Set criteria before capture. Relate PIR-to-first-frame delay, walking speed, exposure and blur; measure RGB/NIR exposure skew. Test NIR with inert targets, hardware fault inhibit and photobiological evaluation before human exposure. No final NIR power or optical geometry is assumed.
 
-**Enveloppe** : châssis vers coque pour dissiper calcul/NIR, séparation thermique de la réserve ; conduction passive d'abord à évaluer. En extérieur, drainage, joints et fenêtre nettoyable, essais condensation, froid, pluie et soleil sur l'assemblage complet ; aucune classe IP revendiquée. En intérieur, vérifier reflets, transitions, éclairage artificiel, ventilation et accès public.
+**Enclosure:** Evaluate passive conduction from compute and NIR through chassis to shell, away from the backup. Outdoors: drainage, seals, cleanable window and assembled-unit condensation, cold, rain and solar tests; no IP rating claimed. Indoors: check reflections, transitions, artificial light, ventilation and public access.
 
-**Mise en service** : (1) approuver le site et relever la géométrie ; (2) installer, retenir et inspecter support/câbles ; (3) sur repères inertes, mesurer orientation, champ commun, densité de pixels, délai/écart de capture et sécurité optique ; (4) vérifier signatures et versions du modèle/index/politique, horloge, horodatage et état local ; (5) tester sans réseau avec alimentation assurée, puis coupure et retour de source, rétention et reprise ; (6) archiver profil et preuves d'acceptation. Refaire calibrage et contrôles après déplacement, choc ou changement de champ.
+**Commissioning:** (1) Approve site and survey geometry. (2) Install, retain and inspect mount/cables. (3) Measure alignment, common FOV, pixel density, timing and optical safety using inert markers. (4) Verify signatures and versions of model/index/policy, clock, timestamps and local health. (5) Test offline with power maintained, then source loss/return, retention and recovery. (6) Archive the site profile and acceptance evidence. Recalibrate and recheck after relocation, impact or a changed view.

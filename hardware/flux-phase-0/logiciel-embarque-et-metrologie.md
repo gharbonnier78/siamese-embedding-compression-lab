@@ -1,35 +1,35 @@
-# Logiciel embarqué et métrologie
+# Embedded Software and Metrology
 
-## Produit, hors ligne par conception
+## Product: offline by design
 
-Mission fixe sur support calibré. Associer aux traces le profil du site, la version de calibration et la direction du flux. Vérifier le fonctionnement local sans accès réseau indépendamment de la disponibilité du PoE ; journaliser perte de données, perte de puissance, bascule, durée de secours et reprise comme événements distincts. Les métadonnées de galerie et la politique signée restent distinctes ; aucun candidat ne déclenche d'action sans revue humaine.
+Fixed mission on a calibrated support. Attach site profile, calibration version and flow direction to traces. Verify local operation without network access independently of PoE availability. Log data loss, power loss, switchover, backup duration and recovery as distinct events. Gallery metadata and signed policy are separate; no candidate triggers action without human review.
 
-- MCU : machine d'états, watchdog et RTC, journal circulaire non volatil, réveil, contrôle de rails et inhibition NIR. Linux ne peut contourner les protections matérielles. Synchronisation des horloges au réveil ; compteur séquentiel et identifiant de session en cas de reset.
-- Linux : capture et horodatage matériel → contrôle qualité → détection/alignement → modèle et prétraitement figés → embeddings → recherche exacte de référence ou index approximatif évalué sur les mêmes requêtes → moteur de politique local séparé. Sorties distinctes : candidat, inconnu, absence de décision ; inconnu ne déclenche pas une règle de liste. Pas de LLM sur le chemin critique. Aucun PAD supposé validé.
-- Données : stockage chiffré, clé protégée matériellement si la plateforme le permet, droits minimaux, modèles/index et politiques signés et versionnés, journaux minimisés sans image par défaut. Mise à jour locale ou réseau autorisé, signatures, partitions A/B ou équivalent, retour à version connue après coupure et politique de fraîcheur hors ligne. Vérifier chaînage démarrage sécurisé/mise à jour/retour arrière sur le SKU cible. Pas de vraies listes ni de données identifiables dans Flux.
-- Banc : scénarios déterministes et galeries synthétiques, enregistrement d'instruments, analyses d'incertitude et distributions, tableau de bord et registre de décision. L'absence du PC n'interrompt aucune fonction du produit.
+- **MCU:** State machine, watchdog, RTC, nonvolatile circular log, wake, rail control and NIR inhibit. Linux cannot bypass hardware protections. Synchronize clocks on wake; retain sequence counter and session ID across resets as applicable.
+- **Linux:** Capture and hardware timestamp → quality check → detection/alignment → fixed model and preprocessing → embeddings → exact reference search or approximate index tested on identical queries → separate local policy engine. Distinguish candidate, unknown and no decision; unknown does not trigger a list rule. No LLM on the critical path. No PAD capability assumed validated.
+- **Data:** Encrypted storage; hardware-protected keys where supported; least privilege; signed and versioned models, indexes and policies; minimized logs with no images by default. Local or authorized network update, signatures, A/B partitions or equivalent, rollback to known version after interruption and offline freshness policy. Verify secure boot, update and rollback on the target SKU. No real lists or identifiable data in Flux.
+- **Bench:** Deterministic scenarios and synthetic galleries, instrument capture, uncertainty and distribution analysis, dashboard and decision log. PC absence does not interrupt product operation.
 
-## Faisabilité calcul
+## Compute feasibility
 
-Candidat d'évaluation : [Radxa ROCK 5B](https://docs.radxa.com/en/rock5/rock5b), famille RK3588 ; révision/SKU/RAM exacts non sélectionnés. Alternative de référence : CPU Linux sans NPU pour comparaison identique. Porte de qualification : figer OS, modèle, précision, versions des pilotes, opérations non prises en charge et repli CPU ; mesurer latence de bout en bout, RAM crête, débit du stockage, J/requête et température avec deux caméras et tous les traitements concurrents. Double capture synchronisée et compatibilité des modules non démontrées. Vérifier démarrage sécurisé, eMMC/NVMe, endurance et espace pour versions A/B. Puissances non mesurées ; TOPS non utilisés comme prédiction.
+Evaluation candidate: [Radxa ROCK 5B](https://docs.radxa.com/en/rock5/rock5b), RK3588 family; exact revision/SKU/RAM unselected. Comparator: Linux CPU without NPU on identical workloads. Freeze OS, model, precision and drivers for qualification; identify unsupported operations and CPU fallback. Measure end-to-end latency, peak RAM, storage throughput, J/query and temperature with both cameras and concurrent processing. Dual synchronized capture and module compatibility are unproven. Verify secure boot, eMMC/NVMe endurance and A/B storage. Power unmeasured; do not infer performance from TOPS.
 
-| Galerie | 512D float32 | 128D float32 |
+| Gallery | 512D float32 | 128D float32 |
 |---|---:|---:|
-| 100 k | 204,8 Mo | 51,2 Mo |
-| 500 k | 1 024 Mo | 256 Mo |
-| 1 M | 2 048 Mo | 512 Mo |
+| 100k | 204.8 MB | 51.2 MB |
+| 500k | 1,024 MB | 256 MB |
+| 1M | 2,048 MB | 512 MB |
 
-Taille décimale des vecteurs seuls, N × D × 4 octets. Mesurer séparément copie en RAM, page cache, index, métadonnées, extraction et double version sur disque. Comparer rappel de l'index approximatif par rapport à la recherche exacte, taille et durée de reconstruction, et p50/p95/p99 sous rafales. Aucun de ces chiffres n'est une mesure matérielle.
+Decimal vector-only size: N × D × 4 bytes. Measure RAM copies, page cache, index, metadata, extraction and dual disk versions separately. Compare approximate recall against exact search, index size/rebuild time and burst p50/p95/p99. These figures are not hardware measurements.
 
-## Contrat de télémétrie — cadence de départ, non figée
+## Telemetry contract — provisional sampling
 
-| Sonde | Lecteur et interface | Cadence / conservation |
+| Probe | Reader and interface | Sampling and retention |
 |---|---|---|
-| PIR, tamper, reset, Power Good | MCU GPIO IRQ permanent | chaque front ; RTC + monotone, journal durable |
-| Entrée DC/PoE, rails et réserve protégée | MCU moniteur I²C/ADC et BMS constructeur | 1 Hz actif, 0,1 Hz veille en hypothèse + fronts défaut ; analyseur rapide indépendant pour creux |
-| Thermique dissipateur/coque/ambiante/émetteur, humidité | MCU I²C/ADC ; protections NIR séparées | 1 Hz actif, 0,1 Hz veille comme point de départ ; points mappés sur logger externe |
-| SoC/bridage, espace libre, communications | Linux pilotes, MCU pour signal d'état | 1 Hz en essais et événements ; local sans réseau |
-| Caméras / impulsions NIR / IMU | compteur déclenchement, métadonnées capteurs, IMU SPI/I²C | par image/impulsion ; IMU 100 Hz initial, à adapter à vibration |
-| Références DC / thermique / éclairage et pluie | banc | cadence d'après événement le plus court et incertitude ; marqueur commun et calibration indépendante |
+| PIR, tamper, reset, Power Good | Always-on MCU GPIO IRQ | Each edge; RTC + monotonic clock, durable log |
+| DC/PoE input, rails and protected reserve | MCU I²C/ADC monitor and vendor BMS | Initially 1 Hz active, 0.1 Hz standby plus fault edges; independent fast analyzer for dips |
+| Heatsink/shell/ambient/emitter temperature and humidity | MCU I²C/ADC; separate NIR protection | Initially 1 Hz active, 0.1 Hz standby; positions matched to external logger |
+| SoC/throttling, free space and communications | Linux drivers, MCU for status signal | 1 Hz during tests and on events; local while offline |
+| Cameras, NIR pulses, IMU | Trigger counter, sensor metadata, SPI/I²C IMU | Per frame/pulse; IMU initially 100 Hz, tune to vibration |
+| DC, thermal, illumination and rain references | Bench | Set by shortest event and uncertainty; shared marker and independent calibration |
 
-Événement : identifiant trace/span, horodatages et décalage estimé MCU–Linux–banc, conditions, exposition/gain, version capteur/calibration/micrologiciel/modèle/galerie, compte des pertes et motif de non-décision. Rétention bornée, export authentifié et signal de saturation ; durées et taille tampon à fixer à partir de la mission. Calibrer courant/tension/température vs références ; publier offset, dérive et incertitude. Cadences de log ne sont pas des cadences de protection.
+Event schema: trace/span ID, timestamps and estimated MCU–Linux–bench offsets, conditions, exposure/gain, sensor/calibration/firmware/model/gallery versions, loss count and no-decision cause. Bound retention, authenticate exports and signal saturation; size buffer and define retention from mission. Calibrate current, voltage and temperature against references; report offset, drift and uncertainty. Logging rates are not protection response rates.
