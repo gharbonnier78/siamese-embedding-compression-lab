@@ -20,6 +20,10 @@
 >
 > **Do not start PCB routing or order components.** The supervisor/meter PCB is one subassembly of the product and must only be designed after full-device architecture review. Use synthetic vectors and consented laboratory data; do not upload real watchlists, embeddings or personal images to Flux.
 
+## NEW — low-power wireless alert to event security
+
+**Add a separate, secure, low-energy short-alert radio channel from each fixed unit to the event organizer's authorized security receiver.** It must not depend on the external metrology PC or continuous high-power 5G. Evaluate private LoRaWAN with event-owned on-site gateway, secure P2P sub-GHz, and existing wired/Wi-Fi alternatives; choose only after RF field study and regulatory check. Define application event ID, type, timestamp, pseudonymous zone, network receipt ACK, operator acknowledgement, retries, queuing, false-alert mitigation and separate on-device vs dispatch BOMs. Never send images, face vectors, personal identities or real watchlists over this channel. Receiver/dispatcher is operational infrastructure, not the experimental PC. See [LOW_POWER_SECURITY_ALERT_RF_REQUIREMENTS.md](LOW_POWER_SECURITY_ALERT_RF_REQUIREMENTS.md) and [BOM_EVENT_SECURITY_ALERT_RECEIVER_V0.csv](BOM_EVENT_SECURITY_ALERT_RECEIVER_V0.csv).
+
 ## Source-of-truth hierarchy
 
 1. **[FIXED_EVENT_INSTALLATION_MISSION.md](FIXED_EVENT_INSTALLATION_MISSION.md)** — latest authoritative mission and deployment.
