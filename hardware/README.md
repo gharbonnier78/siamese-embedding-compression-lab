@@ -9,6 +9,10 @@ Status: **DESIGN EXPLORATION / NOT YET BUILDABLE / NO PROCUREMENT APPROVAL**.
 
 This track reconstructs the Aug 20 2026 discussion ("Projection Siamois 19 08 26", preceded by "PCA et projection siamoise") about a compact on-device detection, verification and 1:N search demonstrator. It is independent from biometric scientific qualification. The existing Study 0 negative result and Study 1B sealed outcomes are unchanged; **do not consume protected Study 1B SCREEN/TEST or claim deployable biometric performance**.
 
+## Organizer low-power security alerts (2026-11-20 extension)
+
+**The field device must include a separate energy-conscious radio path for short authenticated alerts** to an organizer-controlled security receiver (not the independent experiment PC). This was not fully specified in the first architecture. See [RF alert requirements](LOW_POWER_SECURITY_ALERT_RF_REQUIREMENTS.md) and [separate event security receiver BOM](BOM_EVENT_SECURITY_ALERT_RECEIVER_V0.csv). RF technology (private LoRaWAN/Class A vs secure local sub-GHz vs existing LAN) is undecided. Design reliable-enough receiving/acknowledgement procedures, power measurement and failover; prevent biometric personal information from appearing on radio.
+
 ## Objective and key falsifiable proposition
 
 **Source hierarchy:** [FIXED_EVENT_INSTALLATION_MISSION.md](FIXED_EVENT_INSTALLATION_MISSION.md) supersedes earlier handheld/harness/walking-device design ideas. Prefer PoE/regulated DC for event operation, with reviewed backup continuity and optional hot-swap; the external PC is bench-only.
