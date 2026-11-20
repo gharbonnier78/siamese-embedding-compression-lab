@@ -1,0 +1,144 @@
+schema_version: edge-device-contract-0.1
+status: exploratory_not_buildable
+date: 2026-11-20
+provenance:
+  chat: "Projection Siamois 19 08 26; system owner follow-up November 2026"
+  science_scope: "No Study 1B protected outcomes used; engineering-only synthetic loads permitted"
+research_question: "Is measured local edge 1:N identification useful after accuracy, thermal, autonomy, total cost and privacy constraints?"
+gates: [G0_falsify_need, G1_instrumented_bench, G2_replay_100k_to_1M, G3_validated_CAD_and_PCB, G4_separate_authorized_pilot]
+modes:
+  - {name: off, ai_soc: off, rgb: off, nir: off, mcu: low_power}
+  - {name: sleep, ai_soc: off, rgb: off, nir: off, mcu: always_on}
+  - {name: detect, ai_soc: on, rgb: on, nir: conditional, mcu: always_on}
+  - {name: verify_1to1, ai_soc: on, matcher: one_to_one, mcu: always_on}
+  - {name: identify_1toN, ai_soc: on, matcher: one_to_many, mcu: always_on}
+  - {name: transmit, ai_soc: conditional, connectivity: wifi_eth_or_5g, mcu: always_on}
+  - {name: battery_swap, ai_soc: on_or_off, continuity: must_be_measured, mcu: always_on}
+imaging:
+  visible_rgb: {type: EO_RGB, required_in_full_prototype: true, connector: TBD}
+  near_infrared: {type: NIR, required_in_full_prototype: true, trigger_sync: GPIO_TTL, emitter_eye_safety_review: required}
+  longwave_thermal_scene: {type: LWIR, included: false, rationale: not_the_same_as_device_heat_probe}
+  low_power_passage_trigger: {candidates: [PIR, mmWave], selected: TBD, interface: GPIO_IRQ}
+compute:
+  soc: {candidate: RK3588_class_SoM, selected: TBD, measured_inference: false}
+  memory_gb_min_candidate: 8
+  model:
+    extractor: AdaFace_or_separately_validated
+    on_device_inference: required
+    packaging: hashed_signed_immutable
+    supported_precision: TBD
+    mandatory_runtime_operator_check: true
+  matching:
+    local_offline: true
+    modes: [verify_1to1, identify_1toN]
+    gallery_sizes_to_test: [100000, 500000, 1000000]
+    reference_embeddings: {dimension: 512, dtype: fp32}
+    compare_compressions: [{family: random, dimension: 128}, {family: PCA, dimension: 128}, {family: Siamese, dimension: 128}]
+    deterministic_synthetic_replay_first: true
+    separate_index_recall_validation: true
+    accuracy_qualification: separate_authorization
+    scores: {verification: [FMR, FNMR], identification: [FPIR, FNIR, rank_k]}
+  policies:
+    storage: separate_from_vector_index
+    lists: [allowlist, denylist_watchlist, unknown, no_decision]
+    denylist_requires_human_review: true
+    unknown_never_equals_denylist: true
+    update: signed_versioned_atomic
+    consented_lab_or_synthetic_only: true
+  storage:
+    media: eMMC_or_NVMe_TBD
+    encryption_at_rest: required
+    model_and_projection_version_tags: required
+    indexes: atomic_version_swap
+    event_retention_policy: TBD
+energy:
+  power_inputs: [certified_DC, optional_PoE, independently_protected_battery_A, independently_protected_battery_B]
+  hot_swap: {required_full_prototype: true, mechanism: not_selected, worst_case_load_continuity_test: required}
+  passive_thermal_first: true
+  always_on_mcu: true
+  external_power_analyzer_required: true
+  system_probe_matrix: hardware/PROBE_INTERFACE_MATRIX.csv
+connectivity:
+  wired: {interface: gigabit_ethernet, PoE: conditional_measured_power, connector: TBD}
+  mobile_primary: WiFi
+  mobile_optional_fallback: 5G
+  single_pair_ethernet: optional_only_if_remote_probes_need_it
+  low_power_remote_reachability_policy: TBD
+  signed_OTA_and_rollback: required
+  mutual_auth_networking: required
+design_toolchain:
+  coding_agent: Claude_Code_or_equivalent
+  ecad: KiCad
+  electrical_sim: ngspice
+  mcad: FreeCAD_and_OpenSCAD
+  experimental_AI_exploration: [Blueprint, Phaestus]
+  deliverables: [schematic_native, PCB_native, ERC, DRC, vendor_qualified_BOM, Gerber, STEP, STL, sensor_readout_spec, firmware, metrology_evidence]
+decision_rules:
+  STOP: "No lawful or useful need; simpler alternative dominates; errors or cost/thermal constraints unacceptable"
+  PIVOT: "Specific measured bottleneck can be corrected with revised architecture"
+  PERSEVERE: "Replication-backed useful benefit survives constraints versus baselines"
+
+# Product-wide mission extension 2026-11-20: weather and mobile use are design goals, not achieved ratings.
+product_boundaries:
+  autonomous_field_unit:
+    requires_external_pc_for_operation: false
+    preferred_event_power: PoE_or_regulated_DC
+    protected_backup_power: required
+    five_day_battery_only_operation: not_assumed
+    requires_network_for_local_1toN: false
+    includes: [RGB_EO, NIR, passage_sensor, local_AI_compute, local_model, encrypted_gallery, local_matcher, policy_engine, MCU_probes, power_path, protected_batteries, environmental_housing]
+    installation_modes_to_compare: [temporary_wall_mount, fixed_pole_or_truss_mount]
+    tripod: only_for_setup_calibration_or_test
+    operating_device_motion: stationary
+    moving_objects: pedestrian_subjects
+    target_ingress: TBD_after_mission_review
+    mass_size_and_ergonomics: TBD
+  external_qualification_bench:
+    requires_external_pc: true
+    includes: [analysis_PC, calibrated_DC_analyzer, thermal_logger, optical_illumination_measurement, environmental_test_access, synthetic_replay, time_series_dashboards]
+    is_not_in_product_BOM: true
+  design_and_fabrication:
+    includes: [Flux_AI, ECAD, MCAD, SPICE, BOM_generation, engineering_review]
+    is_not_a_runtime_dependency: true
+environmental_and_optical_mission_matrix:
+  - bright_sun_and_backlight
+  - night_low_light_NIR
+  - rain_and_droplet_on_camera_window
+  - cold_battery_and_startup
+  - high_heat_and_solar_soak
+  - high_humidity_condensation_and_fog
+  - pedestrian_walking_motion_blur_and_mount_stability
+  - moving_people_occlusion_and_blur
+  - fast_indoor_outdoor_lighting_transitions
+  - temporary_network_disconnect
+  - PoE_DC_to_protected_backup_switchover_under_inference_load
+environmental_target_conditions_and_certifications: TBD_derive_from_operational_mission
+bom_split:
+  field_product: hardware/BOM_PRODUCT_FIELD_DEVICE_V0.csv
+  external_bench: hardware/BOM_EXTERNAL_TEST_BENCH_V0.csv
+  combined_historic: hardware/BOM_PROVISIONAL.csv
+flux_phase0_canonical: hardware/FLUX_AI_START_HERE.md
+installation_mission_source: hardware/FIXED_EVENT_INSTALLATION_MISSION.md
+reference_event:
+  encounter_rate_per_hour: 1000
+  hours_per_day: 10
+  consecutive_days: 5
+  operation_geometry: fixed_site_calibrated_view
+  status: experimental_workload_not_achieved_performance
+
+security_alert_radio:
+  state: required_capability_technology_unselected
+  mission: fixed_event_installation
+  sender: on_device_low_power_MCU_and_radio
+  receivers: event_organizer_authorized_security_team
+  experimental_PC_required: false
+  transport_options_to_compare: [private_LoRaWAN_with_local_gateway, authenticated_sub_GHz_P2P, secure_site_LAN_or_WiFi]
+  sending_rate: only_exceptional_events_not_each_person_detected
+  event_classes: [tamper, power_fault, sensor_unavailable, authorized_human_review_request]
+  payload_privacy: no_images_no_face_vectors_no_person_identity
+  delivery_policy: [durable_queue, authenticated_message, anti_replay, bounded_retries, radio_delivery_ACK, separate_human_ack, de_duplication, rate_limit]
+  default_if_link_down: log_locally_and_flag_undelivered
+  human_review_required_for_consequential_biometric_alerts: true
+  source_requirements: hardware/LOW_POWER_SECURITY_ALERT_RF_REQUIREMENTS.md
+  organizer_receiver_bom: hardware/BOM_EVENT_SECURITY_ALERT_RECEIVER_V0.csv
+  acceptance: [RF_coverage_test, power_per_alert, battery_backup_while_fault, deadline_and_ACK_test, spectrum_regulatory_review]

@@ -1,0 +1,16 @@
+line_id,subsystem,required_item,quantity,technical_purpose,manufacturer_part_number,source_status,design_review_gate
+TB-001,compute,Independent analysis PC or workstation,1,Analyze time-series run experiments dashboards and replay,TBD,unselected,not needed during product operation
+TB-002,power,Approved bench DC power supply,1,Controlled input rails and peak conditions,TBD,unselected,safe voltage current limits
+TB-003,power,External calibrated DC power analyzer,1,Independent source of truth W and J per operation,TBD,unselected,sampling calibration and sync
+TB-004,thermal,External thermocouple logger and probes,1,Measure heatsink window skin and battery,TBD,unselected,calibration and attachment
+TB-005,thermal,Optional calibrated infrared thermal camera,1,Hotspot exploratory mapping,TBD,unselected,emissivity control
+TB-006,climate,Temperature humidity chamber access,1,Cold hot cycling and condensation tests,TBD,unselected,rating and test procedure
+TB-007,climate,Safe rain or ingress test fixture,1,Water ingress and lens-droplet experiment,TBD,unselected,avoid unqualified DIY IP certification
+TB-008,optics,Illuminance and optional irradiance meter,1,Reproduce bright sunlight and night light,TBD,unselected,calibrated scene position
+TB-009,optics,Safe repeatable controlled lighting rig,1,Day night backlight and transitions,TBD,unselected,controlled intensity and spectra
+TB-010,optics,Authorized calibration target and movement rig,1,Compare capture and motion blur,TBD,unselected,privacy and camera safety
+TB-011,mechanics,Vibration or motion fixture rental,1,Controlled moving-device tests,TBD,unselected,mechanical safety
+TB-012,load,Independent synthetic event and gallery load generator,1,100k 500k 1m indexes and 1000 encounters per hour replay,TBD,unselected,fixed seeds and deterministic artifacts
+TB-013,telemetry,Time synchronization and trace collection interface,1,Correlate external meters and SoM or MCU events,TBD,unselected,offset measurement
+TB-014,network,Network outage/recovery emulator,1,Verify offline and store and forward,TBD,unselected,local matching unaffected
+TB-015,software,Experiment controller and signed evidence storage,1,Reports dashboards power thermal biometric error and CI,TBD,unselected,run_id provenance and immutable evidence

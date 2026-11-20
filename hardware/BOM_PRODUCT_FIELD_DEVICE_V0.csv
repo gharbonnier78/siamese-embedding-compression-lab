@@ -1,0 +1,34 @@
+line_id,subsystem,required_item,quantity,technical_purpose,manufacturer_part_number,source_status,design_review_gate
+PD-001,compute,Replaceable edge AI SBC or SoM,1,Local model inference and 1-to-N search,TBD,unselected,prove runtime + RAM + thermal fit
+PD-002,compute,RAM and encrypted NVMe or eMMC,1,Model gallery index log and OTA storage,TBD,unselected,measure 100k 500k 1m workloads
+PD-003,vision,EO wide angle RGB camera,1,Visible moving targets under bright/daylight,TBD,unselected,field of view exposure and sensor bandwidth
+PD-004,vision,NIR camera,1,Night or low-light capture,TBD,unselected,trigger synchronization and NIR optics
+PD-005,vision,Eye-safe NIR illuminator and driver,1,Controlled night illumination,TBD,unselected,illumination hazard and power thermal review
+PD-006,wake,PIR and/or low-power mmWave sensor,1,Low-energy passage/motion trigger,TBD,unselected,false wake and environmental sensitivity
+PD-007,vision,Ambient light and optional NIR irradiance sensor,1,Measure lighting transitions and adjust camera modes,TBD,unselected,readout calibration
+PD-008,vision,Inertial motion IMU,1,Record shake/orientation and motion blur context,TBD,unselected,IRQ and timestamp accuracy
+PD-009,supervision,Always-on low-power MCU and independent RTC,1,Wake safety and probe acquisition while SoM sleeps,TBD,unselected,firmware and GPIO power domain
+PD-010,supervision,Nonvolatile ring buffer and watchdog,1,Local probe logs and failure recovery,TBD,unselected,retention and write endurance
+PD-011,metrology,Internal calibrated voltage-current-shunt monitors,3,Power inputs and relevant rails,TBD,unselected,interface ratings and drift
+PD-012,metrology,Heatsink SoM battery and enclosure thermal probes,4,Measure device thermal safety,TBD,unselected,probe placement and calibration
+PD-013,metrology,Ambient temperature and humidity probe,1,Record climate and potential condensation,TBD,unselected,sensor window position
+PD-014,security,Tamper/open switch,1,Detect enclosure opening,TBD,unselected,mechanical fit and fault logic
+PD-015,power,Commercial certified protected smart battery A,1,Replaceable primary pack,TBD,unselected,safety data and low-temp operation
+PD-016,power,Commercial certified protected smart battery B,1,Replaceable secondary pack,TBD,unselected,hot-swap safety and continuity
+PD-017,power,Power path and hold-up approved module,1,Prefer PoE/DC operational source and protect continuity via backup battery and optional approved pack swap,TBD,unselected,reviewed circuit and bench tests
+PD-018,power,Regulated DC supply and optional qualified PoE PD,1,Fixed-operation and charge supply,TBD,unselected,peak current and IEEE class selection
+PD-019,connectivity,Gigabit Ethernet port optional mechanical variant,1,Fixed wired data and maintenance,TBD,unselected,ingress connector seals
+PD-020,connectivity,WiFi antenna and modem,1,Optional mobile synchronization,TBD,unselected,antenna and duty cycle power
+PD-021,connectivity,5G modem and antenna optional,1,Optional fallback connectivity,TBD,unselected,power and RF approval
+PD-022,security,Hardware secure element or TPM-compatible module,1,Keys secure boot and authenticated updates,TBD,unselected,platform integration and anti-rollback
+PD-023,enclosure,Sealed environmental housing and serviceable gasket,1,Ingress and ruggedized protection,TBD,unselected,complete assembly IP test
+PD-024,enclosure,Optical windows suitable for RGB and NIR,2,Transmission rain drops and fog management,TBD,unselected,spectral fit anti-reflection durability
+PD-025,enclosure,Sun hood or glare-control geometry,1,Reduce sun flare and optical artifacts,TBD,unselected,geometry and field of view
+PD-026,enclosure,Passive heat spreader and thermal interface set,1,Heat rejection without liquid ingress,TBD,unselected,solar soak and high load tests
+PD-027,enclosure,Battery door with sealing and safe latch,1,Hot swap under mobile operation,TBD,unselected,ingress test and mechanical cycling
+PD-028,mechanics,Temporary fixed wall bracket pole/truss mounting system,1,Repeatable secure site installation and optical calibration,TBD,unselected,approved mounting/anti-tamper cable safety and install test
+PD-029,PCB,Low-voltage sensor and MCU carrier PCB,1,Integrates sensor buses and qualified connectors,TBD,unselected,KiCad ERC DRC and manual review
+PD-030,PCB,Connector harness and test pads,1,Camera trigger MCU telemetry external bench sync,TBD,unselected,validated levels and cable clearances
+PD-031,alerts,Low-power regional-compliant RF module with secure provisioning,1,Sparse secured RF alarms from device to organizer security receiver without always-on 5G,TBD,unselected,select LoRaWAN or sub-GHz radio after site survey duty cycle and power measurement
+PD-032,alerts,Matched RF antenna RF connector seal and enclosure clearance,1,Weather-protected secure radio uplink with tested detuning and mounting geometry,TBD,unselected,verify band ERP antenna placement and enclosure interaction
+PD-033,alerts,MCU-to-radio power and digital interface,1,UART/SPI control RTC timestamp fault alarm queue TX peaks and watchdog,TBD,unselected,choose voltage levels power sequencing and independent authenticated alert path
