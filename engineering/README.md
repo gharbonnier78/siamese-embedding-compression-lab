@@ -8,6 +8,18 @@ Purpose: source-controlled engineering to progress from a **fixed wall-mounted**
 
 The intended tool is **Flux.ai electronic/PCB design, not FPGA hardware**. Use [P1 minimal purchase guide](bom/P1_MINIMAL_PURCHASE_GUIDE.md), [SKU-level candidate list](bom/P1_PROCUREMENT_CANDIDATES_2026-11-20.csv), [Flux.ai low-voltage carrier design brief](electronics/FLUX_AI_P1_BOARD_BRIEF.md) and [laboratory materials/environment questions](docs/LAB_MATERIALS_AND_PROTOTYPE_QUESTIONS.md). Build P1 from COTS and measure before designing a custom PCB. No qualified PCB schematic or manufacturing release exists.
 
+## NEW executable 512D/128D image-pixel demonstrator
+
+`engineering/sim/pixel_replay.py` now generates abstract synthetic visible-like and NIR-like image files and performs genuine deterministic image-pixel DCT512 feature extraction, cosine exact search and matched random128 comparison, with a local HTML/CSV/JSON report. **This is not a face AI algorithm nor real NIR sensor acquisition.** Existing `digital_twin.py` independently demonstrates fake watchlist/allowlist decision states, telemetry and PC operator console. The complete integration, ONNX/RKNN true model, licensed RGB/NIR acquisition, independent metrology and actual PCB fabrication are *not* complete.
+
+```bash
+python -m pip install -r engineering/requirements.txt
+python engineering/sim/pixel_replay.py --out /tmp/siamese-pixel-demo
+python -m unittest discover -s engineering/sim/tests -v
+```
+
+See [pixel replay](sim/PIXEL_REPLAY_AND_MODEL_ADAPTERS.md), [full image-pair plan](sim/IMAGE_PAIR_REPLAY_PLAN.md) and the technical dossier in `docs/`.
+
 ## Work packages / source layout
 
 | Folder | Deliverable | Current maturity |
