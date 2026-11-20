@@ -125,3 +125,20 @@ reference_event:
   consecutive_days: 5
   operation_geometry: fixed_site_calibrated_view
   status: experimental_workload_not_achieved_performance
+
+security_alert_radio:
+  state: required_capability_technology_unselected
+  mission: fixed_event_installation
+  sender: on_device_low_power_MCU_and_radio
+  receivers: event_organizer_authorized_security_team
+  experimental_PC_required: false
+  transport_options_to_compare: [private_LoRaWAN_with_local_gateway, authenticated_sub_GHz_P2P, secure_site_LAN_or_WiFi]
+  sending_rate: only_exceptional_events_not_each_person_detected
+  event_classes: [tamper, power_fault, sensor_unavailable, authorized_human_review_request]
+  payload_privacy: no_images_no_face_vectors_no_person_identity
+  delivery_policy: [durable_queue, authenticated_message, anti_replay, bounded_retries, radio_delivery_ACK, separate_human_ack, de_duplication, rate_limit]
+  default_if_link_down: log_locally_and_flag_undelivered
+  human_review_required_for_consequential_biometric_alerts: true
+  source_requirements: hardware/LOW_POWER_SECURITY_ALERT_RF_REQUIREMENTS.md
+  organizer_receiver_bom: hardware/BOM_EVENT_SECURITY_ALERT_RECEIVER_V0.csv
+  acceptance: [RF_coverage_test, power_per_alert, battery_backup_while_fault, deadline_and_ACK_test, spectrum_regulatory_review]
