@@ -17,6 +17,10 @@
 | FAB-01 | complete schematics, routed PCB, ERC/DRC, netlist parity, qualified BOM, vendor approval | qualified EE; signed build pack | HARD STOP |
 | BIZ-01 | customer pain/paid pilot/legal pathway validated against simpler baseline | venture reviewer | OPEN |
 
+## Demonstrator readiness and proposed acceptance thresholds
+
+The evidence-class and 26 traceable proposed requirements are in [SYSTEM_REQUIREMENTS_TEST_EVIDENCE_V1.csv](docs/SYSTEM_REQUIREMENTS_TEST_EVIDENCE_V1.csv). **S0 512D/128D DCT-based image tests and S0 digital twin are permitted synthetic demos**; these do not change CPU-01/SCI-01/LEG-01 from OPEN/HARD STOP. Three OpenSCAD conceptual 3D variants are not CASE-01 validation. Passing GitHub CI is only software/build assurance, not a signal to fabricate KiCad or deploy biometric screening.
+
 ## Release rule
 
 Every gate requires a named person, date, referenced commit SHA, measured configuration, raw immutable evidence and explicit signed GO/CONDITIONAL GO/NO GO. P0/P1 source files alone do not make G3/G5 pass.
