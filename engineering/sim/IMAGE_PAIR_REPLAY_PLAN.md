@@ -1,6 +1,6 @@
 # RGB + NIR image-pair replay — incremental implementation plan
 
-**2026-11-20 · DESIGN/TEST CONTRACT · Real-image replay NOT implemented or authorized yet.**
+**2026-11-20 · DESIGN/TEST CONTRACT.** A separate **non-human synthetic pixel demonstrator is now implemented**: `pixel_replay.py` generates RGB-like/NIR-like abstract patterns, reads PNG pixels, computes DCT512 and compares random128, outputting HTML/CSV/JSON. This is not the approved real-face EO/NIR replay defined by S1; that remains **unimplemented and unauthorized**.
 The existing `digital_twin.py` demonstrates a control-flow simulation driven by **synthetic scene descriptors** and seeded vectors; it does not process actual images, model real optical physics or infer true biometric errors. The goal of this contract is to add a rigorously separated **offline consented acquisition replay adapter** without coupling field runtime to a PC.
 
 ## 1. Separate three types of simulation
