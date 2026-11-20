@@ -20,6 +20,14 @@ python -m unittest discover -s engineering/sim/tests -v
 
 See [pixel replay](sim/PIXEL_REPLAY_AND_MODEL_ADAPTERS.md), [full image-pair plan](sim/IMAGE_PAIR_REPLAY_PLAN.md) and the technical dossier in `docs/`.
 
+## Complete integrated dossier and verification plan
+
+**[INTEGRATED DEMONSTRATOR & FABRICATION DOSSIER V1](docs/INTEGRATED_DEMONSTRATOR_AND_FABRICATION_DOSSIER_V1.md)** consolidates the four-system architecture, three mechanical variants, P1 COTS BOM, PCB/MCU specifications, 512D/128D pixel demo, true EO/NIR model adapter gates, PC supervisor, security/research evidence, staged manufacturing and lab questions. **[26 requirements / tests / proposed success thresholds](docs/SYSTEM_REQUIREMENTS_TEST_EVIDENCE_V1.csv)** distinguish existing synthetic code from missing physical evidence.
+
+`engineering/mechanical/concept_variants.scad` provides **Hull / Book / Cassette** P0 rounded design variants; the physical/optical build remains unverified. No face image data or real model checkpoints are included.
+
+**Flux.ai trial is over; the tooling baseline is OpenSCAD/FreeCAD/Build123d (MCAD), KiCad/ngspice (ECAD), C/Python and GitHub Actions.** The old Flux briefs are retained as historical architecture records, *not active paid-tool dependencies*.
+
 ## Work packages / source layout
 
 | Folder | Deliverable | Current maturity |
