@@ -4,6 +4,10 @@
 
 Purpose: source-controlled engineering to progress from a **fixed wall-mounted** EO/RGB+NIR event node through electronic and 3D prototypes, deterministic PC bench simulation, independent evidence, and gated manufacturing. This is NOT a wearable device and the external analysis PC is NEVER a runtime dependency.
 
+## Flux.ai this weekend — correction: NOT FPGA
+
+The intended tool is **Flux.ai electronic/PCB design, not FPGA hardware**. Use [P1 minimal purchase guide](bom/P1_MINIMAL_PURCHASE_GUIDE.md), [SKU-level candidate list](bom/P1_PROCUREMENT_CANDIDATES_2026-11-20.csv), [Flux.ai low-voltage carrier design brief](electronics/FLUX_AI_P1_BOARD_BRIEF.md) and [laboratory materials/environment questions](docs/LAB_MATERIALS_AND_PROTOTYPE_QUESTIONS.md). Build P1 from COTS and measure before designing a custom PCB. No qualified PCB schematic or manufacturing release exists.
+
 ## Work packages / source layout
 
 | Folder | Deliverable | Current maturity |
