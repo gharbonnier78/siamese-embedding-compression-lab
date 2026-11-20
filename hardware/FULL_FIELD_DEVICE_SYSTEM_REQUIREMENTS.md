@@ -1,3 +1,9 @@
+# SUPERSEDED historical draft — do not use as current product scope
+
+The prior mobile/wearable/handheld interpretation in this file was incorrect. **Current canonical scope**: [FIXED_EVENT_INSTALLATION_MISSION.md](FIXED_EVENT_INSTALLATION_MISSION.md), a fixed-mounted temporary event device, with a test tripod only as a temporary measurement/calibration fixture. Other optical/weather/camera requirements from this draft remain exploratory and must be reconciled against the canonical installation mission before use. Earlier material remains available in Git history.
+
+---
+
 # Siamese Embedded — complete mobile field-device system specification (v0.2)
 
 Date: 2026-11-20. Status: **proposed requirements to validate**, not achieved specifications, electrical safety approval, biometric deployment permission, or environmental certification.
