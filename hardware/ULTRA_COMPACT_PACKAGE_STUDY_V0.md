@@ -1,3 +1,5 @@
+> **Environmental/design-for-manufacturing update (2026-11-20):** See [staged outdoor-upgradable prototype plan](STAGED_ENVIRONMENTAL_PROTOTYPING_AND_DFM_V0.md). A-v2 is a sealed-capable chassis **without through vents**, gasket/window/cable interface allowances and a thermally conductive exterior; IP/tropicalization is *not* a P0/P1 acceptance condition or a validated property. Keep the 100×150×30 mm goal aspirational and assess full installed volume with optional backup dock.
+
 # Ultra-compact wall appliance — recovered dimensions, candidate modules and CAD brief
 
 **Date:** 2026-11-20  
