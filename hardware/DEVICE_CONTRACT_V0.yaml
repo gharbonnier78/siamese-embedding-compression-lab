@@ -77,3 +77,38 @@ decision_rules:
   STOP: "No lawful or useful need; simpler alternative dominates; errors or cost/thermal constraints unacceptable"
   PIVOT: "Specific measured bottleneck can be corrected with revised architecture"
   PERSEVERE: "Replication-backed useful benefit survives constraints versus baselines"
+
+# Product-wide mission extension 2026-11-20: weather and mobile use are design goals, not achieved ratings.
+product_boundaries:
+  autonomous_field_unit:
+    requires_external_pc_for_operation: false
+    requires_network_for_local_1toN: false
+    includes: [RGB_EO, NIR, passage_sensor, local_AI_compute, local_model, encrypted_gallery, local_matcher, policy_engine, MCU_probes, power_path, protected_batteries, environmental_housing]
+    mobility_options_to_compare: [handheld, carried, temporary_mount]
+    target_ingress: TBD_after_mission_review
+    mass_size_and_ergonomics: TBD
+  external_qualification_bench:
+    requires_external_pc: true
+    includes: [analysis_PC, calibrated_DC_analyzer, thermal_logger, optical_illumination_measurement, environmental_test_access, synthetic_replay, time_series_dashboards]
+    is_not_in_product_BOM: true
+  design_and_fabrication:
+    includes: [Flux_AI, ECAD, MCAD, SPICE, BOM_generation, engineering_review]
+    is_not_a_runtime_dependency: true
+environmental_and_optical_mission_matrix:
+  - bright_sun_and_backlight
+  - night_low_light_NIR
+  - rain_and_droplet_on_camera_window
+  - cold_battery_and_startup
+  - high_heat_and_solar_soak
+  - high_humidity_condensation_and_fog
+  - device_walking_shaking_and_orientation
+  - moving_people_occlusion_and_blur
+  - fast_indoor_outdoor_lighting_transitions
+  - temporary_network_disconnect
+  - power_switchover_and_hot_swap_under_inference_load
+environmental_target_conditions_and_certifications: TBD_derive_from_operational_mission
+bom_split:
+  field_product: hardware/BOM_PRODUCT_FIELD_DEVICE_V0.csv
+  external_bench: hardware/BOM_EXTERNAL_TEST_BENCH_V0.csv
+  combined_historic: hardware/BOM_PROVISIONAL.csv
+flux_phase0_canonical: hardware/FLUX_AI_START_HERE.md
