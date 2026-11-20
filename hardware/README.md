@@ -1,6 +1,6 @@
-# Siamese Embedded — FULL autonomous field device (scope update 2026-11-20)
+# Siamese Embedded — FIXED event installation (canonical mission corrected 2026-11-20)
 
-**Start with [complete field-device and weather qualification requirements](FULL_FIELD_DEVICE_SYSTEM_REQUIREMENTS.md) and [corrected Flux.ai starting prompt](FLUX_AI_START_HERE.md).** The product is the autonomous mobile EO/NIR + local 1:N device. The low-voltage sensor PCB is only one subassembly; the PC, calibrated instruments and environmental rigs are a SEPARATE qualification bench. Two discrete BOMs exist: [device](BOM_PRODUCT_FIELD_DEVICE_V0.csv) and [bench](BOM_EXTERNAL_TEST_BENCH_V0.csv). The prior exploratory combined BOM is retained for historical traceability only.
+**Start with [fixed event-installation mission](FIXED_EVENT_INSTALLATION_MISSION.md) and [corrected Flux.ai starting prompt](FLUX_AI_START_HERE.md).** The product is an autonomous, temporarily wall-/support-mounted EO/NIR + local 1:N device. Tripod = controlled measurement/calibration only, not the target product. People move; the installed device remains stationary. The low-voltage sensor PCB is only one subassembly; the PC, calibrated instruments and environmental rigs are a SEPARATE qualification bench. Two discrete BOMs exist: [device](BOM_PRODUCT_FIELD_DEVICE_V0.csv) and [bench](BOM_EXTERNAL_TEST_BENCH_V0.csv). The prior exploratory combined BOM is retained for historical traceability only.
 
 ---
 # Edge biometric-device engineering track (exploratory, 2026-11-20)
@@ -10,6 +10,9 @@ Status: **DESIGN EXPLORATION / NOT YET BUILDABLE / NO PROCUREMENT APPROVAL**.
 This track reconstructs the Aug 20 2026 discussion ("Projection Siamois 19 08 26", preceded by "PCA et projection siamoise") about a compact on-device detection, verification and 1:N search demonstrator. It is independent from biometric scientific qualification. The existing Study 0 negative result and Study 1B sealed outcomes are unchanged; **do not consume protected Study 1B SCREEN/TEST or claim deployable biometric performance**.
 
 ## Objective and key falsifiable proposition
+
+**Source hierarchy:** [FIXED_EVENT_INSTALLATION_MISSION.md](FIXED_EVENT_INSTALLATION_MISSION.md) supersedes earlier handheld/harness/walking-device design ideas. Prefer PoE/regulated DC for event operation, with reviewed backup continuity and optional hot-swap; the external PC is bench-only.
+
 
 Not "prove Siamese is better" but determine whether 512D -> 128D compression (random/PCA/learned with matched controls) produces a **measured beneficial trade-off** on a real edge workload, after accounting for biometric degradation and operational cost. A technically interesting device may have **no justified real-world use case**; the STOP result must be admissible and documented.
 
