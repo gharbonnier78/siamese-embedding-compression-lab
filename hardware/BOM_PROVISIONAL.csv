@@ -1,0 +1,18 @@
+line_id,subsystem,item_description,qty,minimum_spec_or_purpose,selection_status,unit_cost_eur_estimate,source_or_validation_needed
+H-001,compute,RK3588-class SBC or equivalent,1,Linux acceleration capability RAM >= 8GB measured inference support,TBD,,Choose model and vendor after benchmarking
+H-002,sensing,RGB wide-angle camera module,1,Known sensor ISP and documented focal length dimensions,TBD,,Capture performance and image permissions
+H-003,sensing,NIR capable camera with emitter/illumination,1,Optics NIR exposure safety and mechanical mount,TBD,,Optional after RGB-only stage
+H-004,sensing,PIR or low-power wake sensor,1,Interrupt wake and quiescent current,TBD,,Optional
+H-005,power,Regulated supply for bench and inline DC power instrumentation,1,Rated for board and peripherals with current peaks,TBD,,Select PSU with safety approvals
+H-006,metrology,External precision power logging analyzer and shunt,1,Sample power time series and validate total energy,TBD,,Log external ground-truth vs firmware counters
+H-007,metrology,Thermocouples probes and logger,1,SoC heatsink interior battery and ambient measurements,TBD,,Calibrate sensor locations
+H-008,metrology,Infrared imaging rental or access,1,Qualitative hotspot mapping emissivity-calibrated,TBD,,Optional rental
+H-009,communications,Ethernet/PoE adapter or compatible hat,1,Measured idle and link power,TBD,,Confirm board interface
+H-010,communications,Wi-Fi adapter and optional cellular modem,1,Separate power budget for communications,TBD,,Cellular optional
+H-011,storage,Removable storage SSD/eMMC,1,Replay and local template/index capacity,TBD,,Vendor endurance and power
+H-012,security,Secure element or TPM compatible with platform,1,Key isolation and signed artifacts,TBD,,Optional evaluation
+H-013,mechanical,Heatsink thermal interface vents and mounting hardware,1,No uncontrolled throttling or unsafe surface temperature,TBD,,CAD measurements required
+H-014,mechanical,Prototype enclosure in dimensionally stable material,1,Serviceable camera mounts connector cutouts sensor visibility,TBD,,3D fit check before print
+H-015,battery,Protected commercial battery pack and approved charger,1,Bench autonomy trials only when electrical design reviewed,TBD,,No DIY cell pack or unapproved charging design
+H-016,load,Independent workload replay / load-generator computer,1,Offline deterministic scenario replay with fixed seed,TBD,,May reuse existing PC
+H-017,accessories,Cables connectors fasteners strain relief lab safety,1,Replaceable documented mechanical and wiring,TBD,,Connector-specific dimensions needed
