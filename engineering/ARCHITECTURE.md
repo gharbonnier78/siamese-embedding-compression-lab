@@ -1,5 +1,9 @@
 # Architecture and data/power boundaries
 
+## Cross-reference: full technical system dossier
+
+The detailed system decomposition, EO/NIR image replay, alternatives, human-review policy, versioning, complete lifecycle and testing gates are in [INTEGRATED_DEMONSTRATOR_AND_FABRICATION_DOSSIER_V1.md](docs/INTEGRATED_DEMONSTRATOR_AND_FABRICATION_DOSSIER_V1.md) and [test/evidence matrix](docs/SYSTEM_REQUIREMENTS_TEST_EVIDENCE_V1.csv). This architecture is currently a research prototype, not an authorized identity screening deployment. Current 512D pixel extraction uses a **non-biometric DCT descriptor**, while a genuine trained EO/NIR extractor is **not yet implemented**. Keep the separations below as binding design constraints.
+
 ## Runtime separation
 
 (1) **FIELD UNIT**: RGB EO + NIR + PIR, real acquisition and NIR eye-safety interlock; power switched Linux SoM/NPU + protected encrypted local storage and exact/ANN search; always-on low-power MCU with temperature, PoE/DC/BMS/case/tamper probes; short authenticated event notification over qualified RF; PoE/DC primary and electrical backup. All model/threshold/white/watch policies versioned. Hardware qualification and authorization are prerequisites for real identification.
