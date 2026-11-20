@@ -1,0 +1,21 @@
+probe_id,subsystem,quantity,placement_or_observable,interface,read_by,power_domain,mode,logging_requirement,validation_status
+P-001,presence,PIR presence and wake,front sensor,GPIO IRQ,always-on MCU,always_on,sleep_detection,edge event and timestamp,not selected
+P-002,vision,RGB capture and trigger,camera module,CSI2 or USB plus GPIO,AI SoC,switched,detect_verify_identify,frame time and drops,not selected
+P-003,vision,NIR capture and trigger,camera module,CSI2 or USB plus GPIO,AI SoC,switched,detect_verify_identify,trigger skew and frame time,not selected
+P-004,NIR emitter,current and temperature,NIR LED driver,ADC plus I2C or PWM/enable,MCU,switched,active_pulse,peak pulse and interlock,not selected
+P-005,power,PoE/DC input voltage and current,input rails,shunt I2C,always-on MCU,always_on,instant power and Wh,not selected
+P-006,power,regulated 5V and 3V3 rail monitors,output power rails,shunt or ADC,always-on MCU,always_on,rail power and brownout,not selected
+P-007,battery,pack A SoC voltage temp health,swappable battery bay A,smart BMS SMBus or ADC,always-on MCU,always_on,battery state events,not selected
+P-008,battery,pack B SoC voltage temp health,swappable battery bay B,smart BMS SMBus or ADC,always-on MCU,always_on,battery state events,not selected
+P-009,battery,power path continuity/holdup,ORing and regulator,supervisor GPIO ADC,always-on MCU,always_on,dropout and reset counters,not selected
+P-010,thermal,SoC die temperature and throttling,RK3588-class SoC,hwmon/sysfs and NPU driver,AI SoC,switched,active,thermal logs with frequency,not selected
+P-011,thermal,heatsink and hot spot temperatures,heatsink and interface,I2C thermistors or thermocouple logger,MCU plus bench logger,always_on,soak,delta from ambient,not selected
+P-012,thermal,enclosure outer temperature,outer shell,I2C thermometer or external thermocouple,MCU plus bench logger,always_on,soak,surface thermal safety,not selected
+P-013,environment,ambient temp and humidity,enclosure ventilation edge,I2C,always-on MCU,always_on,all,ambient and humidity time series,not selected
+P-014,tamper,open and impact tilt,enclosure and chassis,GPIO and optional I2C IMU,always-on MCU,always_on,all,tamper and shock event,not selected
+P-015,network,ethernet link PoE classification,PD and PHY,PHY plus controller diagnostic,MCU and AI SoC,conditional,all,PoE budget and link event,not selected
+P-016,network,WiFi link/5G modem RSSI and outages,radios,modem telemetry via driver,AI SoC,switched,transmit,failover energy and backlog,not selected
+P-017,cooling,fan RPM and PWM if present,fan tach connector,GPIO tach/PWM,MCU,conditional,thermal_soak,fan faults and power,not selected
+P-018,storage,flash health and durable queue size,NVM/host storage,OS tools and MCU queue,MCU and AI SoC,mixed,all,storage exhaustion detection,not selected
+P-019,metrology,independent reference input power,external instrument,calibrated analyzer external computer,bench logger,external,all,high rate time-aligned raw power,not selected
+P-020,metrology,reference skin/ambient/battery thermal,external thermocouples,external instrument,bench logger,external,thermal_soak,calibration and location,not selected
