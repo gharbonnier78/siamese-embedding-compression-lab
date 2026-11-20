@@ -1,13 +1,14 @@
 """Synthetic-only tests for control flow, no claims about biometric performance."""
 import json
+import threading
 import sys
 from pathlib import Path
 import unittest
 
 HERE=Path(__file__).resolve().parents[2]
 sys.path.insert(0,str(HERE))
-from sim.digital_twin import load_scenario, run, simulate_capture, vector
-from sim.console import check_sanitized
+from sim.digital_twin import load_scenario, run, simulate_capture, vector, post_to_demo_console
+from sim.console import check_sanitized, LocalConsole
 
 class EndToEndSimulationTests(unittest.TestCase):
     @classmethod
@@ -48,6 +49,27 @@ class EndToEndSimulationTests(unittest.TestCase):
         self.assertTrue(all(x["status"]=="QUEUED_OFFLINE" for x in report["ethernet_telemetry"]))
         self.assertTrue(all(x["rf_receipt"]=="QUEUED" for x in report["security_alerts"]))
         self.assertEqual(len(report["captures"]),len(self.scenes))
+
+
+    def test_actual_loopback_http_ethernet_simulator_to_supervisor(self):
+        token = "test-token-only-not-production-123"
+        server = LocalConsole(0, token)
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        try:
+            report = run(self.scenes, 128, 17)
+            post_to_demo_console(report,
+                                 f"http://127.0.0.1:{server.server_port}", token)
+            with server.lock:
+                received = dict(server.latest)
+            self.assertEqual(len(received["probes"]), len(self.scenes))
+            self.assertEqual(received["manifest"]["active_dimension"], 128)
+            self.assertTrue(received["security_alerts"])
+            self.assertNotIn("captures", received)
+        finally:
+            server.shutdown()
+            server.server_close()
+            thread.join(timeout=5)
 
     def test_console_rejects_biometric_payload(self):
         report=run(self.scenes,128)
