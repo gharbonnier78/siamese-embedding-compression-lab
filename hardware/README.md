@@ -1,3 +1,8 @@
+# Siamese Embedded — FULL autonomous field device (scope update 2026-11-20)
+
+**Start with [complete field-device and weather qualification requirements](FULL_FIELD_DEVICE_SYSTEM_REQUIREMENTS.md) and [corrected Flux.ai starting prompt](FLUX_AI_START_HERE.md).** The product is the autonomous mobile EO/NIR + local 1:N device. The low-voltage sensor PCB is only one subassembly; the PC, calibrated instruments and environmental rigs are a SEPARATE qualification bench. Two discrete BOMs exist: [device](BOM_PRODUCT_FIELD_DEVICE_V0.csv) and [bench](BOM_EXTERNAL_TEST_BENCH_V0.csv). The prior exploratory combined BOM is retained for historical traceability only.
+
+---
 # Edge biometric-device engineering track (exploratory, 2026-11-20)
 
 Status: **DESIGN EXPLORATION / NOT YET BUILDABLE / NO PROCUREMENT APPROVAL**.
