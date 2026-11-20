@@ -1,0 +1,91 @@
+[
+  {
+    "capture_id": "syn-day-front-001",
+    "lab_subject": "lab-001",
+    "mode": "RGB",
+    "yaw_degrees": 0,
+    "motion_blur_px": 0.4,
+    "occlusion_fraction": 0,
+    "ambient_lux": 12000,
+    "ambient_c": 26,
+    "scenario": "sunny_front"
+  },
+  {
+    "capture_id": "syn-day-profile-002",
+    "lab_subject": "lab-002",
+    "mode": "RGB",
+    "yaw_degrees": 24,
+    "motion_blur_px": 1.2,
+    "occlusion_fraction": 0.08,
+    "ambient_lux": 800,
+    "ambient_c": 22,
+    "scenario": "oblique_moving"
+  },
+  {
+    "capture_id": "syn-night-nir-003",
+    "lab_subject": "lab-003",
+    "mode": "NIR",
+    "yaw_degrees": -12,
+    "motion_blur_px": 1,
+    "occlusion_fraction": 0.05,
+    "ambient_lux": 0.3,
+    "ambient_c": 13,
+    "scenario": "night_nir_watchlist_candidate"
+  },
+  {
+    "capture_id": "syn-side-no-decision-004",
+    "lab_subject": "lab-003",
+    "mode": "RGB",
+    "yaw_degrees": 67,
+    "motion_blur_px": 5.5,
+    "occlusion_fraction": 0.5,
+    "ambient_lux": 100,
+    "ambient_c": 18,
+    "scenario": "side_occluded"
+  },
+  {
+    "capture_id": "syn-unknown-005",
+    "lab_subject": "none",
+    "mode": "RGB",
+    "yaw_degrees": 2,
+    "motion_blur_px": 0.4,
+    "occlusion_fraction": 0,
+    "ambient_lux": 2500,
+    "ambient_c": 25,
+    "scenario": "unknown_face"
+  },
+  {
+    "capture_id": "syn-nir-known-006",
+    "lab_subject": "lab-001",
+    "mode": "NIR",
+    "yaw_degrees": 10,
+    "motion_blur_px": 1,
+    "occlusion_fraction": 0.05,
+    "ambient_lux": 3,
+    "ambient_c": 10,
+    "scenario": "night_access_candidate"
+  },
+  {
+    "capture_id": "syn-no-face-007",
+    "lab_subject": "none",
+    "face_present": false,
+    "mode": "RGB",
+    "yaw_degrees": 0,
+    "motion_blur_px": 0,
+    "occlusion_fraction": 0,
+    "ambient_lux": 5000,
+    "ambient_c": 28,
+    "scenario": "false_wake"
+  },
+  {
+    "capture_id": "syn-rain-008",
+    "lab_subject": "lab-003",
+    "mode": "NIR",
+    "yaw_degrees": 15,
+    "motion_blur_px": 1.2,
+    "occlusion_fraction": 0.12,
+    "ambient_lux": 180,
+    "ambient_c": 12,
+    "scenario": "wet_window_controlled"
+  }
+]
