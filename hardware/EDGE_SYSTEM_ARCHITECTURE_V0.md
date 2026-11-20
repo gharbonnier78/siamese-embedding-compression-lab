@@ -1,4 +1,6 @@
-# Edge EO/NIR + 1:N system architecture — engineering contract v0.1
+# Fixed event-mounted EO/NIR + 1:N system architecture — engineering contract v0.2
+
+**Canonical deployment constraint:** [FIXED_EVENT_INSTALLATION_MISSION.md](FIXED_EVENT_INSTALLATION_MISSION.md): temporary wall/support installation, fixed geometry; tripod only for measurements. Operating power preferred from PoE/DC with protected battery backup; PC bench-only. People move; the product does not.
 
 **Status: PROPOSED (2026-11-20), subject to technical/electrical/privacy review; not built, certified or deployed.** This document extends the August 20 prototype concept. It does not assert prior implementation of a whitelist/blacklist engine or that 1:N performance is proven. Keep Study 1B protected SCREEN/TEST sealed and unaffected.
 
