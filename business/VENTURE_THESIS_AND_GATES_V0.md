@@ -1,6 +1,17 @@
 # Siamese Embedded — venture thesis, decision gates and requirements baseline
 
-**20 November 2026 | DRAFT, not market validation | Companion to the 18-page business dossier**
+**20 November 2026 | DRAFT, not market validation | Companion to the updated comprehensive business dossier (v3)**
+
+## Business architecture documentation — current authoritative set (2026-11-20)
+
+**The business-document architecture has now been reconciled.** The draft v3 Word/PDF dossier (available as exported conversation artifacts) includes **six distinct nine-block BMCs**, shared H01–H12 hypotheses, **18 architecture-specific experiments**, per-experiment STOP/PIVOT/PERSEVERE targets, STP/marketing, legal hard gates, BR-CAP-feature-UC-verification and the final Business Value Plan.
+
+1. [Pre-Canvas activity-system (Zott & Amit content/structure/governance + NICE)](ACTIVITY_SYSTEM_EX_ANTE_EXPLORATION_V0.md): neutral job, O0 incumbent baseline, all seven activity systems O0–O6, rival explanations and conditional learning order.
+2. [Separate full nine-block BMC for O1–O6](SIX_BUSINESS_MODEL_CANVASES_V1.md): six **unvalidated** competing business designs; no forced O1/O5 combination.
+3. [How the physical experiment contributes to each of 18 business tests](PHYSICAL_PROTOTYPE_HYPOTHESIS_EVIDENCE_V1.md): direct technical vs partial operational vs **not demonstrable by the device**, with extra evidence and investment gates.
+4. [Requirements traceability V1](BUSINESS_TO_VERIFICATION_TRACEABILITY_V1.csv): 21 business requirements (16 original + five option-specific gaps) linked to activity-system options, hypotheses, experiments, evidence class, capabilities, features, use cases and prospective thresholds.
+
+**Not yet validated:** no paid customer commitment, institutional authorization for real 1:N, real biometric field accuracy, physical joule/latency measurements, real RF delivery, cost/ROI or market size. Artifact completeness is not evidence completeness.
 
 ## Decision summary
 
@@ -65,7 +76,7 @@ A single false positive in a legally consequential identity flow can be unaccept
 
 ## Traceability contract
 
-See `BUSINESS_TO_VERIFICATION_TRACEABILITY_V0.csv` for 16 business requirement IDs with segment-specific capability / feature / actor use case / measurable gate. Engineering test evidence must bind `BR-ID -> CAP-ID -> FEATURE -> UC-ID -> requirement version -> config/site/model/data hash -> raw observation -> reviewer verdict`.
+See `BUSINESS_TO_VERIFICATION_TRACEABILITY_V1.csv` for 21 business requirement IDs (the prior V0 16-row baseline is retained) with segment-specific capability / feature / actor use case / measurable gate. Engineering test evidence must bind `BR-ID -> CAP-ID -> FEATURE -> UC-ID -> requirement version -> config/site/model/data hash -> raw observation -> reviewer verdict`.
 
 ## Source context and governance
 
