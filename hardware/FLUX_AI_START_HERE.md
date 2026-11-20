@@ -1,40 +1,33 @@
-# FLUX.AI — Siamese Embedded FULL MOBILE DEVICE, Phase 0 (v0.2)
+# Flux.ai — CANONICAL START: FIXED EVENT INSTALLATION (2026-11-20)
 
-**CANONICAL STARTING POINT — supersedes v0.1's premature sensor-PCB framing.**  
-Status: conceptual engineering; no PCB fabrication, no battery safety approval, no environmental performance claims, no biometric deployment authorization.
+**THIS VERSION SUPERSEDES THE MOBILE/HANDHELD/HARNESS ASSUMPTION FROM EARLIER PROMPTS.** The field unit is temporarily fixed to a wall, pole, truss or rigid event structure. A tripod is a temporary calibration/bench fixture, not the deployed mission. People move through the monitored zone; the camera does not move while operating.
 
-## What we are actually designing
+## Paste into the EXISTING Flux.ai Agent project
 
-**A complete portable autonomous EO/RGB + NIR vision and local Siamese/other embedding 1:N experimental system**, with wake-on-passage/motion, embedded AI computer, encrypted local gallery, locally executable 1:N matcher and versioned allow/watch/deny policies, power-management/battery hot-swap design, environmental enclosure and onboard low-power measurement/supervision. The device operates **without an attached PC, cloud or network**.
-
-The **external calibrated instrumentation and independent PC** are a separate experimental bench. The **PCB measuring/supervision board** is just a possible subassembly of the autonomous device, not the final product.
-
-The complete system must be evaluated when carried or moving, in rain/cold/high heat, bright sun/backlight, changing illumination and at night, with vibration, fog/condensation and camera motion blur. All performances are TBD until measured.
-
-## First: paste this into Flux.ai Agent
-
-> **Correct the scope of our existing project: Phase 0 must design the WHOLE MOBILE SIAMESE EMBEDDED DEVICE, not just the supervisory/measurement PCB.** We have three distinct blocks: (1) the complete standalone field device that runs RGB/NIR sensing, wake-on-motion, local model inference, local 1:N search and encrypted allow/watchlist policies, weather-resistant mechanical housing, dual protected hot-swappable packs and on-device MCU/probes; (2) a separately instrumented external TEST BENCH with a PC, calibrated electrical/thermal/lighting measurement and dashboards, which is never needed for normal device operation; (3) engineering/fabrication tools Flux/KiCad/FreeCAD/SPICE/BOM, which are not parts of the device.
+> **Urgent Phase 0 scope correction: please update the project artifacts you already created.** The product is an **autonomous, fixed-mounted, temporary event-entrance EO/RGB + NIR 1:N edge vision system**, not a handheld, wearable or walking-mounted device. The camera is rigidly fixed during operation (wall plate, event structure, pole or equivalent). The scene geometry is assessed at installation: field of view, camera height/orientation, capture distances, visitor flow, sunlight/lighting, crowd density, optics, cable routing. **Only people are walking.** A tripod is permitted only for controlled tests and temporary optical calibration, not a core product variant.
 >
-> Read the new canonical specification FIRST: https://github.com/gharbonnier78/siamese-embedding-compression-lab/blob/design/edge-device-metrology-20261120/hardware/FULL_FIELD_DEVICE_SYSTEM_REQUIREMENTS.md . Also use `BOM_PRODUCT_FIELD_DEVICE_V0.csv`, `BOM_EXTERNAL_TEST_BENCH_V0.csv`, `EDGE_SYSTEM_ARCHITECTURE_V0.md` and `PROBE_INTERFACE_AND_TELEMETRY_SPEC.md` from the same folder. If you cannot read any link, identify the missing files and request their text/upload; never assume access.
+> Initial event stress scenario: up to 1,000 persons/hour, 10 hours/day for five days; synthetic or consented trials, no deployment claims. Compare local galleries of 100k, 500k and 1M. RGB EO + synchronized NIR, PIR/mmWave passage detection, configurable low-power wake, local AI SoM with validated runtime, encrypted gallery/index, independent allowlist/watchlist/denylist policy, local 1:N and optional 1:1 matching, secure offline operation, signed model/firmware updates and protected telemetry. Unknown is not automatically a denylist match; live watchlist use requires separate legal and performance authorization.
 >
-> **Produce REAL Phase 0 engineering artifacts in Flux**: whole-device system architecture, EO/NIR camera/optics/wake options, computing and local matching/storage alternatives, environmental operating and qualification matrix (sun/night/rain/cold/heat/humidity/fast motion), power and hot-swap domains, sealed mechanical concept and thermal risks, distinct product vs bench BOMs, internal vs external probe/readout plan, software boundaries and component-level datasheet evidence, plus a sequenced manufacturing/test plan with uncertainties and STOP/PIVOT/PERSEVERE criteria. No unverified performance claims. Only after full-system review propose a small MCU/probe PCB as the first manufacturing increment.
+> Prefer **PoE or regulated mains/DC during event operation**, with protected battery backup and planned failover/swap where justified and electrical safety reviewed. Do not assume battery alone powers the five-day mission or that a 20 Wh demonstration pack will suffice. A hot-swap without interruption is a candidate requirement to validate with a real power-path design, not an existing circuit. Record power input, battery SoC, power state, SoC/LED/case/ambient heat, humidity, tamper and optical conditions using an independent low-power supervisor MCU and probes.
 >
-> Do not draw a definitive battery/charging PCB or start PCB routing yet. No live watchlists, real biometric templates or sensitive images in Flux. Use synthetic data and consented controlled trials only.
+> Define weather/optical operating regimes for indoor/outdoor events: bright sunlight/backlight, night/NIR, sudden light transitions, rain on the optical window, cold, high heat/solar load, humidity/condensation, and *moving pedestrians* (motion blur and overlapping targets), plus mechanical robustness of temporary fixed mounting. Do not optimize grip, walking stability, worn comfort, or harness movement.
+>
+> **Three distinct systems:** (1) the fully autonomous fixed device, which performs inference/matching without a connected PC, (2) an external measurement/analysis PC with calibrated power/thermal/light equipment used ONLY for experiments, and (3) Flux/KiCad/FreeCAD/SPICE design and fabrication tools. Keep PRODUCT BOM and EXTERNAL BENCH BOM separate.
+>
+> **Read new canonical GitHub file:** https://github.com/gharbonnier78/siamese-embedding-compression-lab/blob/design/edge-device-metrology-20261120/hardware/FIXED_EVENT_INSTALLATION_MISSION.md . Also read `EDGE_SYSTEM_ARCHITECTURE_V0.md`, `PROBE_INTERFACE_AND_TELEMETRY_SPEC.md`, `DEVICE_CONTRACT_V0.yaml`, `BOM_PRODUCT_FIELD_DEVICE_V0.csv` and `BOM_EXTERNAL_TEST_BENCH_V0.csv`. If unable to read any file, explicitly report it and ask for upload.
+>
+> **Produce corrected, persistent Phase 0 artifacts in Flux (not only a narrative):** system boundary and functional diagram; wall bracket/pole/truss mounting and optical field concept; indoor/outdoor installation and commissioning procedure; camera and SoM options with verified specifications and sources; power and battery backup strategy and budget; full sensor/telemetry readout architecture; two source-grounded BOMs; thermal/weather/security and biometric evidence/test matrix; design trade-offs; and stage-gated manufacturing plan. Rework the existing 'Concept physique' and any handheld/harness trade-off rather than selecting either. Keep unknown dimensions and ratings explicitly TBD.
+>
+> **Do not start PCB routing or order components.** The supervisor/meter PCB is one subassembly of the product and must only be designed after full-device architecture review. Use synthetic vectors and consented laboratory data; do not upload real watchlists, embeddings or personal images to Flux.
 
-## Mandatory canonical links
+## Source-of-truth hierarchy
 
-- [Complete mobile product scope and environmental scenarios](FULL_FIELD_DEVICE_SYSTEM_REQUIREMENTS.md)
-- [Flux correction prompt in full](FLUX_AI_FULL_SYSTEM_PHASE0.md)
-- [Product-only BOM](BOM_PRODUCT_FIELD_DEVICE_V0.csv)
-- [External test bench BOM (PC, power, temperature and weather instruments)](BOM_EXTERNAL_TEST_BENCH_V0.csv)
-- [Detailed AI/1:N device architecture](EDGE_SYSTEM_ARCHITECTURE_V0.md)
-- [Probe and telemetry interface requirements](PROBE_INTERFACE_AND_TELEMETRY_SPEC.md)
-- [Physical probe readout matrix](PROBE_INTERFACE_MATRIX.csv)
-- [Research and STOP/PIVOT/PERSEVERE measurement protocol](METROLOGY_AND_DECISION_PROTOCOL.md)
-- [Provisional early enclosure sketch, not yet printable](cad/edge_enclosure_concept_v0.scad)
+1. **[FIXED_EVENT_INSTALLATION_MISSION.md](FIXED_EVENT_INSTALLATION_MISSION.md)** — latest authoritative mission and deployment.
+2. [EDGE_SYSTEM_ARCHITECTURE_V0.md](EDGE_SYSTEM_ARCHITECTURE_V0.md) — local AI, cameras, gallery/matching and independent probe architecture.
+3. [DEVICE_CONTRACT_V0.yaml](DEVICE_CONTRACT_V0.yaml) — machine-readable interface/mode constraints as corrected.
+4. [BOM_PRODUCT_FIELD_DEVICE_V0.csv](BOM_PRODUCT_FIELD_DEVICE_V0.csv) — provisional field-unit BOM.
+5. [BOM_EXTERNAL_TEST_BENCH_V0.csv](BOM_EXTERNAL_TEST_BENCH_V0.csv) — separate external measurement-PC BOM.
 
-## Design output and next decision
+**Warning:** older "FULL_FIELD_DEVICE_SYSTEM_REQUIREMENTS.md" and "FLUX_AI_FULL_SYSTEM_PHASE0.md" described a carried device; this was an erroneous design interpretation. Do not use these historical portions as current requirements.
 
-**Phase 0 asks for all ten product-level artifacts.** Expected first review checks how optical, environment, AI and physical power constraints shape the device. Then choose a qualified compute module and real cameras. The low-voltage supervision board is a possible later deliverable, not the first architecture question.
-
-Preserve scientifically separate study gates: Study 0 has a bounded negative result and Study 1B protected outcomes remain sealed. Do not claim performance, certified ingress protection or production watchlist validity.
+**Evidence gates:** A Phase 0 design does not validate weatherproofing, optical safety, battery protection, biometric accuracy or legal use. Record STOP/PIVOT/PERSEVERE decisions with qualified evidence and independent engineering review.
